@@ -79,12 +79,17 @@ static void OnToonFrameUpdate() {
     if (rapi == nullptr) {
         return;
     }
+    // Developer diagnostic: when on, the renderer draws every toon-lit object as flat white (lit) /
+    // black (shadow) so it is obvious which draws receive toon lighting (e.g. confirming whether large
+    // water/lava surfaces are being relit and causing the ramp edge to flicker across them).
+    f32 debugBands = CVarGetInteger(CVAR_DEVELOPER_TOOLS("ToonLighting.HighlightBands"), 0) ? 1.0f : 0.0f;
     rapi->SetToonRamp(CVarGetFloat(CVAR_ENHANCEMENT("Graphics.ToonLighting.RampCenter"), kDefaultRampCenter),
                       CVarGetFloat(CVAR_ENHANCEMENT("Graphics.ToonLighting.RampSoftness"), kDefaultRampSoftness),
                       CVarGetFloat(CVAR_ENHANCEMENT("Graphics.ToonLighting.HighlightIntensity"),
                                    kDefaultHighlightIntensity),
                       CVarGetFloat(CVAR_ENHANCEMENT("Graphics.ToonLighting.ShadowIntensity"),
-                                   kDefaultShadowIntensity));
+                                   kDefaultShadowIntensity),
+                      debugBands);
 }
 
 // ---------------------------------------------------------------------------------------------------
