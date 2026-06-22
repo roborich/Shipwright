@@ -60,11 +60,9 @@ static Fast::GfxRenderingAPI* GetRenderingApi() {
     return interpreter->GetCurrentRenderingAPI();
 }
 
-// The toon key most recently emitted into the display-list stream this pass, stored as the quantized
-// bytes gSPToonKey carries (s8 direction, u8 color). A later actor whose key quantizes to the same
-// bytes reuses it instead of re-emitting: with no new gSPToonKey, the interpreter has no per-object key
-// to flush, so same-key actors (e.g. everything lit by the sun) batch together. Cleared once per frame
-// in OnToonFrameUpdate, so the first actor of every actor-draw pass always emits a fresh key.
+// The last toon key emitted this pass, as the quantized bytes gSPToonKey carries (s8 dir, u8 color).
+// An actor whose key quantizes to the same bytes skips re-emitting, so same-key actors (e.g. everything
+// lit by the sun) need no per-object flush and batch together. Cleared each frame in OnToonFrameUpdate.
 static bool sHaveLastKey = false;
 static s8 sLastKeyDir[3];
 static u8 sLastKeyCol[3];
@@ -413,10 +411,9 @@ static void DrawDebugOverlay(PlayState* play, Actor* actor, f32 pointRange, f32 
 // Per-actor draw: choose, ease, and emit this actor's key light
 // ---------------------------------------------------------------------------------------------------
 
-// Wind Waker-style and simple — if any point light (fairy, torch, bomb, ...) is within range, the
-// CLOSEST one is the key; otherwise the key is the sun or moon. The key animates toward its target
-// with an eased, antipode-safe slerp, then is sent to the renderer via gSPToonKey. Runs inside
-// Actor_Draw's display-list scope (via the OnActorDraw hook), so the key precedes the actor's geometry.
+// Choose this actor's key (closest in-range point light, else the sun/moon), ease it toward that target
+// with an antipode-safe slerp, and emit it via gSPToonKey. Runs inside Actor_Draw's display-list scope
+// (via the OnActorDraw hook), so the key precedes the actor's geometry.
 static void HandleActorDraw(void* actorPtr) {
     PlayState* play = gPlayState;
     Actor* actor = (Actor*)actorPtr;
@@ -446,10 +443,9 @@ static void HandleActorDraw(void* actorPtr) {
         st.dir[0] = targetDir[0], st.dir[1] = targetDir[1], st.dir[2] = targetDir[2];
         st.col[0] = targetCol[0], st.col[1] = targetCol[1], st.col[2] = targetCol[2];
     } else {
-        // Seconds elapsed per draw. This draw runs once per game update, whose rate is the game's own
-        // R_UPDATE_RATE divisor (3 = 20 fps in normal play, 1 = 60 fps during special transitions);
-        // deriving dt from it keeps the eased "travel" the labelled number of seconds at any rate. Frame
-        // interpolation replays this draw's output without re-running it, so it doesn't affect dt.
+        // Seconds per draw, derived from R_UPDATE_RATE (3 = 20 fps in normal play, 1 = 60 fps during
+        // special transitions) so the eased travel lasts the labelled seconds at any update rate. Frame
+        // interpolation replays this draw without re-running it, so it doesn't affect dt.
         f32 toonKeyDt = (R_UPDATE_RATE > 0 ? R_UPDATE_RATE : 3) / 60.0f;
         // Direction: antipode-safe eased slerp; alpha reaches ~99% in transitionTime seconds.
         f32 alpha = 1.0f - expf(-4.6f * toonKeyDt / (transitionTime < 0.05f ? 0.05f : transitionTime));
@@ -470,10 +466,8 @@ static void HandleActorDraw(void* actorPtr) {
         u8 g = (u8)((st.col[1] < 0.0f ? 0.0f : (st.col[1] > 1.0f ? 1.0f : st.col[1])) * 255.0f);
         u8 b = (u8)((st.col[2] < 0.0f ? 0.0f : (st.col[2] > 1.0f ? 1.0f : st.col[2])) * 255.0f);
 
-        // Emit only when the quantized key differs from the last one emitted this pass. An identical
-        // key would produce a byte-identical gSPToonKey (same lighting), so skipping it is free — and
-        // it spares the interpreter a per-object flush, letting same-key actors batch. The key goes to
-        // both display lists together, so they stay in lockstep. (Reset each frame; see OnToonFrameUpdate.)
+        // Emit only when the quantized key changed (see sHaveLastKey above). Both display lists get the
+        // key together so they stay in lockstep.
         bool keyChanged = !sHaveLastKey || dx != sLastKeyDir[0] || dy != sLastKeyDir[1] || dz != sLastKeyDir[2] ||
                           r != sLastKeyCol[0] || g != sLastKeyCol[1] || b != sLastKeyCol[2];
         if (keyChanged) {
