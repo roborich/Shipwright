@@ -267,3 +267,41 @@ jobs:
       with:
         key: ${{ steps.restore-cache-vcpkg.outputs.cache-primary-key }}
         path: vcpkg
+
+  # Fork-only: publish a GitHub Release when a v* tag is pushed.
+  # Inert on normal pushes/PRs — only runs for tags like v0.1-toon.
+  release:
+    needs: [build-macos, build-linux, build-windows]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+    - name: Download macOS build
+      uses: actions/download-artifact@v7
+      with:
+        name: soh-mac
+        path: rel/mac
+    - name: Download Linux build
+      uses: actions/download-artifact@v7
+      with:
+        name: soh-linux
+        path: rel/linux
+    - name: Download Windows build
+      uses: actions/download-artifact@v7
+      with:
+        name: soh-windows
+        path: rel/windows
+    - name: Package release assets
+      run: |
+        TAG="${GITHUB_REF_NAME}"
+        mkdir -p dist
+        cp "rel/mac/SoH.dmg" "dist/SoH-${TAG}-Mac.dmg"
+        cp "rel/linux/soh.appimage" "dist/SoH-${TAG}-Linux.appimage"
+        (cd rel/windows && zip -r "../../dist/SoH-${TAG}-Win64.zip" .)
+    - name: Publish GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        name: "SoH (toon-lighting fork) ${{ github.ref_name }}"
+        generate_release_notes: true
+        files: dist/*
