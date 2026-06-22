@@ -35,16 +35,17 @@ extern PlayState* gPlayState;
 // Ramp parameters (frame-global look tuning)
 // ---------------------------------------------------------------------------------------------------
 
-// Defaults mirror libultraship's TOON_SHADING_DEFAULT_* and the GUI slider defaults, so the look is
-// identical whether or not the app has pushed values yet.
+// Defaults match the GUI slider DefaultValue()s, so a fresh install (CVar unset) renders the same as
+// the slider's default position. (These intentionally differ from libultraship's neutral
+// TOON_SHADING_DEFAULT_* framework fallbacks — SoH always pushes these every frame.)
 static constexpr float kDefaultRampCenter = 0.5f;
-static constexpr float kDefaultRampSoftness = 0.1f;
-static constexpr float kDefaultHighlightIntensity = 1.0f;
-static constexpr float kDefaultShadowIntensity = 1.0f;
+static constexpr float kDefaultRampSoftness = 0.02f;
+static constexpr float kDefaultHighlightIntensity = 0.6f;
+static constexpr float kDefaultShadowIntensity = 0.6f;
 
 // Selection defaults (game-side only — these never reach the framework).
-static constexpr float kDefaultPointLightRange = 1.0f;
-static constexpr float kDefaultTransitionTime = 2.5f;
+static constexpr float kDefaultPointLightRange = 1.5f;
+static constexpr float kDefaultTransitionTime = 1.0f;
 
 // The Fast3D rendering backend, if the active window is the Fast3D window. Null on other windows
 // (e.g. headless), in which case there is nothing to relight and pushing is simply skipped.

@@ -461,8 +461,8 @@ void SohMenu::AddMenuSettings() {
                      .Tooltip("Width of the transition band. Low = a hard cel edge; high = a softer "
                               "gradient.")
                      .Min(0.01f)
-                     .Max(0.5f)
-                     .DefaultValue(0.1f));
+                     .Max(0.2f)
+                     .DefaultValue(0.02f));
     AddWidget(path, "Highlight Intensity", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar(CVAR_ENHANCEMENT("Graphics.ToonLighting.HighlightIntensity"))
         .RaceDisable(false)
@@ -471,7 +471,7 @@ void SohMenu::AddMenuSettings() {
                      .Tooltip("Brightness of the lit side. Higher = brighter highlights.")
                      .Min(0.0f)
                      .Max(2.0f)
-                     .DefaultValue(1.0f)
+                     .DefaultValue(0.6f)
                      .IsPercentage());
     AddWidget(path, "Shadow Intensity", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar(CVAR_ENHANCEMENT("Graphics.ToonLighting.ShadowIntensity"))
@@ -482,7 +482,7 @@ void SohMenu::AddMenuSettings() {
                               "shadow down to ambient.")
                      .Min(0.0f)
                      .Max(1.0f)
-                     .DefaultValue(1.0f)
+                     .DefaultValue(0.6f)
                      .IsPercentage());
     AddWidget(path, "Point Light Range", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar(CVAR_ENHANCEMENT("Graphics.ToonLighting.PointLightRange"))
@@ -496,7 +496,7 @@ void SohMenu::AddMenuSettings() {
                      .Format("%.1fx")
                      .Min(1.0f)
                      .Max(4.0f)
-                     .DefaultValue(1.0f));
+                     .DefaultValue(1.5f));
     AddWidget(path, "Transition Time", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar(CVAR_ENHANCEMENT("Graphics.ToonLighting.TransitionTime"))
         .RaceDisable(false)
@@ -507,7 +507,7 @@ void SohMenu::AddMenuSettings() {
                      .Format("%.1fs")
                      .Min(0.1f)
                      .Max(6.0f)
-                     .DefaultValue(2.5f));
+                     .DefaultValue(1.0f));
 
     // Controls
     path.sidebarName = "Controls";

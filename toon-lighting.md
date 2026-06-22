@@ -202,11 +202,11 @@ The toggle is always visible; the sliders appear only when it is enabled.
 |---------|--------------------------|-----------------|--------------|
 | **Enable Toon Lighting** | `Graphics.ToonLighting.Enabled` | off | Master switch. Off = zero overhead (no GBI commands emitted). |
 | **Ramp Center** | `Graphics.ToonLighting.RampCenter` | 0–100%, **50%** | Where the dark→light transition sits in half-Lambert space. Higher = more of the surface stays in shadow. |
-| **Ramp Softness** | `Graphics.ToonLighting.RampSoftness` | 0.01–0.5, **0.1** | Width of the transition band. Low = a hard cel edge; high = a soft gradient. |
-| **Highlight Intensity** | `Graphics.ToonLighting.HighlightIntensity` | 0–200%, **100%** | Brightness of the lit side. >100% over-brightens highlights. |
-| **Shadow Intensity** | `Graphics.ToonLighting.ShadowIntensity` | 0–100%, **100%** | How dark the shadow side gets. 0% = flat (no shadow), 100% = full shadow down to ambient. |
-| **Point Light Range** | `Graphics.ToonLighting.PointLightRange` | 1.0×–4.0×, **1.0×** | Multiplier on a point light's radius **for key selection only** (the game's real lighting is unchanged). Raise it so e.g. an orbiting fairy keeps lighting nearby objects even at the far end of its swing. 1× = the light's literal range. |
-| **Transition Time** | `Graphics.ToonLighting.TransitionTime` | 0.1–6.0 s, **2.5 s** | How long the key light takes to ease from one source to another. Higher = slower, more deliberate travel between the sun and a fairy/torch. |
+| **Ramp Softness** | `Graphics.ToonLighting.RampSoftness` | 0.01–0.2, **0.02** | Width of the transition band. Low = a hard cel edge; high = a softer edge. Capped at 0.2 — anything higher loses the toon look. |
+| **Highlight Intensity** | `Graphics.ToonLighting.HighlightIntensity` | 0–200%, **60%** | Brightness of the lit side. >100% over-brightens highlights. |
+| **Shadow Intensity** | `Graphics.ToonLighting.ShadowIntensity` | 0–100%, **60%** | How dark the shadow side gets. 0% = flat (no shadow), 100% = full shadow down to ambient. |
+| **Point Light Range** | `Graphics.ToonLighting.PointLightRange` | 1.0×–4.0×, **1.5×** | Multiplier on a point light's radius **for key selection only** (the game's real lighting is unchanged). Raise it so e.g. an orbiting fairy keeps lighting nearby objects even at the far end of its swing. 1× = the light's literal range. |
+| **Transition Time** | `Graphics.ToonLighting.TransitionTime` | 0.1–6.0 s, **1.0 s** | How long the key light takes to ease from one source to another. Higher = slower, more deliberate travel between the sun and a fairy/torch. |
 
 **Where each slider acts:** Ramp Center, Ramp Softness, Highlight Intensity and Shadow
 Intensity are **shader** parameters (pushed as uniforms every draw — change them and the look
@@ -227,7 +227,7 @@ updates live). Point Light Range and Transition Time are **game-side selection**
 ## Quick tuning recipes
 
 - **Hard, graphic-novel cel edge:** Ramp Softness → very low (≈0.02), Shadow Intensity → high.
-- **Soft, painterly shading:** Ramp Softness → high (≈0.3–0.5).
+- **Softer edge (still toon):** Ramp Softness → toward the top of its range (≈0.15–0.2).
 - **Brighter, sun-bleached look:** Highlight Intensity → ~150%.
 - **Subtle effect (barely-there bands):** Shadow Intensity → ~30–50%.
 - **Fairy/torch keeps lighting things from across the room:** Point Light Range → 2–4×.
