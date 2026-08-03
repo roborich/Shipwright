@@ -39,10 +39,10 @@ static const ALIGN_ASSET(2) char spot02_sceneTex_00B880[] = dspot02_sceneTex_00B
 #define dspot02_sceneCollisionHeader_003C54 "__OTR__scenes/shared/spot02_scene/spot02_sceneCollisionHeader_003C54"
 static const ALIGN_ASSET(2) char spot02_sceneCollisionHeader_003C54[] = dspot02_sceneCollisionHeader_003C54;
 
-#define dspot02_scene_Cs_003C80 "__OTR__scenes/shared/spot02_scene/spot02_scene_Cs_003C80"
+#define dspot02_scene_Cs_003C80 "__OTR__scenes/shared/spot02_scene/spot02_scene_Cs_0"
 static const ALIGN_ASSET(2) char spot02_scene_Cs_003C80[] = dspot02_scene_Cs_003C80;
 
-#define dspot02_scene_Cs_005020 "__OTR__scenes/shared/spot02_scene/spot02_scene_Cs_005020"
+#define dspot02_scene_Cs_005020 "__OTR__scenes/shared/spot02_scene/spot02_scene_Cs_1"
 static const ALIGN_ASSET(2) char spot02_scene_Cs_005020[] = dspot02_scene_Cs_005020;
 
 #define dgGraveyardIntroCs "__OTR__scenes/shared/spot02_scene/gGraveyardIntroCs"

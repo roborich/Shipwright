@@ -45,10 +45,10 @@ static const ALIGN_ASSET(2) char gGerudoFortressFirstCaptureCs[] = dgGerudoFortr
 #define dgGerudoFortressIntroCs "__OTR__scenes/shared/spot12_scene/gGerudoFortressIntroCs"
 static const ALIGN_ASSET(2) char gGerudoFortressIntroCs[] = dgGerudoFortressIntroCs;
 
-#define dgSpot12_009678Tex "__OTR__scenes/shared/spot12_scene/gSpot12_009678Tex"
+#define dgSpot12_009678Tex "__OTR__scenes/shared/spot12_scene/gSpot12_0Tex"
 static const ALIGN_ASSET(2) char gSpot12_009678Tex[] = dgSpot12_009678Tex;
 
-#define dgSpot12_00DE78Tex "__OTR__scenes/shared/spot12_scene/gSpot12_00DE78Tex"
+#define dgSpot12_00DE78Tex "__OTR__scenes/shared/spot12_scene/gSpot12_1Tex"
 static const ALIGN_ASSET(2) char gSpot12_00DE78Tex[] = dgSpot12_00DE78Tex;
 
 #define dspot12_sceneCollisionHeader_005030 "__OTR__scenes/shared/spot12_scene/spot12_sceneCollisionHeader_005030"

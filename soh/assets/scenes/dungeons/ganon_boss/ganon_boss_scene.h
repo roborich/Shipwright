@@ -48,10 +48,10 @@ static const ALIGN_ASSET(2) char ganon_boss_sceneTex_006018[] = dganon_boss_scen
 #define dganon_boss_sceneTex_006418 "__OTR__scenes/shared/ganon_boss_scene/ganon_boss_sceneTex_006418"
 static const ALIGN_ASSET(2) char ganon_boss_sceneTex_006418[] = dganon_boss_sceneTex_006418;
 
-#define dganon_boss_sceneTex_006C18 "__OTR__scenes/shared/ganon_boss_scene/ganon_boss_sceneTex_006C18"
+#define dganon_boss_sceneTex_006C18 "__OTR__scenes/shared/ganon_boss_scene/ganon_boss_sceneTex_15"
 static const ALIGN_ASSET(2) char ganon_boss_sceneTex_006C18[] = dganon_boss_sceneTex_006C18;
 
-#define dganon_boss_sceneTex_007418 "__OTR__scenes/shared/ganon_boss_scene/ganon_boss_sceneTex_007418"
+#define dganon_boss_sceneTex_007418 "__OTR__scenes/shared/ganon_boss_scene/ganon_boss_sceneTex_16"
 static const ALIGN_ASSET(2) char ganon_boss_sceneTex_007418[] = dganon_boss_sceneTex_007418;
 
 #define dganon_boss_sceneTLUT_001550 "__OTR__scenes/shared/ganon_boss_scene/ganon_boss_sceneTLUT_001550"

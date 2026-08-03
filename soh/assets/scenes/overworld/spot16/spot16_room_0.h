@@ -42,7 +42,7 @@ static const ALIGN_ASSET(2) char spot16_room_0DL_0066D0[] = dspot16_room_0DL_006
 #define dspot16_room_0DL_007C78 "__OTR__scenes/shared/spot16_scene/spot16_room_0DL_007C78"
 static const ALIGN_ASSET(2) char spot16_room_0DL_007C78[] = dspot16_room_0DL_007C78;
 
-#define dspot16_room_0DL_00AA48 "__OTR__scenes/shared/spot16_scene/spot16_room_0DL_00AA48"
+#define dspot16_room_0DL_00AA48 "__OTR__scenes/shared/spot16_scene/spot16_room_0DL_38"
 static const ALIGN_ASSET(2) char spot16_room_0DL_00AA48[] = dspot16_room_0DL_00AA48;
 
 #define dspot16_room_0Set_000470DL_002A78 "__OTR__scenes/shared/spot16_scene/spot16_room_0Set_000470DL_002A78"
