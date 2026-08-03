@@ -12,383 +12,383 @@ spot13_room_1:
   offset: 0x0
   symbol: spot13_room_1
 
-spot13_room_1TLUT_007DC0:
+spot13_room_1TLUT_0:
   type: TEXTURE
   offset: 0x7DC0
-  symbol: spot13_room_1TLUT_007DC0
+  symbol: spot13_room_1TLUT_0
   format: RGBA16
   width: 4
   height: 4
 
-spot13_room_1TLUT_007DE8:
+spot13_room_1TLUT_1:
   type: TEXTURE
   offset: 0x7DE8
-  symbol: spot13_room_1TLUT_007DE8
+  symbol: spot13_room_1TLUT_1
   format: RGBA16
   width: 4
   height: 4
 
-spot13_room_1Tex_007E08:
+spot13_room_1Tex_0:
   type: TEXTURE
   offset: 0x7E08
-  symbol: spot13_room_1Tex_007E08
+  symbol: spot13_room_1Tex_0
   format: RGBA16
   width: 32
   height: 32
 
-spot13_room_1Tex_008608:
+spot13_room_1Tex_1:
   type: TEXTURE
   offset: 0x8608
-  symbol: spot13_room_1Tex_008608
+  symbol: spot13_room_1Tex_1
   format: RGBA16
   width: 16
   height: 32
 
-spot13_room_1Tex_008A08:
+spot13_room_1Tex_2:
   type: TEXTURE
   offset: 0x8A08
-  symbol: spot13_room_1Tex_008A08
+  symbol: spot13_room_1Tex_2
   format: RGBA16
   width: 32
   height: 64
 
-spot13_room_1Tex_009A08:
+spot13_room_1Tex_3:
   type: TEXTURE
   offset: 0x9A08
-  symbol: spot13_room_1Tex_009A08
+  symbol: spot13_room_1Tex_3
   format: RGBA16
   width: 16
   height: 16
 
-spot13_room_1Tex_009C08:
+spot13_room_1Tex_4:
   type: TEXTURE
   offset: 0x9C08
-  symbol: spot13_room_1Tex_009C08
+  symbol: spot13_room_1Tex_4
   format: RGBA16
   width: 16
   height: 16
 
-spot13_room_1Tex_009E08:
+spot13_room_1Tex_5:
   type: TEXTURE
   offset: 0x9E08
-  symbol: spot13_room_1Tex_009E08
+  symbol: spot13_room_1Tex_5
   format: RGBA16
   width: 32
   height: 32
 
-spot13_room_1Tex_00A608:
+spot13_room_1Tex_6:
   type: TEXTURE
   offset: 0xA608
-  symbol: spot13_room_1Tex_00A608
+  symbol: spot13_room_1Tex_6
   format: RGBA16
   width: 32
   height: 16
 
-spot13_room_1Tex_00AA08:
+spot13_room_1Tex_7:
   type: TEXTURE
   offset: 0xAA08
-  symbol: spot13_room_1Tex_00AA08
+  symbol: spot13_room_1Tex_7
   format: RGBA16
   width: 32
   height: 16
 
-spot13_room_1Tex_00AE08:
+spot13_room_1Tex_8:
   type: TEXTURE
   offset: 0xAE08
-  symbol: spot13_room_1Tex_00AE08
+  symbol: spot13_room_1Tex_8
   format: CI4
   width: 32
   height: 128
   tlut: 0x7DC0
 
-spot13_room_1Tex_00B608:
+spot13_room_1Tex_9:
   type: TEXTURE
   offset: 0xB608
-  symbol: spot13_room_1Tex_00B608
+  symbol: spot13_room_1Tex_9
   format: RGBA16
   width: 16
   height: 16
 
-spot13_room_1Tex_00B808:
+spot13_room_1Tex_10:
   type: TEXTURE
   offset: 0xB808
-  symbol: spot13_room_1Tex_00B808
+  symbol: spot13_room_1Tex_10
   format: CI4
   width: 64
   height: 32
   tlut: 0x7DE8
 
-spot13_room_1Tex_00BC08:
+spot13_room_1Tex_11:
   type: TEXTURE
   offset: 0xBC08
-  symbol: spot13_room_1Tex_00BC08
+  symbol: spot13_room_1Tex_11
   format: RGBA16
   width: 32
   height: 32
 
-spot13_room_1Tex_00C408:
+spot13_room_1Tex_12:
   type: TEXTURE
   offset: 0xC408
-  symbol: spot13_room_1Tex_00C408
+  symbol: spot13_room_1Tex_12
   format: RGBA16
   width: 8
   height: 32
 
-spot13_room_1Tex_00C608:
+spot13_room_1Tex_13:
   type: TEXTURE
   offset: 0xC608
-  symbol: spot13_room_1Tex_00C608
+  symbol: spot13_room_1Tex_13
   format: RGBA16
   width: 64
   height: 32
 
-spot13_room_1Tex_00D608:
+spot13_room_1Tex_14:
   type: TEXTURE
   offset: 0xD608
-  symbol: spot13_room_1Tex_00D608
+  symbol: spot13_room_1Tex_14
   format: RGBA16
   width: 32
   height: 64
 
-spot13_room_1Tex_00E608:
+spot13_room_1Tex_15:
   type: TEXTURE
   offset: 0xE608
-  symbol: spot13_room_1Tex_00E608
+  symbol: spot13_room_1Tex_15
   format: RGBA16
   width: 32
   height: 32
 
-spot13_room_1Tex_00EE08:
+spot13_room_1Tex_16:
   type: TEXTURE
   offset: 0xEE08
-  symbol: spot13_room_1Tex_00EE08
+  symbol: spot13_room_1Tex_16
   format: RGBA16
   width: 32
   height: 64
 
-spot13_room_1Tex_00FE08:
+spot13_room_1Tex_17:
   type: TEXTURE
   offset: 0xFE08
-  symbol: spot13_room_1Tex_00FE08
+  symbol: spot13_room_1Tex_17
   format: RGBA16
   width: 32
   height: 32
 
-spot13_room_1Tex_010608:
+spot13_room_1Tex_18:
   type: TEXTURE
   offset: 0x10608
-  symbol: spot13_room_1Tex_010608
+  symbol: spot13_room_1Tex_18
   format: RGBA16
   width: 32
   height: 32
 
-spot13_room_1Tex_010E08:
+spot13_room_1Tex_19:
   type: TEXTURE
   offset: 0x10E08
-  symbol: spot13_room_1Tex_010E08
+  symbol: spot13_room_1Tex_19
   format: RGBA16
   width: 32
   height: 16
 
-spot13_room_1Tex_011208:
+spot13_room_1Tex_20:
   type: TEXTURE
   offset: 0x11208
-  symbol: spot13_room_1Tex_011208
+  symbol: spot13_room_1Tex_20
   format: RGBA16
   width: 32
   height: 32
 
-spot13_room_1Tex_011E40:
+spot13_room_1Tex_21:
   type: TEXTURE
   offset: 0x11E40
-  symbol: spot13_room_1Tex_011E40
+  symbol: spot13_room_1Tex_21
   format: IA4
   width: 64
   height: 32
 
-spot13_room_1Tex_012240:
+spot13_room_1Tex_22:
   type: TEXTURE
   offset: 0x12240
-  symbol: spot13_room_1Tex_012240
+  symbol: spot13_room_1Tex_22
   format: RGBA16
   width: 32
   height: 32
 
 
-spot13_room_1Vtx_0002E0:
+spot13_room_1Vtx_0:
   type: OOT:ARRAY
   offset: 0x0002E0
-  symbol: spot13_room_1Vtx_0002E0
+  symbol: spot13_room_1Vtx_0
   count: 22
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-spot13_room_1DL_000440:
+spot13_room_1DL_0:
   type: GFX
   offset: 0x000440
-  symbol: spot13_room_1DL_000440
+  symbol: spot13_room_1DL_0
 
-spot13_room_1Vtx_000518:
+spot13_room_1Vtx_1:
   type: OOT:ARRAY
   offset: 0x000518
-  symbol: spot13_room_1Vtx_000518
+  symbol: spot13_room_1Vtx_1
   count: 392
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-spot13_room_1DL_001D98:
+spot13_room_1DL_1:
   type: GFX
   offset: 0x001D98
-  symbol: spot13_room_1DL_001D98
+  symbol: spot13_room_1DL_1
 
-spot13_room_1Vtx_002CF8:
+spot13_room_1Vtx_2:
   type: OOT:ARRAY
   offset: 0x002CF8
-  symbol: spot13_room_1Vtx_002CF8
+  symbol: spot13_room_1Vtx_2
   count: 94
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-spot13_room_1DL_0032D8:
+spot13_room_1DL_2:
   type: GFX
   offset: 0x0032D8
-  symbol: spot13_room_1DL_0032D8
+  symbol: spot13_room_1DL_2
 
-spot13_room_1Vtx_003518:
+spot13_room_1Vtx_3:
   type: OOT:ARRAY
   offset: 0x003518
-  symbol: spot13_room_1Vtx_003518
+  symbol: spot13_room_1Vtx_3
   count: 147
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-spot13_room_1DL_003E48:
+spot13_room_1DL_3:
   type: GFX
   offset: 0x003E48
-  symbol: spot13_room_1DL_003E48
+  symbol: spot13_room_1DL_3
 
-spot13_room_1Vtx_004108:
+spot13_room_1Vtx_4:
   type: OOT:ARRAY
   offset: 0x004108
-  symbol: spot13_room_1Vtx_004108
+  symbol: spot13_room_1Vtx_4
   count: 134
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-spot13_room_1DL_004968:
+spot13_room_1DL_4:
   type: GFX
   offset: 0x004968
-  symbol: spot13_room_1DL_004968
+  symbol: spot13_room_1DL_4
 
-spot13_room_1Vtx_004C40:
+spot13_room_1Vtx_5:
   type: OOT:ARRAY
   offset: 0x004C40
-  symbol: spot13_room_1Vtx_004C40
+  symbol: spot13_room_1Vtx_5
   count: 25
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-spot13_room_1DL_004DD0:
+spot13_room_1DL_5:
   type: GFX
   offset: 0x004DD0
-  symbol: spot13_room_1DL_004DD0
+  symbol: spot13_room_1DL_5
 
-spot13_room_1Vtx_004F10:
+spot13_room_1Vtx_6:
   type: OOT:ARRAY
   offset: 0x004F10
-  symbol: spot13_room_1Vtx_004F10
+  symbol: spot13_room_1Vtx_6
   count: 163
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-spot13_room_1DL_005940:
+spot13_room_1DL_6:
   type: GFX
   offset: 0x005940
-  symbol: spot13_room_1DL_005940
+  symbol: spot13_room_1DL_6
 
-spot13_room_1Vtx_005C90:
+spot13_room_1Vtx_7:
   type: OOT:ARRAY
   offset: 0x005C90
-  symbol: spot13_room_1Vtx_005C90
+  symbol: spot13_room_1Vtx_7
   count: 106
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-spot13_room_1DL_006330:
+spot13_room_1DL_7:
   type: GFX
   offset: 0x006330
-  symbol: spot13_room_1DL_006330
+  symbol: spot13_room_1DL_7
 
-spot13_room_1Vtx_006820:
+spot13_room_1Vtx_8:
   type: OOT:ARRAY
   offset: 0x006820
-  symbol: spot13_room_1Vtx_006820
+  symbol: spot13_room_1Vtx_8
   count: 27
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-spot13_room_1DL_0069D0:
+spot13_room_1DL_8:
   type: GFX
   offset: 0x0069D0
-  symbol: spot13_room_1DL_0069D0
+  symbol: spot13_room_1DL_8
 
-spot13_room_1Vtx_006B20:
+spot13_room_1Vtx_9:
   type: OOT:ARRAY
   offset: 0x006B20
-  symbol: spot13_room_1Vtx_006B20
+  symbol: spot13_room_1Vtx_9
   count: 178
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-spot13_room_1DL_007640:
+spot13_room_1DL_9:
   type: GFX
   offset: 0x007640
-  symbol: spot13_room_1DL_007640
+  symbol: spot13_room_1DL_9
 
-spot13_room_1DL_007D68:
+spot13_room_1DL_10:
   type: GFX
   offset: 0x007D68
-  symbol: spot13_room_1DL_007D68
+  symbol: spot13_room_1DL_10
 
-spot13_room_1Vtx_011A10:
+spot13_room_1Vtx_10:
   type: OOT:ARRAY
   offset: 0x011A10
-  symbol: spot13_room_1Vtx_011A10
+  symbol: spot13_room_1Vtx_10
   count: 25
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-spot13_room_1DL_011BA0:
+spot13_room_1DL_11:
   type: GFX
   offset: 0x011BA0
-  symbol: spot13_room_1DL_011BA0
+  symbol: spot13_room_1DL_11
 
-spot13_room_1Vtx_011CA8:
+spot13_room_1Vtx_11:
   type: OOT:ARRAY
   offset: 0x011CA8
-  symbol: spot13_room_1Vtx_011CA8
+  symbol: spot13_room_1Vtx_11
   count: 12
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-spot13_room_1DL_011D68:
+spot13_room_1DL_12:
   type: GFX
   offset: 0x011D68
-  symbol: spot13_room_1DL_011D68
+  symbol: spot13_room_1DL_12
 
-spot13_room_1DL_011E28:
+spot13_room_1DL_13:
   type: GFX
   offset: 0x011E28
-  symbol: spot13_room_1DL_011E28
+  symbol: spot13_room_1DL_13

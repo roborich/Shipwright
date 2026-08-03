@@ -8,7 +8,7 @@ market_ruins_scene:
   symbol: market_ruins_scene
 
 
-market_ruins_sceneCollisionHeader_0015F8:
+market_ruins_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x0015F8
-  symbol: market_ruins_sceneCollisionHeader_0015F8
+  symbol: market_ruins_sceneCollisionHeader_0

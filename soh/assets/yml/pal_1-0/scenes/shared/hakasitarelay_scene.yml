@@ -12,32 +12,32 @@ gSongOfStormsCs:
   offset: 0xE080
   symbol: gSongOfStormsCs
 
-hakasitarelay_sceneTex_00C080:
+hakasitarelay_sceneTex_0:
   type: TEXTURE
   offset: 0xC080
-  symbol: hakasitarelay_sceneTex_00C080
+  symbol: hakasitarelay_sceneTex_0
   format: RGBA16
   width: 64
   height: 32
 
-hakasitarelay_sceneTex_00D080:
+hakasitarelay_sceneTex_1:
   type: TEXTURE
   offset: 0xD080
-  symbol: hakasitarelay_sceneTex_00D080
+  symbol: hakasitarelay_sceneTex_1
   format: RGBA16
   width: 32
   height: 32
 
-hakasitarelay_sceneTex_00D880:
+hakasitarelay_sceneTex_2:
   type: TEXTURE
   offset: 0xD880
-  symbol: hakasitarelay_sceneTex_00D880
+  symbol: hakasitarelay_sceneTex_2
   format: I4
   width: 64
   height: 64
 
 
-hakasitarelay_sceneCollisionHeader_00C04C:
+hakasitarelay_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x00C04C
-  symbol: hakasitarelay_sceneCollisionHeader_00C04C
+  symbol: hakasitarelay_sceneCollisionHeader_0

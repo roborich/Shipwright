@@ -12,157 +12,157 @@ syotes_room_0:
   offset: 0x0
   symbol: syotes_room_0
 
-syotes_room_0Tex_0031E8:
+syotes_room_0Tex_0:
   type: TEXTURE
   offset: 0x31E8
-  symbol: syotes_room_0Tex_0031E8
+  symbol: syotes_room_0Tex_0
   format: RGBA16
   width: 32
   height: 32
 
-syotes_room_0Tex_0039E8:
+syotes_room_0Tex_1:
   type: TEXTURE
   offset: 0x39E8
-  symbol: syotes_room_0Tex_0039E8
+  symbol: syotes_room_0Tex_1
   format: RGBA16
   width: 32
   height: 32
 
-syotes_room_0Tex_0041E8:
+syotes_room_0Tex_2:
   type: TEXTURE
   offset: 0x41E8
-  symbol: syotes_room_0Tex_0041E8
+  symbol: syotes_room_0Tex_2
   format: RGBA16
   width: 32
   height: 64
 
-syotes_room_0Tex_0051E8:
+syotes_room_0Tex_3:
   type: TEXTURE
   offset: 0x51E8
-  symbol: syotes_room_0Tex_0051E8
+  symbol: syotes_room_0Tex_3
   format: RGBA16
   width: 32
   height: 64
 
-syotes_room_0Tex_0061E8:
+syotes_room_0Tex_4:
   type: TEXTURE
   offset: 0x61E8
-  symbol: syotes_room_0Tex_0061E8
+  symbol: syotes_room_0Tex_4
   format: RGBA16
   width: 32
   height: 32
 
-syotes_room_0Tex_0069E8:
+syotes_room_0Tex_5:
   type: TEXTURE
   offset: 0x69E8
-  symbol: syotes_room_0Tex_0069E8
+  symbol: syotes_room_0Tex_5
   format: RGBA16
   width: 64
   height: 32
 
-syotes_room_0Tex_0079E8:
+syotes_room_0Tex_6:
   type: TEXTURE
   offset: 0x79E8
-  symbol: syotes_room_0Tex_0079E8
+  symbol: syotes_room_0Tex_6
   format: RGBA16
   width: 64
   height: 32
 
-syotes_room_0Tex_0089E8:
+syotes_room_0Tex_7:
   type: TEXTURE
   offset: 0x89E8
-  symbol: syotes_room_0Tex_0089E8
+  symbol: syotes_room_0Tex_7
   format: RGBA16
   width: 32
   height: 64
 
-syotes_room_0Tex_0099E8:
+syotes_room_0Tex_8:
   type: TEXTURE
   offset: 0x99E8
-  symbol: syotes_room_0Tex_0099E8
+  symbol: syotes_room_0Tex_8
   format: RGBA16
   width: 64
   height: 32
 
-syotes_room_0Tex_00A9E8:
+syotes_room_0Tex_9:
   type: TEXTURE
   offset: 0xA9E8
-  symbol: syotes_room_0Tex_00A9E8
+  symbol: syotes_room_0Tex_9
   format: RGBA16
   width: 32
   height: 64
 
-syotes_room_0Tex_00BF80:
+syotes_room_0Tex_10:
   type: TEXTURE
   offset: 0xBF80
-  symbol: syotes_room_0Tex_00BF80
+  symbol: syotes_room_0Tex_10
   format: IA16
   width: 32
   height: 64
 
 
-syotes_room_0Vtx_000020:
+syotes_room_0Vtx_0:
   type: OOT:ARRAY
   offset: 0x000020
-  symbol: syotes_room_0Vtx_000020
+  symbol: syotes_room_0Vtx_0
   count: 374
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-syotes_room_0DL_001780:
+syotes_room_0DL_0:
   type: GFX
   offset: 0x001780
-  symbol: syotes_room_0DL_001780
+  symbol: syotes_room_0DL_0
 
-syotes_room_0Vtx_002260:
+syotes_room_0Vtx_1:
   type: OOT:ARRAY
   offset: 0x002260
-  symbol: syotes_room_0Vtx_002260
+  symbol: syotes_room_0Vtx_1
   count: 108
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-syotes_room_0DL_002920:
+syotes_room_0DL_1:
   type: GFX
   offset: 0x002920
-  symbol: syotes_room_0DL_002920
+  symbol: syotes_room_0DL_1
 
-syotes_room_0Vtx_002C00:
+syotes_room_0Vtx_2:
   type: OOT:ARRAY
   offset: 0x002C00
-  symbol: syotes_room_0Vtx_002C00
+  symbol: syotes_room_0Vtx_2
   count: 64
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-syotes_room_0DL_003000:
+syotes_room_0DL_2:
   type: GFX
   offset: 0x003000
-  symbol: syotes_room_0DL_003000
+  symbol: syotes_room_0DL_2
 
-syotes_room_0DL_0031C8:
+syotes_room_0DL_3:
   type: GFX
   offset: 0x0031C8
-  symbol: syotes_room_0DL_0031C8
+  symbol: syotes_room_0DL_3
 
-syotes_room_0Vtx_00B9F0:
+syotes_room_0Vtx_3:
   type: OOT:ARRAY
   offset: 0x00B9F0
-  symbol: syotes_room_0Vtx_00B9F0
+  symbol: syotes_room_0Vtx_3
   count: 48
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-syotes_room_0DL_00BCF0:
+syotes_room_0DL_4:
   type: GFX
   offset: 0x00BCF0
-  symbol: syotes_room_0DL_00BCF0
+  symbol: syotes_room_0DL_4
 
-syotes_room_0DL_00BF70:
+syotes_room_0DL_5:
   type: GFX
   offset: 0x00BF70
-  symbol: syotes_room_0DL_00BF70
+  symbol: syotes_room_0DL_5

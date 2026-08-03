@@ -7,88 +7,88 @@ yousei_izumi_tate_scene:
   offset: 0x0
   symbol: yousei_izumi_tate_scene
 
-yousei_izumi_tate_sceneTex_002010:
+yousei_izumi_tate_sceneTex_0:
   type: TEXTURE
   offset: 0x2010
-  symbol: yousei_izumi_tate_sceneTex_002010
+  symbol: yousei_izumi_tate_sceneTex_0
   format: IA8
   width: 64
   height: 32
 
-yousei_izumi_tate_sceneTex_002810:
+yousei_izumi_tate_sceneTex_1:
   type: TEXTURE
   offset: 0x2810
-  symbol: yousei_izumi_tate_sceneTex_002810
+  symbol: yousei_izumi_tate_sceneTex_1
   format: I8
   width: 16
   height: 256
 
-yousei_izumi_tate_sceneTex_003810:
+yousei_izumi_tate_sceneTex_2:
   type: TEXTURE
   offset: 0x3810
-  symbol: yousei_izumi_tate_sceneTex_003810
+  symbol: yousei_izumi_tate_sceneTex_2
   format: IA16
   width: 128
   height: 16
 
-yousei_izumi_tate_sceneTex_004810:
+yousei_izumi_tate_sceneTex_3:
   type: TEXTURE
   offset: 0x4810
-  symbol: yousei_izumi_tate_sceneTex_004810
+  symbol: yousei_izumi_tate_sceneTex_3
   format: I8
   width: 32
   height: 64
 
-yousei_izumi_tate_sceneTex_005010:
+yousei_izumi_tate_sceneTex_4:
   type: TEXTURE
   offset: 0x5010
-  symbol: yousei_izumi_tate_sceneTex_005010
+  symbol: yousei_izumi_tate_sceneTex_4
   format: I8
   width: 32
   height: 64
 
-yousei_izumi_tate_sceneTex_005810:
+yousei_izumi_tate_sceneTex_5:
   type: TEXTURE
   offset: 0x5810
-  symbol: yousei_izumi_tate_sceneTex_005810
+  symbol: yousei_izumi_tate_sceneTex_5
   format: RGBA16
   width: 32
   height: 32
 
-yousei_izumi_tate_sceneTex_006010:
+yousei_izumi_tate_sceneTex_6:
   type: TEXTURE
   offset: 0x6010
-  symbol: yousei_izumi_tate_sceneTex_006010
+  symbol: yousei_izumi_tate_sceneTex_6
   format: I4
   width: 64
   height: 128
 
-yousei_izumi_tate_sceneTex_007010:
+yousei_izumi_tate_sceneTex_7:
   type: TEXTURE
   offset: 0x7010
-  symbol: yousei_izumi_tate_sceneTex_007010
+  symbol: yousei_izumi_tate_sceneTex_7
   format: RGBA16
   width: 32
   height: 32
 
-yousei_izumi_tate_sceneTex_007810:
+yousei_izumi_tate_sceneTex_8:
   type: TEXTURE
   offset: 0x7810
-  symbol: yousei_izumi_tate_sceneTex_007810
+  symbol: yousei_izumi_tate_sceneTex_8
   format: RGBA16
   width: 32
   height: 32
 
-yousei_izumi_tate_sceneTex_008010:
+yousei_izumi_tate_sceneTex_9:
   type: TEXTURE
   offset: 0x8010
-  symbol: yousei_izumi_tate_sceneTex_008010
+  symbol: yousei_izumi_tate_sceneTex_9
   format: RGBA16
   width: 32
   height: 32
 
 
-yousei_izumi_tate_sceneCollisionHeader_001FDC:
+yousei_izumi_tate_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x001FDC
-  symbol: yousei_izumi_tate_sceneCollisionHeader_001FDC
+  symbol: yousei_izumi_tate_sceneCollisionHeader_0

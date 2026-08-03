@@ -12,157 +12,157 @@ MIZUsin_room_14:
   offset: 0x0
   symbol: MIZUsin_room_14
 
-MIZUsin_room_14Tex_003680:
+MIZUsin_room_14Tex_7:
   type: TEXTURE
   offset: 0x3680
-  symbol: MIZUsin_room_14Tex_003680
+  symbol: MIZUsin_room_14Tex_7
   format: I4
   width: 64
   height: 64
 
-MIZUsin_room_14Tex_003E80:
+MIZUsin_room_14Tex_8:
   type: TEXTURE
   offset: 0x3E80
-  symbol: MIZUsin_room_14Tex_003E80
+  symbol: MIZUsin_room_14Tex_8
   format: RGBA16
   width: 32
   height: 32
 
-MIZUsin_room_14Tex_004680:
+MIZUsin_room_14Tex_9:
   type: TEXTURE
   offset: 0x4680
-  symbol: MIZUsin_room_14Tex_004680
+  symbol: MIZUsin_room_14Tex_9
   format: RGBA16
   width: 32
   height: 32
 
-MIZUsin_room_14Tex_004E80:
+MIZUsin_room_14Tex_10:
   type: TEXTURE
   offset: 0x4E80
-  symbol: MIZUsin_room_14Tex_004E80
+  symbol: MIZUsin_room_14Tex_10
   format: RGBA16
   width: 32
   height: 32
 
-MIZUsin_room_14Tex_005680:
+MIZUsin_room_14Tex_11:
   type: TEXTURE
   offset: 0x5680
-  symbol: MIZUsin_room_14Tex_005680
+  symbol: MIZUsin_room_14Tex_11
   format: RGBA16
   width: 32
   height: 32
 
-MIZUsin_room_14Tex_005E80:
+MIZUsin_room_14Tex_12:
   type: TEXTURE
   offset: 0x5E80
-  symbol: MIZUsin_room_14Tex_005E80
+  symbol: MIZUsin_room_14Tex_12
   format: RGBA16
   width: 32
   height: 32
 
-MIZUsin_room_14Tex_006680:
+MIZUsin_room_14Tex_13:
   type: TEXTURE
   offset: 0x6680
-  symbol: MIZUsin_room_14Tex_006680
+  symbol: MIZUsin_room_14Tex_13
   format: RGBA16
   width: 32
   height: 32
 
 
-MIZUsin_room_14Vtx_0001D0:
+MIZUsin_room_14Vtx_0:
   type: OOT:ARRAY
   offset: 0x0001D0
-  symbol: MIZUsin_room_14Vtx_0001D0
+  symbol: MIZUsin_room_14Vtx_0
   count: 40
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-MIZUsin_room_14DL_000450:
+MIZUsin_room_14DL_7:
   type: GFX
   offset: 0x000450
-  symbol: MIZUsin_room_14DL_000450
+  symbol: MIZUsin_room_14DL_7
 
-MIZUsin_room_14Vtx_000580:
+MIZUsin_room_14Vtx_1:
   type: OOT:ARRAY
   offset: 0x000580
-  symbol: MIZUsin_room_14Vtx_000580
+  symbol: MIZUsin_room_14Vtx_1
   count: 70
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-MIZUsin_room_14DL_0009E0:
+MIZUsin_room_14DL_8:
   type: GFX
   offset: 0x0009E0
-  symbol: MIZUsin_room_14DL_0009E0
+  symbol: MIZUsin_room_14DL_8
 
-MIZUsin_room_14Vtx_000B68:
+MIZUsin_room_14Vtx_2:
   type: OOT:ARRAY
   offset: 0x000B68
-  symbol: MIZUsin_room_14Vtx_000B68
+  symbol: MIZUsin_room_14Vtx_2
   count: 16
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-MIZUsin_room_14DL_000C68:
+MIZUsin_room_14DL_9:
   type: GFX
   offset: 0x000C68
-  symbol: MIZUsin_room_14DL_000C68
+  symbol: MIZUsin_room_14DL_9
 
-MIZUsin_room_14Vtx_000D78:
+MIZUsin_room_14Vtx_3:
   type: OOT:ARRAY
   offset: 0x000D78
-  symbol: MIZUsin_room_14Vtx_000D78
+  symbol: MIZUsin_room_14Vtx_3
   count: 12
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-MIZUsin_room_14DL_000E38:
+MIZUsin_room_14DL_10:
   type: GFX
   offset: 0x000E38
-  symbol: MIZUsin_room_14DL_000E38
+  symbol: MIZUsin_room_14DL_10
 
-MIZUsin_room_14Vtx_000EF0:
+MIZUsin_room_14Vtx_4:
   type: OOT:ARRAY
   offset: 0x000EF0
-  symbol: MIZUsin_room_14Vtx_000EF0
+  symbol: MIZUsin_room_14Vtx_4
   count: 12
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-MIZUsin_room_14DL_000FB0:
+MIZUsin_room_14DL_11:
   type: GFX
   offset: 0x000FB0
-  symbol: MIZUsin_room_14DL_000FB0
+  symbol: MIZUsin_room_14DL_11
 
-MIZUsin_room_14Vtx_0010A8:
+MIZUsin_room_14Vtx_5:
   type: OOT:ARRAY
   offset: 0x0010A8
-  symbol: MIZUsin_room_14Vtx_0010A8
+  symbol: MIZUsin_room_14Vtx_5
   count: 330
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-MIZUsin_room_14DL_002548:
+MIZUsin_room_14DL_12:
   type: GFX
   offset: 0x002548
-  symbol: MIZUsin_room_14DL_002548
+  symbol: MIZUsin_room_14DL_12
 
-MIZUsin_room_14Vtx_0033A0:
+MIZUsin_room_14Vtx_6:
   type: OOT:ARRAY
   offset: 0x0033A0
-  symbol: MIZUsin_room_14Vtx_0033A0
+  symbol: MIZUsin_room_14Vtx_6
   count: 24
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-MIZUsin_room_14DL_003520:
+MIZUsin_room_14DL_13:
   type: GFX
   offset: 0x003520
-  symbol: MIZUsin_room_14DL_003520
+  symbol: MIZUsin_room_14DL_13

@@ -12,147 +12,147 @@ ganontika_room_15:
   offset: 0x0
   symbol: ganontika_room_15
 
-ganontika_room_15Tex_004340:
+ganontika_room_15Tex_0:
   type: TEXTURE
   offset: 0x4340
-  symbol: ganontika_room_15Tex_004340
+  symbol: ganontika_room_15Tex_0
   format: RGBA16
   width: 32
   height: 32
 
-ganontika_room_15Tex_004B40:
+ganontika_room_15Tex_1:
   type: TEXTURE
   offset: 0x4B40
-  symbol: ganontika_room_15Tex_004B40
+  symbol: ganontika_room_15Tex_1
   format: CI8
   width: 32
   height: 64
   external_tlut: ganontika_scene
   external_tlut_offset: 0x1F370
 
-ganontika_room_15Tex_005340:
+ganontika_room_15Tex_2:
   type: TEXTURE
   offset: 0x5340
-  symbol: ganontika_room_15Tex_005340
+  symbol: ganontika_room_15Tex_2
   format: CI8
   width: 64
   height: 32
   external_tlut: ganontika_scene
   external_tlut_offset: 0x1F370
 
-ganontika_room_15Tex_005B40:
+ganontika_room_15Tex_3:
   type: TEXTURE
   offset: 0x5B40
-  symbol: ganontika_room_15Tex_005B40
+  symbol: ganontika_room_15Tex_3
   format: RGBA16
   width: 32
   height: 32
 
-ganontika_room_15Tex_006340:
+ganontika_room_15Tex_4:
   type: TEXTURE
   offset: 0x6340
-  symbol: ganontika_room_15Tex_006340
+  symbol: ganontika_room_15Tex_4
   format: RGBA16
   width: 32
   height: 32
 
-ganontika_room_15Tex_006B40:
+ganontika_room_15Tex_5:
   type: TEXTURE
   offset: 0x6B40
-  symbol: ganontika_room_15Tex_006B40
+  symbol: ganontika_room_15Tex_5
   format: RGBA16
   width: 16
   height: 16
 
-ganontika_room_15Tex_006D40:
+ganontika_room_15Tex_6:
   type: TEXTURE
   offset: 0x6D40
-  symbol: ganontika_room_15Tex_006D40
+  symbol: ganontika_room_15Tex_6
   format: RGBA16
   width: 64
   height: 32
 
 
-ganontika_room_15Vtx_000120:
+ganontika_room_15Vtx_0:
   type: OOT:ARRAY
   offset: 0x000120
-  symbol: ganontika_room_15Vtx_000120
+  symbol: ganontika_room_15Vtx_0
   count: 276
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ganontika_room_15DL_001260:
+ganontika_room_15DL_0:
   type: GFX
   offset: 0x001260
-  symbol: ganontika_room_15DL_001260
+  symbol: ganontika_room_15DL_0
 
-ganontika_room_15Vtx_002048:
+ganontika_room_15Vtx_1:
   type: OOT:ARRAY
   offset: 0x002048
-  symbol: ganontika_room_15Vtx_002048
+  symbol: ganontika_room_15Vtx_1
   count: 75
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ganontika_room_15DL_0024F8:
+ganontika_room_15DL_1:
   type: GFX
   offset: 0x0024F8
-  symbol: ganontika_room_15DL_0024F8
+  symbol: ganontika_room_15DL_1
 
-ganontika_room_15Vtx_0026D0:
+ganontika_room_15Vtx_2:
   type: OOT:ARRAY
   offset: 0x0026D0
-  symbol: ganontika_room_15Vtx_0026D0
+  symbol: ganontika_room_15Vtx_2
   count: 98
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ganontika_room_15DL_002CF0:
+ganontika_room_15DL_2:
   type: GFX
   offset: 0x002CF0
-  symbol: ganontika_room_15DL_002CF0
+  symbol: ganontika_room_15DL_2
 
-ganontika_room_15Vtx_002EE0:
+ganontika_room_15Vtx_3:
   type: OOT:ARRAY
   offset: 0x002EE0
-  symbol: ganontika_room_15Vtx_002EE0
+  symbol: ganontika_room_15Vtx_3
   count: 89
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ganontika_room_15DL_003470:
+ganontika_room_15DL_3:
   type: GFX
   offset: 0x003470
-  symbol: ganontika_room_15DL_003470
+  symbol: ganontika_room_15DL_3
 
-ganontika_room_15Vtx_0036F0:
+ganontika_room_15Vtx_4:
   type: OOT:ARRAY
   offset: 0x0036F0
-  symbol: ganontika_room_15Vtx_0036F0
+  symbol: ganontika_room_15Vtx_4
   count: 89
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ganontika_room_15DL_003C80:
+ganontika_room_15DL_4:
   type: GFX
   offset: 0x003C80
-  symbol: ganontika_room_15DL_003C80
+  symbol: ganontika_room_15DL_4
 
-ganontika_room_15Vtx_003F00:
+ganontika_room_15Vtx_5:
   type: OOT:ARRAY
   offset: 0x003F00
-  symbol: ganontika_room_15Vtx_003F00
+  symbol: ganontika_room_15Vtx_5
   count: 39
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ganontika_room_15DL_004170:
+ganontika_room_15DL_5:
   type: GFX
   offset: 0x004170
-  symbol: ganontika_room_15DL_004170
+  symbol: ganontika_room_15DL_5

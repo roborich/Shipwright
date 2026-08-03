@@ -8,7 +8,7 @@ test01_scene:
   symbol: test01_scene
 
 
-test01_sceneCollisionHeader_003DEC:
+test01_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x003DEC
-  symbol: test01_sceneCollisionHeader_003DEC
+  symbol: test01_sceneCollisionHeader_0

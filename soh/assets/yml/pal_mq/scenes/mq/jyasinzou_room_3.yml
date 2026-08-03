@@ -12,40 +12,40 @@ jyasinzou_room_3:
   offset: 0x0
   symbol: jyasinzou_room_3
 
-jyasinzou_room_3Tex_001FC8:
+jyasinzou_room_3Tex_4:
   type: TEXTURE
   offset: 0x1FC8
-  symbol: jyasinzou_room_3Tex_001FC8
+  symbol: jyasinzou_room_3Tex_4
   format: CI8
   width: 32
   height: 32
   external_tlut: jyasinzou_scene
   external_tlut_offset: 0x17BE0
 
-jyasinzou_room_3Tex_0023C8:
+jyasinzou_room_3Tex_5:
   type: TEXTURE
   offset: 0x23C8
-  symbol: jyasinzou_room_3Tex_0023C8
+  symbol: jyasinzou_room_3Tex_5
   format: CI8
   width: 64
   height: 32
   external_tlut: jyasinzou_scene
   external_tlut_offset: 0x17BE0
 
-jyasinzou_room_3Tex_002BC8:
+jyasinzou_room_3Tex_6:
   type: TEXTURE
   offset: 0x2BC8
-  symbol: jyasinzou_room_3Tex_002BC8
+  symbol: jyasinzou_room_3Tex_6
   format: CI4
   width: 64
   height: 64
   external_tlut: jyasinzou_scene
   external_tlut_offset: 0x17FE0
 
-jyasinzou_room_3Tex_0033C8:
+jyasinzou_room_3Tex_7:
   type: TEXTURE
   offset: 0x33C8
-  symbol: jyasinzou_room_3Tex_0033C8
+  symbol: jyasinzou_room_3Tex_7
   format: CI4
   width: 64
   height: 64
@@ -53,58 +53,58 @@ jyasinzou_room_3Tex_0033C8:
   external_tlut_offset: 0x18000
 
 
-jyasinzou_room_3Vtx_000250:
+jyasinzou_room_3Vtx_0:
   type: OOT:ARRAY
   offset: 0x000250
-  symbol: jyasinzou_room_3Vtx_000250
+  symbol: jyasinzou_room_3Vtx_0
   count: 130
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-jyasinzou_room_3DL_000A70:
+jyasinzou_room_3DL_4:
   type: GFX
   offset: 0x000A70
-  symbol: jyasinzou_room_3DL_000A70
+  symbol: jyasinzou_room_3DL_4
 
-jyasinzou_room_3Vtx_000FF0:
+jyasinzou_room_3Vtx_1:
   type: OOT:ARRAY
   offset: 0x000FF0
-  symbol: jyasinzou_room_3Vtx_000FF0
+  symbol: jyasinzou_room_3Vtx_1
   count: 22
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-jyasinzou_room_3DL_001150:
+jyasinzou_room_3DL_5:
   type: GFX
   offset: 0x001150
-  symbol: jyasinzou_room_3DL_001150
+  symbol: jyasinzou_room_3DL_5
 
-jyasinzou_room_3Vtx_001268:
+jyasinzou_room_3Vtx_2:
   type: OOT:ARRAY
   offset: 0x001268
-  symbol: jyasinzou_room_3Vtx_001268
+  symbol: jyasinzou_room_3Vtx_2
   count: 50
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-jyasinzou_room_3DL_001588:
+jyasinzou_room_3DL_6:
   type: GFX
   offset: 0x001588
-  symbol: jyasinzou_room_3DL_001588
+  symbol: jyasinzou_room_3DL_6
 
-jyasinzou_room_3Vtx_0017F8:
+jyasinzou_room_3Vtx_3:
   type: OOT:ARRAY
   offset: 0x0017F8
-  symbol: jyasinzou_room_3Vtx_0017F8
+  symbol: jyasinzou_room_3Vtx_3
   count: 58
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-jyasinzou_room_3DL_001B98:
+jyasinzou_room_3DL_7:
   type: GFX
   offset: 0x001B98
-  symbol: jyasinzou_room_3DL_001B98
+  symbol: jyasinzou_room_3DL_7

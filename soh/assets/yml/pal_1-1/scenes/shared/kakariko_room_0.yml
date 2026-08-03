@@ -13,214 +13,214 @@ kakariko_room_0:
   symbol: kakariko_room_0
 
 
-kakariko_room_0Vtx_000140:
+kakariko_room_0Vtx_0:
   type: OOT:ARRAY
   offset: 0x000140
-  symbol: kakariko_room_0Vtx_000140
+  symbol: kakariko_room_0Vtx_0
   count: 28
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kakariko_room_0Vtx_000300:
+kakariko_room_0Vtx_1:
   type: OOT:ARRAY
   offset: 0x000300
-  symbol: kakariko_room_0Vtx_000300
+  symbol: kakariko_room_0Vtx_1
   count: 248
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kakariko_room_0Vtx_001280:
+kakariko_room_0Vtx_2:
   type: OOT:ARRAY
   offset: 0x001280
-  symbol: kakariko_room_0Vtx_001280
+  symbol: kakariko_room_0Vtx_2
   count: 244
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kakariko_room_0Vtx_0021C0:
+kakariko_room_0Vtx_3:
   type: OOT:ARRAY
   offset: 0x0021C0
-  symbol: kakariko_room_0Vtx_0021C0
+  symbol: kakariko_room_0Vtx_3
   count: 105
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kakariko_room_0Vtx_002850:
+kakariko_room_0Vtx_4:
   type: OOT:ARRAY
   offset: 0x002850
-  symbol: kakariko_room_0Vtx_002850
+  symbol: kakariko_room_0Vtx_4
   count: 111
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kakariko_room_0Vtx_002F40:
+kakariko_room_0Vtx_5:
   type: OOT:ARRAY
   offset: 0x002F40
-  symbol: kakariko_room_0Vtx_002F40
+  symbol: kakariko_room_0Vtx_5
   count: 84
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kakariko_room_0Vtx_003480:
+kakariko_room_0Vtx_6:
   type: OOT:ARRAY
   offset: 0x003480
-  symbol: kakariko_room_0Vtx_003480
+  symbol: kakariko_room_0Vtx_6
   count: 70
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kakariko_room_0Vtx_0038E0:
+kakariko_room_0Vtx_7:
   type: OOT:ARRAY
   offset: 0x0038E0
-  symbol: kakariko_room_0Vtx_0038E0
+  symbol: kakariko_room_0Vtx_7
   count: 86
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kakariko_room_0Vtx_003E40:
+kakariko_room_0Vtx_8:
   type: OOT:ARRAY
   offset: 0x003E40
-  symbol: kakariko_room_0Vtx_003E40
+  symbol: kakariko_room_0Vtx_8
   count: 70
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kakariko_room_0Vtx_0042A0:
+kakariko_room_0Vtx_9:
   type: OOT:ARRAY
   offset: 0x0042A0
-  symbol: kakariko_room_0Vtx_0042A0
+  symbol: kakariko_room_0Vtx_9
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kakariko_room_0Vtx_004320:
+kakariko_room_0Vtx_10:
   type: OOT:ARRAY
   offset: 0x004320
-  symbol: kakariko_room_0Vtx_004320
+  symbol: kakariko_room_0Vtx_10
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kakariko_room_0Vtx_0043A0:
+kakariko_room_0Vtx_11:
   type: OOT:ARRAY
   offset: 0x0043A0
-  symbol: kakariko_room_0Vtx_0043A0
+  symbol: kakariko_room_0Vtx_11
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kakariko_room_0Vtx_004420:
+kakariko_room_0Vtx_12:
   type: OOT:ARRAY
   offset: 0x004420
-  symbol: kakariko_room_0Vtx_004420
+  symbol: kakariko_room_0Vtx_12
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kakariko_room_0Vtx_0044A0:
+kakariko_room_0Vtx_13:
   type: OOT:ARRAY
   offset: 0x0044A0
-  symbol: kakariko_room_0Vtx_0044A0
+  symbol: kakariko_room_0Vtx_13
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kakariko_room_0Vtx_004520:
+kakariko_room_0Vtx_14:
   type: OOT:ARRAY
   offset: 0x004520
-  symbol: kakariko_room_0Vtx_004520
+  symbol: kakariko_room_0Vtx_14
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kakariko_room_0Vtx_0045A0:
+kakariko_room_0Vtx_15:
   type: OOT:ARRAY
   offset: 0x0045A0
-  symbol: kakariko_room_0Vtx_0045A0
+  symbol: kakariko_room_0Vtx_15
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kakariko_room_0Vtx_004620:
+kakariko_room_0Vtx_16:
   type: OOT:ARRAY
   offset: 0x004620
-  symbol: kakariko_room_0Vtx_004620
+  symbol: kakariko_room_0Vtx_16
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kakariko_room_0Vtx_0046A0:
+kakariko_room_0Vtx_17:
   type: OOT:ARRAY
   offset: 0x0046A0
-  symbol: kakariko_room_0Vtx_0046A0
+  symbol: kakariko_room_0Vtx_17
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kakariko_room_0DL_004720:
+kakariko_room_0DL_0:
   type: GFX
   offset: 0x004720
-  symbol: kakariko_room_0DL_004720
+  symbol: kakariko_room_0DL_0
 
-kakariko_room_0DL_0047D8:
+kakariko_room_0DL_1:
   type: GFX
   offset: 0x0047D8
-  symbol: kakariko_room_0DL_0047D8
+  symbol: kakariko_room_0DL_1
 
-kakariko_room_0DL_004B40:
+kakariko_room_0DL_2:
   type: GFX
   offset: 0x004B40
-  symbol: kakariko_room_0DL_004B40
+  symbol: kakariko_room_0DL_2
 
-kakariko_room_0DL_004EB0:
+kakariko_room_0DL_3:
   type: GFX
   offset: 0x004EB0
-  symbol: kakariko_room_0DL_004EB0
+  symbol: kakariko_room_0DL_3
 
-kakariko_room_0DL_005078:
+kakariko_room_0DL_4:
   type: GFX
   offset: 0x005078
-  symbol: kakariko_room_0DL_005078
+  symbol: kakariko_room_0DL_4
 
-kakariko_room_0DL_005250:
+kakariko_room_0DL_5:
   type: GFX
   offset: 0x005250
-  symbol: kakariko_room_0DL_005250
+  symbol: kakariko_room_0DL_5
 
-kakariko_room_0DL_005380:
+kakariko_room_0DL_6:
   type: GFX
   offset: 0x005380
-  symbol: kakariko_room_0DL_005380
+  symbol: kakariko_room_0DL_6
 
-kakariko_room_0DL_0054B0:
+kakariko_room_0DL_7:
   type: GFX
   offset: 0x0054B0
-  symbol: kakariko_room_0DL_0054B0
+  symbol: kakariko_room_0DL_7
 
-kakariko_room_0DL_005628:
+kakariko_room_0DL_8:
   type: GFX
   offset: 0x005628
-  symbol: kakariko_room_0DL_005628
+  symbol: kakariko_room_0DL_8
 
-kakariko_room_0DL_005760:
+kakariko_room_0DL_9:
   type: GFX
   offset: 0x005760
-  symbol: kakariko_room_0DL_005760
+  symbol: kakariko_room_0DL_9

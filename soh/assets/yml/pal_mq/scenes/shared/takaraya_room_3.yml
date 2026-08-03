@@ -12,80 +12,80 @@ takaraya_room_3:
   offset: 0x0
   symbol: takaraya_room_3
 
-takaraya_room_3Tex_001818:
+takaraya_room_3Tex_0:
   type: TEXTURE
   offset: 0x1818
-  symbol: takaraya_room_3Tex_001818
+  symbol: takaraya_room_3Tex_0
   format: RGBA16
   width: 16
   height: 64
 
-takaraya_room_3Tex_002018:
+takaraya_room_3Tex_1:
   type: TEXTURE
   offset: 0x2018
-  symbol: takaraya_room_3Tex_002018
+  symbol: takaraya_room_3Tex_1
   format: RGBA16
   width: 32
   height: 32
 
 
-takaraya_room_3Vtx_0000B0:
+takaraya_room_3Vtx_0:
   type: OOT:ARRAY
   offset: 0x0000B0
-  symbol: takaraya_room_3Vtx_0000B0
+  symbol: takaraya_room_3Vtx_0
   count: 24
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-takaraya_room_3DL_000230:
+takaraya_room_3DL_0:
   type: GFX
   offset: 0x000230
-  symbol: takaraya_room_3DL_000230
+  symbol: takaraya_room_3DL_0
 
-takaraya_room_3Vtx_000310:
+takaraya_room_3Vtx_1:
   type: OOT:ARRAY
   offset: 0x000310
-  symbol: takaraya_room_3Vtx_000310
+  symbol: takaraya_room_3Vtx_1
   count: 142
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-takaraya_room_3DL_000BF0:
+takaraya_room_3DL_1:
   type: GFX
   offset: 0x000BF0
-  symbol: takaraya_room_3DL_000BF0
+  symbol: takaraya_room_3DL_1
 
-takaraya_room_3Vtx_000E00:
+takaraya_room_3Vtx_2:
   type: OOT:ARRAY
   offset: 0x000E00
-  symbol: takaraya_room_3Vtx_000E00
+  symbol: takaraya_room_3Vtx_2
   count: 32
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-takaraya_room_3DL_001000:
+takaraya_room_3DL_2:
   type: GFX
   offset: 0x001000
-  symbol: takaraya_room_3DL_001000
+  symbol: takaraya_room_3DL_2
 
-takaraya_room_3Vtx_0010F0:
+takaraya_room_3Vtx_3:
   type: OOT:ARRAY
   offset: 0x0010F0
-  symbol: takaraya_room_3Vtx_0010F0
+  symbol: takaraya_room_3Vtx_3
   count: 86
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-takaraya_room_3DL_001650:
+takaraya_room_3DL_3:
   type: GFX
   offset: 0x001650
-  symbol: takaraya_room_3DL_001650
+  symbol: takaraya_room_3DL_3
 
-takaraya_room_3DL_0017F0:
+takaraya_room_3DL_4:
   type: GFX
   offset: 0x0017F0
-  symbol: takaraya_room_3DL_0017F0
+  symbol: takaraya_room_3DL_4

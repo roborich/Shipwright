@@ -12,99 +12,99 @@ ydan_room_2:
   offset: 0x0
   symbol: ydan_room_2
 
-ydan_room_2Tex_001D08:
+ydan_room_2Tex_0:
   type: TEXTURE
   offset: 0x1C08
-  symbol: ydan_room_2Tex_001D08
+  symbol: ydan_room_2Tex_0
   format: CI8
   width: 32
   height: 64
   external_tlut: ydan_scene
   external_tlut_offset: 0xB800
 
-ydan_room_2Tex_002508:
+ydan_room_2Tex_1:
   type: TEXTURE
   offset: 0x2408
-  symbol: ydan_room_2Tex_002508
+  symbol: ydan_room_2Tex_1
   format: CI8
   width: 32
   height: 64
   external_tlut: ydan_scene
   external_tlut_offset: 0xB800
 
-ydan_room_2Tex_002D08:
+ydan_room_2Tex_2:
   type: TEXTURE
   offset: 0x2C08
-  symbol: ydan_room_2Tex_002D08
+  symbol: ydan_room_2Tex_2
   format: CI8
   width: 32
   height: 64
   external_tlut: ydan_scene
   external_tlut_offset: 0xB800
 
-ydan_room_2Tex_003508:
+ydan_room_2Tex_3:
   type: TEXTURE
   offset: 0x3408
-  symbol: ydan_room_2Tex_003508
+  symbol: ydan_room_2Tex_3
   format: CI8
   width: 32
   height: 64
   external_tlut: ydan_scene
   external_tlut_offset: 0xB800
 
-ydan_room_2Tex_003D08:
+ydan_room_2Tex_4:
   type: TEXTURE
   offset: 0x3C08
-  symbol: ydan_room_2Tex_003D08
+  symbol: ydan_room_2Tex_4
   format: CI8
   width: 32
   height: 64
   external_tlut: ydan_scene
   external_tlut_offset: 0xB800
 
-ydan_room_2Tex_004508:
+ydan_room_2Tex_5:
   type: TEXTURE
   offset: 0x4408
-  symbol: ydan_room_2Tex_004508
+  symbol: ydan_room_2Tex_5
   format: CI8
   width: 32
   height: 64
   external_tlut: ydan_scene
   external_tlut_offset: 0xB800
 
-ydan_room_2Tex_004F28:
+ydan_room_2Tex_6:
   type: TEXTURE
   offset: 0x4E28
-  symbol: ydan_room_2Tex_004F28
+  symbol: ydan_room_2Tex_6
   format: RGBA16
   width: 32
   height: 64
 
 
-ydan_room_2Vtx_000120:
+ydan_room_2Vtx_0:
   type: OOT:ARRAY
   offset: 0x000120
-  symbol: ydan_room_2Vtx_000120
+  symbol: ydan_room_2Vtx_0
   count: 244
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ydan_room_2DL_001060:
+ydan_room_2DL_0:
   type: GFX
   offset: 0x001060
-  symbol: ydan_room_2DL_001060
+  symbol: ydan_room_2DL_0
 
-ydan_room_2Vtx_004C10:
+ydan_room_2Vtx_1:
   type: OOT:ARRAY
   offset: 0x004C10
-  symbol: ydan_room_2Vtx_004C10
+  symbol: ydan_room_2Vtx_1
   count: 20
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ydan_room_2DL_004D50:
+ydan_room_2DL_1:
   type: GFX
   offset: 0x004D50
-  symbol: ydan_room_2DL_004D50
+  symbol: ydan_room_2DL_1

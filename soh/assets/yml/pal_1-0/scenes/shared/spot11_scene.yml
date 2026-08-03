@@ -3,9 +3,9 @@
     - [ 2, 0x017F85D0 ]
 
   external_files:
-    - pal_1-0/scenes/shared/spot11_sceneSet_007540.yml
-    - pal_1-0/scenes/shared/spot11_sceneSet_0077E0.yml
-    - pal_1-0/scenes/shared/spot11_sceneSet_0078C0.yml
+    - pal_1-0/scenes/shared/spot11_sceneSet_0.yml
+    - pal_1-0/scenes/shared/spot11_sceneSet_1.yml
+    - pal_1-0/scenes/shared/spot11_sceneSet_2.yml
 spot11_scene:
   type: OOT:SCENE
   offset: 0x0
@@ -16,264 +16,264 @@ gDesertColossusIntroCs:
   offset: 0x79A0
   symbol: gDesertColossusIntroCs
 
-spot11_sceneTex_007CA0:
+spot11_sceneTex_0:
   type: TEXTURE
   offset: 0x7CB0
-  symbol: spot11_sceneTex_007CA0
+  symbol: spot11_sceneTex_0
   format: RGBA16
   width: 32
   height: 32
 
-spot11_sceneTex_0084A0:
+spot11_sceneTex_1:
   type: TEXTURE
   offset: 0x84B0
-  symbol: spot11_sceneTex_0084A0
+  symbol: spot11_sceneTex_1
   format: RGBA16
   width: 32
   height: 32
 
-spot11_sceneTex_008CA0:
+spot11_sceneTex_2:
   type: TEXTURE
   offset: 0x8CB0
-  symbol: spot11_sceneTex_008CA0
+  symbol: spot11_sceneTex_2
   format: RGBA16
   width: 16
   height: 32
 
-spot11_sceneTex_0090A0:
+spot11_sceneTex_3:
   type: TEXTURE
   offset: 0x90B0
-  symbol: spot11_sceneTex_0090A0
+  symbol: spot11_sceneTex_3
   format: RGBA16
   width: 128
   height: 16
 
-spot11_sceneTex_00A0A0:
+spot11_sceneTex_4:
   type: TEXTURE
   offset: 0xA0B0
-  symbol: spot11_sceneTex_00A0A0
+  symbol: spot11_sceneTex_4
   format: RGBA16
   width: 32
   height: 32
 
-spot11_sceneTex_00A8A0:
+spot11_sceneTex_5:
   type: TEXTURE
   offset: 0xA8B0
-  symbol: spot11_sceneTex_00A8A0
+  symbol: spot11_sceneTex_5
   format: RGBA16
   width: 64
   height: 32
 
-spot11_sceneTex_00B8A0:
+spot11_sceneTex_6:
   type: TEXTURE
   offset: 0xB8B0
-  symbol: spot11_sceneTex_00B8A0
+  symbol: spot11_sceneTex_6
   format: RGBA16
   width: 16
   height: 32
 
-spot11_sceneTex_00BCA0:
+spot11_sceneTex_7:
   type: TEXTURE
   offset: 0xBCB0
-  symbol: spot11_sceneTex_00BCA0
+  symbol: spot11_sceneTex_7
   format: RGBA16
   width: 32
   height: 32
 
-spot11_sceneTex_00C4A0:
+spot11_sceneTex_8:
   type: TEXTURE
   offset: 0xC4B0
-  symbol: spot11_sceneTex_00C4A0
+  symbol: spot11_sceneTex_8
   format: RGBA16
   width: 32
   height: 32
 
-spot11_sceneTex_00CCA0:
+spot11_sceneTex_9:
   type: TEXTURE
   offset: 0xCCB0
-  symbol: spot11_sceneTex_00CCA0
+  symbol: spot11_sceneTex_9
   format: RGBA16
   width: 16
   height: 64
 
-spot11_sceneTex_00D4A0:
+spot11_sceneTex_10:
   type: TEXTURE
   offset: 0xD4B0
-  symbol: spot11_sceneTex_00D4A0
+  symbol: spot11_sceneTex_10
   format: RGBA16
   width: 32
   height: 32
 
-spot11_sceneTex_00DCA0:
+spot11_sceneTex_11:
   type: TEXTURE
   offset: 0xDCB0
-  symbol: spot11_sceneTex_00DCA0
+  symbol: spot11_sceneTex_11
   format: RGBA16
   width: 64
   height: 32
 
-spot11_sceneTex_00ECA0:
+spot11_sceneTex_12:
   type: TEXTURE
   offset: 0xECB0
-  symbol: spot11_sceneTex_00ECA0
+  symbol: spot11_sceneTex_12
   format: RGBA16
   width: 32
   height: 32
 
-spot11_sceneTex_00F4A0:
+spot11_sceneTex_13:
   type: TEXTURE
   offset: 0xF4B0
-  symbol: spot11_sceneTex_00F4A0
+  symbol: spot11_sceneTex_13
   format: RGBA16
   width: 32
   height: 32
 
-spot11_sceneTex_00FCA0:
+spot11_sceneTex_14:
   type: TEXTURE
   offset: 0xFCB0
-  symbol: spot11_sceneTex_00FCA0
+  symbol: spot11_sceneTex_14
   format: IA8
   width: 8
   height: 8
 
-spot11_sceneTex_00FCE0:
+spot11_sceneTex_15:
   type: TEXTURE
   offset: 0xFCF0
-  symbol: spot11_sceneTex_00FCE0
+  symbol: spot11_sceneTex_15
   format: RGBA16
   width: 32
   height: 32
 
-spot11_sceneTex_0104E0:
+spot11_sceneTex_16:
   type: TEXTURE
   offset: 0x104F0
-  symbol: spot11_sceneTex_0104E0
+  symbol: spot11_sceneTex_16
   format: RGBA16
   width: 32
   height: 32
 
-spot11_sceneTex_010CE0:
+spot11_sceneTex_17:
   type: TEXTURE
   offset: 0x10CF0
-  symbol: spot11_sceneTex_010CE0
+  symbol: spot11_sceneTex_17
   format: RGBA16
   width: 32
   height: 64
 
-spot11_sceneTex_011CE0:
+spot11_sceneTex_18:
   type: TEXTURE
   offset: 0x11CF0
-  symbol: spot11_sceneTex_011CE0
+  symbol: spot11_sceneTex_18
   format: RGBA16
   width: 32
   height: 32
 
-spot11_sceneTex_0124E0:
+spot11_sceneTex_19:
   type: TEXTURE
   offset: 0x124F0
-  symbol: spot11_sceneTex_0124E0
+  symbol: spot11_sceneTex_19
   format: RGBA16
   width: 32
   height: 32
 
-spot11_sceneTex_012CE0:
+spot11_sceneTex_20:
   type: TEXTURE
   offset: 0x12CF0
-  symbol: spot11_sceneTex_012CE0
+  symbol: spot11_sceneTex_20
   format: RGBA16
   width: 32
   height: 32
 
-spot11_sceneTex_0134E0:
+spot11_sceneTex_21:
   type: TEXTURE
   offset: 0x134F0
-  symbol: spot11_sceneTex_0134E0
+  symbol: spot11_sceneTex_21
   format: RGBA16
   width: 32
   height: 32
 
-spot11_sceneTex_013CE0:
+spot11_sceneTex_22:
   type: TEXTURE
   offset: 0x13CF0
-  symbol: spot11_sceneTex_013CE0
+  symbol: spot11_sceneTex_22
   format: RGBA16
   width: 32
   height: 32
 
-spot11_sceneTex_0144E0:
+spot11_sceneTex_23:
   type: TEXTURE
   offset: 0x144F0
-  symbol: spot11_sceneTex_0144E0
+  symbol: spot11_sceneTex_23
   format: RGBA16
   width: 32
   height: 64
 
-spot11_sceneTex_0154E0:
+spot11_sceneTex_24:
   type: TEXTURE
   offset: 0x154F0
-  symbol: spot11_sceneTex_0154E0
+  symbol: spot11_sceneTex_24
   format: RGBA16
   width: 32
   height: 32
 
-spot11_sceneTex_015CE0:
+spot11_sceneTex_25:
   type: TEXTURE
   offset: 0x15CF0
-  symbol: spot11_sceneTex_015CE0
+  symbol: spot11_sceneTex_25
   format: RGBA16
   width: 32
   height: 32
 
-spot11_sceneTex_0164E0:
+spot11_sceneTex_26:
   type: TEXTURE
   offset: 0x164F0
-  symbol: spot11_sceneTex_0164E0
+  symbol: spot11_sceneTex_26
   format: IA4
   width: 32
   height: 128
 
-spot11_sceneTex_016CE0:
+spot11_sceneTex_27:
   type: TEXTURE
   offset: 0x16CF0
-  symbol: spot11_sceneTex_016CE0
+  symbol: spot11_sceneTex_27
   format: RGBA16
   width: 32
   height: 32
 
-spot11_sceneTex_0174E0:
+spot11_sceneTex_28:
   type: TEXTURE
   offset: 0x174F0
-  symbol: spot11_sceneTex_0174E0
+  symbol: spot11_sceneTex_28
   format: RGBA16
   width: 16
   height: 64
 
-spot11_sceneTex_017CE0:
+spot11_sceneTex_29:
   type: TEXTURE
   offset: 0x17CF0
-  symbol: spot11_sceneTex_017CE0
+  symbol: spot11_sceneTex_29
   format: IA4
   width: 64
   height: 64
 
-spot11_sceneTex_0184E0:
+spot11_sceneTex_30:
   type: TEXTURE
   offset: 0x184F0
-  symbol: spot11_sceneTex_0184E0
+  symbol: spot11_sceneTex_30
   format: RGBA16
   width: 32
   height: 32
 
-spot11_sceneTex_018CE0:
+spot11_sceneTex_31:
   type: TEXTURE
   offset: 0x18CF0
-  symbol: spot11_sceneTex_018CE0
+  symbol: spot11_sceneTex_31
   format: RGBA16
   width: 32
   height: 32
 
 
-spot11_sceneCollisionHeader_004EE4:
+spot11_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x004EE4
-  symbol: spot11_sceneCollisionHeader_004EE4
+  symbol: spot11_sceneCollisionHeader_0

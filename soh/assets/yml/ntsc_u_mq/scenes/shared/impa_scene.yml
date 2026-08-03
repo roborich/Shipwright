@@ -8,7 +8,7 @@ impa_scene:
   symbol: impa_scene
 
 
-impa_sceneCollisionHeader_000CE0:
+impa_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x000CE0
-  symbol: impa_sceneCollisionHeader_000CE0
+  symbol: impa_sceneCollisionHeader_0

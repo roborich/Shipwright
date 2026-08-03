@@ -12,10 +12,10 @@ HIDAN_room_15:
   offset: 0x0
   symbol: HIDAN_room_15
 
-HIDAN_room_15Tex_000D88:
+HIDAN_room_15Tex_1:
   type: TEXTURE
   offset: 0xD88
-  symbol: HIDAN_room_15Tex_000D88
+  symbol: HIDAN_room_15Tex_1
   format: CI4
   width: 32
   height: 64
@@ -23,16 +23,16 @@ HIDAN_room_15Tex_000D88:
   external_tlut_offset: 0x189B0
 
 
-HIDAN_room_15Vtx_0000B0:
+HIDAN_room_15Vtx_0:
   type: OOT:ARRAY
   offset: 0x0000B0
-  symbol: HIDAN_room_15Vtx_0000B0
+  symbol: HIDAN_room_15Vtx_0
   count: 134
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HIDAN_room_15DL_000910:
+HIDAN_room_15DL_1:
   type: GFX
   offset: 0x000910
-  symbol: HIDAN_room_15DL_000910
+  symbol: HIDAN_room_15DL_1

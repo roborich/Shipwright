@@ -8,7 +8,7 @@ tent_scene:
   symbol: tent_scene
 
 
-tent_sceneCollisionHeader_00064C:
+tent_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x00064C
-  symbol: tent_sceneCollisionHeader_00064C
+  symbol: tent_sceneCollisionHeader_0

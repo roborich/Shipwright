@@ -7,34 +7,34 @@ moribossroom_scene:
   offset: 0x0
   symbol: moribossroom_scene
 
-moribossroom_sceneTLUT_000B50:
+moribossroom_sceneTLUT_0:
   type: TEXTURE
   offset: 0xB50
-  symbol: moribossroom_sceneTLUT_000B50
+  symbol: moribossroom_sceneTLUT_0
   format: RGBA16
   width: 16
   height: 16
 
-moribossroom_sceneTex_000CF8:
+moribossroom_sceneTex_0:
   type: TEXTURE
   offset: 0xCF8
-  symbol: moribossroom_sceneTex_000CF8
+  symbol: moribossroom_sceneTex_0
   format: CI8
   width: 32
   height: 32
   tlut: 0xB50
 
-moribossroom_sceneTex_0010F8:
+moribossroom_sceneTex_1:
   type: TEXTURE
   offset: 0x10F8
-  symbol: moribossroom_sceneTex_0010F8
+  symbol: moribossroom_sceneTex_1
   format: CI8
   width: 32
   height: 64
   tlut: 0xB50
 
 
-moribossroom_sceneCollisionHeader_000B1C:
+moribossroom_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x000B1C
-  symbol: moribossroom_sceneCollisionHeader_000B1C
+  symbol: moribossroom_sceneCollisionHeader_0

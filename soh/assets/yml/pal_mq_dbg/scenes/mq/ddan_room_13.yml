@@ -12,40 +12,40 @@ ddan_room_13:
   offset: 0x0
   symbol: ddan_room_13
 
-ddan_room_13Tex_000CC8:
+ddan_room_13Tex_4:
   type: TEXTURE
   offset: 0xCC8
-  symbol: ddan_room_13Tex_000CC8
+  symbol: ddan_room_13Tex_4
   format: CI8
   width: 32
   height: 64
   external_tlut: ddan_scene
   external_tlut_offset: 0x11D70
 
-ddan_room_13Tex_0014C8:
+ddan_room_13Tex_5:
   type: TEXTURE
   offset: 0x14C8
-  symbol: ddan_room_13Tex_0014C8
+  symbol: ddan_room_13Tex_5
   format: CI8
   width: 64
   height: 32
   external_tlut: ddan_scene
   external_tlut_offset: 0x11D70
 
-ddan_room_13Tex_001CC8:
+ddan_room_13Tex_6:
   type: TEXTURE
   offset: 0x1CC8
-  symbol: ddan_room_13Tex_001CC8
+  symbol: ddan_room_13Tex_6
   format: CI8
   width: 32
   height: 32
   external_tlut: ddan_scene
   external_tlut_offset: 0x11D70
 
-ddan_room_13Tex_0020C8:
+ddan_room_13Tex_7:
   type: TEXTURE
   offset: 0x20C8
-  symbol: ddan_room_13Tex_0020C8
+  symbol: ddan_room_13Tex_7
   format: CI8
   width: 32
   height: 32
@@ -53,16 +53,16 @@ ddan_room_13Tex_0020C8:
   external_tlut_offset: 0x11D70
 
 
-ddan_room_13Vtx_0000D0:
+ddan_room_13Vtx_0:
   type: OOT:ARRAY
   offset: 0x0000D0
-  symbol: ddan_room_13Vtx_0000D0
+  symbol: ddan_room_13Vtx_0
   count: 97
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ddan_room_13DL_0006E0:
+ddan_room_13DL_1:
   type: GFX
   offset: 0x0006E0
-  symbol: ddan_room_13DL_0006E0
+  symbol: ddan_room_13DL_1

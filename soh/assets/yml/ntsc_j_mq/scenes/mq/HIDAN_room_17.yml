@@ -12,81 +12,81 @@ HIDAN_room_17:
   offset: 0x0
   symbol: HIDAN_room_17
 
-HIDAN_room_17Tex_005168:
+HIDAN_room_17Tex_8:
   type: TEXTURE
   offset: 0x5168
-  symbol: HIDAN_room_17Tex_005168
+  symbol: HIDAN_room_17Tex_8
   format: RGBA16
   width: 32
   height: 32
 
-HIDAN_room_17Tex_005968:
+HIDAN_room_17Tex_9:
   type: TEXTURE
   offset: 0x5968
-  symbol: HIDAN_room_17Tex_005968
+  symbol: HIDAN_room_17Tex_9
   format: RGBA16
   width: 32
   height: 32
 
-HIDAN_room_17Tex_006168:
+HIDAN_room_17Tex_10:
   type: TEXTURE
   offset: 0x6168
-  symbol: HIDAN_room_17Tex_006168
+  symbol: HIDAN_room_17Tex_10
   format: RGBA16
   width: 32
   height: 32
 
-HIDAN_room_17Tex_006968:
+HIDAN_room_17Tex_11:
   type: TEXTURE
   offset: 0x6968
-  symbol: HIDAN_room_17Tex_006968
+  symbol: HIDAN_room_17Tex_11
   format: RGBA16
   width: 32
   height: 32
 
-HIDAN_room_17Tex_007168:
+HIDAN_room_17Tex_12:
   type: TEXTURE
   offset: 0x7168
-  symbol: HIDAN_room_17Tex_007168
+  symbol: HIDAN_room_17Tex_12
   format: RGBA16
   width: 32
   height: 32
 
-HIDAN_room_17Tex_007968:
+HIDAN_room_17Tex_13:
   type: TEXTURE
   offset: 0x7968
-  symbol: HIDAN_room_17Tex_007968
+  symbol: HIDAN_room_17Tex_13
   format: RGBA16
   width: 32
   height: 32
 
-HIDAN_room_17Tex_008168:
+HIDAN_room_17Tex_14:
   type: TEXTURE
   offset: 0x8168
-  symbol: HIDAN_room_17Tex_008168
+  symbol: HIDAN_room_17Tex_14
   format: RGBA16
   width: 32
   height: 32
 
-HIDAN_room_17Tex_008968:
+HIDAN_room_17Tex_15:
   type: TEXTURE
   offset: 0x8968
-  symbol: HIDAN_room_17Tex_008968
+  symbol: HIDAN_room_17Tex_15
   format: RGBA16
   width: 32
   height: 32
 
 
-HIDAN_room_17Vtx_000130:
+HIDAN_room_17Vtx_0:
   type: OOT:ARRAY
   offset: 0x000130
-  symbol: HIDAN_room_17Vtx_000130
+  symbol: HIDAN_room_17Vtx_0
   count: 790
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HIDAN_room_17DL_003290:
+HIDAN_room_17DL_1:
   type: GFX
   offset: 0x003290
-  symbol: HIDAN_room_17DL_003290
+  symbol: HIDAN_room_17DL_1

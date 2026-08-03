@@ -3,11 +3,11 @@
     - [ 2, 0x01720AD0 ]
 
   external_files:
-    - ntsc_1-0/scenes/shared/spot02_sceneSet_0061D0.yml
-    - ntsc_1-0/scenes/shared/spot02_sceneSet_006550.yml
-    - ntsc_1-0/scenes/shared/spot02_sceneSet_0068D0.yml
-    - ntsc_1-0/scenes/shared/spot02_sceneSet_006C10.yml
-    - ntsc_1-0/scenes/shared/spot02_sceneSet_006EC0.yml
+    - ntsc_1-0/scenes/shared/spot02_sceneSet_0.yml
+    - ntsc_1-0/scenes/shared/spot02_sceneSet_1.yml
+    - ntsc_1-0/scenes/shared/spot02_sceneSet_2.yml
+    - ntsc_1-0/scenes/shared/spot02_sceneSet_3.yml
+    - ntsc_1-0/scenes/shared/spot02_sceneSet_4.yml
 spot02_scene:
   type: OOT:SCENE
   offset: 0x0
@@ -18,106 +18,106 @@ gGraveyardIntroCs:
   offset: 0x70C0
   symbol: gGraveyardIntroCs
 
-spot02_sceneTex_007280:
+spot02_sceneTex_0:
   type: TEXTURE
   offset: 0x7280
-  symbol: spot02_sceneTex_007280
+  symbol: spot02_sceneTex_0
   format: RGBA16
   width: 32
   height: 32
 
-spot02_sceneTex_007A80:
+spot02_sceneTex_1:
   type: TEXTURE
   offset: 0x7A80
-  symbol: spot02_sceneTex_007A80
+  symbol: spot02_sceneTex_1
   format: RGBA16
   width: 32
   height: 16
 
-spot02_sceneTex_007E80:
+spot02_sceneTex_2:
   type: TEXTURE
   offset: 0x7E80
-  symbol: spot02_sceneTex_007E80
+  symbol: spot02_sceneTex_2
   format: RGBA16
   width: 32
   height: 32
 
-spot02_sceneTex_008680:
+spot02_sceneTex_3:
   type: TEXTURE
   offset: 0x8680
-  symbol: spot02_sceneTex_008680
+  symbol: spot02_sceneTex_3
   format: RGBA16
   width: 16
   height: 64
 
-spot02_sceneTex_008E80:
+spot02_sceneTex_4:
   type: TEXTURE
   offset: 0x8E80
-  symbol: spot02_sceneTex_008E80
+  symbol: spot02_sceneTex_4
   format: I8
   width: 64
   height: 64
 
-spot02_sceneTex_009E80:
+spot02_sceneTex_5:
   type: TEXTURE
   offset: 0x9E80
-  symbol: spot02_sceneTex_009E80
+  symbol: spot02_sceneTex_5
   format: IA4
   width: 32
   height: 64
 
-spot02_sceneTex_00A280:
+spot02_sceneTex_6:
   type: TEXTURE
   offset: 0xA280
-  symbol: spot02_sceneTex_00A280
+  symbol: spot02_sceneTex_6
   format: RGBA16
   width: 32
   height: 32
 
-spot02_sceneTex_00AA80:
+spot02_sceneTex_7:
   type: TEXTURE
   offset: 0xAA80
-  symbol: spot02_sceneTex_00AA80
+  symbol: spot02_sceneTex_7
   format: RGBA16
   width: 32
   height: 16
 
-spot02_sceneTex_00AE80:
+spot02_sceneTex_8:
   type: TEXTURE
   offset: 0xAE80
-  symbol: spot02_sceneTex_00AE80
+  symbol: spot02_sceneTex_8
   format: I4
   width: 32
   height: 32
 
-spot02_sceneTex_00B080:
+spot02_sceneTex_9:
   type: TEXTURE
   offset: 0xB080
-  symbol: spot02_sceneTex_00B080
+  symbol: spot02_sceneTex_9
   format: RGBA16
   width: 32
   height: 32
 
-spot02_sceneTex_00B880:
+spot02_sceneTex_10:
   type: TEXTURE
   offset: 0xB880
-  symbol: spot02_sceneTex_00B880
+  symbol: spot02_sceneTex_10
   format: RGBA16
   width: 16
   height: 32
 
-spot02_scene_Cs_003C80:
+spot02_scene_Cs_0:
   type: OOT:CUTSCENE
   offset: 0x3C80
-  symbol: spot02_scene_Cs_003C80
+  symbol: spot02_scene_Cs_0
 
-spot02_scene_Cs_005020:
+spot02_scene_Cs_1:
   type: OOT:CUTSCENE
   offset: 0x5020
-  symbol: spot02_scene_Cs_005020
+  symbol: spot02_scene_Cs_1
 
 
-spot02_sceneCollisionHeader_003C4C:
+spot02_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x003C4C
-  symbol: spot02_sceneCollisionHeader_003C4C
+  symbol: spot02_sceneCollisionHeader_0

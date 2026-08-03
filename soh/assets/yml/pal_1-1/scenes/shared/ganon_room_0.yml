@@ -12,123 +12,123 @@ ganon_room_0:
   offset: 0x0
   symbol: ganon_room_0
 
-ganon_room_0Tex_004C68:
+ganon_room_0Tex_0:
   type: TEXTURE
   offset: 0x4C68
-  symbol: ganon_room_0Tex_004C68
+  symbol: ganon_room_0Tex_0
   format: CI8
   width: 32
   height: 64
   external_tlut: ganon_scene
   external_tlut_offset: 0xE7D0
 
-ganon_room_0Tex_005468:
+ganon_room_0Tex_1:
   type: TEXTURE
   offset: 0x5468
-  symbol: ganon_room_0Tex_005468
+  symbol: ganon_room_0Tex_1
   format: CI8
   width: 32
   height: 64
   external_tlut: ganon_scene
   external_tlut_offset: 0xE7D0
 
-ganon_room_0Tex_005C68:
+ganon_room_0Tex_2:
   type: TEXTURE
   offset: 0x5C68
-  symbol: ganon_room_0Tex_005C68
+  symbol: ganon_room_0Tex_2
   format: CI8
   width: 32
   height: 32
   external_tlut: ganon_scene
   external_tlut_offset: 0xE7D0
 
-ganon_room_0Tex_006068:
+ganon_room_0Tex_3:
   type: TEXTURE
   offset: 0x6068
-  symbol: ganon_room_0Tex_006068
+  symbol: ganon_room_0Tex_3
   format: CI8
   width: 64
   height: 32
   external_tlut: ganon_scene
   external_tlut_offset: 0xE7D0
 
-ganon_room_0Tex_006868:
+ganon_room_0Tex_4:
   type: TEXTURE
   offset: 0x6868
-  symbol: ganon_room_0Tex_006868
+  symbol: ganon_room_0Tex_4
   format: CI8
   width: 64
   height: 32
   external_tlut: ganon_scene
   external_tlut_offset: 0xE7D0
 
-ganon_room_0Tex_007068:
+ganon_room_0Tex_5:
   type: TEXTURE
   offset: 0x7068
-  symbol: ganon_room_0Tex_007068
+  symbol: ganon_room_0Tex_5
   format: CI8
   width: 32
   height: 32
   external_tlut: ganon_scene
   external_tlut_offset: 0xEDA0
 
-ganon_room_0Tex_0076D0:
+ganon_room_0Tex_6:
   type: TEXTURE
   offset: 0x76D0
-  symbol: ganon_room_0Tex_0076D0
+  symbol: ganon_room_0Tex_6
   format: IA16
   width: 32
   height: 32
 
 
-ganon_room_0Vtx_0000E0:
+ganon_room_0Vtx_0:
   type: OOT:ARRAY
   offset: 0x0000E0
-  symbol: ganon_room_0Vtx_0000E0
+  symbol: ganon_room_0Vtx_0
   count: 754
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ganon_room_0DL_003000:
+ganon_room_0DL_0:
   type: GFX
   offset: 0x003000
-  symbol: ganon_room_0DL_003000
+  symbol: ganon_room_0DL_0
 
-ganon_room_0Vtx_004A90:
+ganon_room_0Vtx_1:
   type: OOT:ARRAY
   offset: 0x004A90
-  symbol: ganon_room_0Vtx_004A90
+  symbol: ganon_room_0Vtx_1
   count: 16
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ganon_room_0DL_004B90:
+ganon_room_0DL_1:
   type: GFX
   offset: 0x004B90
-  symbol: ganon_room_0DL_004B90
+  symbol: ganon_room_0DL_1
 
-ganon_room_0DL_004C50:
+ganon_room_0DL_2:
   type: GFX
   offset: 0x004C50
-  symbol: ganon_room_0DL_004C50
+  symbol: ganon_room_0DL_2
 
-ganon_room_0Vtx_007470:
+ganon_room_0Vtx_2:
   type: OOT:ARRAY
   offset: 0x007470
-  symbol: ganon_room_0Vtx_007470
+  symbol: ganon_room_0Vtx_2
   count: 24
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ganon_room_0DL_0075F0:
+ganon_room_0DL_3:
   type: GFX
   offset: 0x0075F0
-  symbol: ganon_room_0DL_0075F0
+  symbol: ganon_room_0DL_3
 
-ganon_room_0DL_0076C0:
+ganon_room_0DL_4:
   type: GFX
   offset: 0x0076C0
-  symbol: ganon_room_0DL_0076C0
+  symbol: ganon_room_0DL_4

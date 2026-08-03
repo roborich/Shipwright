@@ -7,190 +7,190 @@ hairal_niwa_scene:
   offset: 0x0
   symbol: hairal_niwa_scene
 
-hairal_niwa_scenePathway_000268:
+hairal_niwa_scenePathway_0:
   type: OOT:PATH
   offset: 0x268
-  symbol: hairal_niwa_scenePathway_000268
+  symbol: hairal_niwa_scenePathway_0
   num_paths: 8
 
-hairal_niwa_sceneTex_003390:
+hairal_niwa_sceneTex_0:
   type: TEXTURE
   offset: 0x3390
-  symbol: hairal_niwa_sceneTex_003390
+  symbol: hairal_niwa_sceneTex_0
   format: RGBA16
   width: 32
   height: 32
 
-hairal_niwa_sceneTex_003B90:
+hairal_niwa_sceneTex_1:
   type: TEXTURE
   offset: 0x3B90
-  symbol: hairal_niwa_sceneTex_003B90
+  symbol: hairal_niwa_sceneTex_1
   format: IA16
   width: 32
   height: 64
 
-hairal_niwa_sceneTex_004B90:
+hairal_niwa_sceneTex_2:
   type: TEXTURE
   offset: 0x4B90
-  symbol: hairal_niwa_sceneTex_004B90
+  symbol: hairal_niwa_sceneTex_2
   format: RGBA16
   width: 32
   height: 32
 
-hairal_niwa_sceneTex_005390:
+hairal_niwa_sceneTex_3:
   type: TEXTURE
   offset: 0x5390
-  symbol: hairal_niwa_sceneTex_005390
+  symbol: hairal_niwa_sceneTex_3
   format: RGBA16
   width: 32
   height: 32
 
-hairal_niwa_sceneTex_005B90:
+hairal_niwa_sceneTex_4:
   type: TEXTURE
   offset: 0x5B90
-  symbol: hairal_niwa_sceneTex_005B90
+  symbol: hairal_niwa_sceneTex_4
   format: RGBA16
   width: 32
   height: 32
 
-hairal_niwa_sceneTex_006390:
+hairal_niwa_sceneTex_5:
   type: TEXTURE
   offset: 0x6390
-  symbol: hairal_niwa_sceneTex_006390
+  symbol: hairal_niwa_sceneTex_5
   format: RGBA16
   width: 32
   height: 64
 
-hairal_niwa_sceneTex_007390:
+hairal_niwa_sceneTex_6:
   type: TEXTURE
   offset: 0x7390
-  symbol: hairal_niwa_sceneTex_007390
+  symbol: hairal_niwa_sceneTex_6
   format: I4
   width: 64
   height: 64
 
-hairal_niwa_sceneTex_007B90:
+hairal_niwa_sceneTex_7:
   type: TEXTURE
   offset: 0x7B90
-  symbol: hairal_niwa_sceneTex_007B90
+  symbol: hairal_niwa_sceneTex_7
   format: RGBA16
   width: 32
   height: 64
 
-hairal_niwa_sceneTex_008B90:
+hairal_niwa_sceneTex_8:
   type: TEXTURE
   offset: 0x8B90
-  symbol: hairal_niwa_sceneTex_008B90
+  symbol: hairal_niwa_sceneTex_8
   format: RGBA16
   width: 32
   height: 32
 
-hairal_niwa_sceneTex_009390:
+hairal_niwa_sceneTex_9:
   type: TEXTURE
   offset: 0x9390
-  symbol: hairal_niwa_sceneTex_009390
+  symbol: hairal_niwa_sceneTex_9
   format: RGBA16
   width: 32
   height: 32
 
-hairal_niwa_sceneTex_009B90:
+hairal_niwa_sceneTex_10:
   type: TEXTURE
   offset: 0x9B90
-  symbol: hairal_niwa_sceneTex_009B90
+  symbol: hairal_niwa_sceneTex_10
   format: RGBA16
   width: 32
   height: 64
 
-hairal_niwa_sceneTex_00AB90:
+hairal_niwa_sceneTex_11:
   type: TEXTURE
   offset: 0xAB90
-  symbol: hairal_niwa_sceneTex_00AB90
+  symbol: hairal_niwa_sceneTex_11
   format: RGBA16
   width: 32
   height: 32
 
-hairal_niwa_sceneTex_00B390:
+hairal_niwa_sceneTex_12:
   type: TEXTURE
   offset: 0xB390
-  symbol: hairal_niwa_sceneTex_00B390
+  symbol: hairal_niwa_sceneTex_12
   format: RGBA16
   width: 32
   height: 32
 
-hairal_niwa_sceneTex_00BB90:
+hairal_niwa_sceneTex_13:
   type: TEXTURE
   offset: 0xBB90
-  symbol: hairal_niwa_sceneTex_00BB90
+  symbol: hairal_niwa_sceneTex_13
   format: RGBA16
   width: 32
   height: 32
 
-hairal_niwa_sceneTex_00C390:
+hairal_niwa_sceneTex_14:
   type: TEXTURE
   offset: 0xC390
-  symbol: hairal_niwa_sceneTex_00C390
+  symbol: hairal_niwa_sceneTex_14
   format: IA4
   width: 64
   height: 64
 
-hairal_niwa_sceneTex_00CB90:
+hairal_niwa_sceneTex_15:
   type: TEXTURE
   offset: 0xCB90
-  symbol: hairal_niwa_sceneTex_00CB90
+  symbol: hairal_niwa_sceneTex_15
   format: I8
   width: 32
   height: 64
 
-hairal_niwa_sceneTex_00D390:
+hairal_niwa_sceneTex_16:
   type: TEXTURE
   offset: 0xD390
-  symbol: hairal_niwa_sceneTex_00D390
+  symbol: hairal_niwa_sceneTex_16
   format: IA4
   width: 32
   height: 128
 
-hairal_niwa_sceneTex_00DB90:
+hairal_niwa_sceneTex_17:
   type: TEXTURE
   offset: 0xDB90
-  symbol: hairal_niwa_sceneTex_00DB90
+  symbol: hairal_niwa_sceneTex_17
   format: RGBA16
   width: 32
   height: 64
 
-hairal_niwa_sceneTex_00EB90:
+hairal_niwa_sceneTex_18:
   type: TEXTURE
   offset: 0xEB90
-  symbol: hairal_niwa_sceneTex_00EB90
+  symbol: hairal_niwa_sceneTex_18
   format: RGBA16
   width: 32
   height: 32
 
-hairal_niwa_sceneTex_00F390:
+hairal_niwa_sceneTex_19:
   type: TEXTURE
   offset: 0xF390
-  symbol: hairal_niwa_sceneTex_00F390
+  symbol: hairal_niwa_sceneTex_19
   format: RGBA16
   width: 32
   height: 32
 
-hairal_niwa_sceneTex_00FB90:
+hairal_niwa_sceneTex_20:
   type: TEXTURE
   offset: 0xFB90
-  symbol: hairal_niwa_sceneTex_00FB90
+  symbol: hairal_niwa_sceneTex_20
   format: RGBA16
   width: 32
   height: 32
 
-hairal_niwa_sceneTex_010390:
+hairal_niwa_sceneTex_21:
   type: TEXTURE
   offset: 0x10390
-  symbol: hairal_niwa_sceneTex_010390
+  symbol: hairal_niwa_sceneTex_21
   format: RGBA16
   width: 32
   height: 64
 
 
-hairal_niwa_sceneCollisionHeader_0030B0:
+hairal_niwa_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x0030B0
-  symbol: hairal_niwa_sceneCollisionHeader_0030B0
+  symbol: hairal_niwa_sceneCollisionHeader_0

@@ -6,15 +6,15 @@
   external_files:
     - ntsc_j_gc/scenes/shared/hiral_demo_scene.yml
     - ntsc_j_gc/code/sys_matrix.yml
-    - ntsc_j_gc/scenes/shared/hiral_demo_room_0Set_0001E0.yml
-    - ntsc_j_gc/scenes/shared/hiral_demo_room_0Set_000270.yml
-    - ntsc_j_gc/scenes/shared/hiral_demo_room_0Set_0002E0.yml
-    - ntsc_j_gc/scenes/shared/hiral_demo_room_0Set_000380.yml
-    - ntsc_j_gc/scenes/shared/hiral_demo_room_0Set_0003E0.yml
-    - ntsc_j_gc/scenes/shared/hiral_demo_room_0Set_000450.yml
-    - ntsc_j_gc/scenes/shared/hiral_demo_room_0Set_0004C0.yml
-    - ntsc_j_gc/scenes/shared/hiral_demo_room_0Set_000530.yml
-    - ntsc_j_gc/scenes/shared/hiral_demo_room_0Set_0005D0.yml
+    - ntsc_j_gc/scenes/shared/hiral_demo_room_0Set_0.yml
+    - ntsc_j_gc/scenes/shared/hiral_demo_room_0Set_1.yml
+    - ntsc_j_gc/scenes/shared/hiral_demo_room_0Set_2.yml
+    - ntsc_j_gc/scenes/shared/hiral_demo_room_0Set_3.yml
+    - ntsc_j_gc/scenes/shared/hiral_demo_room_0Set_4.yml
+    - ntsc_j_gc/scenes/shared/hiral_demo_room_0Set_5.yml
+    - ntsc_j_gc/scenes/shared/hiral_demo_room_0Set_6.yml
+    - ntsc_j_gc/scenes/shared/hiral_demo_room_0Set_7.yml
+    - ntsc_j_gc/scenes/shared/hiral_demo_room_0Set_8.yml
 
 hiral_demo_room_0:
   type: OOT:ROOM
@@ -22,7 +22,7 @@ hiral_demo_room_0:
   symbol: hiral_demo_room_0
 
 
-hiral_demo_room_0DL_000630:
+hiral_demo_room_0DL_0:
   type: GFX
   offset: 0x000630
-  symbol: hiral_demo_room_0DL_000630
+  symbol: hiral_demo_room_0DL_0

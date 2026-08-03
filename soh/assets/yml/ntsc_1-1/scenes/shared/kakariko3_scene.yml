@@ -8,7 +8,7 @@ kakariko3_scene:
   symbol: kakariko3_scene
 
 
-kakariko3_sceneCollisionHeader_000808:
+kakariko3_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x000808
-  symbol: kakariko3_sceneCollisionHeader_000808
+  symbol: kakariko3_sceneCollisionHeader_0

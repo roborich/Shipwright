@@ -12,44 +12,44 @@ Bmori1_room_11:
   offset: 0x0
   symbol: Bmori1_room_11
 
-Bmori1_room_11Tex_008198:
+Bmori1_room_11Tex_0:
   type: TEXTURE
   offset: 0x8118
-  symbol: Bmori1_room_11Tex_008198
+  symbol: Bmori1_room_11Tex_0
   format: RGBA16
   width: 64
   height: 32
 
-Bmori1_room_11Tex_009198:
+Bmori1_room_11Tex_1:
   type: TEXTURE
   offset: 0x9118
-  symbol: Bmori1_room_11Tex_009198
+  symbol: Bmori1_room_11Tex_1
   format: CI8
   width: 32
   height: 32
   external_tlut: Bmori1_scene
   external_tlut_offset: 0x14288
 
-Bmori1_room_11Tex_009598:
+Bmori1_room_11Tex_2:
   type: TEXTURE
   offset: 0x9518
-  symbol: Bmori1_room_11Tex_009598
+  symbol: Bmori1_room_11Tex_2
   format: RGBA16
   width: 32
   height: 32
 
-Bmori1_room_11Tex_009D98:
+Bmori1_room_11Tex_3:
   type: TEXTURE
   offset: 0x9D18
-  symbol: Bmori1_room_11Tex_009D98
+  symbol: Bmori1_room_11Tex_3
   format: I4
   width: 64
   height: 64
 
-Bmori1_room_11Tex_00A598:
+Bmori1_room_11Tex_4:
   type: TEXTURE
   offset: 0xA518
-  symbol: Bmori1_room_11Tex_00A598
+  symbol: Bmori1_room_11Tex_4
   format: CI8
   width: 32
   height: 32
@@ -57,124 +57,124 @@ Bmori1_room_11Tex_00A598:
   external_tlut_offset: 0x14288
 
 
-Bmori1_room_11Vtx_000160:
+Bmori1_room_11Vtx_0:
   type: OOT:ARRAY
   offset: 0x000160
-  symbol: Bmori1_room_11Vtx_000160
+  symbol: Bmori1_room_11Vtx_0
   count: 580
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-Bmori1_room_11DL_0025A0:
+Bmori1_room_11DL_0:
   type: GFX
   offset: 0x0025A0
-  symbol: Bmori1_room_11DL_0025A0
+  symbol: Bmori1_room_11DL_0
 
-Bmori1_room_11Vtx_003460:
+Bmori1_room_11Vtx_1:
   type: OOT:ARRAY
   offset: 0x003460
-  symbol: Bmori1_room_11Vtx_003460
+  symbol: Bmori1_room_11Vtx_1
   count: 561
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-Bmori1_room_11DL_005770:
+Bmori1_room_11DL_1:
   type: GFX
   offset: 0x005770
-  symbol: Bmori1_room_11DL_005770
+  symbol: Bmori1_room_11DL_1
 
-Bmori1_room_11Vtx_007318:
+Bmori1_room_11Vtx_2:
   type: OOT:ARRAY
   offset: 0x007318
-  symbol: Bmori1_room_11Vtx_007318
+  symbol: Bmori1_room_11Vtx_2
   count: 40
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-Bmori1_room_11DL_007598:
+Bmori1_room_11DL_2:
   type: GFX
   offset: 0x007598
-  symbol: Bmori1_room_11DL_007598
+  symbol: Bmori1_room_11DL_2
 
-Bmori1_room_11Vtx_007688:
+Bmori1_room_11Vtx_3:
   type: OOT:ARRAY
   offset: 0x007688
-  symbol: Bmori1_room_11Vtx_007688
+  symbol: Bmori1_room_11Vtx_3
   count: 20
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-Bmori1_room_11DL_0077C8:
+Bmori1_room_11DL_3:
   type: GFX
   offset: 0x0077C8
-  symbol: Bmori1_room_11DL_0077C8
+  symbol: Bmori1_room_11DL_3
 
-Bmori1_room_11Vtx_007898:
+Bmori1_room_11Vtx_4:
   type: OOT:ARRAY
   offset: 0x007898
-  symbol: Bmori1_room_11Vtx_007898
+  symbol: Bmori1_room_11Vtx_4
   count: 45
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-Bmori1_room_11DL_007B68:
+Bmori1_room_11DL_4:
   type: GFX
   offset: 0x007B68
-  symbol: Bmori1_room_11DL_007B68
+  symbol: Bmori1_room_11DL_4
 
-Bmori1_room_11Vtx_007D90:
+Bmori1_room_11Vtx_5:
   type: OOT:ARRAY
   offset: 0x007D90
-  symbol: Bmori1_room_11Vtx_007D90
+  symbol: Bmori1_room_11Vtx_5
   count: 14
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-Bmori1_room_11DL_007E70:
+Bmori1_room_11DL_5:
   type: GFX
   offset: 0x007E70
-  symbol: Bmori1_room_11DL_007E70
+  symbol: Bmori1_room_11DL_5
 
-Bmori1_room_11Vtx_007F60:
+Bmori1_room_11Vtx_6:
   type: OOT:ARRAY
   offset: 0x007F60
-  symbol: Bmori1_room_11Vtx_007F60
+  symbol: Bmori1_room_11Vtx_6
   count: 12
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-Bmori1_room_11DL_008020:
+Bmori1_room_11DL_6:
   type: GFX
   offset: 0x008020
-  symbol: Bmori1_room_11DL_008020
+  symbol: Bmori1_room_11DL_6
 
-Bmori1_room_11DL_0080D8:
+Bmori1_room_11DL_8:
   type: GFX
   offset: 0x0080D8
-  symbol: Bmori1_room_11DL_0080D8
+  symbol: Bmori1_room_11DL_8
 
-Bmori1_room_11Vtx_00A920:
+Bmori1_room_11Vtx_7:
   type: OOT:ARRAY
   offset: 0x00A920
-  symbol: Bmori1_room_11Vtx_00A920
+  symbol: Bmori1_room_11Vtx_7
   count: 26
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-Bmori1_room_11DL_00AAC0:
+Bmori1_room_11DL_7:
   type: GFX
   offset: 0x00AAC0
-  symbol: Bmori1_room_11DL_00AAC0
+  symbol: Bmori1_room_11DL_7
 
-Bmori1_room_11DL_00AB50:
+Bmori1_room_11DL_9:
   type: GFX
   offset: 0x00AB50
-  symbol: Bmori1_room_11DL_00AB50
+  symbol: Bmori1_room_11DL_9

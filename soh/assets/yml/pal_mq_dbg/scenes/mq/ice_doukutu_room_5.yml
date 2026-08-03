@@ -6,166 +6,166 @@
   external_files:
     - pal_mq_dbg/scenes/mq/ice_doukutu_scene.yml
     - pal_mq_dbg/code/sys_matrix.yml
-    - pal_mq_dbg/scenes/mq/ice_doukutu_room_5Set_0001C0.yml
+    - pal_mq_dbg/scenes/mq/ice_doukutu_room_5Set_1.yml
 
 ice_doukutu_room_5:
   type: OOT:ROOM
   offset: 0x0
   symbol: ice_doukutu_room_5
 
-ice_doukutu_room_5Tex_004648:
+ice_doukutu_room_5Tex_0:
   type: TEXTURE
   offset: 0x4648
-  symbol: ice_doukutu_room_5Tex_004648
+  symbol: ice_doukutu_room_5Tex_0
   format: RGBA16
   width: 16
   height: 128
 
-ice_doukutu_room_5Tex_005648:
+ice_doukutu_room_5Tex_6:
   type: TEXTURE
   offset: 0x5648
-  symbol: ice_doukutu_room_5Tex_005648
+  symbol: ice_doukutu_room_5Tex_6
   format: RGBA16
   width: 32
   height: 32
 
-ice_doukutu_room_5Tex_005E48:
+ice_doukutu_room_5Tex_7:
   type: TEXTURE
   offset: 0x5E48
-  symbol: ice_doukutu_room_5Tex_005E48
+  symbol: ice_doukutu_room_5Tex_7
   format: RGBA16
   width: 32
   height: 32
 
-ice_doukutu_room_5Tex_006648:
+ice_doukutu_room_5Tex_8:
   type: TEXTURE
   offset: 0x6648
-  symbol: ice_doukutu_room_5Tex_006648
+  symbol: ice_doukutu_room_5Tex_8
   format: RGBA16
   width: 32
   height: 32
 
-ice_doukutu_room_5Tex_007478:
+ice_doukutu_room_5Tex_4:
   type: TEXTURE
   offset: 0x7478
-  symbol: ice_doukutu_room_5Tex_007478
+  symbol: ice_doukutu_room_5Tex_4
   format: I8
   width: 32
   height: 32
 
-ice_doukutu_room_5Tex_007878:
+ice_doukutu_room_5Tex_9:
   type: TEXTURE
   offset: 0x7878
-  symbol: ice_doukutu_room_5Tex_007878
+  symbol: ice_doukutu_room_5Tex_9
   format: I8
   width: 64
   height: 64
 
 
-ice_doukutu_room_5Vtx_000240:
+ice_doukutu_room_5Vtx_0:
   type: OOT:ARRAY
   offset: 0x000240
-  symbol: ice_doukutu_room_5Vtx_000240
+  symbol: ice_doukutu_room_5Vtx_0
   count: 193
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ice_doukutu_room_5DL_000E50:
+ice_doukutu_room_5DL_9:
   type: GFX
   offset: 0x000E50
-  symbol: ice_doukutu_room_5DL_000E50
+  symbol: ice_doukutu_room_5DL_9
 
-ice_doukutu_room_5Vtx_001498:
+ice_doukutu_room_5Vtx_1:
   type: OOT:ARRAY
   offset: 0x001498
-  symbol: ice_doukutu_room_5Vtx_001498
+  symbol: ice_doukutu_room_5Vtx_1
   count: 178
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ice_doukutu_room_5DL_001FB8:
+ice_doukutu_room_5DL_10:
   type: GFX
   offset: 0x001FB8
-  symbol: ice_doukutu_room_5DL_001FB8
+  symbol: ice_doukutu_room_5DL_10
 
-ice_doukutu_room_5Vtx_0022D0:
+ice_doukutu_room_5Vtx_2:
   type: OOT:ARRAY
   offset: 0x0022D0
-  symbol: ice_doukutu_room_5Vtx_0022D0
+  symbol: ice_doukutu_room_5Vtx_2
   count: 327
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ice_doukutu_room_5DL_003740:
+ice_doukutu_room_5DL_11:
   type: GFX
   offset: 0x003740
-  symbol: ice_doukutu_room_5DL_003740
+  symbol: ice_doukutu_room_5DL_11
 
-ice_doukutu_room_5Vtx_003C48:
+ice_doukutu_room_5Vtx_3:
   type: OOT:ARRAY
   offset: 0x003C48
-  symbol: ice_doukutu_room_5Vtx_003C48
+  symbol: ice_doukutu_room_5Vtx_3
   count: 61
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ice_doukutu_room_5DL_004018:
+ice_doukutu_room_5DL_12:
   type: GFX
   offset: 0x004018
-  symbol: ice_doukutu_room_5DL_004018
+  symbol: ice_doukutu_room_5DL_12
 
-ice_doukutu_room_5Vtx_0041A0:
+ice_doukutu_room_5Vtx_4:
   type: OOT:ARRAY
   offset: 0x0041A0
-  symbol: ice_doukutu_room_5Vtx_0041A0
+  symbol: ice_doukutu_room_5Vtx_4
   count: 54
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ice_doukutu_room_5DL_004500:
+ice_doukutu_room_5DL_13:
   type: GFX
   offset: 0x004500
-  symbol: ice_doukutu_room_5DL_004500
+  symbol: ice_doukutu_room_5DL_13
 
-ice_doukutu_room_5DL_004618:
+ice_doukutu_room_5DL_14:
   type: GFX
   offset: 0x004618
-  symbol: ice_doukutu_room_5DL_004618
+  symbol: ice_doukutu_room_5DL_14
 
-ice_doukutu_room_5Vtx_006E50:
+ice_doukutu_room_5Vtx_5:
   type: OOT:ARRAY
   offset: 0x006E50
-  symbol: ice_doukutu_room_5Vtx_006E50
+  symbol: ice_doukutu_room_5Vtx_5
   count: 12
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ice_doukutu_room_5DL_006F10:
+ice_doukutu_room_5DL_15:
   type: GFX
   offset: 0x006F10
-  symbol: ice_doukutu_room_5DL_006F10
+  symbol: ice_doukutu_room_5DL_15
 
-ice_doukutu_room_5Vtx_006FE8:
+ice_doukutu_room_5Vtx_6:
   type: OOT:ARRAY
   offset: 0x006FE8
-  symbol: ice_doukutu_room_5Vtx_006FE8
+  symbol: ice_doukutu_room_5Vtx_6
   count: 55
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ice_doukutu_room_5DL_007358:
+ice_doukutu_room_5DL_16:
   type: GFX
   offset: 0x007358
-  symbol: ice_doukutu_room_5DL_007358
+  symbol: ice_doukutu_room_5DL_16
 
-ice_doukutu_room_5DL_007460:
+ice_doukutu_room_5DL_17:
   type: GFX
   offset: 0x007460
-  symbol: ice_doukutu_room_5DL_007460
+  symbol: ice_doukutu_room_5DL_17

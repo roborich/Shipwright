@@ -3,9 +3,9 @@
     - [ 2, 0x03198000 ]
 
   external_files:
-    - pal_gc_dbg/scenes/shared/jyasinboss_sceneSet_0067C0.yml
-    - pal_gc_dbg/scenes/shared/jyasinboss_sceneSet_006980.yml
-    - pal_gc_dbg/scenes/shared/jyasinboss_sceneSet_006B40.yml
+    - pal_gc_dbg/scenes/shared/jyasinboss_sceneSet_0.yml
+    - pal_gc_dbg/scenes/shared/jyasinboss_sceneSet_1.yml
+    - pal_gc_dbg/scenes/shared/jyasinboss_sceneSet_2.yml
 jyasinboss_scene:
   type: OOT:SCENE
   offset: 0x0
@@ -21,24 +21,24 @@ gSpiritBossNabooruKnuckleIntroCs:
   offset: 0x2BB0
   symbol: gSpiritBossNabooruKnuckleIntroCs
 
-jyasinboss_sceneTex_006CF0:
+jyasinboss_sceneTex_0:
   type: TEXTURE
   offset: 0x6CF0
-  symbol: jyasinboss_sceneTex_006CF0
+  symbol: jyasinboss_sceneTex_0
   format: RGBA16
   width: 64
   height: 32
 
-jyasinboss_sceneTex_007CF0:
+jyasinboss_sceneTex_1:
   type: TEXTURE
   offset: 0x7CF0
-  symbol: jyasinboss_sceneTex_007CF0
+  symbol: jyasinboss_sceneTex_1
   format: RGBA16
   width: 64
   height: 32
 
 
-jyasinboss_sceneCollisionHeader_002B80:
+jyasinboss_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x002B80
-  symbol: jyasinboss_sceneCollisionHeader_002B80
+  symbol: jyasinboss_sceneCollisionHeader_0

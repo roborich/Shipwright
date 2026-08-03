@@ -13,30 +13,30 @@ yousei_izumi_tate_room_0:
   symbol: yousei_izumi_tate_room_0
 
 
-yousei_izumi_tate_room_0Vtx_000080:
+yousei_izumi_tate_room_0Vtx_0:
   type: OOT:ARRAY
   offset: 0x000080
-  symbol: yousei_izumi_tate_room_0Vtx_000080
+  symbol: yousei_izumi_tate_room_0Vtx_0
   count: 697
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-yousei_izumi_tate_room_0DL_002C10:
+yousei_izumi_tate_room_0DL_0:
   type: GFX
   offset: 0x002C10
-  symbol: yousei_izumi_tate_room_0DL_002C10
+  symbol: yousei_izumi_tate_room_0DL_0
 
-yousei_izumi_tate_room_0Vtx_0039A0:
+yousei_izumi_tate_room_0Vtx_1:
   type: OOT:ARRAY
   offset: 0x0039A0
-  symbol: yousei_izumi_tate_room_0Vtx_0039A0
+  symbol: yousei_izumi_tate_room_0Vtx_1
   count: 97
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-yousei_izumi_tate_room_0DL_003FB0:
+yousei_izumi_tate_room_0DL_1:
   type: GFX
   offset: 0x003FB0
-  symbol: yousei_izumi_tate_room_0DL_003FB0
+  symbol: yousei_izumi_tate_room_0DL_1

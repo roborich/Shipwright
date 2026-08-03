@@ -3,11 +3,11 @@
     - [ 2, 0x01B43D80 ]
 
   external_files:
-    - pal_mq/scenes/shared/spot08_sceneSet_004370.yml
-    - pal_mq/scenes/shared/spot08_sceneSet_004550.yml
-    - pal_mq/scenes/shared/spot08_sceneSet_004730.yml
-    - pal_mq/scenes/shared/spot08_sceneSet_004810.yml
-    - pal_mq/scenes/shared/spot08_sceneSet_004990.yml
+    - pal_mq/scenes/shared/spot08_sceneSet_0.yml
+    - pal_mq/scenes/shared/spot08_sceneSet_1.yml
+    - pal_mq/scenes/shared/spot08_sceneSet_2.yml
+    - pal_mq/scenes/shared/spot08_sceneSet_3.yml
+    - pal_mq/scenes/shared/spot08_sceneSet_4.yml
 spot08_scene:
   type: OOT:SCENE
   offset: 0x0
@@ -18,231 +18,231 @@ gZorasFountainIntroCs:
   offset: 0x4A80
   symbol: gZorasFountainIntroCs
 
-spot08_sceneTLUT_004CC0:
+spot08_sceneTLUT_0:
   type: TEXTURE
   offset: 0x4CC0
-  symbol: spot08_sceneTLUT_004CC0
+  symbol: spot08_sceneTLUT_0
   format: RGBA16
   width: 4
   height: 4
 
-spot08_sceneTLUT_004CE8:
+spot08_sceneTLUT_1:
   type: TEXTURE
   offset: 0x4CE8
-  symbol: spot08_sceneTLUT_004CE8
+  symbol: spot08_sceneTLUT_1
   format: RGBA16
   width: 4
   height: 4
 
-spot08_sceneTLUT_004D10:
+spot08_sceneTLUT_2:
   type: TEXTURE
   offset: 0x4D10
-  symbol: spot08_sceneTLUT_004D10
+  symbol: spot08_sceneTLUT_2
   format: RGBA16
   width: 4
   height: 4
 
-spot08_sceneTLUT_004D38:
+spot08_sceneTLUT_3:
   type: TEXTURE
   offset: 0x4D38
-  symbol: spot08_sceneTLUT_004D38
+  symbol: spot08_sceneTLUT_3
   format: RGBA16
   width: 4
   height: 4
 
-spot08_sceneTLUT_004D60:
+spot08_sceneTLUT_4:
   type: TEXTURE
   offset: 0x4D60
-  symbol: spot08_sceneTLUT_004D60
+  symbol: spot08_sceneTLUT_4
   format: RGBA16
   width: 4
   height: 4
 
-spot08_sceneTLUT_004D80:
+spot08_sceneTLUT_5:
   type: TEXTURE
   offset: 0x4D80
-  symbol: spot08_sceneTLUT_004D80
+  symbol: spot08_sceneTLUT_5
   format: RGBA16
   width: 4
   height: 4
 
-spot08_sceneTex_004DA0:
+spot08_sceneTex_0:
   type: TEXTURE
   offset: 0x4DA0
-  symbol: spot08_sceneTex_004DA0
+  symbol: spot08_sceneTex_0
   format: RGBA16
   width: 64
   height: 32
 
-spot08_sceneTex_005DA0:
+spot08_sceneTex_1:
   type: TEXTURE
   offset: 0x5DA0
-  symbol: spot08_sceneTex_005DA0
+  symbol: spot08_sceneTex_1
   format: RGBA16
   width: 32
   height: 16
 
-spot08_sceneTex_0061A0:
+spot08_sceneTex_2:
   type: TEXTURE
   offset: 0x61A0
-  symbol: spot08_sceneTex_0061A0
+  symbol: spot08_sceneTex_2
   format: RGBA16
   width: 32
   height: 32
 
-spot08_sceneTex_0069A0:
+spot08_sceneTex_3:
   type: TEXTURE
   offset: 0x69A0
-  symbol: spot08_sceneTex_0069A0
+  symbol: spot08_sceneTex_3
   format: RGBA16
   width: 32
   height: 32
 
-spot08_sceneTex_0071A0:
+spot08_sceneTex_4:
   type: TEXTURE
   offset: 0x71A0
-  symbol: spot08_sceneTex_0071A0
+  symbol: spot08_sceneTex_4
   format: IA4
   width: 256
   height: 32
 
-spot08_sceneTex_0081A0:
+spot08_sceneTex_5:
   type: TEXTURE
   offset: 0x81A0
-  symbol: spot08_sceneTex_0081A0
+  symbol: spot08_sceneTex_5
   format: CI4
   width: 128
   height: 32
   tlut: 0x4CC0
 
-spot08_sceneTex_0089A0:
+spot08_sceneTex_6:
   type: TEXTURE
   offset: 0x89A0
-  symbol: spot08_sceneTex_0089A0
+  symbol: spot08_sceneTex_6
   format: RGBA16
   width: 32
   height: 32
 
-spot08_sceneTex_0091A0:
+spot08_sceneTex_7:
   type: TEXTURE
   offset: 0x91A0
-  symbol: spot08_sceneTex_0091A0
+  symbol: spot08_sceneTex_7
   format: RGBA16
   width: 16
   height: 128
 
-spot08_sceneTex_00A1A0:
+spot08_sceneTex_8:
   type: TEXTURE
   offset: 0xA1A0
-  symbol: spot08_sceneTex_00A1A0
+  symbol: spot08_sceneTex_8
   format: CI4
   width: 128
   height: 32
   tlut: 0x4CE8
 
-spot08_sceneTex_00A9A0:
+spot08_sceneTex_9:
   type: TEXTURE
   offset: 0xA9A0
-  symbol: spot08_sceneTex_00A9A0
+  symbol: spot08_sceneTex_9
   format: CI4
   width: 64
   height: 64
   tlut: 0x4D38
 
-spot08_sceneTex_00B1A0:
+spot08_sceneTex_10:
   type: TEXTURE
   offset: 0xB1A0
-  symbol: spot08_sceneTex_00B1A0
+  symbol: spot08_sceneTex_10
   format: CI4
   width: 64
   height: 64
   tlut: 0x4D10
 
-spot08_sceneTex_00B9A0:
+spot08_sceneTex_11:
   type: TEXTURE
   offset: 0xB9A0
-  symbol: spot08_sceneTex_00B9A0
+  symbol: spot08_sceneTex_11
   format: CI4
   width: 64
   height: 64
   tlut: 0x4D38
 
-spot08_sceneTex_00C1A0:
+spot08_sceneTex_12:
   type: TEXTURE
   offset: 0xC1A0
-  symbol: spot08_sceneTex_00C1A0
+  symbol: spot08_sceneTex_12
   format: RGBA16
   width: 64
   height: 32
 
-spot08_sceneTex_00D1A0:
+spot08_sceneTex_13:
   type: TEXTURE
   offset: 0xD1A0
-  symbol: spot08_sceneTex_00D1A0
+  symbol: spot08_sceneTex_13
   format: I8
   width: 64
   height: 64
 
-spot08_sceneTex_00E1A0:
+spot08_sceneTex_14:
   type: TEXTURE
   offset: 0xE1A0
-  symbol: spot08_sceneTex_00E1A0
+  symbol: spot08_sceneTex_14
   format: RGBA16
   width: 32
   height: 64
 
-spot08_sceneTex_00F1A0:
+spot08_sceneTex_15:
   type: TEXTURE
   offset: 0xF1A0
-  symbol: spot08_sceneTex_00F1A0
+  symbol: spot08_sceneTex_15
   format: CI4
   width: 32
   height: 128
   tlut: 0x4D60
 
-spot08_sceneTex_00F9A0:
+spot08_sceneTex_16:
   type: TEXTURE
   offset: 0xF9A0
-  symbol: spot08_sceneTex_00F9A0
+  symbol: spot08_sceneTex_16
   format: CI4
   width: 64
   height: 64
   tlut: 0x4D80
 
-spot08_sceneTex_0101A0:
+spot08_sceneTex_17:
   type: TEXTURE
   offset: 0x101A0
-  symbol: spot08_sceneTex_0101A0
+  symbol: spot08_sceneTex_17
   format: I4
   width: 64
   height: 64
 
-spot08_sceneTex_0109A0:
+spot08_sceneTex_18:
   type: TEXTURE
   offset: 0x109A0
-  symbol: spot08_sceneTex_0109A0
+  symbol: spot08_sceneTex_18
   format: IA8
   width: 16
   height: 16
 
-spot08_sceneTex_010AA0:
+spot08_sceneTex_19:
   type: TEXTURE
   offset: 0x10AA0
-  symbol: spot08_sceneTex_010AA0
+  symbol: spot08_sceneTex_19
   format: RGBA16
   width: 16
   height: 32
 
-spot08_sceneTex_010EA0:
+spot08_sceneTex_20:
   type: TEXTURE
   offset: 0x10EA0
-  symbol: spot08_sceneTex_010EA0
+  symbol: spot08_sceneTex_20
   format: RGBA16
   width: 32
   height: 32
 
 
-spot08_sceneCollisionHeader_002CE0:
+spot08_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x002CE0
-  symbol: spot08_sceneCollisionHeader_002CE0
+  symbol: spot08_sceneCollisionHeader_0

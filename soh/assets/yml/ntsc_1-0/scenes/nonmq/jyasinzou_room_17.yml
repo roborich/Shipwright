@@ -12,80 +12,80 @@ jyasinzou_room_17:
   offset: 0x0
   symbol: jyasinzou_room_17
 
-jyasinzou_room_17Tex_005E50:
+jyasinzou_room_17Tex_0:
   type: TEXTURE
   offset: 0x5E10
-  symbol: jyasinzou_room_17Tex_005E50
+  symbol: jyasinzou_room_17Tex_0
   format: CI8
   width: 64
   height: 32
   external_tlut: jyasinzou_scene
   external_tlut_offset: 0x17E00
 
-jyasinzou_room_17Tex_006650:
+jyasinzou_room_17Tex_1:
   type: TEXTURE
   offset: 0x6610
-  symbol: jyasinzou_room_17Tex_006650
+  symbol: jyasinzou_room_17Tex_1
   format: CI8
   width: 64
   height: 32
   external_tlut: jyasinzou_scene
   external_tlut_offset: 0x17E00
 
-jyasinzou_room_17Tex_006E50:
+jyasinzou_room_17Tex_2:
   type: TEXTURE
   offset: 0x6E10
-  symbol: jyasinzou_room_17Tex_006E50
+  symbol: jyasinzou_room_17Tex_2
   format: CI8
   width: 32
   height: 32
   external_tlut: jyasinzou_scene
   external_tlut_offset: 0x17C00
 
-jyasinzou_room_17Tex_007250:
+jyasinzou_room_17Tex_3:
   type: TEXTURE
   offset: 0x7210
-  symbol: jyasinzou_room_17Tex_007250
+  symbol: jyasinzou_room_17Tex_3
   format: CI8
   width: 64
   height: 32
   external_tlut: jyasinzou_scene
   external_tlut_offset: 0x17C00
 
-jyasinzou_room_17Tex_007A50:
+jyasinzou_room_17Tex_4:
   type: TEXTURE
   offset: 0x7A10
-  symbol: jyasinzou_room_17Tex_007A50
+  symbol: jyasinzou_room_17Tex_4
   format: CI8
   width: 64
   height: 32
   external_tlut: jyasinzou_scene
   external_tlut_offset: 0x17C00
 
-jyasinzou_room_17Tex_008250:
+jyasinzou_room_17Tex_5:
   type: TEXTURE
   offset: 0x8210
-  symbol: jyasinzou_room_17Tex_008250
+  symbol: jyasinzou_room_17Tex_5
   format: CI4
   width: 64
   height: 64
   external_tlut: jyasinzou_scene
   external_tlut_offset: 0x18000
 
-jyasinzou_room_17Tex_008A50:
+jyasinzou_room_17Tex_6:
   type: TEXTURE
   offset: 0x8A10
-  symbol: jyasinzou_room_17Tex_008A50
+  symbol: jyasinzou_room_17Tex_6
   format: CI8
   width: 32
   height: 32
   external_tlut: jyasinzou_scene
   external_tlut_offset: 0x17E00
 
-jyasinzou_room_17Tex_008E50:
+jyasinzou_room_17Tex_7:
   type: TEXTURE
   offset: 0x8E10
-  symbol: jyasinzou_room_17Tex_008E50
+  symbol: jyasinzou_room_17Tex_7
   format: CI4
   width: 64
   height: 64
@@ -93,72 +93,72 @@ jyasinzou_room_17Tex_008E50:
   external_tlut_offset: 0x18020
 
 
-jyasinzou_room_17Vtx_000180:
+jyasinzou_room_17Vtx_0:
   type: OOT:ARRAY
   offset: 0x000180
-  symbol: jyasinzou_room_17Vtx_000180
+  symbol: jyasinzou_room_17Vtx_0
   count: 124
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-jyasinzou_room_17DL_000940:
+jyasinzou_room_17DL_0:
   type: GFX
   offset: 0x000940
-  symbol: jyasinzou_room_17DL_000940
+  symbol: jyasinzou_room_17DL_0
 
-jyasinzou_room_17Vtx_0010A0:
+jyasinzou_room_17Vtx_1:
   type: OOT:ARRAY
   offset: 0x0010A0
-  symbol: jyasinzou_room_17Vtx_0010A0
+  symbol: jyasinzou_room_17Vtx_1
   count: 17
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-jyasinzou_room_17DL_0011B0:
+jyasinzou_room_17DL_1:
   type: GFX
   offset: 0x0011B0
-  symbol: jyasinzou_room_17DL_0011B0
+  symbol: jyasinzou_room_17DL_1
 
-jyasinzou_room_17Vtx_0012B0:
+jyasinzou_room_17Vtx_2:
   type: OOT:ARRAY
   offset: 0x0012B0
-  symbol: jyasinzou_room_17Vtx_0012B0
+  symbol: jyasinzou_room_17Vtx_2
   count: 86
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-jyasinzou_room_17DL_001810:
+jyasinzou_room_17DL_2:
   type: GFX
   offset: 0x001810
-  symbol: jyasinzou_room_17DL_001810
+  symbol: jyasinzou_room_17DL_2
 
-jyasinzou_room_17Vtx_001B18:
+jyasinzou_room_17Vtx_3:
   type: OOT:ARRAY
   offset: 0x001B18
-  symbol: jyasinzou_room_17Vtx_001B18
+  symbol: jyasinzou_room_17Vtx_3
   count: 368
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-jyasinzou_room_17DL_003218:
+jyasinzou_room_17DL_3:
   type: GFX
   offset: 0x003218
-  symbol: jyasinzou_room_17DL_003218
+  symbol: jyasinzou_room_17DL_3
 
-jyasinzou_room_17Vtx_005C38:
+jyasinzou_room_17Vtx_4:
   type: OOT:ARRAY
   offset: 0x005C38
-  symbol: jyasinzou_room_17Vtx_005C38
+  symbol: jyasinzou_room_17Vtx_4
   count: 12
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-jyasinzou_room_17DL_005CF8:
+jyasinzou_room_17DL_4:
   type: GFX
   offset: 0x005CF8
-  symbol: jyasinzou_room_17DL_005CF8
+  symbol: jyasinzou_room_17DL_4

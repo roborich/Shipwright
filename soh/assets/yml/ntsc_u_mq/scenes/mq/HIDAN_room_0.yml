@@ -12,85 +12,85 @@ HIDAN_room_0:
   offset: 0x0
   symbol: HIDAN_room_0
 
-HIDAN_room_0Tex_004EF0:
+HIDAN_room_0Tex_7:
   type: TEXTURE
   offset: 0x4EF0
-  symbol: HIDAN_room_0Tex_004EF0
+  symbol: HIDAN_room_0Tex_7
   format: CI4
   width: 64
   height: 32
   external_tlut: HIDAN_scene
   external_tlut_offset: 0x18990
 
-HIDAN_room_0Tex_0052F0:
+HIDAN_room_0Tex_8:
   type: TEXTURE
   offset: 0x52F0
-  symbol: HIDAN_room_0Tex_0052F0
+  symbol: HIDAN_room_0Tex_8
   format: CI4
   width: 64
   height: 32
   external_tlut: HIDAN_scene
   external_tlut_offset: 0x18990
 
-HIDAN_room_0Tex_0056F0:
+HIDAN_room_0Tex_9:
   type: TEXTURE
   offset: 0x56F0
-  symbol: HIDAN_room_0Tex_0056F0
+  symbol: HIDAN_room_0Tex_9
   format: CI4
   width: 64
   height: 32
   external_tlut: HIDAN_scene
   external_tlut_offset: 0x18990
 
-HIDAN_room_0Tex_005AF0:
+HIDAN_room_0Tex_10:
   type: TEXTURE
   offset: 0x5AF0
-  symbol: HIDAN_room_0Tex_005AF0
+  symbol: HIDAN_room_0Tex_10
   format: CI4
   width: 32
   height: 32
   external_tlut: HIDAN_scene
   external_tlut_offset: 0x18990
 
-HIDAN_room_0Tex_005CF0:
+HIDAN_room_0Tex_11:
   type: TEXTURE
   offset: 0x5CF0
-  symbol: HIDAN_room_0Tex_005CF0
+  symbol: HIDAN_room_0Tex_11
   format: CI4
   width: 32
   height: 32
   external_tlut: HIDAN_scene
   external_tlut_offset: 0x18990
 
-HIDAN_room_0Tex_005EF0:
+HIDAN_room_0Tex_12:
   type: TEXTURE
   offset: 0x5EF0
-  symbol: HIDAN_room_0Tex_005EF0
+  symbol: HIDAN_room_0Tex_12
   format: CI4
   width: 32
   height: 64
   external_tlut: HIDAN_scene
   external_tlut_offset: 0x189B0
 
-HIDAN_room_0Tex_0062F0:
+HIDAN_room_0Tex_13:
   type: TEXTURE
   offset: 0x62F0
-  symbol: HIDAN_room_0Tex_0062F0
+  symbol: HIDAN_room_0Tex_13
   format: RGBA16
   width: 32
   height: 64
 
 
-HIDAN_room_0Vtx_000120:
+HIDAN_room_0Vtx_0:
   type: OOT:ARRAY
   offset: 0x000120
-  symbol: HIDAN_room_0Vtx_000120
+  symbol: HIDAN_room_0Vtx_0
   count: 691
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HIDAN_room_0DL_002C50:
+HIDAN_room_0DL_1:
   type: GFX
   offset: 0x002C50
-  symbol: HIDAN_room_0DL_002C50
+  symbol: HIDAN_room_0DL_1

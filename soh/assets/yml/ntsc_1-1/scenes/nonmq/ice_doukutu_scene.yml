@@ -3,7 +3,7 @@
     - [ 2, 0x01C72810 ]
 
   external_files:
-    - ntsc_1-1/scenes/nonmq/ice_doukutu_sceneSet_00F5F0.yml
+    - ntsc_1-1/scenes/nonmq/ice_doukutu_sceneSet_0.yml
 ice_doukutu_scene:
   type: OOT:SCENE
   offset: 0x0
@@ -30,56 +30,56 @@ gIceCavernSerenadeCs:
   offset: 0x250
   symbol: gIceCavernSerenadeCs
 
-ice_doukutu_sceneTLUT_00F8A0:
+ice_doukutu_sceneTLUT_0:
   type: TEXTURE
   offset: 0xF7F0
-  symbol: ice_doukutu_sceneTLUT_00F8A0
+  symbol: ice_doukutu_sceneTLUT_0
   format: RGBA16
   width: 4
   height: 4
 
-ice_doukutu_sceneTex_00FCC0:
+ice_doukutu_sceneTex_0:
   type: TEXTURE
   offset: 0xFC10
-  symbol: ice_doukutu_sceneTex_00FCC0
+  symbol: ice_doukutu_sceneTex_0
   format: I8
   width: 32
   height: 32
 
-ice_doukutu_sceneTex_0100C0:
+ice_doukutu_sceneTex_1:
   type: TEXTURE
   offset: 0x10010
-  symbol: ice_doukutu_sceneTex_0100C0
+  symbol: ice_doukutu_sceneTex_1
   format: RGBA16
   width: 32
   height: 32
 
-ice_doukutu_sceneTex_0108C0:
+ice_doukutu_sceneTex_2:
   type: TEXTURE
   offset: 0x10810
-  symbol: ice_doukutu_sceneTex_0108C0
+  symbol: ice_doukutu_sceneTex_2
   format: RGBA16
   width: 16
   height: 16
 
-ice_doukutu_sceneTex_010AC0:
+ice_doukutu_sceneTex_3:
   type: TEXTURE
   offset: 0x10A10
-  symbol: ice_doukutu_sceneTex_010AC0
+  symbol: ice_doukutu_sceneTex_3
   format: I8
   width: 32
   height: 32
 
-ice_doukutu_sceneTex_010EC0:
+ice_doukutu_sceneTex_4:
   type: TEXTURE
   offset: 0x10E10
-  symbol: ice_doukutu_sceneTex_010EC0
+  symbol: ice_doukutu_sceneTex_4
   format: RGBA16
   width: 32
   height: 32
 
 
-ice_doukutu_sceneCollisionHeader_00F5C4:
+ice_doukutu_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x00F5C4
-  symbol: ice_doukutu_sceneCollisionHeader_00F5C4
+  symbol: ice_doukutu_sceneCollisionHeader_0

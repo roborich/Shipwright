@@ -12,20 +12,20 @@ ddan_boss_room_1:
   offset: 0x0
   symbol: ddan_boss_room_1
 
-ddan_boss_room_1Tex_0031D8:
+ddan_boss_room_1Tex_0:
   type: TEXTURE
   offset: 0x31C8
-  symbol: ddan_boss_room_1Tex_0031D8
+  symbol: ddan_boss_room_1Tex_0
   format: CI8
   width: 32
   height: 64
   external_tlut: ddan_boss_scene
   external_tlut_offset: 0xE40
 
-ddan_boss_room_1Tex_0039D8:
+ddan_boss_room_1Tex_1:
   type: TEXTURE
   offset: 0x39C8
-  symbol: ddan_boss_room_1Tex_0039D8
+  symbol: ddan_boss_room_1Tex_1
   format: CI8
   width: 32
   height: 32
@@ -41,35 +41,35 @@ gDodongosCavernBossLavaFloorTex:
   height: 64
 
 
-ddan_boss_room_1Vtx_0000F0:
+ddan_boss_room_1Vtx_0:
   type: OOT:ARRAY
   offset: 0x0000F0
-  symbol: ddan_boss_room_1Vtx_0000F0
+  symbol: ddan_boss_room_1Vtx_0
   count: 149
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ddan_boss_room_1DL_000A40:
+ddan_boss_room_1DL_0:
   type: GFX
   offset: 0x000A40
-  symbol: ddan_boss_room_1DL_000A40
+  symbol: ddan_boss_room_1DL_0
 
-ddan_boss_room_1Vtx_000E48:
+ddan_boss_room_1Vtx_1:
   type: OOT:ARRAY
   offset: 0x000E48
-  symbol: ddan_boss_room_1Vtx_000E48
+  symbol: ddan_boss_room_1Vtx_1
   count: 190
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ddan_boss_room_1DL_001A28:
+ddan_boss_room_1DL_1:
   type: GFX
   offset: 0x001A28
-  symbol: ddan_boss_room_1DL_001A28
+  symbol: ddan_boss_room_1DL_1
 
-ddan_boss_room_1DL_0021B0:
+ddan_boss_room_1DL_2:
   type: GFX
   offset: 0x0021B0
-  symbol: ddan_boss_room_1DL_0021B0
+  symbol: ddan_boss_room_1DL_2

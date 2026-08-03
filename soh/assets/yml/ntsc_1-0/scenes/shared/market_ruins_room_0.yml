@@ -13,175 +13,175 @@ market_ruins_room_0:
   symbol: market_ruins_room_0
 
 
-market_ruins_room_0Vtx_0000F0:
+market_ruins_room_0Vtx_0:
   type: OOT:ARRAY
   offset: 0x0000F0
-  symbol: market_ruins_room_0Vtx_0000F0
+  symbol: market_ruins_room_0Vtx_0
   count: 24
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-market_ruins_room_0DL_000270:
+market_ruins_room_0DL_0:
   type: GFX
   offset: 0x000270
-  symbol: market_ruins_room_0DL_000270
+  symbol: market_ruins_room_0DL_0
 
-market_ruins_room_0Vtx_000308:
+market_ruins_room_0Vtx_1:
   type: OOT:ARRAY
   offset: 0x000308
-  symbol: market_ruins_room_0Vtx_000308
+  symbol: market_ruins_room_0Vtx_1
   count: 24
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-market_ruins_room_0DL_000488:
+market_ruins_room_0DL_1:
   type: GFX
   offset: 0x000488
-  symbol: market_ruins_room_0DL_000488
+  symbol: market_ruins_room_0DL_1
 
-market_ruins_room_0Vtx_000520:
+market_ruins_room_0Vtx_2:
   type: OOT:ARRAY
   offset: 0x000520
-  symbol: market_ruins_room_0Vtx_000520
+  symbol: market_ruins_room_0Vtx_2
   count: 24
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-market_ruins_room_0DL_0006A0:
+market_ruins_room_0DL_2:
   type: GFX
   offset: 0x0006A0
-  symbol: market_ruins_room_0DL_0006A0
+  symbol: market_ruins_room_0DL_2
 
-market_ruins_room_0Vtx_000738:
+market_ruins_room_0Vtx_3:
   type: OOT:ARRAY
   offset: 0x000738
-  symbol: market_ruins_room_0Vtx_000738
+  symbol: market_ruins_room_0Vtx_3
   count: 24
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-market_ruins_room_0DL_0008B8:
+market_ruins_room_0DL_3:
   type: GFX
   offset: 0x0008B8
-  symbol: market_ruins_room_0DL_0008B8
+  symbol: market_ruins_room_0DL_3
 
-market_ruins_room_0Vtx_000950:
+market_ruins_room_0Vtx_4:
   type: OOT:ARRAY
   offset: 0x000950
-  symbol: market_ruins_room_0Vtx_000950
+  symbol: market_ruins_room_0Vtx_4
   count: 24
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-market_ruins_room_0DL_000AD0:
+market_ruins_room_0DL_4:
   type: GFX
   offset: 0x000AD0
-  symbol: market_ruins_room_0DL_000AD0
+  symbol: market_ruins_room_0DL_4
 
-market_ruins_room_0Vtx_000B68:
+market_ruins_room_0Vtx_5:
   type: OOT:ARRAY
   offset: 0x000B68
-  symbol: market_ruins_room_0Vtx_000B68
+  symbol: market_ruins_room_0Vtx_5
   count: 24
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-market_ruins_room_0DL_000CE8:
+market_ruins_room_0DL_5:
   type: GFX
   offset: 0x000CE8
-  symbol: market_ruins_room_0DL_000CE8
+  symbol: market_ruins_room_0DL_5
 
-market_ruins_room_0Vtx_000D80:
+market_ruins_room_0Vtx_6:
   type: OOT:ARRAY
   offset: 0x000D80
-  symbol: market_ruins_room_0Vtx_000D80
+  symbol: market_ruins_room_0Vtx_6
   count: 24
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-market_ruins_room_0DL_000F00:
+market_ruins_room_0DL_6:
   type: GFX
   offset: 0x000F00
-  symbol: market_ruins_room_0DL_000F00
+  symbol: market_ruins_room_0DL_6
 
-market_ruins_room_0Vtx_000F98:
+market_ruins_room_0Vtx_7:
   type: OOT:ARRAY
   offset: 0x000F98
-  symbol: market_ruins_room_0Vtx_000F98
+  symbol: market_ruins_room_0Vtx_7
   count: 12
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-market_ruins_room_0DL_001058:
+market_ruins_room_0DL_7:
   type: GFX
   offset: 0x001058
-  symbol: market_ruins_room_0DL_001058
+  symbol: market_ruins_room_0DL_7
 
-market_ruins_room_0Vtx_0010D8:
+market_ruins_room_0Vtx_8:
   type: OOT:ARRAY
   offset: 0x0010D8
-  symbol: market_ruins_room_0Vtx_0010D8
+  symbol: market_ruins_room_0Vtx_8
   count: 48
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-market_ruins_room_0DL_0013D8:
+market_ruins_room_0DL_8:
   type: GFX
   offset: 0x0013D8
-  symbol: market_ruins_room_0DL_0013D8
+  symbol: market_ruins_room_0DL_8
 
-market_ruins_room_0Vtx_0014D0:
+market_ruins_room_0Vtx_9:
   type: OOT:ARRAY
   offset: 0x0014D0
-  symbol: market_ruins_room_0Vtx_0014D0
+  symbol: market_ruins_room_0Vtx_9
   count: 204
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-market_ruins_room_0DL_002190:
+market_ruins_room_0DL_9:
   type: GFX
   offset: 0x002190
-  symbol: market_ruins_room_0DL_002190
+  symbol: market_ruins_room_0DL_9
 
-market_ruins_room_0Vtx_002410:
+market_ruins_room_0Vtx_10:
   type: OOT:ARRAY
   offset: 0x002410
-  symbol: market_ruins_room_0Vtx_002410
+  symbol: market_ruins_room_0Vtx_10
   count: 20
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-market_ruins_room_0DL_002550:
+market_ruins_room_0DL_10:
   type: GFX
   offset: 0x002550
-  symbol: market_ruins_room_0DL_002550
+  symbol: market_ruins_room_0DL_10
 
-market_ruins_room_0Vtx_0025E0:
+market_ruins_room_0Vtx_11:
   type: OOT:ARRAY
   offset: 0x0025E0
-  symbol: market_ruins_room_0Vtx_0025E0
+  symbol: market_ruins_room_0Vtx_11
   count: 20
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-market_ruins_room_0DL_002720:
+market_ruins_room_0DL_11:
   type: GFX
   offset: 0x002720
-  symbol: market_ruins_room_0DL_002720
+  symbol: market_ruins_room_0DL_11
 
-market_ruins_room_0DL_0027B0:
+market_ruins_room_0DL_12:
   type: GFX
   offset: 0x0027B0
-  symbol: market_ruins_room_0DL_0027B0
+  symbol: market_ruins_room_0DL_12

@@ -13,122 +13,122 @@ hut_room_0:
   symbol: hut_room_0
 
 
-hut_room_0Vtx_000090:
+hut_room_0Vtx_0:
   type: OOT:ARRAY
   offset: 0x000090
-  symbol: hut_room_0Vtx_000090
+  symbol: hut_room_0Vtx_0
   count: 61
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hut_room_0Vtx_000460:
+hut_room_0Vtx_1:
   type: OOT:ARRAY
   offset: 0x000460
-  symbol: hut_room_0Vtx_000460
+  symbol: hut_room_0Vtx_1
   count: 40
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hut_room_0Vtx_0006E0:
+hut_room_0Vtx_2:
   type: OOT:ARRAY
   offset: 0x0006E0
-  symbol: hut_room_0Vtx_0006E0
+  symbol: hut_room_0Vtx_2
   count: 4
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hut_room_0Vtx_000720:
+hut_room_0Vtx_3:
   type: OOT:ARRAY
   offset: 0x000720
-  symbol: hut_room_0Vtx_000720
+  symbol: hut_room_0Vtx_3
   count: 55
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hut_room_0Vtx_000A90:
+hut_room_0Vtx_4:
   type: OOT:ARRAY
   offset: 0x000A90
-  symbol: hut_room_0Vtx_000A90
+  symbol: hut_room_0Vtx_4
   count: 544
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hut_room_0Vtx_002C90:
+hut_room_0Vtx_5:
   type: OOT:ARRAY
   offset: 0x002C90
-  symbol: hut_room_0Vtx_002C90
+  symbol: hut_room_0Vtx_5
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hut_room_0Vtx_002D10:
+hut_room_0Vtx_6:
   type: OOT:ARRAY
   offset: 0x002D10
-  symbol: hut_room_0Vtx_002D10
+  symbol: hut_room_0Vtx_6
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hut_room_0Vtx_002D90:
+hut_room_0Vtx_7:
   type: OOT:ARRAY
   offset: 0x002D90
-  symbol: hut_room_0Vtx_002D90
+  symbol: hut_room_0Vtx_7
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hut_room_0Vtx_002E10:
+hut_room_0Vtx_8:
   type: OOT:ARRAY
   offset: 0x002E10
-  symbol: hut_room_0Vtx_002E10
+  symbol: hut_room_0Vtx_8
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hut_room_0Vtx_002E90:
+hut_room_0Vtx_9:
   type: OOT:ARRAY
   offset: 0x002E90
-  symbol: hut_room_0Vtx_002E90
+  symbol: hut_room_0Vtx_9
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hut_room_0DL_002F10:
+hut_room_0DL_0:
   type: GFX
   offset: 0x002F10
-  symbol: hut_room_0DL_002F10
+  symbol: hut_room_0DL_0
 
-hut_room_0DL_003070:
+hut_room_0DL_1:
   type: GFX
   offset: 0x003070
-  symbol: hut_room_0DL_003070
+  symbol: hut_room_0DL_1
 
-hut_room_0DL_003148:
+hut_room_0DL_2:
   type: GFX
   offset: 0x003148
-  symbol: hut_room_0DL_003148
+  symbol: hut_room_0DL_2
 
-hut_room_0DL_0031C8:
+hut_room_0DL_3:
   type: GFX
   offset: 0x0031C8
-  symbol: hut_room_0DL_0031C8
+  symbol: hut_room_0DL_3
 
-hut_room_0DL_0032C0:
+hut_room_0DL_4:
   type: GFX
   offset: 0x0032C0
-  symbol: hut_room_0DL_0032C0
+  symbol: hut_room_0DL_4
 
-hut_room_0DL_003D58:
+hut_room_0DL_5:
   type: GFX
   offset: 0x003D58
-  symbol: hut_room_0DL_003D58
+  symbol: hut_room_0DL_5

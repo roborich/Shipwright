@@ -8,7 +8,7 @@ hakaana_scene:
   symbol: hakaana_scene
 
 
-hakaana_sceneCollisionHeader_000A60:
+hakaana_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x000A60
-  symbol: hakaana_sceneCollisionHeader_000A60
+  symbol: hakaana_sceneCollisionHeader_0

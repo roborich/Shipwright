@@ -12,177 +12,177 @@ HIDAN_room_1:
   offset: 0x0
   symbol: HIDAN_room_1
 
-HIDAN_room_1Tex_008730:
+HIDAN_room_1Tex_9:
   type: TEXTURE
   offset: 0x8730
-  symbol: HIDAN_room_1Tex_008730
+  symbol: HIDAN_room_1Tex_9
   format: RGBA16
   width: 16
   height: 16
 
-HIDAN_room_1Tex_008930:
+HIDAN_room_1Tex_10:
   type: TEXTURE
   offset: 0x8930
-  symbol: HIDAN_room_1Tex_008930
+  symbol: HIDAN_room_1Tex_10
   format: RGBA16
   width: 32
   height: 32
 
-HIDAN_room_1Tex_009130:
+HIDAN_room_1Tex_11:
   type: TEXTURE
   offset: 0x9130
-  symbol: HIDAN_room_1Tex_009130
+  symbol: HIDAN_room_1Tex_11
   format: RGBA16
   width: 32
   height: 32
 
-HIDAN_room_1Tex_009930:
+HIDAN_room_1Tex_12:
   type: TEXTURE
   offset: 0x9930
-  symbol: HIDAN_room_1Tex_009930
+  symbol: HIDAN_room_1Tex_12
   format: RGBA16
   width: 32
   height: 32
 
-HIDAN_room_1Tex_00A130:
+HIDAN_room_1Tex_13:
   type: TEXTURE
   offset: 0xA130
-  symbol: HIDAN_room_1Tex_00A130
+  symbol: HIDAN_room_1Tex_13
   format: CI4
   width: 64
   height: 32
   external_tlut: HIDAN_scene
   external_tlut_offset: 0x18990
 
-HIDAN_room_1Tex_00A530:
+HIDAN_room_1Tex_14:
   type: TEXTURE
   offset: 0xA530
-  symbol: HIDAN_room_1Tex_00A530
+  symbol: HIDAN_room_1Tex_14
   format: RGBA16
   width: 64
   height: 32
 
-HIDAN_room_1Tex_00B530:
+HIDAN_room_1Tex_15:
   type: TEXTURE
   offset: 0xB530
-  symbol: HIDAN_room_1Tex_00B530
+  symbol: HIDAN_room_1Tex_15
   format: RGBA16
   width: 32
   height: 32
 
-HIDAN_room_1Tex_00BD30:
+HIDAN_room_1Tex_16:
   type: TEXTURE
   offset: 0xBD30
-  symbol: HIDAN_room_1Tex_00BD30
+  symbol: HIDAN_room_1Tex_16
   format: CI4
   width: 32
   height: 64
   external_tlut: HIDAN_scene
   external_tlut_offset: 0x189B0
 
-HIDAN_room_1Tex_00C130:
+HIDAN_room_1Tex_17:
   type: TEXTURE
   offset: 0xC130
-  symbol: HIDAN_room_1Tex_00C130
+  symbol: HIDAN_room_1Tex_17
   format: RGBA16
   width: 32
   height: 32
 
 
-HIDAN_room_1Vtx_000210:
+HIDAN_room_1Vtx_0:
   type: OOT:ARRAY
   offset: 0x000210
-  symbol: HIDAN_room_1Vtx_000210
+  symbol: HIDAN_room_1Vtx_0
   count: 12
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HIDAN_room_1DL_0002D0:
+HIDAN_room_1DL_7:
   type: GFX
   offset: 0x0002D0
-  symbol: HIDAN_room_1DL_0002D0
+  symbol: HIDAN_room_1DL_7
 
-HIDAN_room_1Vtx_0003C8:
+HIDAN_room_1Vtx_1:
   type: OOT:ARRAY
   offset: 0x0003C8
-  symbol: HIDAN_room_1Vtx_0003C8
+  symbol: HIDAN_room_1Vtx_1
   count: 160
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HIDAN_room_1DL_000DC8:
+HIDAN_room_1DL_8:
   type: GFX
   offset: 0x000DC8
-  symbol: HIDAN_room_1DL_000DC8
+  symbol: HIDAN_room_1DL_8
 
-HIDAN_room_1Vtx_001480:
+HIDAN_room_1Vtx_2:
   type: OOT:ARRAY
   offset: 0x001480
-  symbol: HIDAN_room_1Vtx_001480
+  symbol: HIDAN_room_1Vtx_2
   count: 264
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HIDAN_room_1DL_002500:
+HIDAN_room_1DL_9:
   type: GFX
   offset: 0x002500
-  symbol: HIDAN_room_1DL_002500
+  symbol: HIDAN_room_1DL_9
 
-HIDAN_room_1Vtx_003368:
+HIDAN_room_1Vtx_3:
   type: OOT:ARRAY
   offset: 0x003368
-  symbol: HIDAN_room_1Vtx_003368
+  symbol: HIDAN_room_1Vtx_3
   count: 208
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HIDAN_room_1DL_004068:
+HIDAN_room_1DL_10:
   type: GFX
   offset: 0x004068
-  symbol: HIDAN_room_1DL_004068
+  symbol: HIDAN_room_1DL_10
 
-HIDAN_room_1Vtx_004DB0:
+HIDAN_room_1Vtx_4:
   type: OOT:ARRAY
   offset: 0x004DB0
-  symbol: HIDAN_room_1Vtx_004DB0
+  symbol: HIDAN_room_1Vtx_4
   count: 160
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HIDAN_room_1DL_0057B0:
+HIDAN_room_1DL_11:
   type: GFX
   offset: 0x0057B0
-  symbol: HIDAN_room_1DL_0057B0
+  symbol: HIDAN_room_1DL_11
 
-HIDAN_room_1Vtx_005E28:
+HIDAN_room_1Vtx_5:
   type: OOT:ARRAY
   offset: 0x005E28
-  symbol: HIDAN_room_1Vtx_005E28
+  symbol: HIDAN_room_1Vtx_5
   count: 221
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HIDAN_room_1DL_006BF8:
+HIDAN_room_1DL_12:
   type: GFX
   offset: 0x006BF8
-  symbol: HIDAN_room_1DL_006BF8
+  symbol: HIDAN_room_1DL_12
 
-HIDAN_room_1Vtx_007688:
+HIDAN_room_1Vtx_6:
   type: OOT:ARRAY
   offset: 0x007688
-  symbol: HIDAN_room_1Vtx_007688
+  symbol: HIDAN_room_1Vtx_6
   count: 220
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HIDAN_room_1DL_008448:
+HIDAN_room_1DL_13:
   type: GFX
   offset: 0x008448
-  symbol: HIDAN_room_1DL_008448
+  symbol: HIDAN_room_1DL_13

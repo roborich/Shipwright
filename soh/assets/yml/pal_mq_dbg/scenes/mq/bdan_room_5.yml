@@ -6,122 +6,122 @@
   external_files:
     - pal_mq_dbg/scenes/mq/bdan_scene.yml
     - pal_mq_dbg/code/sys_matrix.yml
-    - pal_mq_dbg/scenes/mq/bdan_room_5Set_000180.yml
+    - pal_mq_dbg/scenes/mq/bdan_room_5Set_1.yml
 
 bdan_room_5:
   type: OOT:ROOM
   offset: 0x0
   symbol: bdan_room_5
 
-bdan_room_5Tex_0024A8:
+bdan_room_5Tex_5:
   type: TEXTURE
   offset: 0x24A8
-  symbol: bdan_room_5Tex_0024A8
+  symbol: bdan_room_5Tex_5
   format: CI8
   width: 32
   height: 32
   external_tlut: bdan_scene
   external_tlut_offset: 0x139F0
 
-bdan_room_5Tex_0028A8:
+bdan_room_5Tex_6:
   type: TEXTURE
   offset: 0x28A8
-  symbol: bdan_room_5Tex_0028A8
+  symbol: bdan_room_5Tex_6
   format: CI8
   width: 32
   height: 64
   external_tlut: bdan_scene
   external_tlut_offset: 0x139F0
 
-bdan_room_5Tex_0030A8:
+bdan_room_5Tex_7:
   type: TEXTURE
   offset: 0x30A8
-  symbol: bdan_room_5Tex_0030A8
+  symbol: bdan_room_5Tex_7
   format: CI8
   width: 32
   height: 64
   external_tlut: bdan_scene
   external_tlut_offset: 0x139F0
 
-bdan_room_5Tex_004090:
+bdan_room_5Tex_8:
   type: TEXTURE
   offset: 0x4090
-  symbol: bdan_room_5Tex_004090
+  symbol: bdan_room_5Tex_8
   format: RGBA16
   width: 32
   height: 64
 
-bdan_room_5Tex_005090:
+bdan_room_5Tex_9:
   type: TEXTURE
   offset: 0x5090
-  symbol: bdan_room_5Tex_005090
+  symbol: bdan_room_5Tex_9
   format: IA16
   width: 32
   height: 64
 
 
-bdan_room_5Vtx_000210:
+bdan_room_5Vtx_0:
   type: OOT:ARRAY
   offset: 0x000210
-  symbol: bdan_room_5Vtx_000210
+  symbol: bdan_room_5Vtx_0
   count: 363
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-bdan_room_5DL_0018C0:
+bdan_room_5DL_6:
   type: GFX
   offset: 0x0018C0
-  symbol: bdan_room_5DL_0018C0
+  symbol: bdan_room_5DL_6
 
-bdan_room_5DL_002498:
+bdan_room_5DL_7:
   type: GFX
   offset: 0x002498
-  symbol: bdan_room_5DL_002498
+  symbol: bdan_room_5DL_7
 
-bdan_room_5Vtx_0038B0:
+bdan_room_5Vtx_1:
   type: OOT:ARRAY
   offset: 0x0038B0
-  symbol: bdan_room_5Vtx_0038B0
+  symbol: bdan_room_5Vtx_1
   count: 39
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-bdan_room_5DL_003B20:
+bdan_room_5DL_8:
   type: GFX
   offset: 0x003B20
-  symbol: bdan_room_5DL_003B20
+  symbol: bdan_room_5DL_8
 
-bdan_room_5Vtx_003C40:
+bdan_room_5Vtx_2:
   type: OOT:ARRAY
   offset: 0x003C40
-  symbol: bdan_room_5Vtx_003C40
+  symbol: bdan_room_5Vtx_2
   count: 13
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-bdan_room_5DL_003D10:
+bdan_room_5DL_9:
   type: GFX
   offset: 0x003D10
-  symbol: bdan_room_5DL_003D10
+  symbol: bdan_room_5DL_9
 
-bdan_room_5Vtx_003E00:
+bdan_room_5Vtx_3:
   type: OOT:ARRAY
   offset: 0x003E00
-  symbol: bdan_room_5Vtx_003E00
+  symbol: bdan_room_5Vtx_3
   count: 24
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-bdan_room_5DL_003F80:
+bdan_room_5DL_10:
   type: GFX
   offset: 0x003F80
-  symbol: bdan_room_5DL_003F80
+  symbol: bdan_room_5DL_10
 
-bdan_room_5DL_004070:
+bdan_room_5DL_11:
   type: GFX
   offset: 0x004070
-  symbol: bdan_room_5DL_004070
+  symbol: bdan_room_5DL_11

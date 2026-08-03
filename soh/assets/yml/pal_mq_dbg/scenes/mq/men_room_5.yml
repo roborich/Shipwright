@@ -12,60 +12,60 @@ men_room_5:
   offset: 0x0
   symbol: men_room_5
 
-men_room_5Tex_002418:
+men_room_5Tex_6:
   type: TEXTURE
   offset: 0x2418
-  symbol: men_room_5Tex_002418
+  symbol: men_room_5Tex_6
   format: CI8
   width: 64
   height: 32
   external_tlut: men_scene
   external_tlut_offset: 0xF6C0
 
-men_room_5Tex_002C18:
+men_room_5Tex_7:
   type: TEXTURE
   offset: 0x2C18
-  symbol: men_room_5Tex_002C18
+  symbol: men_room_5Tex_7
   format: CI8
   width: 32
   height: 32
   external_tlut: men_scene
   external_tlut_offset: 0xF6C0
 
-men_room_5Tex_003018:
+men_room_5Tex_8:
   type: TEXTURE
   offset: 0x3018
-  symbol: men_room_5Tex_003018
+  symbol: men_room_5Tex_8
   format: CI8
   width: 32
   height: 64
   external_tlut: men_scene
   external_tlut_offset: 0xF6C0
 
-men_room_5Tex_003818:
+men_room_5Tex_9:
   type: TEXTURE
   offset: 0x3818
-  symbol: men_room_5Tex_003818
+  symbol: men_room_5Tex_9
   format: CI8
   width: 64
   height: 32
   external_tlut: men_scene
   external_tlut_offset: 0xF6C0
 
-men_room_5Tex_004018:
+men_room_5Tex_10:
   type: TEXTURE
   offset: 0x4018
-  symbol: men_room_5Tex_004018
+  symbol: men_room_5Tex_10
   format: CI8
   width: 64
   height: 32
   external_tlut: men_scene
   external_tlut_offset: 0xF6C0
 
-men_room_5Tex_004818:
+men_room_5Tex_11:
   type: TEXTURE
   offset: 0x4818
-  symbol: men_room_5Tex_004818
+  symbol: men_room_5Tex_11
   format: CI8
   width: 64
   height: 32
@@ -73,30 +73,30 @@ men_room_5Tex_004818:
   external_tlut_offset: 0xF6C0
 
 
-men_room_5Vtx_000120:
+men_room_5Vtx_0:
   type: OOT:ARRAY
   offset: 0x000120
-  symbol: men_room_5Vtx_000120
+  symbol: men_room_5Vtx_0
   count: 273
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-men_room_5DL_001230:
+men_room_5DL_2:
   type: GFX
   offset: 0x001230
-  symbol: men_room_5DL_001230
+  symbol: men_room_5DL_2
 
-men_room_5Vtx_001B98:
+men_room_5Vtx_1:
   type: OOT:ARRAY
   offset: 0x001B98
-  symbol: men_room_5Vtx_001B98
+  symbol: men_room_5Vtx_1
   count: 89
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-men_room_5DL_002128:
+men_room_5DL_3:
   type: GFX
   offset: 0x002128
-  symbol: men_room_5DL_002128
+  symbol: men_room_5DL_3

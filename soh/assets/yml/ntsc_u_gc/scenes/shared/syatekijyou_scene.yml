@@ -3,192 +3,192 @@
     - [ 2, 0x01CC14C0 ]
 
   external_files:
-    - ntsc_u_gc/scenes/shared/syatekijyou_sceneSet_001A20.yml
-    - ntsc_u_gc/scenes/shared/syatekijyou_sceneSet_001AC0.yml
-    - ntsc_u_gc/scenes/shared/syatekijyou_sceneSet_001B70.yml
+    - ntsc_u_gc/scenes/shared/syatekijyou_sceneSet_0.yml
+    - ntsc_u_gc/scenes/shared/syatekijyou_sceneSet_1.yml
+    - ntsc_u_gc/scenes/shared/syatekijyou_sceneSet_2.yml
 syatekijyou_scene:
   type: OOT:SCENE
   offset: 0x0
   symbol: syatekijyou_scene
 
-syatekijyou_sceneTex_001C40:
+syatekijyou_sceneTex_0:
   type: TEXTURE
   offset: 0x1C40
-  symbol: syatekijyou_sceneTex_001C40
+  symbol: syatekijyou_sceneTex_0
   format: RGBA16
   width: 32
   height: 4
 
-syatekijyou_sceneTex_001D40:
+syatekijyou_sceneTex_1:
   type: TEXTURE
   offset: 0x1D40
-  symbol: syatekijyou_sceneTex_001D40
+  symbol: syatekijyou_sceneTex_1
   format: RGBA16
   width: 32
   height: 16
 
-syatekijyou_sceneTex_002140:
+syatekijyou_sceneTex_2:
   type: TEXTURE
   offset: 0x2140
-  symbol: syatekijyou_sceneTex_002140
+  symbol: syatekijyou_sceneTex_2
   format: RGBA16
   width: 32
   height: 16
 
-syatekijyou_sceneTex_002540:
+syatekijyou_sceneTex_3:
   type: TEXTURE
   offset: 0x2540
-  symbol: syatekijyou_sceneTex_002540
+  symbol: syatekijyou_sceneTex_3
   format: IA4
   width: 32
   height: 32
 
-syatekijyou_sceneTex_002740:
+syatekijyou_sceneTex_4:
   type: TEXTURE
   offset: 0x2740
-  symbol: syatekijyou_sceneTex_002740
+  symbol: syatekijyou_sceneTex_4
   format: RGBA16
   width: 64
   height: 32
 
-syatekijyou_sceneTex_003740:
+syatekijyou_sceneTex_5:
   type: TEXTURE
   offset: 0x3740
-  symbol: syatekijyou_sceneTex_003740
+  symbol: syatekijyou_sceneTex_5
   format: IA8
   width: 32
   height: 16
 
-syatekijyou_sceneTex_003940:
+syatekijyou_sceneTex_6:
   type: TEXTURE
   offset: 0x3940
-  symbol: syatekijyou_sceneTex_003940
+  symbol: syatekijyou_sceneTex_6
   format: RGBA16
   width: 4
   height: 16
 
-syatekijyou_sceneTex_0039C0:
+syatekijyou_sceneTex_7:
   type: TEXTURE
   offset: 0x39C0
-  symbol: syatekijyou_sceneTex_0039C0
+  symbol: syatekijyou_sceneTex_7
   format: IA8
   width: 16
   height: 64
 
-syatekijyou_sceneTex_003DC0:
+syatekijyou_sceneTex_8:
   type: TEXTURE
   offset: 0x3DC0
-  symbol: syatekijyou_sceneTex_003DC0
+  symbol: syatekijyou_sceneTex_8
   format: RGBA16
   width: 32
   height: 16
 
-syatekijyou_sceneTex_0041C0:
+syatekijyou_sceneTex_9:
   type: TEXTURE
   offset: 0x41C0
-  symbol: syatekijyou_sceneTex_0041C0
+  symbol: syatekijyou_sceneTex_9
   format: RGBA16
   width: 32
   height: 64
 
-syatekijyou_sceneTex_0051C0:
+syatekijyou_sceneTex_10:
   type: TEXTURE
   offset: 0x51C0
-  symbol: syatekijyou_sceneTex_0051C0
+  symbol: syatekijyou_sceneTex_10
   format: IA8
   width: 16
   height: 16
 
-syatekijyou_sceneTex_0052C0:
+syatekijyou_sceneTex_11:
   type: TEXTURE
   offset: 0x52C0
-  symbol: syatekijyou_sceneTex_0052C0
+  symbol: syatekijyou_sceneTex_11
   format: IA8
   width: 16
   height: 32
 
-syatekijyou_sceneTex_0054C0:
+syatekijyou_sceneTex_12:
   type: TEXTURE
   offset: 0x54C0
-  symbol: syatekijyou_sceneTex_0054C0
+  symbol: syatekijyou_sceneTex_12
   format: RGBA16
   width: 32
   height: 32
 
-syatekijyou_sceneTex_005CC0:
+syatekijyou_sceneTex_13:
   type: TEXTURE
   offset: 0x5CC0
-  symbol: syatekijyou_sceneTex_005CC0
+  symbol: syatekijyou_sceneTex_13
   format: RGBA16
   width: 32
   height: 64
 
-syatekijyou_sceneTex_006CC0:
+syatekijyou_sceneTex_14:
   type: TEXTURE
   offset: 0x6CC0
-  symbol: syatekijyou_sceneTex_006CC0
+  symbol: syatekijyou_sceneTex_14
   format: RGBA16
   width: 32
   height: 64
 
-syatekijyou_sceneTex_007CC0:
+syatekijyou_sceneTex_15:
   type: TEXTURE
   offset: 0x7CC0
-  symbol: syatekijyou_sceneTex_007CC0
+  symbol: syatekijyou_sceneTex_15
   format: I8
   width: 64
   height: 64
 
-syatekijyou_sceneTex_008CC0:
+syatekijyou_sceneTex_16:
   type: TEXTURE
   offset: 0x8CC0
-  symbol: syatekijyou_sceneTex_008CC0
+  symbol: syatekijyou_sceneTex_16
   format: RGBA16
   width: 32
   height: 64
 
-syatekijyou_sceneTex_009CC0:
+syatekijyou_sceneTex_17:
   type: TEXTURE
   offset: 0x9CC0
-  symbol: syatekijyou_sceneTex_009CC0
+  symbol: syatekijyou_sceneTex_17
   format: IA4
   width: 64
   height: 64
 
-syatekijyou_sceneTex_00A4C0:
+syatekijyou_sceneTex_18:
   type: TEXTURE
   offset: 0xA4C0
-  symbol: syatekijyou_sceneTex_00A4C0
+  symbol: syatekijyou_sceneTex_18
   format: RGBA16
   width: 32
   height: 32
 
-syatekijyou_sceneTex_00ACC0:
+syatekijyou_sceneTex_19:
   type: TEXTURE
   offset: 0xACC0
-  symbol: syatekijyou_sceneTex_00ACC0
+  symbol: syatekijyou_sceneTex_19
   format: IA8
   width: 32
   height: 32
 
-syatekijyou_sceneTex_00B0C0:
+syatekijyou_sceneTex_20:
   type: TEXTURE
   offset: 0xB0C0
-  symbol: syatekijyou_sceneTex_00B0C0
+  symbol: syatekijyou_sceneTex_20
   format: I4
   width: 32
   height: 32
 
-syatekijyou_sceneTex_00B2C0:
+syatekijyou_sceneTex_21:
   type: TEXTURE
   offset: 0xB2C0
-  symbol: syatekijyou_sceneTex_00B2C0
+  symbol: syatekijyou_sceneTex_21
   format: RGBA16
   width: 64
   height: 32
 
 
-syatekijyou_sceneCollisionHeader_001420:
+syatekijyou_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x001420
-  symbol: syatekijyou_sceneCollisionHeader_001420
+  symbol: syatekijyou_sceneCollisionHeader_0

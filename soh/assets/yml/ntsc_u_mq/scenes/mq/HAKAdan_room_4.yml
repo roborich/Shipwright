@@ -12,53 +12,53 @@ HAKAdan_room_4:
   offset: 0x0
   symbol: HAKAdan_room_4
 
-HAKAdan_room_4Tex_001458:
+HAKAdan_room_4Tex_1:
   type: TEXTURE
   offset: 0x1458
-  symbol: HAKAdan_room_4Tex_001458
+  symbol: HAKAdan_room_4Tex_1
   format: RGBA16
   width: 32
   height: 32
 
 
-HAKAdan_room_4Vtx_000110:
+HAKAdan_room_4Vtx_0:
   type: OOT:ARRAY
   offset: 0x000110
-  symbol: HAKAdan_room_4Vtx_000110
+  symbol: HAKAdan_room_4Vtx_0
   count: 23
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HAKAdan_room_4DL_000280:
+HAKAdan_room_4DL_4:
   type: GFX
   offset: 0x000280
-  symbol: HAKAdan_room_4DL_000280
+  symbol: HAKAdan_room_4DL_4
 
-HAKAdan_room_4Vtx_0003B8:
+HAKAdan_room_4Vtx_1:
   type: OOT:ARRAY
   offset: 0x0003B8
-  symbol: HAKAdan_room_4Vtx_0003B8
+  symbol: HAKAdan_room_4Vtx_1
   count: 74
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HAKAdan_room_4DL_000858:
+HAKAdan_room_4DL_5:
   type: GFX
   offset: 0x000858
-  symbol: HAKAdan_room_4DL_000858
+  symbol: HAKAdan_room_4DL_5
 
-HAKAdan_room_4Vtx_0009F0:
+HAKAdan_room_4Vtx_2:
   type: OOT:ARRAY
   offset: 0x0009F0
-  symbol: HAKAdan_room_4Vtx_0009F0
+  symbol: HAKAdan_room_4Vtx_2
   count: 132
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HAKAdan_room_4DL_001230:
+HAKAdan_room_4DL_6:
   type: GFX
   offset: 0x001230
-  symbol: HAKAdan_room_4DL_001230
+  symbol: HAKAdan_room_4DL_6

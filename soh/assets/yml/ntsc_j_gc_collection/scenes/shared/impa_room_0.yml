@@ -13,122 +13,122 @@ impa_room_0:
   symbol: impa_room_0
 
 
-impa_room_0Vtx_0000C0:
+impa_room_0Vtx_0:
   type: OOT:ARRAY
   offset: 0x0000C0
-  symbol: impa_room_0Vtx_0000C0
+  symbol: impa_room_0Vtx_0
   count: 40
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-impa_room_0Vtx_000340:
+impa_room_0Vtx_1:
   type: OOT:ARRAY
   offset: 0x000340
-  symbol: impa_room_0Vtx_000340
+  symbol: impa_room_0Vtx_1
   count: 114
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-impa_room_0Vtx_000A60:
+impa_room_0Vtx_2:
   type: OOT:ARRAY
   offset: 0x000A60
-  symbol: impa_room_0Vtx_000A60
+  symbol: impa_room_0Vtx_2
   count: 54
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-impa_room_0Vtx_000DC0:
+impa_room_0Vtx_3:
   type: OOT:ARRAY
   offset: 0x000DC0
-  symbol: impa_room_0Vtx_000DC0
+  symbol: impa_room_0Vtx_3
   count: 25
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-impa_room_0Vtx_000F50:
+impa_room_0Vtx_4:
   type: OOT:ARRAY
   offset: 0x000F50
-  symbol: impa_room_0Vtx_000F50
+  symbol: impa_room_0Vtx_4
   count: 4
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-impa_room_0Vtx_000F90:
+impa_room_0Vtx_5:
   type: OOT:ARRAY
   offset: 0x000F90
-  symbol: impa_room_0Vtx_000F90
+  symbol: impa_room_0Vtx_5
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-impa_room_0Vtx_001010:
+impa_room_0Vtx_6:
   type: OOT:ARRAY
   offset: 0x001010
-  symbol: impa_room_0Vtx_001010
+  symbol: impa_room_0Vtx_6
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-impa_room_0Vtx_001090:
+impa_room_0Vtx_7:
   type: OOT:ARRAY
   offset: 0x001090
-  symbol: impa_room_0Vtx_001090
+  symbol: impa_room_0Vtx_7
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-impa_room_0Vtx_001110:
+impa_room_0Vtx_8:
   type: OOT:ARRAY
   offset: 0x001110
-  symbol: impa_room_0Vtx_001110
+  symbol: impa_room_0Vtx_8
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-impa_room_0Vtx_001190:
+impa_room_0Vtx_9:
   type: OOT:ARRAY
   offset: 0x001190
-  symbol: impa_room_0Vtx_001190
+  symbol: impa_room_0Vtx_9
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-impa_room_0DL_001210:
+impa_room_0DL_0:
   type: GFX
   offset: 0x001210
-  symbol: impa_room_0DL_001210
+  symbol: impa_room_0DL_0
 
-impa_room_0DL_0012F0:
+impa_room_0DL_1:
   type: GFX
   offset: 0x0012F0
-  symbol: impa_room_0DL_0012F0
+  symbol: impa_room_0DL_1
 
-impa_room_0DL_001518:
+impa_room_0DL_2:
   type: GFX
   offset: 0x001518
-  symbol: impa_room_0DL_001518
+  symbol: impa_room_0DL_2
 
-impa_room_0DL_001628:
+impa_room_0DL_3:
   type: GFX
   offset: 0x001628
-  symbol: impa_room_0DL_001628
+  symbol: impa_room_0DL_3
 
-impa_room_0DL_0016D8:
+impa_room_0DL_4:
   type: GFX
   offset: 0x0016D8
-  symbol: impa_room_0DL_0016D8
+  symbol: impa_room_0DL_4
 
-impa_room_0DL_001758:
+impa_room_0DL_5:
   type: GFX
   offset: 0x001758
-  symbol: impa_room_0DL_001758
+  symbol: impa_room_0DL_5

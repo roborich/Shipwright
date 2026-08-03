@@ -13,21 +13,21 @@ enrui_room_0:
   symbol: enrui_room_0
 
 
-enrui_room_0Vtx_000090:
+enrui_room_0Vtx_0:
   type: OOT:ARRAY
   offset: 0x000090
-  symbol: enrui_room_0Vtx_000090
+  symbol: enrui_room_0Vtx_0
   count: 32
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-enrui_room_0DL_000290:
+enrui_room_0DL_0:
   type: GFX
   offset: 0x000290
-  symbol: enrui_room_0DL_000290
+  symbol: enrui_room_0DL_0
 
-enrui_room_0DL_000338:
+enrui_room_0DL_1:
   type: GFX
   offset: 0x000338
-  symbol: enrui_room_0DL_000338
+  symbol: enrui_room_0DL_1

@@ -3,8 +3,8 @@
     - [ 2, 0x03463000 ]
 
   external_files:
-    - pal_mq_dbg/scenes/shared/hakaana_ouke_sceneSet_002280.yml
-    - pal_mq_dbg/scenes/shared/hakaana_ouke_sceneSet_002390.yml
+    - pal_mq_dbg/scenes/shared/hakaana_ouke_sceneSet_0.yml
+    - pal_mq_dbg/scenes/shared/hakaana_ouke_sceneSet_1.yml
 hakaana_ouke_scene:
   type: OOT:SCENE
   offset: 0x0
@@ -20,48 +20,48 @@ gSunSongGraveSunSongTeachPart2Cs:
   offset: 0x28E0
   symbol: gSunSongGraveSunSongTeachPart2Cs
 
-hakaana_ouke_sceneTex_002AE0:
+hakaana_ouke_sceneTex_0:
   type: TEXTURE
   offset: 0x2AE0
-  symbol: hakaana_ouke_sceneTex_002AE0
+  symbol: hakaana_ouke_sceneTex_0
   format: RGBA16
   width: 32
   height: 16
 
-hakaana_ouke_sceneTex_002EE0:
+hakaana_ouke_sceneTex_1:
   type: TEXTURE
   offset: 0x2EE0
-  symbol: hakaana_ouke_sceneTex_002EE0
+  symbol: hakaana_ouke_sceneTex_1
   format: RGBA16
   width: 32
   height: 16
 
-hakaana_ouke_sceneTex_0032E0:
+hakaana_ouke_sceneTex_2:
   type: TEXTURE
   offset: 0x32E0
-  symbol: hakaana_ouke_sceneTex_0032E0
+  symbol: hakaana_ouke_sceneTex_2
   format: RGBA16
   width: 32
   height: 32
 
-hakaana_ouke_sceneTex_003AE0:
+hakaana_ouke_sceneTex_3:
   type: TEXTURE
   offset: 0x3AE0
-  symbol: hakaana_ouke_sceneTex_003AE0
+  symbol: hakaana_ouke_sceneTex_3
   format: I4
   width: 64
   height: 64
 
-hakaana_ouke_sceneTex_0042E0:
+hakaana_ouke_sceneTex_4:
   type: TEXTURE
   offset: 0x42E0
-  symbol: hakaana_ouke_sceneTex_0042E0
+  symbol: hakaana_ouke_sceneTex_4
   format: I4
   width: 64
   height: 64
 
 
-hakaana_ouke_sceneCollisionHeader_002250:
+hakaana_ouke_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x002250
-  symbol: hakaana_ouke_sceneCollisionHeader_002250
+  symbol: hakaana_ouke_sceneCollisionHeader_0

@@ -12,41 +12,41 @@ testroom_room_1:
   offset: 0x0
   symbol: testroom_room_1
 
-testroom_room_1Tex_000BE8:
+testroom_room_1Tex_0:
   type: TEXTURE
   offset: 0xBE8
-  symbol: testroom_room_1Tex_000BE8
+  symbol: testroom_room_1Tex_0
   format: RGBA16
   width: 32
   height: 32
 
-testroom_room_1Tex_0013E8:
+testroom_room_1Tex_1:
   type: TEXTURE
   offset: 0x13E8
-  symbol: testroom_room_1Tex_0013E8
+  symbol: testroom_room_1Tex_1
   format: RGBA16
   width: 32
   height: 32
 
-testroom_room_1Tex_001BE8:
+testroom_room_1Tex_2:
   type: TEXTURE
   offset: 0x1BE8
-  symbol: testroom_room_1Tex_001BE8
+  symbol: testroom_room_1Tex_2
   format: RGBA16
   width: 32
   height: 32
 
 
-testroom_room_1Vtx_0001C0:
+testroom_room_1Vtx_0:
   type: OOT:ARRAY
   offset: 0x0001C0
-  symbol: testroom_room_1Vtx_0001C0
+  symbol: testroom_room_1Vtx_0
   count: 123
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-testroom_room_1DL_000970:
+testroom_room_1DL_0:
   type: GFX
   offset: 0x000970
-  symbol: testroom_room_1DL_000970
+  symbol: testroom_room_1DL_0

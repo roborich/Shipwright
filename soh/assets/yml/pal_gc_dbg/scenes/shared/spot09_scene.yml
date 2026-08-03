@@ -3,10 +3,10 @@
     - [ 2, 0x0293D000 ]
 
   external_files:
-    - pal_gc_dbg/scenes/shared/spot09_sceneSet_002C80.yml
-    - pal_gc_dbg/scenes/shared/spot09_sceneSet_002F70.yml
-    - pal_gc_dbg/scenes/shared/spot09_sceneSet_003060.yml
-    - pal_gc_dbg/scenes/shared/spot09_sceneSet_003140.yml
+    - pal_gc_dbg/scenes/shared/spot09_sceneSet_0.yml
+    - pal_gc_dbg/scenes/shared/spot09_sceneSet_1.yml
+    - pal_gc_dbg/scenes/shared/spot09_sceneSet_2.yml
+    - pal_gc_dbg/scenes/shared/spot09_sceneSet_3.yml
 spot09_scene:
   type: OOT:SCENE
   offset: 0x0
@@ -27,183 +27,183 @@ gGerudoValleyIntroCs:
   offset: 0x31E0
   symbol: gGerudoValleyIntroCs
 
-gSpot09Path_002F58:
+gSpot09Path_0:
   type: OOT:PATH
   offset: 0x2F58
-  symbol: gSpot09Path_002F58
+  symbol: gSpot09Path_0
   num_paths: 3
 
-spot09_sceneTLUT_003440:
+spot09_sceneTLUT_0:
   type: TEXTURE
   offset: 0x3440
-  symbol: spot09_sceneTLUT_003440
+  symbol: spot09_sceneTLUT_0
   format: RGBA16
   width: 4
   height: 4
 
-spot09_sceneTex_003460:
+spot09_sceneTex_0:
   type: TEXTURE
   offset: 0x3460
-  symbol: spot09_sceneTex_003460
+  symbol: spot09_sceneTex_0
   format: RGBA16
   width: 32
   height: 64
 
-spot09_sceneTex_004460:
+spot09_sceneTex_1:
   type: TEXTURE
   offset: 0x4460
-  symbol: spot09_sceneTex_004460
+  symbol: spot09_sceneTex_1
   format: RGBA16
   width: 64
   height: 32
 
-spot09_sceneTex_005460:
+spot09_sceneTex_2:
   type: TEXTURE
   offset: 0x5460
-  symbol: spot09_sceneTex_005460
+  symbol: spot09_sceneTex_2
   format: CI4
   width: 32
   height: 128
   tlut: 0x3440
 
-spot09_sceneTex_005C60:
+spot09_sceneTex_3:
   type: TEXTURE
   offset: 0x5C60
-  symbol: spot09_sceneTex_005C60
+  symbol: spot09_sceneTex_3
   format: RGBA16
   width: 32
   height: 32
 
-spot09_sceneTex_006460:
+spot09_sceneTex_4:
   type: TEXTURE
   offset: 0x6460
-  symbol: spot09_sceneTex_006460
+  symbol: spot09_sceneTex_4
   format: RGBA16
   width: 32
   height: 32
 
-spot09_sceneTex_006C60:
+spot09_sceneTex_5:
   type: TEXTURE
   offset: 0x6C60
-  symbol: spot09_sceneTex_006C60
+  symbol: spot09_sceneTex_5
   format: I8
   width: 16
   height: 16
 
-spot09_sceneTex_006D60:
+spot09_sceneTex_6:
   type: TEXTURE
   offset: 0x6D60
-  symbol: spot09_sceneTex_006D60
+  symbol: spot09_sceneTex_6
   format: RGBA16
   width: 16
   height: 32
 
-spot09_sceneTex_007160:
+spot09_sceneTex_7:
   type: TEXTURE
   offset: 0x7160
-  symbol: spot09_sceneTex_007160
+  symbol: spot09_sceneTex_7
   format: RGBA16
   width: 64
   height: 32
 
-spot09_sceneTex_008160:
+spot09_sceneTex_8:
   type: TEXTURE
   offset: 0x8160
-  symbol: spot09_sceneTex_008160
+  symbol: spot09_sceneTex_8
   format: RGBA16
   width: 64
   height: 32
 
-spot09_sceneTex_009160:
+spot09_sceneTex_9:
   type: TEXTURE
   offset: 0x9160
-  symbol: spot09_sceneTex_009160
+  symbol: spot09_sceneTex_9
   format: RGBA16
   width: 32
   height: 64
 
-spot09_sceneTex_00A160:
+spot09_sceneTex_10:
   type: TEXTURE
   offset: 0xA160
-  symbol: spot09_sceneTex_00A160
+  symbol: spot09_sceneTex_10
   format: RGBA16
   width: 32
   height: 32
 
-spot09_sceneTex_00A960:
+spot09_sceneTex_11:
   type: TEXTURE
   offset: 0xA960
-  symbol: spot09_sceneTex_00A960
+  symbol: spot09_sceneTex_11
   format: RGBA16
   width: 32
   height: 64
 
-spot09_sceneTex_00B960:
+spot09_sceneTex_12:
   type: TEXTURE
   offset: 0xB960
-  symbol: spot09_sceneTex_00B960
+  symbol: spot09_sceneTex_12
   format: RGBA16
   width: 32
   height: 32
 
-spot09_sceneTex_00C160:
+spot09_sceneTex_13:
   type: TEXTURE
   offset: 0xC160
-  symbol: spot09_sceneTex_00C160
+  symbol: spot09_sceneTex_13
   format: RGBA16
   width: 64
   height: 32
 
-spot09_sceneTex_00D160:
+spot09_sceneTex_14:
   type: TEXTURE
   offset: 0xD160
-  symbol: spot09_sceneTex_00D160
+  symbol: spot09_sceneTex_14
   format: RGBA16
   width: 128
   height: 16
 
-spot09_sceneTex_00E160:
+spot09_sceneTex_15:
   type: TEXTURE
   offset: 0xE160
-  symbol: spot09_sceneTex_00E160
+  symbol: spot09_sceneTex_15
   format: RGBA16
   width: 32
   height: 32
 
-spot09_sceneTex_00E960:
+spot09_sceneTex_16:
   type: TEXTURE
   offset: 0xE960
-  symbol: spot09_sceneTex_00E960
+  symbol: spot09_sceneTex_16
   format: I4
   width: 64
   height: 64
 
-spot09_sceneTex_00F160:
+spot09_sceneTex_17:
   type: TEXTURE
   offset: 0xF160
-  symbol: spot09_sceneTex_00F160
+  symbol: spot09_sceneTex_17
   format: I4
   width: 32
   height: 128
 
-spot09_sceneTex_00F960:
+spot09_sceneTex_18:
   type: TEXTURE
   offset: 0xF960
-  symbol: spot09_sceneTex_00F960
+  symbol: spot09_sceneTex_18
   format: RGBA16
   width: 64
   height: 32
 
-spot09_sceneTex_010960:
+spot09_sceneTex_19:
   type: TEXTURE
   offset: 0x10960
-  symbol: spot09_sceneTex_010960
+  symbol: spot09_sceneTex_19
   format: RGBA16
   width: 32
   height: 32
 
 
-spot09_sceneCollisionHeader_002128:
+spot09_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x002128
-  symbol: spot09_sceneCollisionHeader_002128
+  symbol: spot09_sceneCollisionHeader_0

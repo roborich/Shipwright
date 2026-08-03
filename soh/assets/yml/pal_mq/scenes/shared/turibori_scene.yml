@@ -7,224 +7,224 @@ turibori_scene:
   offset: 0x0
   symbol: turibori_scene
 
-turibori_sceneTex_001CE0:
+turibori_sceneTex_0:
   type: TEXTURE
   offset: 0x1CE0
-  symbol: turibori_sceneTex_001CE0
+  symbol: turibori_sceneTex_0
   format: RGBA16
   width: 32
   height: 64
 
-turibori_sceneTex_002CE0:
+turibori_sceneTex_1:
   type: TEXTURE
   offset: 0x2CE0
-  symbol: turibori_sceneTex_002CE0
+  symbol: turibori_sceneTex_1
   format: RGBA16
   width: 64
   height: 32
 
-turibori_sceneTex_003CE0:
+turibori_sceneTex_2:
   type: TEXTURE
   offset: 0x3CE0
-  symbol: turibori_sceneTex_003CE0
+  symbol: turibori_sceneTex_2
   format: RGBA16
   width: 64
   height: 32
 
-turibori_sceneTex_004CE0:
+turibori_sceneTex_3:
   type: TEXTURE
   offset: 0x4CE0
-  symbol: turibori_sceneTex_004CE0
+  symbol: turibori_sceneTex_3
   format: RGBA16
   width: 32
   height: 4
 
-turibori_sceneTex_004DE0:
+turibori_sceneTex_4:
   type: TEXTURE
   offset: 0x4DE0
-  symbol: turibori_sceneTex_004DE0
+  symbol: turibori_sceneTex_4
   format: RGBA16
   width: 32
   height: 16
 
-turibori_sceneTex_0051E0:
+turibori_sceneTex_5:
   type: TEXTURE
   offset: 0x51E0
-  symbol: turibori_sceneTex_0051E0
+  symbol: turibori_sceneTex_5
   format: IA16
   width: 32
   height: 32
 
-turibori_sceneTex_0059E0:
+turibori_sceneTex_6:
   type: TEXTURE
   offset: 0x59E0
-  symbol: turibori_sceneTex_0059E0
+  symbol: turibori_sceneTex_6
   format: IA8
   width: 64
   height: 64
 
-turibori_sceneTex_0069E0:
+turibori_sceneTex_7:
   type: TEXTURE
   offset: 0x69E0
-  symbol: turibori_sceneTex_0069E0
+  symbol: turibori_sceneTex_7
   format: IA8
   width: 32
   height: 16
 
-turibori_sceneTex_006BE0:
+turibori_sceneTex_8:
   type: TEXTURE
   offset: 0x6BE0
-  symbol: turibori_sceneTex_006BE0
+  symbol: turibori_sceneTex_8
   format: RGBA16
   width: 32
   height: 64
 
-turibori_sceneTex_007BE0:
+turibori_sceneTex_9:
   type: TEXTURE
   offset: 0x7BE0
-  symbol: turibori_sceneTex_007BE0
+  symbol: turibori_sceneTex_9
   format: IA8
   width: 64
   height: 16
 
-turibori_sceneTex_007FE0:
+turibori_sceneTex_10:
   type: TEXTURE
   offset: 0x7FE0
-  symbol: turibori_sceneTex_007FE0
+  symbol: turibori_sceneTex_10
   format: RGBA16
   width: 32
   height: 8
 
-turibori_sceneTex_0081E0:
+turibori_sceneTex_11:
   type: TEXTURE
   offset: 0x81E0
-  symbol: turibori_sceneTex_0081E0
+  symbol: turibori_sceneTex_11
   format: RGBA16
   width: 64
   height: 32
 
-turibori_sceneTex_0091E0:
+turibori_sceneTex_12:
   type: TEXTURE
   offset: 0x91E0
-  symbol: turibori_sceneTex_0091E0
+  symbol: turibori_sceneTex_12
   format: IA8
   width: 16
   height: 16
 
-turibori_sceneTex_0092E0:
+turibori_sceneTex_13:
   type: TEXTURE
   offset: 0x92E0
-  symbol: turibori_sceneTex_0092E0
+  symbol: turibori_sceneTex_13
   format: IA8
   width: 16
   height: 32
 
-turibori_sceneTex_0094E0:
+turibori_sceneTex_14:
   type: TEXTURE
   offset: 0x94E0
-  symbol: turibori_sceneTex_0094E0
+  symbol: turibori_sceneTex_14
   format: RGBA16
   width: 32
   height: 32
 
-turibori_sceneTex_009CE0:
+turibori_sceneTex_15:
   type: TEXTURE
   offset: 0x9CE0
-  symbol: turibori_sceneTex_009CE0
+  symbol: turibori_sceneTex_15
   format: RGBA16
   width: 32
   height: 64
 
-turibori_sceneTex_00ACE0:
+turibori_sceneTex_16:
   type: TEXTURE
   offset: 0xACE0
-  symbol: turibori_sceneTex_00ACE0
+  symbol: turibori_sceneTex_16
   format: RGBA16
   width: 64
   height: 32
 
-turibori_sceneTex_00BCE0:
+turibori_sceneTex_17:
   type: TEXTURE
   offset: 0xBCE0
-  symbol: turibori_sceneTex_00BCE0
+  symbol: turibori_sceneTex_17
   format: IA8
   width: 32
   height: 128
 
-turibori_sceneTex_00CCE0:
+turibori_sceneTex_18:
   type: TEXTURE
   offset: 0xCCE0
-  symbol: turibori_sceneTex_00CCE0
+  symbol: turibori_sceneTex_18
   format: RGBA16
   width: 64
   height: 32
 
-turibori_sceneTex_00DCE0:
+turibori_sceneTex_19:
   type: TEXTURE
   offset: 0xDCE0
-  symbol: turibori_sceneTex_00DCE0
+  symbol: turibori_sceneTex_19
   format: RGBA16
   width: 32
   height: 32
 
-turibori_sceneTex_00E4E0:
+turibori_sceneTex_20:
   type: TEXTURE
   offset: 0xE4E0
-  symbol: turibori_sceneTex_00E4E0
+  symbol: turibori_sceneTex_20
   format: RGBA16
   width: 32
   height: 32
 
-turibori_sceneTex_00ECE0:
+turibori_sceneTex_21:
   type: TEXTURE
   offset: 0xECE0
-  symbol: turibori_sceneTex_00ECE0
+  symbol: turibori_sceneTex_21
   format: RGBA16
   width: 32
   height: 32
 
-turibori_sceneTex_00F4E0:
+turibori_sceneTex_22:
   type: TEXTURE
   offset: 0xF4E0
-  symbol: turibori_sceneTex_00F4E0
+  symbol: turibori_sceneTex_22
   format: IA4
   width: 64
   height: 64
 
-turibori_sceneTex_00FCE0:
+turibori_sceneTex_23:
   type: TEXTURE
   offset: 0xFCE0
-  symbol: turibori_sceneTex_00FCE0
+  symbol: turibori_sceneTex_23
   format: RGBA16
   width: 32
   height: 32
 
-turibori_sceneTex_0104E0:
+turibori_sceneTex_24:
   type: TEXTURE
   offset: 0x104E0
-  symbol: turibori_sceneTex_0104E0
+  symbol: turibori_sceneTex_24
   format: RGBA16
   width: 64
   height: 32
 
-turibori_sceneTex_0114E0:
+turibori_sceneTex_25:
   type: TEXTURE
   offset: 0x114E0
-  symbol: turibori_sceneTex_0114E0
+  symbol: turibori_sceneTex_25
   format: I4
   width: 32
   height: 32
 
-turibori_sceneTex_0116E0:
+turibori_sceneTex_26:
   type: TEXTURE
   offset: 0x116E0
-  symbol: turibori_sceneTex_0116E0
+  symbol: turibori_sceneTex_26
   format: RGBA16
   width: 32
   height: 64
 
 
-turibori_sceneCollisionHeader_001CAC:
+turibori_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x001CAC
-  symbol: turibori_sceneCollisionHeader_001CAC
+  symbol: turibori_sceneCollisionHeader_0

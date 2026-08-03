@@ -7,10 +7,10 @@ ddan_scene:
   offset: 0x0
   symbol: ddan_scene
 
-ddan_sceneTLUT_011D70:
+ddan_sceneTLUT_0:
   type: TEXTURE
   offset: 0x11D70
-  symbol: ddan_sceneTLUT_011D70
+  symbol: ddan_sceneTLUT_0
   format: RGBA16
   width: 16
   height: 16
@@ -103,7 +103,7 @@ gDcOpeningCs:
   symbol: gDcOpeningCs
 
 
-ddan_sceneCollisionHeader_011D38:
+ddan_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x011D38
-  symbol: ddan_sceneCollisionHeader_011D38
+  symbol: ddan_sceneCollisionHeader_0

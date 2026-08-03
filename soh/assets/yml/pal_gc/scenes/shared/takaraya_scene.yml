@@ -7,40 +7,40 @@ takaraya_scene:
   offset: 0x0
   symbol: takaraya_scene
 
-takaraya_sceneTex_0051B0:
+takaraya_sceneTex_0:
   type: TEXTURE
   offset: 0x51B0
-  symbol: takaraya_sceneTex_0051B0
+  symbol: takaraya_sceneTex_0
   format: RGBA16
   width: 32
   height: 32
 
-takaraya_sceneTex_0059B0:
+takaraya_sceneTex_1:
   type: TEXTURE
   offset: 0x59B0
-  symbol: takaraya_sceneTex_0059B0
+  symbol: takaraya_sceneTex_1
   format: RGBA16
   width: 32
   height: 32
 
-takaraya_sceneTex_0061B0:
+takaraya_sceneTex_2:
   type: TEXTURE
   offset: 0x61B0
-  symbol: takaraya_sceneTex_0061B0
+  symbol: takaraya_sceneTex_2
   format: RGBA16
   width: 32
   height: 32
 
-takaraya_sceneTex_0069B0:
+takaraya_sceneTex_3:
   type: TEXTURE
   offset: 0x69B0
-  symbol: takaraya_sceneTex_0069B0
+  symbol: takaraya_sceneTex_3
   format: RGBA16
   width: 32
   height: 32
 
 
-takaraya_sceneCollisionHeader_005178:
+takaraya_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x005178
-  symbol: takaraya_sceneCollisionHeader_005178
+  symbol: takaraya_sceneCollisionHeader_0

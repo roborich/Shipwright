@@ -13,306 +13,306 @@ kokiri_home3_room_0:
   symbol: kokiri_home3_room_0
 
 
-kokiri_home3_room_0Vtx_0278C0:
+kokiri_home3_room_0Vtx_0:
   type: OOT:ARRAY
   offset: 0x0278C0
-  symbol: kokiri_home3_room_0Vtx_0278C0
+  symbol: kokiri_home3_room_0Vtx_0
   count: 90
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kokiri_home3_room_0Vtx_027E60:
+kokiri_home3_room_0Vtx_1:
   type: OOT:ARRAY
   offset: 0x027E60
-  symbol: kokiri_home3_room_0Vtx_027E60
+  symbol: kokiri_home3_room_0Vtx_1
   count: 514
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kokiri_home3_room_0Vtx_029E80:
+kokiri_home3_room_0Vtx_2:
   type: OOT:ARRAY
   offset: 0x029E80
-  symbol: kokiri_home3_room_0Vtx_029E80
+  symbol: kokiri_home3_room_0Vtx_2
   count: 518
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kokiri_home3_room_0Vtx_02BEE0:
+kokiri_home3_room_0Vtx_3:
   type: OOT:ARRAY
   offset: 0x02BEE0
-  symbol: kokiri_home3_room_0Vtx_02BEE0
+  symbol: kokiri_home3_room_0Vtx_3
   count: 488
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kokiri_home3_room_0Vtx_02DD60:
+kokiri_home3_room_0Vtx_4:
   type: OOT:ARRAY
   offset: 0x02DD60
-  symbol: kokiri_home3_room_0Vtx_02DD60
+  symbol: kokiri_home3_room_0Vtx_4
   count: 186
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kokiri_home3_room_0Vtx_02E900:
+kokiri_home3_room_0Vtx_5:
   type: OOT:ARRAY
   offset: 0x02E900
-  symbol: kokiri_home3_room_0Vtx_02E900
+  symbol: kokiri_home3_room_0Vtx_5
   count: 165
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kokiri_home3_room_0Vtx_02F350:
+kokiri_home3_room_0Vtx_6:
   type: OOT:ARRAY
   offset: 0x02F350
-  symbol: kokiri_home3_room_0Vtx_02F350
+  symbol: kokiri_home3_room_0Vtx_6
   count: 178
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kokiri_home3_room_0Vtx_02FE70:
+kokiri_home3_room_0Vtx_7:
   type: OOT:ARRAY
   offset: 0x02FE70
-  symbol: kokiri_home3_room_0Vtx_02FE70
+  symbol: kokiri_home3_room_0Vtx_7
   count: 193
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kokiri_home3_room_0Vtx_030A80:
+kokiri_home3_room_0Vtx_8:
   type: OOT:ARRAY
   offset: 0x030A80
-  symbol: kokiri_home3_room_0Vtx_030A80
+  symbol: kokiri_home3_room_0Vtx_8
   count: 189
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kokiri_home3_room_0Vtx_031650:
+kokiri_home3_room_0Vtx_9:
   type: OOT:ARRAY
   offset: 0x031650
-  symbol: kokiri_home3_room_0Vtx_031650
+  symbol: kokiri_home3_room_0Vtx_9
   count: 75
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kokiri_home3_room_0Vtx_031B00:
+kokiri_home3_room_0Vtx_10:
   type: OOT:ARRAY
   offset: 0x031B00
-  symbol: kokiri_home3_room_0Vtx_031B00
+  symbol: kokiri_home3_room_0Vtx_10
   count: 56
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kokiri_home3_room_0Vtx_031E80:
+kokiri_home3_room_0Vtx_11:
   type: OOT:ARRAY
   offset: 0x031E80
-  symbol: kokiri_home3_room_0Vtx_031E80
+  symbol: kokiri_home3_room_0Vtx_11
   count: 137
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kokiri_home3_room_0Vtx_032710:
+kokiri_home3_room_0Vtx_12:
   type: OOT:ARRAY
   offset: 0x032710
-  symbol: kokiri_home3_room_0Vtx_032710
+  symbol: kokiri_home3_room_0Vtx_12
   count: 138
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kokiri_home3_room_0Vtx_032FB0:
+kokiri_home3_room_0Vtx_13:
   type: OOT:ARRAY
   offset: 0x032FB0
-  symbol: kokiri_home3_room_0Vtx_032FB0
+  symbol: kokiri_home3_room_0Vtx_13
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kokiri_home3_room_0Vtx_033030:
+kokiri_home3_room_0Vtx_14:
   type: OOT:ARRAY
   offset: 0x033030
-  symbol: kokiri_home3_room_0Vtx_033030
+  symbol: kokiri_home3_room_0Vtx_14
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kokiri_home3_room_0Vtx_0330B0:
+kokiri_home3_room_0Vtx_15:
   type: OOT:ARRAY
   offset: 0x0330B0
-  symbol: kokiri_home3_room_0Vtx_0330B0
+  symbol: kokiri_home3_room_0Vtx_15
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kokiri_home3_room_0Vtx_033130:
+kokiri_home3_room_0Vtx_16:
   type: OOT:ARRAY
   offset: 0x033130
-  symbol: kokiri_home3_room_0Vtx_033130
+  symbol: kokiri_home3_room_0Vtx_16
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kokiri_home3_room_0Vtx_0331B0:
+kokiri_home3_room_0Vtx_17:
   type: OOT:ARRAY
   offset: 0x0331B0
-  symbol: kokiri_home3_room_0Vtx_0331B0
+  symbol: kokiri_home3_room_0Vtx_17
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kokiri_home3_room_0Vtx_033230:
+kokiri_home3_room_0Vtx_18:
   type: OOT:ARRAY
   offset: 0x033230
-  symbol: kokiri_home3_room_0Vtx_033230
+  symbol: kokiri_home3_room_0Vtx_18
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kokiri_home3_room_0Vtx_0332B0:
+kokiri_home3_room_0Vtx_19:
   type: OOT:ARRAY
   offset: 0x0332B0
-  symbol: kokiri_home3_room_0Vtx_0332B0
+  symbol: kokiri_home3_room_0Vtx_19
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kokiri_home3_room_0Vtx_033330:
+kokiri_home3_room_0Vtx_20:
   type: OOT:ARRAY
   offset: 0x033330
-  symbol: kokiri_home3_room_0Vtx_033330
+  symbol: kokiri_home3_room_0Vtx_20
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kokiri_home3_room_0Vtx_0333B0:
+kokiri_home3_room_0Vtx_21:
   type: OOT:ARRAY
   offset: 0x0333B0
-  symbol: kokiri_home3_room_0Vtx_0333B0
+  symbol: kokiri_home3_room_0Vtx_21
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kokiri_home3_room_0Vtx_033430:
+kokiri_home3_room_0Vtx_22:
   type: OOT:ARRAY
   offset: 0x033430
-  symbol: kokiri_home3_room_0Vtx_033430
+  symbol: kokiri_home3_room_0Vtx_22
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kokiri_home3_room_0Vtx_0334B0:
+kokiri_home3_room_0Vtx_23:
   type: OOT:ARRAY
   offset: 0x0334B0
-  symbol: kokiri_home3_room_0Vtx_0334B0
+  symbol: kokiri_home3_room_0Vtx_23
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kokiri_home3_room_0Vtx_033530:
+kokiri_home3_room_0Vtx_24:
   type: OOT:ARRAY
   offset: 0x033530
-  symbol: kokiri_home3_room_0Vtx_033530
+  symbol: kokiri_home3_room_0Vtx_24
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kokiri_home3_room_0Vtx_0335B0:
+kokiri_home3_room_0Vtx_25:
   type: OOT:ARRAY
   offset: 0x0335B0
-  symbol: kokiri_home3_room_0Vtx_0335B0
+  symbol: kokiri_home3_room_0Vtx_25
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kokiri_home3_room_0DL_033630:
+kokiri_home3_room_0DL_0:
   type: GFX
   offset: 0x033630
-  symbol: kokiri_home3_room_0DL_033630
+  symbol: kokiri_home3_room_0DL_0
 
-kokiri_home3_room_0DL_0337E0:
+kokiri_home3_room_0DL_1:
   type: GFX
   offset: 0x0337E0
-  symbol: kokiri_home3_room_0DL_0337E0
+  symbol: kokiri_home3_room_0DL_1
 
-kokiri_home3_room_0DL_033F80:
+kokiri_home3_room_0DL_2:
   type: GFX
   offset: 0x033F80
-  symbol: kokiri_home3_room_0DL_033F80
+  symbol: kokiri_home3_room_0DL_2
 
-kokiri_home3_room_0DL_034728:
+kokiri_home3_room_0DL_3:
   type: GFX
   offset: 0x034728
-  symbol: kokiri_home3_room_0DL_034728
+  symbol: kokiri_home3_room_0DL_3
 
-kokiri_home3_room_0DL_034EC8:
+kokiri_home3_room_0DL_4:
   type: GFX
   offset: 0x034EC8
-  symbol: kokiri_home3_room_0DL_034EC8
+  symbol: kokiri_home3_room_0DL_4
 
-kokiri_home3_room_0DL_035278:
+kokiri_home3_room_0DL_5:
   type: GFX
   offset: 0x035278
-  symbol: kokiri_home3_room_0DL_035278
+  symbol: kokiri_home3_room_0DL_5
 
-kokiri_home3_room_0DL_035610:
+kokiri_home3_room_0DL_6:
   type: GFX
   offset: 0x035610
-  symbol: kokiri_home3_room_0DL_035610
+  symbol: kokiri_home3_room_0DL_6
 
-kokiri_home3_room_0DL_0359A0:
+kokiri_home3_room_0DL_7:
   type: GFX
   offset: 0x0359A0
-  symbol: kokiri_home3_room_0DL_0359A0
+  symbol: kokiri_home3_room_0DL_7
 
-kokiri_home3_room_0DL_035C20:
+kokiri_home3_room_0DL_8:
   type: GFX
   offset: 0x035C20
-  symbol: kokiri_home3_room_0DL_035C20
+  symbol: kokiri_home3_room_0DL_8
 
-kokiri_home3_room_0DL_035EA8:
+kokiri_home3_room_0DL_9:
   type: GFX
   offset: 0x035EA8
-  symbol: kokiri_home3_room_0DL_035EA8
+  symbol: kokiri_home3_room_0DL_9
 
-kokiri_home3_room_0DL_035FF8:
+kokiri_home3_room_0DL_10:
   type: GFX
   offset: 0x035FF8
-  symbol: kokiri_home3_room_0DL_035FF8
+  symbol: kokiri_home3_room_0DL_10
 
-kokiri_home3_room_0DL_036100:
+kokiri_home3_room_0DL_11:
   type: GFX
   offset: 0x036100
-  symbol: kokiri_home3_room_0DL_036100
+  symbol: kokiri_home3_room_0DL_11
 
-kokiri_home3_room_0DL_036348:
+kokiri_home3_room_0DL_12:
   type: GFX
   offset: 0x036348
-  symbol: kokiri_home3_room_0DL_036348
+  symbol: kokiri_home3_room_0DL_12
 
-kokiri_home3_room_0DL_036590:
+kokiri_home3_room_0DL_13:
   type: GFX
   offset: 0x036590
-  symbol: kokiri_home3_room_0DL_036590
+  symbol: kokiri_home3_room_0DL_13

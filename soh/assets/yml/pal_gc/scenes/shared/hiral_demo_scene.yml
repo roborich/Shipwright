@@ -3,22 +3,22 @@
     - [ 2, 0x01D31DF0 ]
 
   external_files:
-    - pal_gc/scenes/shared/hiral_demo_sceneSet_0037C0.yml
-    - pal_gc/scenes/shared/hiral_demo_sceneSet_003890.yml
-    - pal_gc/scenes/shared/hiral_demo_sceneSet_003920.yml
-    - pal_gc/scenes/shared/hiral_demo_sceneSet_0039B0.yml
-    - pal_gc/scenes/shared/hiral_demo_sceneSet_003A60.yml
-    - pal_gc/scenes/shared/hiral_demo_sceneSet_003AF0.yml
-    - pal_gc/scenes/shared/hiral_demo_sceneSet_003B80.yml
-    - pal_gc/scenes/shared/hiral_demo_sceneSet_003C10.yml
-    - pal_gc/scenes/shared/hiral_demo_sceneSet_003CA0.yml
+    - pal_gc/scenes/shared/hiral_demo_sceneSet_0.yml
+    - pal_gc/scenes/shared/hiral_demo_sceneSet_1.yml
+    - pal_gc/scenes/shared/hiral_demo_sceneSet_2.yml
+    - pal_gc/scenes/shared/hiral_demo_sceneSet_3.yml
+    - pal_gc/scenes/shared/hiral_demo_sceneSet_4.yml
+    - pal_gc/scenes/shared/hiral_demo_sceneSet_5.yml
+    - pal_gc/scenes/shared/hiral_demo_sceneSet_6.yml
+    - pal_gc/scenes/shared/hiral_demo_sceneSet_7.yml
+    - pal_gc/scenes/shared/hiral_demo_sceneSet_8.yml
 hiral_demo_scene:
   type: OOT:SCENE
   offset: 0x0
   symbol: hiral_demo_scene
 
 
-hiral_demo_sceneCollisionHeader_003548:
+hiral_demo_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x003548
-  symbol: hiral_demo_sceneCollisionHeader_003548
+  symbol: hiral_demo_sceneCollisionHeader_0

@@ -12,90 +12,90 @@ jyasinzou_room_1:
   offset: 0x0
   symbol: jyasinzou_room_1
 
-jyasinzou_room_1Tex_004F48:
+jyasinzou_room_1Tex_0:
   type: TEXTURE
   offset: 0x4EF8
-  symbol: jyasinzou_room_1Tex_004F48
+  symbol: jyasinzou_room_1Tex_0
   format: CI8
   width: 64
   height: 32
   external_tlut: jyasinzou_scene
   external_tlut_offset: 0x17E00
 
-jyasinzou_room_1Tex_005748:
+jyasinzou_room_1Tex_1:
   type: TEXTURE
   offset: 0x56F8
-  symbol: jyasinzou_room_1Tex_005748
+  symbol: jyasinzou_room_1Tex_1
   format: CI8
   width: 32
   height: 64
   external_tlut: jyasinzou_scene
   external_tlut_offset: 0x17C00
 
-jyasinzou_room_1Tex_005F48:
+jyasinzou_room_1Tex_2:
   type: TEXTURE
   offset: 0x5EF8
-  symbol: jyasinzou_room_1Tex_005F48
+  symbol: jyasinzou_room_1Tex_2
   format: CI8
   width: 32
   height: 64
   external_tlut: jyasinzou_scene
   external_tlut_offset: 0x17C00
 
-jyasinzou_room_1Tex_006748:
+jyasinzou_room_1Tex_3:
   type: TEXTURE
   offset: 0x66F8
-  symbol: jyasinzou_room_1Tex_006748
+  symbol: jyasinzou_room_1Tex_3
   format: CI8
   width: 32
   height: 32
   external_tlut: jyasinzou_scene
   external_tlut_offset: 0x17C00
 
-jyasinzou_room_1Tex_006B48:
+jyasinzou_room_1Tex_4:
   type: TEXTURE
   offset: 0x6AF8
-  symbol: jyasinzou_room_1Tex_006B48
+  symbol: jyasinzou_room_1Tex_4
   format: CI8
   width: 32
   height: 64
   external_tlut: jyasinzou_scene
   external_tlut_offset: 0x17C00
 
-jyasinzou_room_1Tex_007348:
+jyasinzou_room_1Tex_5:
   type: TEXTURE
   offset: 0x72F8
-  symbol: jyasinzou_room_1Tex_007348
+  symbol: jyasinzou_room_1Tex_5
   format: CI8
   width: 64
   height: 32
   external_tlut: jyasinzou_scene
   external_tlut_offset: 0x17C00
 
-jyasinzou_room_1Tex_007B48:
+jyasinzou_room_1Tex_6:
   type: TEXTURE
   offset: 0x7AF8
-  symbol: jyasinzou_room_1Tex_007B48
+  symbol: jyasinzou_room_1Tex_6
   format: CI8
   width: 64
   height: 32
   external_tlut: jyasinzou_scene
   external_tlut_offset: 0x17C00
 
-jyasinzou_room_1Tex_008348:
+jyasinzou_room_1Tex_7:
   type: TEXTURE
   offset: 0x82F8
-  symbol: jyasinzou_room_1Tex_008348
+  symbol: jyasinzou_room_1Tex_7
   format: CI4
   width: 64
   height: 64
   external_tlut: jyasinzou_scene
   external_tlut_offset: 0x18000
 
-jyasinzou_room_1Tex_008B48:
+jyasinzou_room_1Tex_8:
   type: TEXTURE
   offset: 0x8AF8
-  symbol: jyasinzou_room_1Tex_008B48
+  symbol: jyasinzou_room_1Tex_8
   format: CI4
   width: 64
   height: 64
@@ -103,58 +103,58 @@ jyasinzou_room_1Tex_008B48:
   external_tlut_offset: 0x18020
 
 
-jyasinzou_room_1Vtx_000250:
+jyasinzou_room_1Vtx_0:
   type: OOT:ARRAY
   offset: 0x000250
-  symbol: jyasinzou_room_1Vtx_000250
+  symbol: jyasinzou_room_1Vtx_0
   count: 20
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-jyasinzou_room_1DL_000390:
+jyasinzou_room_1DL_0:
   type: GFX
   offset: 0x000390
-  symbol: jyasinzou_room_1DL_000390
+  symbol: jyasinzou_room_1DL_0
 
-jyasinzou_room_1Vtx_000488:
+jyasinzou_room_1Vtx_1:
   type: OOT:ARRAY
   offset: 0x000488
-  symbol: jyasinzou_room_1Vtx_000488
+  symbol: jyasinzou_room_1Vtx_1
   count: 529
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-jyasinzou_room_1DL_002598:
+jyasinzou_room_1DL_1:
   type: GFX
   offset: 0x002598
-  symbol: jyasinzou_room_1DL_002598
+  symbol: jyasinzou_room_1DL_1
 
-jyasinzou_room_1Vtx_004178:
+jyasinzou_room_1Vtx_2:
   type: OOT:ARRAY
   offset: 0x004178
-  symbol: jyasinzou_room_1Vtx_004178
+  symbol: jyasinzou_room_1Vtx_2
   count: 66
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-jyasinzou_room_1DL_004598:
+jyasinzou_room_1DL_2:
   type: GFX
   offset: 0x004598
-  symbol: jyasinzou_room_1DL_004598
+  symbol: jyasinzou_room_1DL_2
 
-jyasinzou_room_1Vtx_004970:
+jyasinzou_room_1Vtx_3:
   type: OOT:ARRAY
   offset: 0x004970
-  symbol: jyasinzou_room_1Vtx_004970
+  symbol: jyasinzou_room_1Vtx_3
   count: 57
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-jyasinzou_room_1DL_004D00:
+jyasinzou_room_1DL_3:
   type: GFX
   offset: 0x004D00
-  symbol: jyasinzou_room_1DL_004D00
+  symbol: jyasinzou_room_1DL_3

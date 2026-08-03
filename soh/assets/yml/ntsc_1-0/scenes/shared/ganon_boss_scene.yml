@@ -7,207 +7,207 @@ ganon_boss_scene:
   offset: 0x0
   symbol: ganon_boss_scene
 
-ganon_boss_sceneTLUT_001550:
+ganon_boss_sceneTLUT_0:
   type: TEXTURE
   offset: 0x1550
-  symbol: ganon_boss_sceneTLUT_001550
+  symbol: ganon_boss_sceneTLUT_0
   format: RGBA16
   width: 16
   height: 16
 
-ganon_boss_sceneTLUT_001620:
+ganon_boss_sceneTLUT_1:
   type: TEXTURE
   offset: 0x1620
-  symbol: ganon_boss_sceneTLUT_001620
+  symbol: ganon_boss_sceneTLUT_1
   format: RGBA16
   width: 16
   height: 16
 
-ganon_boss_sceneTLUT_001680:
+ganon_boss_sceneTLUT_2:
   type: TEXTURE
   offset: 0x1680
-  symbol: ganon_boss_sceneTLUT_001680
+  symbol: ganon_boss_sceneTLUT_2
   format: RGBA16
   width: 16
   height: 16
 
-ganon_boss_sceneTLUT_001888:
+ganon_boss_sceneTLUT_3:
   type: TEXTURE
   offset: 0x1888
-  symbol: ganon_boss_sceneTLUT_001888
+  symbol: ganon_boss_sceneTLUT_3
   format: RGBA16
   width: 16
   height: 16
 
-ganon_boss_sceneTLUT_001A90:
+ganon_boss_sceneTLUT_4:
   type: TEXTURE
   offset: 0x1A90
-  symbol: ganon_boss_sceneTLUT_001A90
+  symbol: ganon_boss_sceneTLUT_4
   format: RGBA16
   width: 16
   height: 16
 
-ganon_boss_sceneTLUT_001C50:
+ganon_boss_sceneTLUT_5:
   type: TEXTURE
   offset: 0x1C50
-  symbol: ganon_boss_sceneTLUT_001C50
+  symbol: ganon_boss_sceneTLUT_5
   format: RGBA16
   width: 16
   height: 16
 
-ganon_boss_sceneTex_001E58:
+ganon_boss_sceneTex_0:
   type: TEXTURE
   offset: 0x1E58
-  symbol: ganon_boss_sceneTex_001E58
+  symbol: ganon_boss_sceneTex_0
   format: CI8
   width: 32
   height: 64
   tlut: 0x1550
 
-ganon_boss_sceneTex_002658:
+ganon_boss_sceneTex_1:
   type: TEXTURE
   offset: 0x2658
-  symbol: ganon_boss_sceneTex_002658
+  symbol: ganon_boss_sceneTex_1
   format: CI8
   width: 16
   height: 16
   tlut: 0x1A90
 
-ganon_boss_sceneTex_002758:
+ganon_boss_sceneTex_2:
   type: TEXTURE
   offset: 0x2758
-  symbol: ganon_boss_sceneTex_002758
+  symbol: ganon_boss_sceneTex_2
   format: CI8
   width: 8
   height: 8
   tlut: 0x1A90
 
-ganon_boss_sceneTex_002798:
+ganon_boss_sceneTex_3:
   type: TEXTURE
   offset: 0x2798
-  symbol: ganon_boss_sceneTex_002798
+  symbol: ganon_boss_sceneTex_3
   format: CI8
   width: 32
   height: 32
   tlut: 0x1C50
 
-ganon_boss_sceneTex_002B98:
+ganon_boss_sceneTex_4:
   type: TEXTURE
   offset: 0x2B98
-  symbol: ganon_boss_sceneTex_002B98
+  symbol: ganon_boss_sceneTex_4
   format: CI8
   width: 16
   height: 8
   tlut: 0x1A90
 
-ganon_boss_sceneTex_002C18:
+ganon_boss_sceneTex_5:
   type: TEXTURE
   offset: 0x2C18
-  symbol: ganon_boss_sceneTex_002C18
+  symbol: ganon_boss_sceneTex_5
   format: RGBA16
   width: 32
   height: 64
 
-ganon_boss_sceneTex_003C18:
+ganon_boss_sceneTex_6:
   type: TEXTURE
   offset: 0x3C18
-  symbol: ganon_boss_sceneTex_003C18
+  symbol: ganon_boss_sceneTex_6
   format: CI8
   width: 32
   height: 32
   tlut: 0x1620
 
-ganon_boss_sceneTex_004018:
+ganon_boss_sceneTex_7:
   type: TEXTURE
   offset: 0x4018
-  symbol: ganon_boss_sceneTex_004018
+  symbol: ganon_boss_sceneTex_7
   format: CI8
   width: 32
   height: 32
   tlut: 0x1888
 
-ganon_boss_sceneTex_004418:
+ganon_boss_sceneTex_8:
   type: TEXTURE
   offset: 0x4418
-  symbol: ganon_boss_sceneTex_004418
+  symbol: ganon_boss_sceneTex_8
   format: CI8
   width: 32
   height: 32
   tlut: 0x1A90
 
-ganon_boss_sceneTex_004818:
+ganon_boss_sceneTex_9:
   type: TEXTURE
   offset: 0x4818
-  symbol: ganon_boss_sceneTex_004818
+  symbol: ganon_boss_sceneTex_9
   format: CI8
   width: 32
   height: 32
   tlut: 0x1A90
 
-ganon_boss_sceneTex_004C18:
+ganon_boss_sceneTex_10:
   type: TEXTURE
   offset: 0x4C18
-  symbol: ganon_boss_sceneTex_004C18
+  symbol: ganon_boss_sceneTex_10
   format: CI8
   width: 32
   height: 32
   tlut: 0x1A90
 
-ganon_boss_sceneTex_005018:
+ganon_boss_sceneTex_11:
   type: TEXTURE
   offset: 0x5018
-  symbol: ganon_boss_sceneTex_005018
+  symbol: ganon_boss_sceneTex_11
   format: RGBA16
   width: 32
   height: 32
 
-ganon_boss_sceneTex_005818:
+ganon_boss_sceneTex_12:
   type: TEXTURE
   offset: 0x5818
-  symbol: ganon_boss_sceneTex_005818
+  symbol: ganon_boss_sceneTex_12
   format: CI8
   width: 32
   height: 64
   tlut: 0x1888
 
-ganon_boss_sceneTex_006018:
+ganon_boss_sceneTex_13:
   type: TEXTURE
   offset: 0x6018
-  symbol: ganon_boss_sceneTex_006018
+  symbol: ganon_boss_sceneTex_13
   format: CI8
   width: 16
   height: 64
   tlut: 0x1A90
 
-ganon_boss_sceneTex_006418:
+ganon_boss_sceneTex_14:
   type: TEXTURE
   offset: 0x6418
-  symbol: ganon_boss_sceneTex_006418
+  symbol: ganon_boss_sceneTex_14
   format: CI8
   width: 32
   height: 64
   tlut: 0x1C50
 
-ganon_boss_sceneTex_006C18:
+ganon_boss_sceneTex_15:
   type: TEXTURE
   offset: 0x6C18
-  symbol: ganon_boss_sceneTex_006C18
+  symbol: ganon_boss_sceneTex_15
   format: CI8
   width: 32
   height: 64
   tlut: 0x1680
 
-ganon_boss_sceneTex_007418:
+ganon_boss_sceneTex_16:
   type: TEXTURE
   offset: 0x7418
-  symbol: ganon_boss_sceneTex_007418
+  symbol: ganon_boss_sceneTex_16
   format: CI8
   width: 32
   height: 64
   tlut: 0x1680
 
 
-ganon_boss_sceneCollisionHeader_001520:
+ganon_boss_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x001520
-  symbol: ganon_boss_sceneCollisionHeader_001520
+  symbol: ganon_boss_sceneCollisionHeader_0

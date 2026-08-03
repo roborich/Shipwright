@@ -6,27 +6,27 @@
   external_files:
     - pal_mq_dbg/scenes/mq/bdan_scene.yml
     - pal_mq_dbg/code/sys_matrix.yml
-    - pal_mq_dbg/scenes/mq/bdan_room_1Set_000240.yml
+    - pal_mq_dbg/scenes/mq/bdan_room_1Set_1.yml
 
 bdan_room_1:
   type: OOT:ROOM
   offset: 0x0
   symbol: bdan_room_1
 
-bdan_room_1Tex_004E00:
+bdan_room_1Tex_2:
   type: TEXTURE
   offset: 0x4E00
-  symbol: bdan_room_1Tex_004E00
+  symbol: bdan_room_1Tex_2
   format: CI8
   width: 32
   height: 64
   external_tlut: bdan_scene
   external_tlut_offset: 0x13BF8
 
-bdan_room_1Tex_005600:
+bdan_room_1Tex_3:
   type: TEXTURE
   offset: 0x5600
-  symbol: bdan_room_1Tex_005600
+  symbol: bdan_room_1Tex_3
   format: CI8
   width: 32
   height: 64
@@ -34,40 +34,40 @@ bdan_room_1Tex_005600:
   external_tlut_offset: 0x13BF8
 
 
-bdan_room_1Vtx_0002E0:
+bdan_room_1Vtx_0:
   type: OOT:ARRAY
   offset: 0x0002E0
-  symbol: bdan_room_1Vtx_0002E0
+  symbol: bdan_room_1Vtx_0
   count: 794
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-bdan_room_1DL_003480:
+bdan_room_1DL_4:
   type: GFX
   offset: 0x003480
-  symbol: bdan_room_1DL_003480
+  symbol: bdan_room_1DL_4
 
-bdan_room_1DL_004DF0:
+bdan_room_1DL_5:
   type: GFX
   offset: 0x004DF0
-  symbol: bdan_room_1DL_004DF0
+  symbol: bdan_room_1DL_5
 
-bdan_room_1Vtx_005E00:
+bdan_room_1Vtx_1:
   type: OOT:ARRAY
   offset: 0x005E00
-  symbol: bdan_room_1Vtx_005E00
+  symbol: bdan_room_1Vtx_1
   count: 12
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-bdan_room_1DL_005EC0:
+bdan_room_1DL_6:
   type: GFX
   offset: 0x005EC0
-  symbol: bdan_room_1DL_005EC0
+  symbol: bdan_room_1DL_6
 
-bdan_room_1DL_005FA8:
+bdan_room_1DL_7:
   type: GFX
   offset: 0x005FA8
-  symbol: bdan_room_1DL_005FA8
+  symbol: bdan_room_1DL_7

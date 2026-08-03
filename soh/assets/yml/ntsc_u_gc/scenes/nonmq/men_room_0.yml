@@ -20,132 +20,132 @@ men_room_0:
   offset: 0x0
   symbol: men_room_0
 
-gMenDL_008118:
+gMenDL_0:
   type: GFX
   offset: 0x8118
-  symbol: gMenDL_008118
+  symbol: gMenDL_0
 
-gMenDL_00FF78:
+gMenDL_1:
   type: GFX
   offset: 0xFF78
-  symbol: gMenDL_00FF78
+  symbol: gMenDL_1
 
-men_room_0Tex_008138:
+men_room_0Tex_0:
   type: TEXTURE
   offset: 0x8138
-  symbol: men_room_0Tex_008138
+  symbol: men_room_0Tex_0
   format: CI8
   width: 64
   height: 32
   external_tlut: men_scene
   external_tlut_offset: 0xF730
 
-men_room_0Tex_008938:
+men_room_0Tex_1:
   type: TEXTURE
   offset: 0x8938
-  symbol: men_room_0Tex_008938
+  symbol: men_room_0Tex_1
   format: CI8
   width: 32
   height: 64
   external_tlut: men_scene
   external_tlut_offset: 0xF730
 
-men_room_0Tex_009138:
+men_room_0Tex_2:
   type: TEXTURE
   offset: 0x9138
-  symbol: men_room_0Tex_009138
+  symbol: men_room_0Tex_2
   format: CI8
   width: 32
   height: 32
   external_tlut: men_scene
   external_tlut_offset: 0xF730
 
-men_room_0Tex_009538:
+men_room_0Tex_3:
   type: TEXTURE
   offset: 0x9538
-  symbol: men_room_0Tex_009538
+  symbol: men_room_0Tex_3
   format: RGBA16
   width: 32
   height: 32
 
-men_room_0Tex_009D38:
+men_room_0Tex_4:
   type: TEXTURE
   offset: 0x9D38
-  symbol: men_room_0Tex_009D38
+  symbol: men_room_0Tex_4
   format: CI8
   width: 32
   height: 64
   external_tlut: men_scene
   external_tlut_offset: 0xF730
 
-men_room_0Tex_00A538:
+men_room_0Tex_5:
   type: TEXTURE
   offset: 0xA538
-  symbol: men_room_0Tex_00A538
+  symbol: men_room_0Tex_5
   format: IA8
   width: 64
   height: 64
 
-men_room_0Tex_00B538:
+men_room_0Tex_6:
   type: TEXTURE
   offset: 0xB538
-  symbol: men_room_0Tex_00B538
+  symbol: men_room_0Tex_6
   format: CI8
   width: 32
   height: 64
   external_tlut: men_scene
   external_tlut_offset: 0xF730
 
-men_room_0Tex_00BD38:
+men_room_0Tex_7:
   type: TEXTURE
   offset: 0xBD38
-  symbol: men_room_0Tex_00BD38
+  symbol: men_room_0Tex_7
   format: CI8
   width: 64
   height: 32
   external_tlut: men_scene
   external_tlut_offset: 0xF730
 
-men_room_0Tex_00C538:
+men_room_0Tex_8:
   type: TEXTURE
   offset: 0xC538
-  symbol: men_room_0Tex_00C538
+  symbol: men_room_0Tex_8
   format: I4
   width: 64
   height: 128
 
-men_room_0Tex_00D538:
+men_room_0Tex_9:
   type: TEXTURE
   offset: 0xD538
-  symbol: men_room_0Tex_00D538
+  symbol: men_room_0Tex_9
   format: CI8
   width: 64
   height: 32
   external_tlut: men_scene
   external_tlut_offset: 0xF730
 
-men_room_0Tex_00DD38:
+men_room_0Tex_10:
   type: TEXTURE
   offset: 0xDD38
-  symbol: men_room_0Tex_00DD38
+  symbol: men_room_0Tex_10
   format: RGBA16
   width: 16
   height: 128
 
-men_room_0Tex_00ED38:
+men_room_0Tex_11:
   type: TEXTURE
   offset: 0xED38
-  symbol: men_room_0Tex_00ED38
+  symbol: men_room_0Tex_11
   format: CI8
   width: 64
   height: 32
   external_tlut: men_scene
   external_tlut_offset: 0xF730
 
-men_room_0Tex_00F538:
+men_room_0Tex_12:
   type: TEXTURE
   offset: 0xF538
-  symbol: men_room_0Tex_00F538
+  symbol: men_room_0Tex_12
   format: CI8
   width: 64
   height: 32
@@ -153,58 +153,58 @@ men_room_0Tex_00F538:
   external_tlut_offset: 0xF730
 
 
-men_room_0Vtx_000130:
+men_room_0Vtx_0:
   type: OOT:ARRAY
   offset: 0x000130
-  symbol: men_room_0Vtx_000130
+  symbol: men_room_0Vtx_0
   count: 666
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-men_room_0DL_002AD0:
+men_room_0DL_0:
   type: GFX
   offset: 0x002AD0
-  symbol: men_room_0DL_002AD0
+  symbol: men_room_0DL_0
 
-men_room_0Vtx_003BD0:
+men_room_0Vtx_1:
   type: OOT:ARRAY
   offset: 0x003BD0
-  symbol: men_room_0Vtx_003BD0
+  symbol: men_room_0Vtx_1
   count: 688
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-men_room_0DL_0066D0:
+men_room_0DL_1:
   type: GFX
   offset: 0x0066D0
-  symbol: men_room_0DL_0066D0
+  symbol: men_room_0DL_1
 
-men_room_0Vtx_007E38:
+men_room_0Vtx_2:
   type: OOT:ARRAY
   offset: 0x007E38
-  symbol: men_room_0Vtx_007E38
+  symbol: men_room_0Vtx_2
   count: 26
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-men_room_0DL_007FD8:
+men_room_0DL_2:
   type: GFX
   offset: 0x007FD8
-  symbol: men_room_0DL_007FD8
+  symbol: men_room_0DL_2
 
-men_room_0Vtx_00FD40:
+men_room_0Vtx_3:
   type: OOT:ARRAY
   offset: 0x00FD40
-  symbol: men_room_0Vtx_00FD40
+  symbol: men_room_0Vtx_3
   count: 22
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-men_room_0DL_00FEA0:
+men_room_0DL_3:
   type: GFX
   offset: 0x00FEA0
-  symbol: men_room_0DL_00FEA0
+  symbol: men_room_0DL_3

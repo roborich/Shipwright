@@ -7,14 +7,14 @@ market_day_scene:
   offset: 0x0
   symbol: market_day_scene
 
-market_day_scenePathList_000330:
+market_day_scenePathList_0:
   type: OOT:PATH
   offset: 0x0330
-  symbol: market_day_scenePathList_000330
+  symbol: market_day_scenePathList_0
   num_paths: 4
 
 
-market_day_sceneCollisionHeader_002640:
+market_day_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x002640
-  symbol: market_day_sceneCollisionHeader_002640
+  symbol: market_day_sceneCollisionHeader_0

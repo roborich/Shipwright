@@ -14,145 +14,145 @@
     - pal_mq_dbg/objects/gameplay_keep.yml
     - pal_mq_dbg/scenes/shared/spot02_scene.yml
     - pal_mq_dbg/code/sys_matrix.yml
-    - pal_mq_dbg/scenes/shared/spot02_room_0Set_000290.yml
-    - pal_mq_dbg/scenes/shared/spot02_room_0Set_000470.yml
-    - pal_mq_dbg/scenes/shared/spot02_room_0Set_000650.yml
-    - pal_mq_dbg/scenes/shared/spot02_room_0Set_000830.yml
-    - pal_mq_dbg/scenes/shared/spot02_room_0Set_000900.yml
+    - pal_mq_dbg/scenes/shared/spot02_room_0Set_0.yml
+    - pal_mq_dbg/scenes/shared/spot02_room_0Set_1.yml
+    - pal_mq_dbg/scenes/shared/spot02_room_0Set_2.yml
+    - pal_mq_dbg/scenes/shared/spot02_room_0Set_3.yml
+    - pal_mq_dbg/scenes/shared/spot02_room_0Set_4.yml
 
 spot02_room_0:
   type: OOT:ROOM
   offset: 0x0
   symbol: spot02_room_0
 
-gSpot02DL_0026D0:
+gSpot02DL_0:
   type: GFX
   offset: 0x26D0
-  symbol: gSpot02DL_0026D0
+  symbol: gSpot02DL_0
 
 
-spot02_room_0Vtx_0009D0:
+spot02_room_0Vtx_0:
   type: OOT:ARRAY
   offset: 0x0009D0
-  symbol: spot02_room_0Vtx_0009D0
+  symbol: spot02_room_0Vtx_0
   count: 14
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-spot02_room_0DL_000AB0:
+spot02_room_0DL_0:
   type: GFX
   offset: 0x000AB0
-  symbol: spot02_room_0DL_000AB0
+  symbol: spot02_room_0DL_0
 
-spot02_room_0Vtx_000B70:
+spot02_room_0Vtx_1:
   type: OOT:ARRAY
   offset: 0x000B70
-  symbol: spot02_room_0Vtx_000B70
+  symbol: spot02_room_0Vtx_1
   count: 32
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-spot02_room_0DL_000D70:
+spot02_room_0DL_1:
   type: GFX
   offset: 0x000D70
-  symbol: spot02_room_0DL_000D70
+  symbol: spot02_room_0DL_1
 
-spot02_room_0Vtx_000EF0:
+spot02_room_0Vtx_2:
   type: OOT:ARRAY
   offset: 0x000EF0
-  symbol: spot02_room_0Vtx_000EF0
+  symbol: spot02_room_0Vtx_2
   count: 40
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-spot02_room_0DL_001170:
+spot02_room_0DL_2:
   type: GFX
   offset: 0x001170
-  symbol: spot02_room_0DL_001170
+  symbol: spot02_room_0DL_2
 
-spot02_room_0Vtx_0012C0:
+spot02_room_0Vtx_3:
   type: OOT:ARRAY
   offset: 0x0012C0
-  symbol: spot02_room_0Vtx_0012C0
+  symbol: spot02_room_0Vtx_3
   count: 28
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-spot02_room_0DL_001480:
+spot02_room_0DL_3:
   type: GFX
   offset: 0x001480
-  symbol: spot02_room_0DL_001480
+  symbol: spot02_room_0DL_3
 
-spot02_room_0Vtx_001570:
+spot02_room_0Vtx_4:
   type: OOT:ARRAY
   offset: 0x001570
-  symbol: spot02_room_0Vtx_001570
+  symbol: spot02_room_0Vtx_4
   count: 84
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-spot02_room_0DL_001AB0:
+spot02_room_0DL_4:
   type: GFX
   offset: 0x001AB0
-  symbol: spot02_room_0DL_001AB0
+  symbol: spot02_room_0DL_4
 
-spot02_room_0Vtx_001C58:
+spot02_room_0Vtx_5:
   type: OOT:ARRAY
   offset: 0x001C58
-  symbol: spot02_room_0Vtx_001C58
+  symbol: spot02_room_0Vtx_5
   count: 12
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-spot02_room_0DL_001D18:
+spot02_room_0DL_5:
   type: GFX
   offset: 0x001D18
-  symbol: spot02_room_0DL_001D18
+  symbol: spot02_room_0DL_5
 
-spot02_room_0Vtx_001DD0:
+spot02_room_0Vtx_6:
   type: OOT:ARRAY
   offset: 0x001DD0
-  symbol: spot02_room_0Vtx_001DD0
+  symbol: spot02_room_0Vtx_6
   count: 38
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-spot02_room_0DL_002030:
+spot02_room_0DL_6:
   type: GFX
   offset: 0x002030
-  symbol: spot02_room_0DL_002030
+  symbol: spot02_room_0DL_6
 
-spot02_room_0Vtx_002170:
+spot02_room_0Vtx_7:
   type: OOT:ARRAY
   offset: 0x002170
-  symbol: spot02_room_0Vtx_002170
+  symbol: spot02_room_0Vtx_7
   count: 12
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-spot02_room_0DL_002230:
+spot02_room_0DL_7:
   type: GFX
   offset: 0x002230
-  symbol: spot02_room_0DL_002230
+  symbol: spot02_room_0DL_7
 
-spot02_room_0Vtx_002330:
+spot02_room_0Vtx_8:
   type: OOT:ARRAY
   offset: 0x002330
-  symbol: spot02_room_0Vtx_002330
+  symbol: spot02_room_0Vtx_8
   count: 43
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-spot02_room_0DL_0025E0:
+spot02_room_0DL_8:
   type: GFX
   offset: 0x0025E0
-  symbol: spot02_room_0DL_0025E0
+  symbol: spot02_room_0DL_8

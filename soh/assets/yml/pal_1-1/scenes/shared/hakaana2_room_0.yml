@@ -13,82 +13,82 @@ hakaana2_room_0:
   symbol: hakaana2_room_0
 
 
-hakaana2_room_0Vtx_0000D0:
+hakaana2_room_0Vtx_0:
   type: OOT:ARRAY
   offset: 0x0000D0
-  symbol: hakaana2_room_0Vtx_0000D0
+  symbol: hakaana2_room_0Vtx_0
   count: 675
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hakaana2_room_0DL_002B00:
+hakaana2_room_0DL_0:
   type: GFX
   offset: 0x002B00
-  symbol: hakaana2_room_0DL_002B00
+  symbol: hakaana2_room_0DL_0
 
-hakaana2_room_0Vtx_003508:
+hakaana2_room_0Vtx_1:
   type: OOT:ARRAY
   offset: 0x003508
-  symbol: hakaana2_room_0Vtx_003508
+  symbol: hakaana2_room_0Vtx_1
   count: 116
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hakaana2_room_0DL_003C48:
+hakaana2_room_0DL_1:
   type: GFX
   offset: 0x003C48
-  symbol: hakaana2_room_0DL_003C48
+  symbol: hakaana2_room_0DL_1
 
-hakaana2_room_0Vtx_004168:
+hakaana2_room_0Vtx_2:
   type: OOT:ARRAY
   offset: 0x004168
-  symbol: hakaana2_room_0Vtx_004168
+  symbol: hakaana2_room_0Vtx_2
   count: 287
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hakaana2_room_0DL_005358:
+hakaana2_room_0DL_2:
   type: GFX
   offset: 0x005358
-  symbol: hakaana2_room_0DL_005358
+  symbol: hakaana2_room_0DL_2
 
-hakaana2_room_0DL_005DD8:
+hakaana2_room_0DL_3:
   type: GFX
   offset: 0x005DD8
-  symbol: hakaana2_room_0DL_005DD8
+  symbol: hakaana2_room_0DL_3
 
-hakaana2_room_0Vtx_005E00:
+hakaana2_room_0Vtx_3:
   type: OOT:ARRAY
   offset: 0x005E00
-  symbol: hakaana2_room_0Vtx_005E00
+  symbol: hakaana2_room_0Vtx_3
   count: 81
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hakaana2_room_0DL_006310:
+hakaana2_room_0DL_4:
   type: GFX
   offset: 0x006310
-  symbol: hakaana2_room_0DL_006310
+  symbol: hakaana2_room_0DL_4
 
-hakaana2_room_0Vtx_006598:
+hakaana2_room_0Vtx_4:
   type: OOT:ARRAY
   offset: 0x006598
-  symbol: hakaana2_room_0Vtx_006598
+  symbol: hakaana2_room_0Vtx_4
   count: 24
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hakaana2_room_0DL_006718:
+hakaana2_room_0DL_5:
   type: GFX
   offset: 0x006718
-  symbol: hakaana2_room_0DL_006718
+  symbol: hakaana2_room_0DL_5
 
-hakaana2_room_0DL_0067F8:
+hakaana2_room_0DL_6:
   type: GFX
   offset: 0x0067F8
-  symbol: hakaana2_room_0DL_0067F8
+  symbol: hakaana2_room_0DL_6

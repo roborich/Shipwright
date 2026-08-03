@@ -12,133 +12,133 @@ ddan_room_2:
   offset: 0x0
   symbol: ddan_room_2
 
-ddan_room_2Tex_003B80:
+ddan_room_2Tex_9:
   type: TEXTURE
   offset: 0x3B80
-  symbol: ddan_room_2Tex_003B80
+  symbol: ddan_room_2Tex_9
   format: CI8
   width: 64
   height: 32
   external_tlut: ddan_scene
   external_tlut_offset: 0x11D70
 
-ddan_room_2Tex_004380:
+ddan_room_2Tex_10:
   type: TEXTURE
   offset: 0x4380
-  symbol: ddan_room_2Tex_004380
+  symbol: ddan_room_2Tex_10
   format: CI8
   width: 32
   height: 32
   external_tlut: ddan_scene
   external_tlut_offset: 0x11D70
 
-ddan_room_2Tex_004780:
+ddan_room_2Tex_11:
   type: TEXTURE
   offset: 0x4780
-  symbol: ddan_room_2Tex_004780
+  symbol: ddan_room_2Tex_11
   format: CI8
   width: 32
   height: 32
   external_tlut: ddan_scene
   external_tlut_offset: 0x11D70
 
-ddan_room_2Tex_004B80:
+ddan_room_2Tex_12:
   type: TEXTURE
   offset: 0x4B80
-  symbol: ddan_room_2Tex_004B80
+  symbol: ddan_room_2Tex_12
   format: CI8
   width: 32
   height: 64
   external_tlut: ddan_scene
   external_tlut_offset: 0x11D70
 
-ddan_room_2Tex_005380:
+ddan_room_2Tex_4:
   type: TEXTURE
   offset: 0x5380
-  symbol: ddan_room_2Tex_005380
+  symbol: ddan_room_2Tex_4
   format: CI8
   width: 64
   height: 32
   external_tlut: ddan_scene
   external_tlut_offset: 0x11D70
 
-ddan_room_2Tex_005B80:
+ddan_room_2Tex_13:
   type: TEXTURE
   offset: 0x5B80
-  symbol: ddan_room_2Tex_005B80
+  symbol: ddan_room_2Tex_13
   format: CI8
   width: 32
   height: 32
   external_tlut: ddan_scene
   external_tlut_offset: 0x11D70
 
-ddan_room_2Tex_005F80:
+ddan_room_2Tex_14:
   type: TEXTURE
   offset: 0x5F80
-  symbol: ddan_room_2Tex_005F80
+  symbol: ddan_room_2Tex_14
   format: CI8
   width: 32
   height: 32
   external_tlut: ddan_scene
   external_tlut_offset: 0x11D70
 
-ddan_room_2Tex_006380:
+ddan_room_2Tex_15:
   type: TEXTURE
   offset: 0x6380
-  symbol: ddan_room_2Tex_006380
+  symbol: ddan_room_2Tex_15
   format: CI8
   width: 32
   height: 32
   external_tlut: ddan_scene
   external_tlut_offset: 0x11D70
 
-ddan_room_2Tex_006EB8:
+ddan_room_2Tex_8:
   type: TEXTURE
   offset: 0x6EB8
-  symbol: ddan_room_2Tex_006EB8
+  symbol: ddan_room_2Tex_8
   format: RGBA16
   width: 32
   height: 64
 
 
-ddan_room_2Vtx_000360:
+ddan_room_2Vtx_0:
   type: OOT:ARRAY
   offset: 0x000360
-  symbol: ddan_room_2Vtx_000360
+  symbol: ddan_room_2Vtx_0
   count: 381
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ddan_room_2DL_001B30:
+ddan_room_2DL_3:
   type: GFX
   offset: 0x001B30
-  symbol: ddan_room_2DL_001B30
+  symbol: ddan_room_2DL_3
 
-ddan_room_2Vtx_002B18:
+ddan_room_2Vtx_1:
   type: OOT:ARRAY
   offset: 0x002B18
-  symbol: ddan_room_2Vtx_002B18
+  symbol: ddan_room_2Vtx_1
   count: 171
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ddan_room_2DL_0035C8:
+ddan_room_2DL_4:
   type: GFX
   offset: 0x0035C8
-  symbol: ddan_room_2DL_0035C8
+  symbol: ddan_room_2DL_4
 
-ddan_room_2Vtx_006780:
+ddan_room_2Vtx_2:
   type: OOT:ARRAY
   offset: 0x006780
-  symbol: ddan_room_2Vtx_006780
+  symbol: ddan_room_2Vtx_2
   count: 83
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ddan_room_2DL_006CB0:
+ddan_room_2DL_5:
   type: GFX
   offset: 0x006CB0
-  symbol: ddan_room_2DL_006CB0
+  symbol: ddan_room_2DL_5

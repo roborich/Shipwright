@@ -20,230 +20,230 @@ kinsuta_room_0:
   offset: 0x0
   symbol: kinsuta_room_0
 
-gKinsutaDL_0030B0:
+gKinsutaDL_0:
   type: GFX
   offset: 0x30B0
-  symbol: gKinsutaDL_0030B0
+  symbol: gKinsutaDL_0
 
-gKinsutaDL_00B088:
+gKinsutaDL_1:
   type: GFX
   offset: 0xB088
-  symbol: gKinsutaDL_00B088
+  symbol: gKinsutaDL_1
 
-kinsuta_room_0TLUT_0030F0:
+kinsuta_room_0TLUT_0:
   type: TEXTURE
   offset: 0x30F0
-  symbol: kinsuta_room_0TLUT_0030F0
+  symbol: kinsuta_room_0TLUT_0
   format: RGBA16
   width: 4
   height: 4
 
-kinsuta_room_0Tex_003110:
+kinsuta_room_0Tex_0:
   type: TEXTURE
   offset: 0x3110
-  symbol: kinsuta_room_0Tex_003110
+  symbol: kinsuta_room_0Tex_0
   format: CI4
   width: 64
   height: 64
   tlut: 0x30F0
 
-kinsuta_room_0Tex_003910:
+kinsuta_room_0Tex_1:
   type: TEXTURE
   offset: 0x3910
-  symbol: kinsuta_room_0Tex_003910
+  symbol: kinsuta_room_0Tex_1
   format: I4
   width: 64
   height: 128
 
-kinsuta_room_0Tex_004910:
+kinsuta_room_0Tex_2:
   type: TEXTURE
   offset: 0x4910
-  symbol: kinsuta_room_0Tex_004910
+  symbol: kinsuta_room_0Tex_2
   format: I4
   width: 64
   height: 128
 
-kinsuta_room_0Tex_005910:
+kinsuta_room_0Tex_3:
   type: TEXTURE
   offset: 0x5910
-  symbol: kinsuta_room_0Tex_005910
+  symbol: kinsuta_room_0Tex_3
   format: I4
   width: 64
   height: 128
 
-kinsuta_room_0Tex_006910:
+kinsuta_room_0Tex_4:
   type: TEXTURE
   offset: 0x6910
-  symbol: kinsuta_room_0Tex_006910
+  symbol: kinsuta_room_0Tex_4
   format: RGBA16
   width: 32
   height: 64
 
-kinsuta_room_0Tex_007910:
+kinsuta_room_0Tex_5:
   type: TEXTURE
   offset: 0x7910
-  symbol: kinsuta_room_0Tex_007910
+  symbol: kinsuta_room_0Tex_5
   format: RGBA16
   width: 32
   height: 64
 
-kinsuta_room_0Tex_008910:
+kinsuta_room_0Tex_6:
   type: TEXTURE
   offset: 0x8910
-  symbol: kinsuta_room_0Tex_008910
+  symbol: kinsuta_room_0Tex_6
   format: I8
   width: 32
   height: 32
 
-kinsuta_room_0Tex_008D10:
+kinsuta_room_0Tex_7:
   type: TEXTURE
   offset: 0x8D10
-  symbol: kinsuta_room_0Tex_008D10
+  symbol: kinsuta_room_0Tex_7
   format: RGBA16
   width: 64
   height: 32
 
-kinsuta_room_0Tex_009D10:
+kinsuta_room_0Tex_8:
   type: TEXTURE
   offset: 0x9D10
-  symbol: kinsuta_room_0Tex_009D10
+  symbol: kinsuta_room_0Tex_8
   format: RGBA16
   width: 32
   height: 16
 
-kinsuta_room_0Tex_00B098:
+kinsuta_room_0Tex_9:
   type: TEXTURE
   offset: 0xB098
-  symbol: kinsuta_room_0Tex_00B098
+  symbol: kinsuta_room_0Tex_9
   format: IA16
   width: 32
   height: 64
 
-kinsuta_room_0Tex_00C098:
+kinsuta_room_0Tex_10:
   type: TEXTURE
   offset: 0xC098
-  symbol: kinsuta_room_0Tex_00C098
+  symbol: kinsuta_room_0Tex_10
   format: I8
   width: 64
   height: 64
 
-kinsuta_room_0Tex_00D098:
+kinsuta_room_0Tex_11:
   type: TEXTURE
   offset: 0xD098
-  symbol: kinsuta_room_0Tex_00D098
+  symbol: kinsuta_room_0Tex_11
   format: I8
   width: 64
   height: 64
 
 
-kinsuta_room_0Vtx_0001A0:
+kinsuta_room_0Vtx_0:
   type: OOT:ARRAY
   offset: 0x0001A0
-  symbol: kinsuta_room_0Vtx_0001A0
+  symbol: kinsuta_room_0Vtx_0
   count: 20
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kinsuta_room_0DL_0002E0:
+kinsuta_room_0DL_0:
   type: GFX
   offset: 0x0002E0
-  symbol: kinsuta_room_0DL_0002E0
+  symbol: kinsuta_room_0DL_0
 
-kinsuta_room_0Vtx_0003E0:
+kinsuta_room_0Vtx_1:
   type: OOT:ARRAY
   offset: 0x0003E0
-  symbol: kinsuta_room_0Vtx_0003E0
+  symbol: kinsuta_room_0Vtx_1
   count: 145
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kinsuta_room_0DL_000CF0:
+kinsuta_room_0DL_1:
   type: GFX
   offset: 0x000CF0
-  symbol: kinsuta_room_0DL_000CF0
+  symbol: kinsuta_room_0DL_1
 
-kinsuta_room_0Vtx_000ED8:
+kinsuta_room_0Vtx_2:
   type: OOT:ARRAY
   offset: 0x000ED8
-  symbol: kinsuta_room_0Vtx_000ED8
+  symbol: kinsuta_room_0Vtx_2
   count: 81
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kinsuta_room_0DL_0013E8:
+kinsuta_room_0DL_2:
   type: GFX
   offset: 0x0013E8
-  symbol: kinsuta_room_0DL_0013E8
+  symbol: kinsuta_room_0DL_2
 
-kinsuta_room_0Vtx_001668:
+kinsuta_room_0Vtx_3:
   type: OOT:ARRAY
   offset: 0x001668
-  symbol: kinsuta_room_0Vtx_001668
+  symbol: kinsuta_room_0Vtx_3
   count: 77
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kinsuta_room_0DL_001B38:
+kinsuta_room_0DL_3:
   type: GFX
   offset: 0x001B38
-  symbol: kinsuta_room_0DL_001B38
+  symbol: kinsuta_room_0DL_3
 
-kinsuta_room_0Vtx_001D18:
+kinsuta_room_0Vtx_4:
   type: OOT:ARRAY
   offset: 0x001D18
-  symbol: kinsuta_room_0Vtx_001D18
+  symbol: kinsuta_room_0Vtx_4
   count: 38
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kinsuta_room_0DL_001F78:
+kinsuta_room_0DL_4:
   type: GFX
   offset: 0x001F78
-  symbol: kinsuta_room_0DL_001F78
+  symbol: kinsuta_room_0DL_4
 
-kinsuta_room_0Vtx_0020D8:
+kinsuta_room_0Vtx_5:
   type: OOT:ARRAY
   offset: 0x0020D8
-  symbol: kinsuta_room_0Vtx_0020D8
+  symbol: kinsuta_room_0Vtx_5
   count: 175
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kinsuta_room_0DL_002BC8:
+kinsuta_room_0DL_5:
   type: GFX
   offset: 0x002BC8
-  symbol: kinsuta_room_0DL_002BC8
+  symbol: kinsuta_room_0DL_5
 
-kinsuta_room_0Vtx_002E88:
+kinsuta_room_0Vtx_6:
   type: OOT:ARRAY
   offset: 0x002E88
-  symbol: kinsuta_room_0Vtx_002E88
+  symbol: kinsuta_room_0Vtx_6
   count: 21
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kinsuta_room_0DL_002FD8:
+kinsuta_room_0DL_6:
   type: GFX
   offset: 0x002FD8
-  symbol: kinsuta_room_0DL_002FD8
+  symbol: kinsuta_room_0DL_6
 
-kinsuta_room_0Vtx_00A110:
+kinsuta_room_0Vtx_7:
   type: OOT:ARRAY
   offset: 0x00A110
-  symbol: kinsuta_room_0Vtx_00A110
+  symbol: kinsuta_room_0Vtx_7
   count: 189
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kinsuta_room_0DL_00ACE0:
+kinsuta_room_0DL_7:
   type: GFX
   offset: 0x00ACE0
-  symbol: kinsuta_room_0DL_00ACE0
+  symbol: kinsuta_room_0DL_7

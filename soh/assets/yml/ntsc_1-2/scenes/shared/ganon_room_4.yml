@@ -12,163 +12,163 @@ ganon_room_4:
   offset: 0x0
   symbol: ganon_room_4
 
-ganon_room_4Tex_004668:
+ganon_room_4Tex_0:
   type: TEXTURE
   offset: 0x4668
-  symbol: ganon_room_4Tex_004668
+  symbol: ganon_room_4Tex_0
   format: CI8
   width: 32
   height: 64
   external_tlut: ganon_scene
   external_tlut_offset: 0xE7D0
 
-ganon_room_4Tex_004E68:
+ganon_room_4Tex_1:
   type: TEXTURE
   offset: 0x4E68
-  symbol: ganon_room_4Tex_004E68
+  symbol: ganon_room_4Tex_1
   format: CI8
   width: 32
   height: 64
   external_tlut: ganon_scene
   external_tlut_offset: 0xE7D0
 
-ganon_room_4Tex_005668:
+ganon_room_4Tex_2:
   type: TEXTURE
   offset: 0x5668
-  symbol: ganon_room_4Tex_005668
+  symbol: ganon_room_4Tex_2
   format: CI8
   width: 32
   height: 32
   external_tlut: ganon_scene
   external_tlut_offset: 0xE7D0
 
-ganon_room_4Tex_005A68:
+ganon_room_4Tex_3:
   type: TEXTURE
   offset: 0x5A68
-  symbol: ganon_room_4Tex_005A68
+  symbol: ganon_room_4Tex_3
   format: CI8
   width: 32
   height: 64
   external_tlut: ganon_scene
   external_tlut_offset: 0xEDA0
 
-ganon_room_4Tex_006268:
+ganon_room_4Tex_4:
   type: TEXTURE
   offset: 0x6268
-  symbol: ganon_room_4Tex_006268
+  symbol: ganon_room_4Tex_4
   format: CI8
   width: 32
   height: 32
   external_tlut: ganon_scene
   external_tlut_offset: 0xE7D0
 
-ganon_room_4Tex_006668:
+ganon_room_4Tex_5:
   type: TEXTURE
   offset: 0x6668
-  symbol: ganon_room_4Tex_006668
+  symbol: ganon_room_4Tex_5
   format: CI8
   width: 32
   height: 32
   external_tlut: ganon_scene
   external_tlut_offset: 0xEDA0
 
-ganon_room_4Tex_006A68:
+ganon_room_4Tex_6:
   type: TEXTURE
   offset: 0x6A68
-  symbol: ganon_room_4Tex_006A68
+  symbol: ganon_room_4Tex_6
   format: CI8
   width: 32
   height: 32
   external_tlut: ganon_scene
   external_tlut_offset: 0xEDA0
 
-ganon_room_4Tex_006E68:
+ganon_room_4Tex_7:
   type: TEXTURE
   offset: 0x6E68
-  symbol: ganon_room_4Tex_006E68
+  symbol: ganon_room_4Tex_7
   format: CI8
   width: 32
   height: 64
   external_tlut: ganon_scene
   external_tlut_offset: 0xEDA0
 
-ganon_room_4Tex_007668:
+ganon_room_4Tex_8:
   type: TEXTURE
   offset: 0x7668
-  symbol: ganon_room_4Tex_007668
+  symbol: ganon_room_4Tex_8
   format: CI8
   width: 32
   height: 64
   external_tlut: ganon_scene
   external_tlut_offset: 0xEDA0
 
-ganon_room_4Tex_007E68:
+ganon_room_4Tex_9:
   type: TEXTURE
   offset: 0x7E68
-  symbol: ganon_room_4Tex_007E68
+  symbol: ganon_room_4Tex_9
   format: CI8
   width: 32
   height: 64
   external_tlut: ganon_scene
   external_tlut_offset: 0xEDA0
 
-ganon_room_4Tex_0088D0:
+ganon_room_4Tex_10:
   type: TEXTURE
   offset: 0x88D0
-  symbol: ganon_room_4Tex_0088D0
+  symbol: ganon_room_4Tex_10
   format: IA16
   width: 32
   height: 32
 
 
-ganon_room_4Vtx_0000E0:
+ganon_room_4Vtx_0:
   type: OOT:ARRAY
   offset: 0x0000E0
-  symbol: ganon_room_4Vtx_0000E0
+  symbol: ganon_room_4Vtx_0
   count: 654
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ganon_room_4DL_0029C0:
+ganon_room_4DL_0:
   type: GFX
   offset: 0x0029C0
-  symbol: ganon_room_4DL_0029C0
+  symbol: ganon_room_4DL_0
 
-ganon_room_4Vtx_004490:
+ganon_room_4Vtx_1:
   type: OOT:ARRAY
   offset: 0x004490
-  symbol: ganon_room_4Vtx_004490
+  symbol: ganon_room_4Vtx_1
   count: 16
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ganon_room_4DL_004590:
+ganon_room_4DL_1:
   type: GFX
   offset: 0x004590
-  symbol: ganon_room_4DL_004590
+  symbol: ganon_room_4DL_1
 
-ganon_room_4DL_004650:
+ganon_room_4DL_2:
   type: GFX
   offset: 0x004650
-  symbol: ganon_room_4DL_004650
+  symbol: ganon_room_4DL_2
 
-ganon_room_4Vtx_008670:
+ganon_room_4Vtx_2:
   type: OOT:ARRAY
   offset: 0x008670
-  symbol: ganon_room_4Vtx_008670
+  symbol: ganon_room_4Vtx_2
   count: 24
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ganon_room_4DL_0087F0:
+ganon_room_4DL_3:
   type: GFX
   offset: 0x0087F0
-  symbol: ganon_room_4DL_0087F0
+  symbol: ganon_room_4DL_3
 
-ganon_room_4DL_0088C0:
+ganon_room_4DL_4:
   type: GFX
   offset: 0x0088C0
-  symbol: ganon_room_4DL_0088C0
+  symbol: ganon_room_4DL_4

@@ -23,72 +23,72 @@ gSpiritTempleNightEntranceTex:
   width: 8
   height: 128
 
-jyasinzou_scenePathList_00049C:
+jyasinzou_scenePathList_0:
   type: OOT:PATH
   offset: 0x049C
-  symbol: jyasinzou_scenePathList_00049C
+  symbol: jyasinzou_scenePathList_0
   num_paths: 5
 
-jyasinzou_sceneTLUT_017BE0:
+jyasinzou_sceneTLUT_0:
   type: TEXTURE
   offset: 0x17BE0
-  symbol: jyasinzou_sceneTLUT_017BE0
+  symbol: jyasinzou_sceneTLUT_0
   format: RGBA16
   width: 16
   height: 16
 
-jyasinzou_sceneTLUT_017DE0:
+jyasinzou_sceneTLUT_1:
   type: TEXTURE
   offset: 0x17DE0
-  symbol: jyasinzou_sceneTLUT_017DE0
+  symbol: jyasinzou_sceneTLUT_1
   format: RGBA16
   width: 16
   height: 16
 
-jyasinzou_sceneTLUT_017FE0:
+jyasinzou_sceneTLUT_4:
   type: TEXTURE
   offset: 0x17FE0
-  symbol: jyasinzou_sceneTLUT_017FE0
+  symbol: jyasinzou_sceneTLUT_4
   format: RGBA16
   width: 4
   height: 4
 
-jyasinzou_sceneTLUT_018000:
+jyasinzou_sceneTLUT_3:
   type: TEXTURE
   offset: 0x18000
-  symbol: jyasinzou_sceneTLUT_018000
+  symbol: jyasinzou_sceneTLUT_3
   format: RGBA16
   width: 4
   height: 4
 
-jyasinzou_sceneTex_018820:
+jyasinzou_sceneTex_0:
   type: TEXTURE
   offset: 0x18820
-  symbol: jyasinzou_sceneTex_018820
+  symbol: jyasinzou_sceneTex_0
   format: CI8
   width: 16
   height: 16
   tlut: 0x17BE0
 
-jyasinzou_sceneTex_019120:
+jyasinzou_sceneTex_1:
   type: TEXTURE
   offset: 0x19120
-  symbol: jyasinzou_sceneTex_019120
+  symbol: jyasinzou_sceneTex_1
   format: RGBA16
   width: 16
   height: 16
 
-jyasinzou_sceneTex_019320:
+jyasinzou_sceneTex_2:
   type: TEXTURE
   offset: 0x19320
-  symbol: jyasinzou_sceneTex_019320
+  symbol: jyasinzou_sceneTex_2
   format: CI4
   width: 64
   height: 64
   tlut: 0x18000
 
 
-jyasinzou_sceneCollisionHeader_01680C:
+jyasinzou_sceneCollisionHeader_1:
   type: OOT:COLLISION
   offset: 0x01680C
-  symbol: jyasinzou_sceneCollisionHeader_01680C
+  symbol: jyasinzou_sceneCollisionHeader_1

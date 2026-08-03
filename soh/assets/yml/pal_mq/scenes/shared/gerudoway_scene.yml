@@ -23,86 +23,86 @@ gThievesHideoutNightEntranceTex:
   width: 128
   height: 4
 
-gerudoway_scenePathList_0002AC:
+gerudoway_scenePathList_0:
   type: OOT:PATH
   offset: 0x02AC
-  symbol: gerudoway_scenePathList_0002AC
+  symbol: gerudoway_scenePathList_0
   num_paths: 4
 
-gerudoway_sceneTex_007520:
+gerudoway_sceneTex_0:
   type: TEXTURE
   offset: 0x7520
-  symbol: gerudoway_sceneTex_007520
+  symbol: gerudoway_sceneTex_0
   format: RGBA16
   width: 32
   height: 64
 
-gerudoway_sceneTex_008520:
+gerudoway_sceneTex_1:
   type: TEXTURE
   offset: 0x8520
-  symbol: gerudoway_sceneTex_008520
+  symbol: gerudoway_sceneTex_1
   format: IA4
   width: 128
   height: 32
 
-gerudoway_sceneTex_008D20:
+gerudoway_sceneTex_2:
   type: TEXTURE
   offset: 0x8D20
-  symbol: gerudoway_sceneTex_008D20
+  symbol: gerudoway_sceneTex_2
   format: IA8
   width: 64
   height: 32
 
-gerudoway_sceneTex_009520:
+gerudoway_sceneTex_3:
   type: TEXTURE
   offset: 0x9520
-  symbol: gerudoway_sceneTex_009520
+  symbol: gerudoway_sceneTex_3
   format: IA8
   width: 32
   height: 64
 
-gerudoway_sceneTex_009D20:
+gerudoway_sceneTex_4:
   type: TEXTURE
   offset: 0x9D20
-  symbol: gerudoway_sceneTex_009D20
+  symbol: gerudoway_sceneTex_4
   format: RGBA16
   width: 32
   height: 32
 
-gerudoway_sceneTex_00A520:
+gerudoway_sceneTex_5:
   type: TEXTURE
   offset: 0xA520
-  symbol: gerudoway_sceneTex_00A520
+  symbol: gerudoway_sceneTex_5
   format: RGBA16
   width: 32
   height: 16
 
-gerudoway_sceneTex_00A920:
+gerudoway_sceneTex_6:
   type: TEXTURE
   offset: 0xA920
-  symbol: gerudoway_sceneTex_00A920
+  symbol: gerudoway_sceneTex_6
   format: RGBA16
   width: 32
   height: 64
 
-gerudoway_sceneTex_00C120:
+gerudoway_sceneTex_7:
   type: TEXTURE
   offset: 0xC120
-  symbol: gerudoway_sceneTex_00C120
+  symbol: gerudoway_sceneTex_7
   format: RGBA16
   width: 64
   height: 32
 
-gerudoway_sceneTex_00D120:
+gerudoway_sceneTex_8:
   type: TEXTURE
   offset: 0xD120
-  symbol: gerudoway_sceneTex_00D120
+  symbol: gerudoway_sceneTex_8
   format: RGBA16
   width: 32
   height: 32
 
 
-gerudoway_sceneCollisionHeader_0074EC:
+gerudoway_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x0074EC
-  symbol: gerudoway_sceneCollisionHeader_0074EC
+  symbol: gerudoway_sceneCollisionHeader_0

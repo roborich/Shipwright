@@ -7,32 +7,32 @@ MIZUsin_scene:
   offset: 0x0
   symbol: MIZUsin_scene
 
-MIZUsin_scenePathList_000384:
+MIZUsin_scenePathList_0:
   type: OOT:PATH
   offset: 0x0384
-  symbol: MIZUsin_scenePathList_000384
+  symbol: MIZUsin_scenePathList_0
   num_paths: 2
 
-MIZUsin_sceneTex_013C30:
+MIZUsin_sceneTex_3:
   type: TEXTURE
   offset: 0x13C30
-  symbol: MIZUsin_sceneTex_013C30
+  symbol: MIZUsin_sceneTex_3
   format: RGBA16
   width: 32
   height: 32
 
-MIZUsin_sceneTex_014430:
+MIZUsin_sceneTex_4:
   type: TEXTURE
   offset: 0x14430
-  symbol: MIZUsin_sceneTex_014430
+  symbol: MIZUsin_sceneTex_4
   format: RGBA16
   width: 32
   height: 32
 
-MIZUsin_sceneTex_015030:
+MIZUsin_sceneTex_5:
   type: TEXTURE
   offset: 0x15030
-  symbol: MIZUsin_sceneTex_015030
+  symbol: MIZUsin_sceneTex_5
   format: RGBA16
   width: 32
   height: 32
@@ -54,7 +54,7 @@ gWaterTempleNightEntranceTex:
   height: 64
 
 
-MIZUsin_sceneCollisionHeader_013C04:
+MIZUsin_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x013C04
-  symbol: MIZUsin_sceneCollisionHeader_013C04
+  symbol: MIZUsin_sceneCollisionHeader_0

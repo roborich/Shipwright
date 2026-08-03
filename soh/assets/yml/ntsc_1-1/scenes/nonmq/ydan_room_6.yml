@@ -12,60 +12,60 @@ ydan_room_6:
   offset: 0x0
   symbol: ydan_room_6
 
-ydan_room_6Tex_001F00:
+ydan_room_6Tex_0:
   type: TEXTURE
   offset: 0x1EC0
-  symbol: ydan_room_6Tex_001F00
+  symbol: ydan_room_6Tex_0
   format: CI8
   width: 32
   height: 64
   external_tlut: ydan_scene
   external_tlut_offset: 0xB800
 
-ydan_room_6Tex_002700:
+ydan_room_6Tex_1:
   type: TEXTURE
   offset: 0x26C0
-  symbol: ydan_room_6Tex_002700
+  symbol: ydan_room_6Tex_1
   format: CI8
   width: 32
   height: 64
   external_tlut: ydan_scene
   external_tlut_offset: 0xB800
 
-ydan_room_6Tex_002F00:
+ydan_room_6Tex_2:
   type: TEXTURE
   offset: 0x2EC0
-  symbol: ydan_room_6Tex_002F00
+  symbol: ydan_room_6Tex_2
   format: CI8
   width: 32
   height: 64
   external_tlut: ydan_scene
   external_tlut_offset: 0xB800
 
-ydan_room_6Tex_003700:
+ydan_room_6Tex_3:
   type: TEXTURE
   offset: 0x36C0
-  symbol: ydan_room_6Tex_003700
+  symbol: ydan_room_6Tex_3
   format: CI8
   width: 32
   height: 64
   external_tlut: ydan_scene
   external_tlut_offset: 0xB800
 
-ydan_room_6Tex_003F00:
+ydan_room_6Tex_4:
   type: TEXTURE
   offset: 0x3EC0
-  symbol: ydan_room_6Tex_003F00
+  symbol: ydan_room_6Tex_4
   format: CI8
   width: 32
   height: 64
   external_tlut: ydan_scene
   external_tlut_offset: 0xB800
 
-ydan_room_6Tex_004700:
+ydan_room_6Tex_5:
   type: TEXTURE
   offset: 0x46C0
-  symbol: ydan_room_6Tex_004700
+  symbol: ydan_room_6Tex_5
   format: CI8
   width: 32
   height: 64
@@ -73,16 +73,16 @@ ydan_room_6Tex_004700:
   external_tlut_offset: 0xB800
 
 
-ydan_room_6Vtx_000100:
+ydan_room_6Vtx_0:
   type: OOT:ARRAY
   offset: 0x000100
-  symbol: ydan_room_6Vtx_000100
+  symbol: ydan_room_6Vtx_0
   count: 303
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ydan_room_6DL_0013F0:
+ydan_room_6DL_0:
   type: GFX
   offset: 0x0013F0
-  symbol: ydan_room_6DL_0013F0
+  symbol: ydan_room_6DL_0

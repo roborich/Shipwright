@@ -8,7 +8,7 @@ hairal_niwa2_scene:
   symbol: hairal_niwa2_scene
 
 
-hairal_niwa2_sceneCollisionHeader_002CD8:
+hairal_niwa2_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x002CD8
-  symbol: hairal_niwa2_sceneCollisionHeader_002CD8
+  symbol: hairal_niwa2_sceneCollisionHeader_0

@@ -7,14 +7,14 @@ market_night_scene:
   offset: 0x0
   symbol: market_night_scene
 
-market_night_scenePathList_0002FC:
+market_night_scenePathList_0:
   type: OOT:PATH
   offset: 0x02FC
-  symbol: market_night_scenePathList_0002FC
+  symbol: market_night_scenePathList_0
   num_paths: 7
 
 
-market_night_sceneCollisionHeader_0025F8:
+market_night_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x0025F8
-  symbol: market_night_sceneCollisionHeader_0025F8
+  symbol: market_night_sceneCollisionHeader_0

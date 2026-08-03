@@ -13,184 +13,184 @@ hairal_niwa_room_0:
   symbol: hairal_niwa_room_0
 
 
-hairal_niwa_room_0Vtx_000190:
+hairal_niwa_room_0Vtx_0:
   type: OOT:ARRAY
   offset: 0x000190
-  symbol: hairal_niwa_room_0Vtx_000190
+  symbol: hairal_niwa_room_0Vtx_0
   count: 32
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hairal_niwa_room_0DL_000390:
+hairal_niwa_room_0DL_0:
   type: GFX
   offset: 0x000390
-  symbol: hairal_niwa_room_0DL_000390
+  symbol: hairal_niwa_room_0DL_0
 
-hairal_niwa_room_0Vtx_000568:
+hairal_niwa_room_0Vtx_1:
   type: OOT:ARRAY
   offset: 0x000568
-  symbol: hairal_niwa_room_0Vtx_000568
+  symbol: hairal_niwa_room_0Vtx_1
   count: 387
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hairal_niwa_room_0DL_001D98:
+hairal_niwa_room_0DL_1:
   type: GFX
   offset: 0x001D98
-  symbol: hairal_niwa_room_0DL_001D98
+  symbol: hairal_niwa_room_0DL_1
 
-hairal_niwa_room_0Vtx_002528:
+hairal_niwa_room_0Vtx_2:
   type: OOT:ARRAY
   offset: 0x002528
-  symbol: hairal_niwa_room_0Vtx_002528
+  symbol: hairal_niwa_room_0Vtx_2
   count: 140
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hairal_niwa_room_0DL_002DE8:
+hairal_niwa_room_0DL_2:
   type: GFX
   offset: 0x002DE8
-  symbol: hairal_niwa_room_0DL_002DE8
+  symbol: hairal_niwa_room_0DL_2
 
-hairal_niwa_room_0Vtx_0031E0:
+hairal_niwa_room_0Vtx_3:
   type: OOT:ARRAY
   offset: 0x0031E0
-  symbol: hairal_niwa_room_0Vtx_0031E0
+  symbol: hairal_niwa_room_0Vtx_3
   count: 176
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hairal_niwa_room_0DL_003CE0:
+hairal_niwa_room_0DL_3:
   type: GFX
   offset: 0x003CE0
-  symbol: hairal_niwa_room_0DL_003CE0
+  symbol: hairal_niwa_room_0DL_3
 
-hairal_niwa_room_0Vtx_004228:
+hairal_niwa_room_0Vtx_4:
   type: OOT:ARRAY
   offset: 0x004228
-  symbol: hairal_niwa_room_0Vtx_004228
+  symbol: hairal_niwa_room_0Vtx_4
   count: 246
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hairal_niwa_room_0DL_005188:
+hairal_niwa_room_0DL_4:
   type: GFX
   offset: 0x005188
-  symbol: hairal_niwa_room_0DL_005188
+  symbol: hairal_niwa_room_0DL_4
 
-hairal_niwa_room_0Vtx_005700:
+hairal_niwa_room_0Vtx_5:
   type: OOT:ARRAY
   offset: 0x005700
-  symbol: hairal_niwa_room_0Vtx_005700
+  symbol: hairal_niwa_room_0Vtx_5
   count: 195
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hairal_niwa_room_0DL_006330:
+hairal_niwa_room_0DL_5:
   type: GFX
   offset: 0x006330
-  symbol: hairal_niwa_room_0DL_006330
+  symbol: hairal_niwa_room_0DL_5
 
-hairal_niwa_room_0Vtx_006868:
+hairal_niwa_room_0Vtx_6:
   type: OOT:ARRAY
   offset: 0x006868
-  symbol: hairal_niwa_room_0Vtx_006868
+  symbol: hairal_niwa_room_0Vtx_6
   count: 422
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hairal_niwa_room_0DL_0082C8:
+hairal_niwa_room_0DL_6:
   type: GFX
   offset: 0x0082C8
-  symbol: hairal_niwa_room_0DL_0082C8
+  symbol: hairal_niwa_room_0DL_6
 
-hairal_niwa_room_0Vtx_008A58:
+hairal_niwa_room_0Vtx_7:
   type: OOT:ARRAY
   offset: 0x008A58
-  symbol: hairal_niwa_room_0Vtx_008A58
+  symbol: hairal_niwa_room_0Vtx_7
   count: 101
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hairal_niwa_room_0DL_0090A8:
+hairal_niwa_room_0DL_7:
   type: GFX
   offset: 0x0090A8
-  symbol: hairal_niwa_room_0DL_0090A8
+  symbol: hairal_niwa_room_0DL_7
 
-hairal_niwa_room_0Vtx_0093E0:
+hairal_niwa_room_0Vtx_8:
   type: OOT:ARRAY
   offset: 0x0093E0
-  symbol: hairal_niwa_room_0Vtx_0093E0
+  symbol: hairal_niwa_room_0Vtx_8
   count: 32
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hairal_niwa_room_0DL_0095E0:
+hairal_niwa_room_0DL_8:
   type: GFX
   offset: 0x0095E0
-  symbol: hairal_niwa_room_0DL_0095E0
+  symbol: hairal_niwa_room_0DL_8
 
-hairal_niwa_room_0Vtx_009758:
+hairal_niwa_room_0Vtx_9:
   type: OOT:ARRAY
   offset: 0x009758
-  symbol: hairal_niwa_room_0Vtx_009758
+  symbol: hairal_niwa_room_0Vtx_9
   count: 32
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hairal_niwa_room_0DL_009958:
+hairal_niwa_room_0DL_9:
   type: GFX
   offset: 0x009958
-  symbol: hairal_niwa_room_0DL_009958
+  symbol: hairal_niwa_room_0DL_9
 
-hairal_niwa_room_0Vtx_009A68:
+hairal_niwa_room_0Vtx_10:
   type: OOT:ARRAY
   offset: 0x009A68
-  symbol: hairal_niwa_room_0Vtx_009A68
+  symbol: hairal_niwa_room_0Vtx_10
   count: 136
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hairal_niwa_room_0DL_00A2E8:
+hairal_niwa_room_0DL_10:
   type: GFX
   offset: 0x00A2E8
-  symbol: hairal_niwa_room_0DL_00A2E8
+  symbol: hairal_niwa_room_0DL_10
 
-hairal_niwa_room_0Vtx_00A530:
+hairal_niwa_room_0Vtx_11:
   type: OOT:ARRAY
   offset: 0x00A530
-  symbol: hairal_niwa_room_0Vtx_00A530
+  symbol: hairal_niwa_room_0Vtx_11
   count: 16
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hairal_niwa_room_0DL_00A630:
+hairal_niwa_room_0DL_11:
   type: GFX
   offset: 0x00A630
-  symbol: hairal_niwa_room_0DL_00A630
+  symbol: hairal_niwa_room_0DL_11
 
-hairal_niwa_room_0Vtx_00A700:
+hairal_niwa_room_0Vtx_12:
   type: OOT:ARRAY
   offset: 0x00A700
-  symbol: hairal_niwa_room_0Vtx_00A700
+  symbol: hairal_niwa_room_0Vtx_12
   count: 14
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hairal_niwa_room_0DL_00A7E0:
+hairal_niwa_room_0DL_12:
   type: GFX
   offset: 0x00A7E0
-  symbol: hairal_niwa_room_0DL_00A7E0
+  symbol: hairal_niwa_room_0DL_12

@@ -13,237 +13,237 @@ tent_room_0:
   symbol: tent_room_0
 
 
-tent_room_0Vtx_0000E0:
+tent_room_0Vtx_0:
   type: OOT:ARRAY
   offset: 0x0000E0
-  symbol: tent_room_0Vtx_0000E0
+  symbol: tent_room_0Vtx_0
   count: 333
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-tent_room_0Vtx_0015B0:
+tent_room_0Vtx_1:
   type: OOT:ARRAY
   offset: 0x0015B0
-  symbol: tent_room_0Vtx_0015B0
+  symbol: tent_room_0Vtx_1
   count: 20
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-tent_room_0Vtx_0016F0:
+tent_room_0Vtx_2:
   type: OOT:ARRAY
   offset: 0x0016F0
-  symbol: tent_room_0Vtx_0016F0
+  symbol: tent_room_0Vtx_2
   count: 302
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-tent_room_0Vtx_0029D0:
+tent_room_0Vtx_3:
   type: OOT:ARRAY
   offset: 0x0029D0
-  symbol: tent_room_0Vtx_0029D0
+  symbol: tent_room_0Vtx_3
   count: 417
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-tent_room_0Vtx_0043E0:
+tent_room_0Vtx_4:
   type: OOT:ARRAY
   offset: 0x0043E0
-  symbol: tent_room_0Vtx_0043E0
+  symbol: tent_room_0Vtx_4
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-tent_room_0Vtx_004460:
+tent_room_0Vtx_5:
   type: OOT:ARRAY
   offset: 0x004460
-  symbol: tent_room_0Vtx_004460
+  symbol: tent_room_0Vtx_5
   count: 344
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-tent_room_0Vtx_0059E0:
+tent_room_0Vtx_6:
   type: OOT:ARRAY
   offset: 0x0059E0
-  symbol: tent_room_0Vtx_0059E0
+  symbol: tent_room_0Vtx_6
   count: 16
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-tent_room_0Vtx_005AE0:
+tent_room_0Vtx_7:
   type: OOT:ARRAY
   offset: 0x005AE0
-  symbol: tent_room_0Vtx_005AE0
+  symbol: tent_room_0Vtx_7
   count: 1035
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-tent_room_0Vtx_009B90:
+tent_room_0Vtx_8:
   type: OOT:ARRAY
   offset: 0x009B90
-  symbol: tent_room_0Vtx_009B90
+  symbol: tent_room_0Vtx_8
   count: 182
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-tent_room_0Vtx_00A6F0:
+tent_room_0Vtx_9:
   type: OOT:ARRAY
   offset: 0x00A6F0
-  symbol: tent_room_0Vtx_00A6F0
+  symbol: tent_room_0Vtx_9
   count: 183
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-tent_room_0Vtx_00B260:
+tent_room_0Vtx_10:
   type: OOT:ARRAY
   offset: 0x00B260
-  symbol: tent_room_0Vtx_00B260
+  symbol: tent_room_0Vtx_10
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-tent_room_0Vtx_00B2E0:
+tent_room_0Vtx_11:
   type: OOT:ARRAY
   offset: 0x00B2E0
-  symbol: tent_room_0Vtx_00B2E0
+  symbol: tent_room_0Vtx_11
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-tent_room_0Vtx_00B360:
+tent_room_0Vtx_12:
   type: OOT:ARRAY
   offset: 0x00B360
-  symbol: tent_room_0Vtx_00B360
+  symbol: tent_room_0Vtx_12
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-tent_room_0Vtx_00B3E0:
+tent_room_0Vtx_13:
   type: OOT:ARRAY
   offset: 0x00B3E0
-  symbol: tent_room_0Vtx_00B3E0
+  symbol: tent_room_0Vtx_13
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-tent_room_0Vtx_00B460:
+tent_room_0Vtx_14:
   type: OOT:ARRAY
   offset: 0x00B460
-  symbol: tent_room_0Vtx_00B460
+  symbol: tent_room_0Vtx_14
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-tent_room_0Vtx_00B4E0:
+tent_room_0Vtx_15:
   type: OOT:ARRAY
   offset: 0x00B4E0
-  symbol: tent_room_0Vtx_00B4E0
+  symbol: tent_room_0Vtx_15
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-tent_room_0Vtx_00B560:
+tent_room_0Vtx_16:
   type: OOT:ARRAY
   offset: 0x00B560
-  symbol: tent_room_0Vtx_00B560
+  symbol: tent_room_0Vtx_16
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-tent_room_0Vtx_00B5E0:
+tent_room_0Vtx_17:
   type: OOT:ARRAY
   offset: 0x00B5E0
-  symbol: tent_room_0Vtx_00B5E0
+  symbol: tent_room_0Vtx_17
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-tent_room_0Vtx_00B660:
+tent_room_0Vtx_18:
   type: OOT:ARRAY
   offset: 0x00B660
-  symbol: tent_room_0Vtx_00B660
+  symbol: tent_room_0Vtx_18
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-tent_room_0Vtx_00B6E0:
+tent_room_0Vtx_19:
   type: OOT:ARRAY
   offset: 0x00B6E0
-  symbol: tent_room_0Vtx_00B6E0
+  symbol: tent_room_0Vtx_19
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-tent_room_0DL_00B760:
+tent_room_0DL_0:
   type: GFX
   offset: 0x00B760
-  symbol: tent_room_0DL_00B760
+  symbol: tent_room_0DL_0
 
-tent_room_0DL_00BB50:
+tent_room_0DL_1:
   type: GFX
   offset: 0x00BB50
-  symbol: tent_room_0DL_00BB50
+  symbol: tent_room_0DL_1
 
-tent_room_0DL_00BBF0:
+tent_room_0DL_2:
   type: GFX
   offset: 0x00BBF0
-  symbol: tent_room_0DL_00BBF0
+  symbol: tent_room_0DL_2
 
-tent_room_0DL_00BF90:
+tent_room_0DL_3:
   type: GFX
   offset: 0x00BF90
-  symbol: tent_room_0DL_00BF90
+  symbol: tent_room_0DL_3
 
-tent_room_0DL_00C578:
+tent_room_0DL_4:
   type: GFX
   offset: 0x00C578
-  symbol: tent_room_0DL_00C578
+  symbol: tent_room_0DL_4
 
-tent_room_0DL_00C608:
+tent_room_0DL_5:
   type: GFX
   offset: 0x00C608
-  symbol: tent_room_0DL_00C608
+  symbol: tent_room_0DL_5
 
-tent_room_0DL_00CB50:
+tent_room_0DL_6:
   type: GFX
   offset: 0x00CB50
-  symbol: tent_room_0DL_00CB50
+  symbol: tent_room_0DL_6
 
-tent_room_0DL_00CBE8:
+tent_room_0DL_7:
   type: GFX
   offset: 0x00CBE8
-  symbol: tent_room_0DL_00CBE8
+  symbol: tent_room_0DL_7
 
-tent_room_0DL_00D998:
+tent_room_0DL_8:
   type: GFX
   offset: 0x00D998
-  symbol: tent_room_0DL_00D998
+  symbol: tent_room_0DL_8
 
-tent_room_0DL_00DBE8:
+tent_room_0DL_9:
   type: GFX
   offset: 0x00DBE8
-  symbol: tent_room_0DL_00DBE8
+  symbol: tent_room_0DL_9
 
-tent_room_0DL_00DE30:
+tent_room_0DL_10:
   type: GFX
   offset: 0x00DE30
-  symbol: tent_room_0DL_00DE30
+  symbol: tent_room_0DL_10

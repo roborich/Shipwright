@@ -13,145 +13,145 @@ malon_stable_room_0:
   symbol: malon_stable_room_0
 
 
-malon_stable_room_0Vtx_000110:
+malon_stable_room_0Vtx_0:
   type: OOT:ARRAY
   offset: 0x000110
-  symbol: malon_stable_room_0Vtx_000110
+  symbol: malon_stable_room_0Vtx_0
   count: 128
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-malon_stable_room_0Vtx_000910:
+malon_stable_room_0Vtx_1:
   type: OOT:ARRAY
   offset: 0x000910
-  symbol: malon_stable_room_0Vtx_000910
+  symbol: malon_stable_room_0Vtx_1
   count: 168
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-malon_stable_room_0Vtx_001390:
+malon_stable_room_0Vtx_2:
   type: OOT:ARRAY
   offset: 0x001390
-  symbol: malon_stable_room_0Vtx_001390
+  symbol: malon_stable_room_0Vtx_2
   count: 37
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-malon_stable_room_0Vtx_0015E0:
+malon_stable_room_0Vtx_3:
   type: OOT:ARRAY
   offset: 0x0015E0
-  symbol: malon_stable_room_0Vtx_0015E0
+  symbol: malon_stable_room_0Vtx_3
   count: 96
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-malon_stable_room_0Vtx_001BE0:
+malon_stable_room_0Vtx_4:
   type: OOT:ARRAY
   offset: 0x001BE0
-  symbol: malon_stable_room_0Vtx_001BE0
+  symbol: malon_stable_room_0Vtx_4
   count: 96
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-malon_stable_room_0Vtx_0021E0:
+malon_stable_room_0Vtx_5:
   type: OOT:ARRAY
   offset: 0x0021E0
-  symbol: malon_stable_room_0Vtx_0021E0
+  symbol: malon_stable_room_0Vtx_5
   count: 1283
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-malon_stable_room_0Vtx_007210:
+malon_stable_room_0Vtx_6:
   type: OOT:ARRAY
   offset: 0x007210
-  symbol: malon_stable_room_0Vtx_007210
+  symbol: malon_stable_room_0Vtx_6
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-malon_stable_room_0Vtx_007290:
+malon_stable_room_0Vtx_7:
   type: OOT:ARRAY
   offset: 0x007290
-  symbol: malon_stable_room_0Vtx_007290
+  symbol: malon_stable_room_0Vtx_7
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-malon_stable_room_0Vtx_007310:
+malon_stable_room_0Vtx_8:
   type: OOT:ARRAY
   offset: 0x007310
-  symbol: malon_stable_room_0Vtx_007310
+  symbol: malon_stable_room_0Vtx_8
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-malon_stable_room_0Vtx_007390:
+malon_stable_room_0Vtx_9:
   type: OOT:ARRAY
   offset: 0x007390
-  symbol: malon_stable_room_0Vtx_007390
+  symbol: malon_stable_room_0Vtx_9
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-malon_stable_room_0Vtx_007410:
+malon_stable_room_0Vtx_10:
   type: OOT:ARRAY
   offset: 0x007410
-  symbol: malon_stable_room_0Vtx_007410
+  symbol: malon_stable_room_0Vtx_10
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-malon_stable_room_0Vtx_007490:
+malon_stable_room_0Vtx_11:
   type: OOT:ARRAY
   offset: 0x007490
-  symbol: malon_stable_room_0Vtx_007490
+  symbol: malon_stable_room_0Vtx_11
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-malon_stable_room_0DL_007510:
+malon_stable_room_0DL_0:
   type: GFX
   offset: 0x007510
-  symbol: malon_stable_room_0DL_007510
+  symbol: malon_stable_room_0DL_0
 
-malon_stable_room_0DL_0076A0:
+malon_stable_room_0DL_1:
   type: GFX
   offset: 0x0076A0
-  symbol: malon_stable_room_0DL_0076A0
+  symbol: malon_stable_room_0DL_1
 
-malon_stable_room_0DL_007890:
+malon_stable_room_0DL_2:
   type: GFX
   offset: 0x007890
-  symbol: malon_stable_room_0DL_007890
+  symbol: malon_stable_room_0DL_2
 
-malon_stable_room_0DL_007968:
+malon_stable_room_0DL_3:
   type: GFX
   offset: 0x007968
-  symbol: malon_stable_room_0DL_007968
+  symbol: malon_stable_room_0DL_3
 
-malon_stable_room_0DL_007AB0:
+malon_stable_room_0DL_4:
   type: GFX
   offset: 0x007AB0
-  symbol: malon_stable_room_0DL_007AB0
+  symbol: malon_stable_room_0DL_4
 
-malon_stable_room_0DL_007BF8:
+malon_stable_room_0DL_5:
   type: GFX
   offset: 0x007BF8
-  symbol: malon_stable_room_0DL_007BF8
+  symbol: malon_stable_room_0DL_5
 
-malon_stable_room_0DL_008A00:
+malon_stable_room_0DL_6:
   type: GFX
   offset: 0x008A00
-  symbol: malon_stable_room_0DL_008A00
+  symbol: malon_stable_room_0DL_6

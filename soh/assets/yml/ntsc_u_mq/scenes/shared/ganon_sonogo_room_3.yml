@@ -12,40 +12,40 @@ ganon_sonogo_room_3:
   offset: 0x0
   symbol: ganon_sonogo_room_3
 
-ganon_sonogo_room_3Tex_003A38:
+ganon_sonogo_room_3Tex_0:
   type: TEXTURE
   offset: 0x3A38
-  symbol: ganon_sonogo_room_3Tex_003A38
+  symbol: ganon_sonogo_room_3Tex_0
   format: CI8
   width: 32
   height: 32
   external_tlut: ganon_sonogo_scene
   external_tlut_offset: 0x6300
 
-ganon_sonogo_room_3Tex_003E38:
+ganon_sonogo_room_3Tex_1:
   type: TEXTURE
   offset: 0x3E38
-  symbol: ganon_sonogo_room_3Tex_003E38
+  symbol: ganon_sonogo_room_3Tex_1
   format: CI8
   width: 64
   height: 32
   external_tlut: ganon_sonogo_scene
   external_tlut_offset: 0x6300
 
-ganon_sonogo_room_3Tex_004638:
+ganon_sonogo_room_3Tex_2:
   type: TEXTURE
   offset: 0x4638
-  symbol: ganon_sonogo_room_3Tex_004638
+  symbol: ganon_sonogo_room_3Tex_2
   format: CI8
   width: 64
   height: 32
   external_tlut: ganon_sonogo_scene
   external_tlut_offset: 0x6300
 
-ganon_sonogo_room_3Tex_004E38:
+ganon_sonogo_room_3Tex_3:
   type: TEXTURE
   offset: 0x4E38
-  symbol: ganon_sonogo_room_3Tex_004E38
+  symbol: ganon_sonogo_room_3Tex_3
   format: CI8
   width: 32
   height: 64
@@ -53,21 +53,21 @@ ganon_sonogo_room_3Tex_004E38:
   external_tlut_offset: 0x6300
 
 
-ganon_sonogo_room_3Vtx_000140:
+ganon_sonogo_room_3Vtx_0:
   type: OOT:ARRAY
   offset: 0x000140
-  symbol: ganon_sonogo_room_3Vtx_000140
+  symbol: ganon_sonogo_room_3Vtx_0
   count: 495
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ganon_sonogo_room_3DL_002030:
+ganon_sonogo_room_3DL_0:
   type: GFX
   offset: 0x002030
-  symbol: ganon_sonogo_room_3DL_002030
+  symbol: ganon_sonogo_room_3DL_0
 
-ganon_sonogo_room_3DL_003A28:
+ganon_sonogo_room_3DL_1:
   type: GFX
   offset: 0x003A28
-  symbol: ganon_sonogo_room_3DL_003A28
+  symbol: ganon_sonogo_room_3DL_1

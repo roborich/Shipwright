@@ -7,40 +7,40 @@ HAKAdan_scene:
   offset: 0x0
   symbol: HAKAdan_scene
 
-HAKAdan_sceneTex_0163C0:
+HAKAdan_sceneTex_4:
   type: TEXTURE
   offset: 0x163C0
-  symbol: HAKAdan_sceneTex_0163C0
+  symbol: HAKAdan_sceneTex_4
   format: RGBA16
   width: 32
   height: 32
 
-HAKAdan_sceneTex_016BC0:
+HAKAdan_sceneTex_5:
   type: TEXTURE
   offset: 0x16BC0
-  symbol: HAKAdan_sceneTex_016BC0
+  symbol: HAKAdan_sceneTex_5
   format: RGBA16
   width: 32
   height: 32
 
-HAKAdan_sceneTex_0173C0:
+HAKAdan_sceneTex_6:
   type: TEXTURE
   offset: 0x173C0
-  symbol: HAKAdan_sceneTex_0173C0
+  symbol: HAKAdan_sceneTex_6
   format: RGBA16
   width: 32
   height: 32
 
-HAKAdan_sceneTex_017BC0:
+HAKAdan_sceneTex_7:
   type: TEXTURE
   offset: 0x17BC0
-  symbol: HAKAdan_sceneTex_017BC0
+  symbol: HAKAdan_sceneTex_7
   format: RGBA16
   width: 32
   height: 32
 
 
-HAKAdan_sceneCollisionHeader_016394:
+HAKAdan_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x016394
-  symbol: HAKAdan_sceneCollisionHeader_016394
+  symbol: HAKAdan_sceneCollisionHeader_0

@@ -12,77 +12,77 @@ HAKAdanCH_room_2:
   offset: 0x0
   symbol: HAKAdanCH_room_2
 
-HAKAdanCH_room_2Tex_002958:
+HAKAdanCH_room_2Tex_4:
   type: TEXTURE
   offset: 0x2958
-  symbol: HAKAdanCH_room_2Tex_002958
+  symbol: HAKAdanCH_room_2Tex_4
   format: RGBA16
   width: 32
   height: 8
 
-HAKAdanCH_room_2Tex_002B58:
+HAKAdanCH_room_2Tex_5:
   type: TEXTURE
   offset: 0x2B58
-  symbol: HAKAdanCH_room_2Tex_002B58
+  symbol: HAKAdanCH_room_2Tex_5
   format: I4
   width: 32
   height: 32
 
-HAKAdanCH_room_2Tex_002D58:
+HAKAdanCH_room_2Tex_6:
   type: TEXTURE
   offset: 0x2D58
-  symbol: HAKAdanCH_room_2Tex_002D58
+  symbol: HAKAdanCH_room_2Tex_6
   format: I4
   width: 32
   height: 32
 
-HAKAdanCH_room_2Tex_002F58:
+HAKAdanCH_room_2Tex_7:
   type: TEXTURE
   offset: 0x2F58
-  symbol: HAKAdanCH_room_2Tex_002F58
+  symbol: HAKAdanCH_room_2Tex_7
   format: I4
   width: 32
   height: 32
 
 
-HAKAdanCH_room_2Vtx_000150:
+HAKAdanCH_room_2Vtx_0:
   type: OOT:ARRAY
   offset: 0x000150
-  symbol: HAKAdanCH_room_2Vtx_000150
+  symbol: HAKAdanCH_room_2Vtx_0
   count: 89
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HAKAdanCH_room_2DL_0006E0:
+HAKAdanCH_room_2DL_3:
   type: GFX
   offset: 0x0006E0
-  symbol: HAKAdanCH_room_2DL_0006E0
+  symbol: HAKAdanCH_room_2DL_3
 
-HAKAdanCH_room_2Vtx_0008A0:
+HAKAdanCH_room_2Vtx_1:
   type: OOT:ARRAY
   offset: 0x0008A0
-  symbol: HAKAdanCH_room_2Vtx_0008A0
+  symbol: HAKAdanCH_room_2Vtx_1
   count: 20
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HAKAdanCH_room_2DL_0009E0:
+HAKAdanCH_room_2DL_4:
   type: GFX
   offset: 0x0009E0
-  symbol: HAKAdanCH_room_2DL_0009E0
+  symbol: HAKAdanCH_room_2DL_4
 
-HAKAdanCH_room_2Vtx_000AA8:
+HAKAdanCH_room_2Vtx_2:
   type: OOT:ARRAY
   offset: 0x000AA8
-  symbol: HAKAdanCH_room_2Vtx_000AA8
+  symbol: HAKAdanCH_room_2Vtx_2
   count: 336
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HAKAdanCH_room_2DL_001FA8:
+HAKAdanCH_room_2DL_5:
   type: GFX
   offset: 0x001FA8
-  symbol: HAKAdanCH_room_2DL_001FA8
+  symbol: HAKAdanCH_room_2DL_5

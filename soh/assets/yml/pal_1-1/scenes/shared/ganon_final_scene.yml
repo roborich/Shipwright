@@ -13,208 +13,208 @@ gGanonFinalPath_001F4:
   symbol: gGanonFinalPath_001F4
   num_paths: 4
 
-ganon_final_sceneTex_002380:
+ganon_final_sceneTex_0:
   type: TEXTURE
   offset: 0x2380
-  symbol: ganon_final_sceneTex_002380
+  symbol: ganon_final_sceneTex_0
   format: IA8
   width: 32
   height: 32
 
-ganon_final_sceneTex_002780:
+ganon_final_sceneTex_1:
   type: TEXTURE
   offset: 0x2780
-  symbol: ganon_final_sceneTex_002780
+  symbol: ganon_final_sceneTex_1
   format: RGBA16
   width: 16
   height: 16
 
-ganon_final_sceneTex_002980:
+ganon_final_sceneTex_2:
   type: TEXTURE
   offset: 0x2980
-  symbol: ganon_final_sceneTex_002980
+  symbol: ganon_final_sceneTex_2
   format: I8
   width: 64
   height: 16
 
-ganon_final_sceneTex_002D80:
+ganon_final_sceneTex_3:
   type: TEXTURE
   offset: 0x2D80
-  symbol: ganon_final_sceneTex_002D80
+  symbol: ganon_final_sceneTex_3
   format: I4
   width: 64
   height: 128
 
-ganon_final_sceneTex_003D80:
+ganon_final_sceneTex_4:
   type: TEXTURE
   offset: 0x3D80
-  symbol: ganon_final_sceneTex_003D80
+  symbol: ganon_final_sceneTex_4
   format: I8
   width: 32
   height: 64
 
-ganon_final_sceneTex_004580:
+ganon_final_sceneTex_5:
   type: TEXTURE
   offset: 0x4580
-  symbol: ganon_final_sceneTex_004580
+  symbol: ganon_final_sceneTex_5
   format: I8
   width: 32
   height: 64
 
-ganon_final_sceneTex_004D80:
+ganon_final_sceneTex_6:
   type: TEXTURE
   offset: 0x4D80
-  symbol: ganon_final_sceneTex_004D80
+  symbol: ganon_final_sceneTex_6
   format: I8
   width: 64
   height: 64
 
-ganon_final_sceneTex_005D80:
+ganon_final_sceneTex_7:
   type: TEXTURE
   offset: 0x5D80
-  symbol: ganon_final_sceneTex_005D80
+  symbol: ganon_final_sceneTex_7
   format: I4
   width: 64
   height: 128
 
-ganon_final_sceneTex_006D80:
+ganon_final_sceneTex_8:
   type: TEXTURE
   offset: 0x6D80
-  symbol: ganon_final_sceneTex_006D80
+  symbol: ganon_final_sceneTex_8
   format: IA8
   width: 64
   height: 32
 
-ganon_final_sceneTex_007580:
+ganon_final_sceneTex_9:
   type: TEXTURE
   offset: 0x7580
-  symbol: ganon_final_sceneTex_007580
+  symbol: ganon_final_sceneTex_9
   format: I4
   width: 64
   height: 128
 
-ganon_final_sceneTex_008580:
+ganon_final_sceneTex_10:
   type: TEXTURE
   offset: 0x8580
-  symbol: ganon_final_sceneTex_008580
+  symbol: ganon_final_sceneTex_10
   format: RGBA16
   width: 32
   height: 64
 
-ganon_final_sceneTex_009580:
+ganon_final_sceneTex_11:
   type: TEXTURE
   offset: 0x9580
-  symbol: ganon_final_sceneTex_009580
+  symbol: ganon_final_sceneTex_11
   format: RGBA16
   width: 32
   height: 64
 
-ganon_final_sceneTex_00A580:
+ganon_final_sceneTex_12:
   type: TEXTURE
   offset: 0xA580
-  symbol: ganon_final_sceneTex_00A580
+  symbol: ganon_final_sceneTex_12
   format: IA4
   width: 128
   height: 32
 
-ganon_final_sceneTex_00AD80:
+ganon_final_sceneTex_13:
   type: TEXTURE
   offset: 0xAD80
-  symbol: ganon_final_sceneTex_00AD80
+  symbol: ganon_final_sceneTex_13
   format: RGBA16
   width: 32
   height: 64
 
-ganon_final_sceneTex_00BD80:
+ganon_final_sceneTex_14:
   type: TEXTURE
   offset: 0xBD80
-  symbol: ganon_final_sceneTex_00BD80
+  symbol: ganon_final_sceneTex_14
   format: RGBA16
   width: 32
   height: 64
 
-ganon_final_sceneTex_00CD80:
+ganon_final_sceneTex_15:
   type: TEXTURE
   offset: 0xCD80
-  symbol: ganon_final_sceneTex_00CD80
+  symbol: ganon_final_sceneTex_15
   format: I8
   width: 16
   height: 16
 
-ganon_final_sceneTex_00CE80:
+ganon_final_sceneTex_16:
   type: TEXTURE
   offset: 0xCE80
-  symbol: ganon_final_sceneTex_00CE80
+  symbol: ganon_final_sceneTex_16
   format: IA8
   width: 64
   height: 64
 
-ganon_final_sceneTex_00DE80:
+ganon_final_sceneTex_17:
   type: TEXTURE
   offset: 0xDE80
-  symbol: ganon_final_sceneTex_00DE80
+  symbol: ganon_final_sceneTex_17
   format: I4
   width: 64
   height: 16
 
-ganon_final_sceneTex_00E080:
+ganon_final_sceneTex_18:
   type: TEXTURE
   offset: 0xE080
-  symbol: ganon_final_sceneTex_00E080
+  symbol: ganon_final_sceneTex_18
   format: IA8
   width: 16
   height: 16
 
-ganon_final_sceneTex_00E180:
+ganon_final_sceneTex_19:
   type: TEXTURE
   offset: 0xE180
-  symbol: ganon_final_sceneTex_00E180
+  symbol: ganon_final_sceneTex_19
   format: I4
   width: 128
   height: 64
 
-ganon_final_sceneTex_00F180:
+ganon_final_sceneTex_20:
   type: TEXTURE
   offset: 0xF180
-  symbol: ganon_final_sceneTex_00F180
+  symbol: ganon_final_sceneTex_20
   format: I8
   width: 32
   height: 32
 
-ganon_final_sceneTex_00F580:
+ganon_final_sceneTex_21:
   type: TEXTURE
   offset: 0xF580
-  symbol: ganon_final_sceneTex_00F580
+  symbol: ganon_final_sceneTex_21
   format: I8
   width: 128
   height: 32
 
-ganon_final_sceneTex_010580:
+ganon_final_sceneTex_22:
   type: TEXTURE
   offset: 0x10580
-  symbol: ganon_final_sceneTex_010580
+  symbol: ganon_final_sceneTex_22
   format: I8
   width: 32
   height: 32
 
-ganon_final_sceneTex_010980:
+ganon_final_sceneTex_23:
   type: TEXTURE
   offset: 0x10980
-  symbol: ganon_final_sceneTex_010980
+  symbol: ganon_final_sceneTex_23
   format: RGBA16
   width: 16
   height: 64
 
-ganon_final_sceneTex_011180:
+ganon_final_sceneTex_24:
   type: TEXTURE
   offset: 0x11180
-  symbol: ganon_final_sceneTex_011180
+  symbol: ganon_final_sceneTex_24
   format: I8
   width: 16
   height: 256
 
 
-ganon_final_sceneCollisionHeader_002354:
+ganon_final_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x002354
-  symbol: ganon_final_sceneCollisionHeader_002354
+  symbol: ganon_final_sceneCollisionHeader_0

@@ -12,134 +12,134 @@ hakasitarelay_room_2:
   offset: 0x0
   symbol: hakasitarelay_room_2
 
-hakasitarelay_room_2Tex_0054A8:
+hakasitarelay_room_2Tex_0:
   type: TEXTURE
   offset: 0x54A8
-  symbol: hakasitarelay_room_2Tex_0054A8
+  symbol: hakasitarelay_room_2Tex_0
   format: I8
   width: 32
   height: 32
 
-hakasitarelay_room_2Tex_0058A8:
+hakasitarelay_room_2Tex_1:
   type: TEXTURE
   offset: 0x58A8
-  symbol: hakasitarelay_room_2Tex_0058A8
+  symbol: hakasitarelay_room_2Tex_1
   format: I8
   width: 32
   height: 32
 
-hakasitarelay_room_2Tex_005CA8:
+hakasitarelay_room_2Tex_2:
   type: TEXTURE
   offset: 0x5CA8
-  symbol: hakasitarelay_room_2Tex_005CA8
+  symbol: hakasitarelay_room_2Tex_2
   format: RGBA16
   width: 32
   height: 64
 
-hakasitarelay_room_2Tex_006CA8:
+hakasitarelay_room_2Tex_3:
   type: TEXTURE
   offset: 0x6CA8
-  symbol: hakasitarelay_room_2Tex_006CA8
+  symbol: hakasitarelay_room_2Tex_3
   format: I8
   width: 64
   height: 32
 
-hakasitarelay_room_2Tex_0074A8:
+hakasitarelay_room_2Tex_4:
   type: TEXTURE
   offset: 0x74A8
-  symbol: hakasitarelay_room_2Tex_0074A8
+  symbol: hakasitarelay_room_2Tex_4
   format: RGBA16
   width: 32
   height: 32
 
-hakasitarelay_room_2Tex_007CA8:
+hakasitarelay_room_2Tex_5:
   type: TEXTURE
   offset: 0x7CA8
-  symbol: hakasitarelay_room_2Tex_007CA8
+  symbol: hakasitarelay_room_2Tex_5
   format: RGBA16
   width: 32
   height: 16
 
-hakasitarelay_room_2Tex_0080A8:
+hakasitarelay_room_2Tex_6:
   type: TEXTURE
   offset: 0x80A8
-  symbol: hakasitarelay_room_2Tex_0080A8
+  symbol: hakasitarelay_room_2Tex_6
   format: RGBA16
   width: 32
   height: 16
 
 
-hakasitarelay_room_2Vtx_000130:
+hakasitarelay_room_2Vtx_0:
   type: OOT:ARRAY
   offset: 0x000130
-  symbol: hakasitarelay_room_2Vtx_000130
+  symbol: hakasitarelay_room_2Vtx_0
   count: 560
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hakasitarelay_room_2DL_002430:
+hakasitarelay_room_2DL_0:
   type: GFX
   offset: 0x002430
-  symbol: hakasitarelay_room_2DL_002430
+  symbol: hakasitarelay_room_2DL_0
 
-hakasitarelay_room_2Vtx_002B68:
+hakasitarelay_room_2Vtx_1:
   type: OOT:ARRAY
   offset: 0x002B68
-  symbol: hakasitarelay_room_2Vtx_002B68
+  symbol: hakasitarelay_room_2Vtx_1
   count: 160
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hakasitarelay_room_2DL_003568:
+hakasitarelay_room_2DL_1:
   type: GFX
   offset: 0x003568
-  symbol: hakasitarelay_room_2DL_003568
+  symbol: hakasitarelay_room_2DL_1
 
-hakasitarelay_room_2Vtx_0038B8:
+hakasitarelay_room_2Vtx_2:
   type: OOT:ARRAY
   offset: 0x0038B8
-  symbol: hakasitarelay_room_2Vtx_0038B8
+  symbol: hakasitarelay_room_2Vtx_2
   count: 14
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hakasitarelay_room_2DL_003998:
+hakasitarelay_room_2DL_2:
   type: GFX
   offset: 0x003998
-  symbol: hakasitarelay_room_2DL_003998
+  symbol: hakasitarelay_room_2DL_2
 
-hakasitarelay_room_2Vtx_003A58:
+hakasitarelay_room_2Vtx_3:
   type: OOT:ARRAY
   offset: 0x003A58
-  symbol: hakasitarelay_room_2Vtx_003A58
+  symbol: hakasitarelay_room_2Vtx_3
   count: 163
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hakasitarelay_room_2DL_004488:
+hakasitarelay_room_2DL_3:
   type: GFX
   offset: 0x004488
-  symbol: hakasitarelay_room_2DL_004488
+  symbol: hakasitarelay_room_2DL_3
 
-hakasitarelay_room_2Vtx_004828:
+hakasitarelay_room_2Vtx_4:
   type: OOT:ARRAY
   offset: 0x004828
-  symbol: hakasitarelay_room_2Vtx_004828
+  symbol: hakasitarelay_room_2Vtx_4
   count: 111
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hakasitarelay_room_2DL_004F18:
+hakasitarelay_room_2DL_4:
   type: GFX
   offset: 0x004F18
-  symbol: hakasitarelay_room_2DL_004F18
+  symbol: hakasitarelay_room_2DL_4
 
-hakasitarelay_room_2DL_005478:
+hakasitarelay_room_2DL_5:
   type: GFX
   offset: 0x005478
-  symbol: hakasitarelay_room_2DL_005478
+  symbol: hakasitarelay_room_2DL_5
