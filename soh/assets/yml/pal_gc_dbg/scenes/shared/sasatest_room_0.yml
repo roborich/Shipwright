@@ -6,9 +6,9 @@
   external_files:
     - pal_gc_dbg/scenes/shared/sasatest_scene.yml
     - pal_gc_dbg/code/sys_matrix.yml
-    - pal_gc_dbg/scenes/shared/sasatest_room_0Set_0001C0.yml
-    - pal_gc_dbg/scenes/shared/sasatest_room_0Set_000270.yml
-    - pal_gc_dbg/scenes/shared/sasatest_room_0Set_000310.yml
+    - pal_gc_dbg/scenes/shared/sasatest_room_0Set_0.yml
+    - pal_gc_dbg/scenes/shared/sasatest_room_0Set_1.yml
+    - pal_gc_dbg/scenes/shared/sasatest_room_0Set_2.yml
 
 sasatest_room_0:
   type: OOT:ROOM
@@ -23,7 +23,7 @@ gSasatestRoom0Vtx_00370:
   array_type: VTX
 
 
-sasatest_room_0DL_001580:
+sasatest_room_0DL_0:
   type: GFX
   offset: 0x001580
-  symbol: sasatest_room_0DL_001580
+  symbol: sasatest_room_0DL_0

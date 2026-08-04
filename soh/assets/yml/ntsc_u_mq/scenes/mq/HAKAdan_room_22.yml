@@ -12,41 +12,41 @@ HAKAdan_room_22:
   offset: 0x0
   symbol: HAKAdan_room_22
 
-HAKAdan_room_22Tex_000FA8:
+HAKAdan_room_22Tex_3:
   type: TEXTURE
   offset: 0xFA8
-  symbol: HAKAdan_room_22Tex_000FA8
+  symbol: HAKAdan_room_22Tex_3
   format: RGBA16
   width: 32
   height: 8
 
-HAKAdan_room_22Tex_0011A8:
+HAKAdan_room_22Tex_4:
   type: TEXTURE
   offset: 0x11A8
-  symbol: HAKAdan_room_22Tex_0011A8
+  symbol: HAKAdan_room_22Tex_4
   format: RGBA16
   width: 32
   height: 64
 
-HAKAdan_room_22Tex_0021A8:
+HAKAdan_room_22Tex_5:
   type: TEXTURE
   offset: 0x21A8
-  symbol: HAKAdan_room_22Tex_0021A8
+  symbol: HAKAdan_room_22Tex_5
   format: RGBA16
   width: 32
   height: 32
 
 
-HAKAdan_room_22Vtx_000070:
+HAKAdan_room_22Vtx_0:
   type: OOT:ARRAY
   offset: 0x000070
-  symbol: HAKAdan_room_22Vtx_000070
+  symbol: HAKAdan_room_22Vtx_0
   count: 169
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HAKAdan_room_22DL_000B00:
+HAKAdan_room_22DL_2:
   type: GFX
   offset: 0x000B00
-  symbol: HAKAdan_room_22DL_000B00
+  symbol: HAKAdan_room_22DL_2

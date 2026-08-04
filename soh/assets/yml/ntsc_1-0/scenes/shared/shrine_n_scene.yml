@@ -14,7 +14,7 @@ gShrinePath_00100:
   num_paths: 2
 
 
-shrine_n_sceneCollisionHeader_0014D4:
+shrine_n_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x0014D4
-  symbol: shrine_n_sceneCollisionHeader_0014D4
+  symbol: shrine_n_sceneCollisionHeader_0

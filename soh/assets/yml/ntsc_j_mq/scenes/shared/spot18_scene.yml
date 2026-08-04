@@ -3,9 +3,9 @@
     - [ 2, 0x01C03CE0 ]
 
   external_files:
-    - ntsc_j_mq/scenes/shared/spot18_sceneSet_007A30.yml
-    - ntsc_j_mq/scenes/shared/spot18_sceneSet_007BA0.yml
-    - ntsc_j_mq/scenes/shared/spot18_sceneSet_007CF0.yml
+    - ntsc_j_mq/scenes/shared/spot18_sceneSet_0.yml
+    - ntsc_j_mq/scenes/shared/spot18_sceneSet_1.yml
+    - ntsc_j_mq/scenes/shared/spot18_sceneSet_2.yml
 spot18_scene:
   type: OOT:SCENE
   offset: 0x0
@@ -47,50 +47,50 @@ gGoronCityNightEntranceTex:
   width: 8
   height: 8
 
-spot18_sceneTLUT_0085C0:
+spot18_sceneTLUT_0:
   type: TEXTURE
   offset: 0x85C0
-  symbol: spot18_sceneTLUT_0085C0
+  symbol: spot18_sceneTLUT_0
   format: RGBA16
   width: 16
   height: 16
 
-spot18_sceneTex_0087C8:
+spot18_sceneTex_0:
   type: TEXTURE
   offset: 0x87C8
-  symbol: spot18_sceneTex_0087C8
+  symbol: spot18_sceneTex_0
   format: RGBA16
   width: 32
   height: 32
 
-spot18_sceneTex_009008:
+spot18_sceneTex_1:
   type: TEXTURE
   offset: 0x9008
-  symbol: spot18_sceneTex_009008
+  symbol: spot18_sceneTex_1
   format: CI8
   width: 64
   height: 32
   tlut: 0x85C0
 
-spot18_sceneTex_009848:
+spot18_sceneTex_2:
   type: TEXTURE
   offset: 0x9848
-  symbol: spot18_sceneTex_009848
+  symbol: spot18_sceneTex_2
   format: RGBA16
   width: 16
   height: 32
 
-spot18_sceneTex_009C48:
+spot18_sceneTex_3:
   type: TEXTURE
   offset: 0x9C48
-  symbol: spot18_sceneTex_009C48
+  symbol: spot18_sceneTex_3
   format: CI8
   width: 64
   height: 32
   tlut: 0x85C0
 
 
-spot18_sceneCollisionHeader_0059AC:
+spot18_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x0059AC
-  symbol: spot18_sceneCollisionHeader_0059AC
+  symbol: spot18_sceneCollisionHeader_0

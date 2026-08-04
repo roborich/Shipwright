@@ -12,315 +12,315 @@ HIDAN_room_10:
   offset: 0x0
   symbol: HIDAN_room_10
 
-HIDAN_room_10Tex_011818:
+HIDAN_room_10Tex_16:
   type: TEXTURE
   offset: 0x11818
-  symbol: HIDAN_room_10Tex_011818
+  symbol: HIDAN_room_10Tex_16
   format: RGBA16
   width: 32
   height: 8
 
-HIDAN_room_10Tex_011A18:
+HIDAN_room_10Tex_17:
   type: TEXTURE
   offset: 0x11A18
-  symbol: HIDAN_room_10Tex_011A18
+  symbol: HIDAN_room_10Tex_17
   format: RGBA16
   width: 32
   height: 32
 
-HIDAN_room_10Tex_012218:
+HIDAN_room_10Tex_18:
   type: TEXTURE
   offset: 0x12218
-  symbol: HIDAN_room_10Tex_012218
+  symbol: HIDAN_room_10Tex_18
   format: CI4
   width: 32
   height: 64
   external_tlut: HIDAN_scene
   external_tlut_offset: 0x189B0
 
-HIDAN_room_10Tex_012618:
+HIDAN_room_10Tex_19:
   type: TEXTURE
   offset: 0x12618
-  symbol: HIDAN_room_10Tex_012618
+  symbol: HIDAN_room_10Tex_19
   format: RGBA16
   width: 32
   height: 32
 
-HIDAN_room_10Tex_012E18:
+HIDAN_room_10Tex_20:
   type: TEXTURE
   offset: 0x12E18
-  symbol: HIDAN_room_10Tex_012E18
+  symbol: HIDAN_room_10Tex_20
   format: CI4
   width: 64
   height: 32
   external_tlut: HIDAN_scene
   external_tlut_offset: 0x18990
 
-HIDAN_room_10Tex_013218:
+HIDAN_room_10Tex_21:
   type: TEXTURE
   offset: 0x13218
-  symbol: HIDAN_room_10Tex_013218
+  symbol: HIDAN_room_10Tex_21
   format: CI4
   width: 32
   height: 32
   external_tlut: HIDAN_scene
   external_tlut_offset: 0x189B0
 
-HIDAN_room_10Tex_013418:
+HIDAN_room_10Tex_22:
   type: TEXTURE
   offset: 0x13418
-  symbol: HIDAN_room_10Tex_013418
+  symbol: HIDAN_room_10Tex_22
   format: RGBA16
   width: 64
   height: 32
 
-HIDAN_room_10Tex_014418:
+HIDAN_room_10Tex_23:
   type: TEXTURE
   offset: 0x14418
-  symbol: HIDAN_room_10Tex_014418
+  symbol: HIDAN_room_10Tex_23
   format: RGBA16
   width: 64
   height: 32
 
-HIDAN_room_10Tex_015418:
+HIDAN_room_10Tex_24:
   type: TEXTURE
   offset: 0x15418
-  symbol: HIDAN_room_10Tex_015418
+  symbol: HIDAN_room_10Tex_24
   format: CI4
   width: 64
   height: 32
   external_tlut: HIDAN_scene
   external_tlut_offset: 0x18990
 
-HIDAN_room_10Tex_015818:
+HIDAN_room_10Tex_25:
   type: TEXTURE
   offset: 0x15818
-  symbol: HIDAN_room_10Tex_015818
+  symbol: HIDAN_room_10Tex_25
   format: CI4
   width: 32
   height: 32
   external_tlut: HIDAN_scene
   external_tlut_offset: 0x18990
 
-HIDAN_room_10Tex_015A18:
+HIDAN_room_10Tex_26:
   type: TEXTURE
   offset: 0x15A18
-  symbol: HIDAN_room_10Tex_015A18
+  symbol: HIDAN_room_10Tex_26
   format: RGBA16
   width: 64
   height: 32
 
-HIDAN_room_10Tex_016A18:
+HIDAN_room_10Tex_27:
   type: TEXTURE
   offset: 0x16A18
-  symbol: HIDAN_room_10Tex_016A18
+  symbol: HIDAN_room_10Tex_27
   format: CI4
   width: 32
   height: 32
   external_tlut: HIDAN_scene
   external_tlut_offset: 0x18990
 
-HIDAN_room_10Tex_016C18:
+HIDAN_room_10Tex_28:
   type: TEXTURE
   offset: 0x16C18
-  symbol: HIDAN_room_10Tex_016C18
+  symbol: HIDAN_room_10Tex_28
   format: CI4
   width: 32
   height: 64
   external_tlut: HIDAN_scene
   external_tlut_offset: 0x189B0
 
-HIDAN_room_10Tex_017018:
+HIDAN_room_10Tex_29:
   type: TEXTURE
   offset: 0x17018
-  symbol: HIDAN_room_10Tex_017018
+  symbol: HIDAN_room_10Tex_29
   format: RGBA16
   width: 32
   height: 32
 
-HIDAN_room_10Tex_017818:
+HIDAN_room_10Tex_30:
   type: TEXTURE
   offset: 0x17818
-  symbol: HIDAN_room_10Tex_017818
+  symbol: HIDAN_room_10Tex_30
   format: CI4
   width: 32
   height: 64
   external_tlut: HIDAN_scene
   external_tlut_offset: 0x189B0
 
-HIDAN_room_10Tex_017C18:
+HIDAN_room_10Tex_31:
   type: TEXTURE
   offset: 0x17C18
-  symbol: HIDAN_room_10Tex_017C18
+  symbol: HIDAN_room_10Tex_31
   format: RGBA16
   width: 32
   height: 32
 
 
-HIDAN_room_10Vtx_000490:
+HIDAN_room_10Vtx_0:
   type: OOT:ARRAY
   offset: 0x000490
-  symbol: HIDAN_room_10Vtx_000490
+  symbol: HIDAN_room_10Vtx_0
   count: 31
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HIDAN_room_10DL_000680:
+HIDAN_room_10DL_12:
   type: GFX
   offset: 0x000680
-  symbol: HIDAN_room_10DL_000680
+  symbol: HIDAN_room_10DL_12
 
-HIDAN_room_10Vtx_0007C0:
+HIDAN_room_10Vtx_1:
   type: OOT:ARRAY
   offset: 0x0007C0
-  symbol: HIDAN_room_10Vtx_0007C0
+  symbol: HIDAN_room_10Vtx_1
   count: 56
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HIDAN_room_10DL_000B40:
+HIDAN_room_10DL_13:
   type: GFX
   offset: 0x000B40
-  symbol: HIDAN_room_10DL_000B40
+  symbol: HIDAN_room_10DL_13
 
-HIDAN_room_10Vtx_000E10:
+HIDAN_room_10Vtx_2:
   type: OOT:ARRAY
   offset: 0x000E10
-  symbol: HIDAN_room_10Vtx_000E10
+  symbol: HIDAN_room_10Vtx_2
   count: 385
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HIDAN_room_10DL_002620:
+HIDAN_room_10DL_14:
   type: GFX
   offset: 0x002620
-  symbol: HIDAN_room_10DL_002620
+  symbol: HIDAN_room_10DL_14
 
-HIDAN_room_10Vtx_003F80:
+HIDAN_room_10Vtx_3:
   type: OOT:ARRAY
   offset: 0x003F80
-  symbol: HIDAN_room_10Vtx_003F80
+  symbol: HIDAN_room_10Vtx_3
   count: 152
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HIDAN_room_10DL_004900:
+HIDAN_room_10DL_15:
   type: GFX
   offset: 0x004900
-  symbol: HIDAN_room_10DL_004900
+  symbol: HIDAN_room_10DL_15
 
-HIDAN_room_10Vtx_005240:
+HIDAN_room_10Vtx_4:
   type: OOT:ARRAY
   offset: 0x005240
-  symbol: HIDAN_room_10Vtx_005240
+  symbol: HIDAN_room_10Vtx_4
   count: 56
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HIDAN_room_10DL_0055C0:
+HIDAN_room_10DL_16:
   type: GFX
   offset: 0x0055C0
-  symbol: HIDAN_room_10DL_0055C0
+  symbol: HIDAN_room_10DL_16
 
-HIDAN_room_10Vtx_005A20:
+HIDAN_room_10Vtx_5:
   type: OOT:ARRAY
   offset: 0x005A20
-  symbol: HIDAN_room_10Vtx_005A20
+  symbol: HIDAN_room_10Vtx_5
   count: 251
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HIDAN_room_10DL_0069D0:
+HIDAN_room_10DL_17:
   type: GFX
   offset: 0x0069D0
-  symbol: HIDAN_room_10DL_0069D0
+  symbol: HIDAN_room_10DL_17
 
-HIDAN_room_10Vtx_007260:
+HIDAN_room_10Vtx_6:
   type: OOT:ARRAY
   offset: 0x007260
-  symbol: HIDAN_room_10Vtx_007260
+  symbol: HIDAN_room_10Vtx_6
   count: 145
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HIDAN_room_10DL_007B70:
+HIDAN_room_10DL_18:
   type: GFX
   offset: 0x007B70
-  symbol: HIDAN_room_10DL_007B70
+  symbol: HIDAN_room_10DL_18
 
-HIDAN_room_10Vtx_008060:
+HIDAN_room_10Vtx_7:
   type: OOT:ARRAY
   offset: 0x008060
-  symbol: HIDAN_room_10Vtx_008060
+  symbol: HIDAN_room_10Vtx_7
   count: 501
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HIDAN_room_10DL_009FB0:
+HIDAN_room_10DL_19:
   type: GFX
   offset: 0x009FB0
-  symbol: HIDAN_room_10DL_009FB0
+  symbol: HIDAN_room_10DL_19
 
-HIDAN_room_10Vtx_00B6C8:
+HIDAN_room_10Vtx_8:
   type: OOT:ARRAY
   offset: 0x00B6C8
-  symbol: HIDAN_room_10Vtx_00B6C8
+  symbol: HIDAN_room_10Vtx_8
   count: 244
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HIDAN_room_10DL_00C608:
+HIDAN_room_10DL_20:
   type: GFX
   offset: 0x00C608
-  symbol: HIDAN_room_10DL_00C608
+  symbol: HIDAN_room_10DL_20
 
-HIDAN_room_10Vtx_00CD40:
+HIDAN_room_10Vtx_9:
   type: OOT:ARRAY
   offset: 0x00CD40
-  symbol: HIDAN_room_10Vtx_00CD40
+  symbol: HIDAN_room_10Vtx_9
   count: 195
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HIDAN_room_10DL_00D970:
+HIDAN_room_10DL_21:
   type: GFX
   offset: 0x00D970
-  symbol: HIDAN_room_10DL_00D970
+  symbol: HIDAN_room_10DL_21
 
-HIDAN_room_10Vtx_00E180:
+HIDAN_room_10Vtx_10:
   type: OOT:ARRAY
   offset: 0x00E180
-  symbol: HIDAN_room_10Vtx_00E180
+  symbol: HIDAN_room_10Vtx_10
   count: 421
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HIDAN_room_10DL_00FBD0:
+HIDAN_room_10DL_22:
   type: GFX
   offset: 0x00FBD0
-  symbol: HIDAN_room_10DL_00FBD0
+  symbol: HIDAN_room_10DL_22
 
-HIDAN_room_10Vtx_011390:
+HIDAN_room_10Vtx_11:
   type: OOT:ARRAY
   offset: 0x011390
-  symbol: HIDAN_room_10Vtx_011390
+  symbol: HIDAN_room_10Vtx_11
   count: 40
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HIDAN_room_10DL_011610:
+HIDAN_room_10DL_23:
   type: GFX
   offset: 0x011610
-  symbol: HIDAN_room_10DL_011610
+  symbol: HIDAN_room_10DL_23

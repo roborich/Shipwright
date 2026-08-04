@@ -7,152 +7,152 @@ hakaana2_scene:
   offset: 0x0
   symbol: hakaana2_scene
 
-hakaana2_sceneTex_003090:
+hakaana2_sceneTex_0:
   type: TEXTURE
   offset: 0x3090
-  symbol: hakaana2_sceneTex_003090
+  symbol: hakaana2_sceneTex_0
   format: RGBA16
   width: 32
   height: 32
 
-hakaana2_sceneTex_003890:
+hakaana2_sceneTex_1:
   type: TEXTURE
   offset: 0x3890
-  symbol: hakaana2_sceneTex_003890
+  symbol: hakaana2_sceneTex_1
   format: RGBA16
   width: 32
   height: 32
 
-hakaana2_sceneTex_004090:
+hakaana2_sceneTex_2:
   type: TEXTURE
   offset: 0x4090
-  symbol: hakaana2_sceneTex_004090
+  symbol: hakaana2_sceneTex_2
   format: RGBA16
   width: 32
   height: 16
 
-hakaana2_sceneTex_004490:
+hakaana2_sceneTex_3:
   type: TEXTURE
   offset: 0x4490
-  symbol: hakaana2_sceneTex_004490
+  symbol: hakaana2_sceneTex_3
   format: RGBA16
   width: 32
   height: 16
 
-hakaana2_sceneTex_004890:
+hakaana2_sceneTex_4:
   type: TEXTURE
   offset: 0x4890
-  symbol: hakaana2_sceneTex_004890
+  symbol: hakaana2_sceneTex_4
   format: I4
   width: 64
   height: 64
 
-hakaana2_sceneTex_005090:
+hakaana2_sceneTex_5:
   type: TEXTURE
   offset: 0x5090
-  symbol: hakaana2_sceneTex_005090
+  symbol: hakaana2_sceneTex_5
   format: I4
   width: 64
   height: 64
 
-hakaana2_sceneTex_005890:
+hakaana2_sceneTex_6:
   type: TEXTURE
   offset: 0x5890
-  symbol: hakaana2_sceneTex_005890
+  symbol: hakaana2_sceneTex_6
   format: I4
   width: 128
   height: 32
 
-hakaana2_sceneTex_006090:
+hakaana2_sceneTex_7:
   type: TEXTURE
   offset: 0x6090
-  symbol: hakaana2_sceneTex_006090
+  symbol: hakaana2_sceneTex_7
   format: I4
   width: 64
   height: 64
 
-hakaana2_sceneTex_006890:
+hakaana2_sceneTex_8:
   type: TEXTURE
   offset: 0x6890
-  symbol: hakaana2_sceneTex_006890
+  symbol: hakaana2_sceneTex_8
   format: IA8
   width: 64
   height: 32
 
-hakaana2_sceneTex_007090:
+hakaana2_sceneTex_9:
   type: TEXTURE
   offset: 0x7090
-  symbol: hakaana2_sceneTex_007090
+  symbol: hakaana2_sceneTex_9
   format: I8
   width: 16
   height: 256
 
-hakaana2_sceneTex_008090:
+hakaana2_sceneTex_10:
   type: TEXTURE
   offset: 0x8090
-  symbol: hakaana2_sceneTex_008090
+  symbol: hakaana2_sceneTex_10
   format: IA16
   width: 128
   height: 16
 
-hakaana2_sceneTex_009090:
+hakaana2_sceneTex_11:
   type: TEXTURE
   offset: 0x9090
-  symbol: hakaana2_sceneTex_009090
+  symbol: hakaana2_sceneTex_11
   format: I8
   width: 32
   height: 64
 
-hakaana2_sceneTex_009890:
+hakaana2_sceneTex_12:
   type: TEXTURE
   offset: 0x9890
-  symbol: hakaana2_sceneTex_009890
+  symbol: hakaana2_sceneTex_12
   format: I8
   width: 32
   height: 64
 
-hakaana2_sceneTex_00A090:
+hakaana2_sceneTex_13:
   type: TEXTURE
   offset: 0xA090
-  symbol: hakaana2_sceneTex_00A090
+  symbol: hakaana2_sceneTex_13
   format: RGBA16
   width: 32
   height: 32
 
-hakaana2_sceneTex_00A890:
+hakaana2_sceneTex_14:
   type: TEXTURE
   offset: 0xA890
-  symbol: hakaana2_sceneTex_00A890
+  symbol: hakaana2_sceneTex_14
   format: I4
   width: 64
   height: 128
 
-hakaana2_sceneTex_00B890:
+hakaana2_sceneTex_15:
   type: TEXTURE
   offset: 0xB890
-  symbol: hakaana2_sceneTex_00B890
+  symbol: hakaana2_sceneTex_15
   format: RGBA16
   width: 32
   height: 32
 
-hakaana2_sceneTex_00C090:
+hakaana2_sceneTex_16:
   type: TEXTURE
   offset: 0xC090
-  symbol: hakaana2_sceneTex_00C090
+  symbol: hakaana2_sceneTex_16
   format: RGBA16
   width: 32
   height: 32
 
-hakaana2_sceneTex_00C890:
+hakaana2_sceneTex_17:
   type: TEXTURE
   offset: 0xC890
-  symbol: hakaana2_sceneTex_00C890
+  symbol: hakaana2_sceneTex_17
   format: RGBA16
   width: 32
   height: 32
 
 
-hakaana2_sceneCollisionHeader_003058:
+hakaana2_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x003058
-  symbol: hakaana2_sceneCollisionHeader_003058
+  symbol: hakaana2_sceneCollisionHeader_0

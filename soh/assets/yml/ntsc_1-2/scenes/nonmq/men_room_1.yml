@@ -12,82 +12,82 @@ men_room_1:
   offset: 0x0
   symbol: men_room_1
 
-men_room_1Tex_004270:
+men_room_1Tex_0:
   type: TEXTURE
   offset: 0x4290
-  symbol: men_room_1Tex_004270
+  symbol: men_room_1Tex_0
   format: RGBA16
   width: 32
   height: 32
 
-men_room_1Tex_004A70:
+men_room_1Tex_1:
   type: TEXTURE
   offset: 0x4A90
-  symbol: men_room_1Tex_004A70
+  symbol: men_room_1Tex_1
   format: CI8
   width: 64
   height: 32
   external_tlut: men_scene
   external_tlut_offset: 0xF730
 
-men_room_1Tex_005270:
+men_room_1Tex_2:
   type: TEXTURE
   offset: 0x5290
-  symbol: men_room_1Tex_005270
+  symbol: men_room_1Tex_2
   format: CI8
   width: 32
   height: 64
   external_tlut: men_scene
   external_tlut_offset: 0xF730
 
-men_room_1Tex_005A70:
+men_room_1Tex_3:
   type: TEXTURE
   offset: 0x5A90
-  symbol: men_room_1Tex_005A70
+  symbol: men_room_1Tex_3
   format: CI8
   width: 64
   height: 32
   external_tlut: men_scene
   external_tlut_offset: 0xF730
 
-men_room_1Tex_006270:
+men_room_1Tex_4:
   type: TEXTURE
   offset: 0x6290
-  symbol: men_room_1Tex_006270
+  symbol: men_room_1Tex_4
   format: RGBA16
   width: 32
   height: 32
 
-men_room_1Tex_006A70:
+men_room_1Tex_5:
   type: TEXTURE
   offset: 0x6A90
-  symbol: men_room_1Tex_006A70
+  symbol: men_room_1Tex_5
   format: RGBA16
   width: 32
   height: 32
 
-men_room_1Tex_007270:
+men_room_1Tex_6:
   type: TEXTURE
   offset: 0x7290
-  symbol: men_room_1Tex_007270
+  symbol: men_room_1Tex_6
   format: CI8
   width: 64
   height: 32
   external_tlut: men_scene
   external_tlut_offset: 0xF730
 
-men_room_1Tex_007A70:
+men_room_1Tex_7:
   type: TEXTURE
   offset: 0x7A90
-  symbol: men_room_1Tex_007A70
+  symbol: men_room_1Tex_7
   format: RGBA16
   width: 16
   height: 128
 
-men_room_1Tex_008A70:
+men_room_1Tex_8:
   type: TEXTURE
   offset: 0x8A90
-  symbol: men_room_1Tex_008A70
+  symbol: men_room_1Tex_8
   format: CI8
   width: 64
   height: 32
@@ -95,156 +95,156 @@ men_room_1Tex_008A70:
   external_tlut_offset: 0xF730
 
 
-men_room_1Vtx_000170:
+men_room_1Vtx_0:
   type: OOT:ARRAY
   offset: 0x000170
-  symbol: men_room_1Vtx_000170
+  symbol: men_room_1Vtx_0
   count: 162
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-men_room_1DL_000B90:
+men_room_1DL_0:
   type: GFX
   offset: 0x000B90
-  symbol: men_room_1DL_000B90
+  symbol: men_room_1DL_0
 
-men_room_1Vtx_001350:
+men_room_1Vtx_1:
   type: OOT:ARRAY
   offset: 0x001350
-  symbol: men_room_1Vtx_001350
+  symbol: men_room_1Vtx_1
   count: 120
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-men_room_1DL_001AD0:
+men_room_1DL_1:
   type: GFX
   offset: 0x001AD0
-  symbol: men_room_1DL_001AD0
+  symbol: men_room_1DL_1
 
-men_room_1Vtx_001C78:
+men_room_1Vtx_2:
   type: OOT:ARRAY
   offset: 0x001C78
-  symbol: men_room_1Vtx_001C78
+  symbol: men_room_1Vtx_2
   count: 21
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-men_room_1DL_001DC8:
+men_room_1DL_2:
   type: GFX
   offset: 0x001DC8
-  symbol: men_room_1DL_001DC8
+  symbol: men_room_1DL_2
 
-men_room_1Vtx_001F58:
+men_room_1Vtx_3:
   type: OOT:ARRAY
   offset: 0x001F58
-  symbol: men_room_1Vtx_001F58
+  symbol: men_room_1Vtx_3
   count: 71
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-men_room_1DL_0023C8:
+men_room_1DL_3:
   type: GFX
   offset: 0x0023C8
-  symbol: men_room_1DL_0023C8
+  symbol: men_room_1DL_3
 
-men_room_1Vtx_002970:
+men_room_1Vtx_4:
   type: OOT:ARRAY
   offset: 0x002970
-  symbol: men_room_1Vtx_002970
+  symbol: men_room_1Vtx_4
   count: 40
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-men_room_1DL_002BF0:
+men_room_1DL_4:
   type: GFX
   offset: 0x002BF0
-  symbol: men_room_1DL_002BF0
+  symbol: men_room_1DL_4
 
-men_room_1Vtx_002CF8:
+men_room_1Vtx_5:
   type: OOT:ARRAY
   offset: 0x002CF8
-  symbol: men_room_1Vtx_002CF8
+  symbol: men_room_1Vtx_5
   count: 47
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-men_room_1DL_002FE8:
+men_room_1DL_5:
   type: GFX
   offset: 0x002FE8
-  symbol: men_room_1DL_002FE8
+  symbol: men_room_1DL_5
 
-men_room_1Vtx_003108:
+men_room_1Vtx_6:
   type: OOT:ARRAY
   offset: 0x003108
-  symbol: men_room_1Vtx_003108
+  symbol: men_room_1Vtx_6
   count: 68
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-men_room_1DL_003548:
+men_room_1DL_6:
   type: GFX
   offset: 0x003548
-  symbol: men_room_1DL_003548
+  symbol: men_room_1DL_6
 
-men_room_1Vtx_003690:
+men_room_1Vtx_7:
   type: OOT:ARRAY
   offset: 0x003690
-  symbol: men_room_1Vtx_003690
+  symbol: men_room_1Vtx_7
   count: 20
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-men_room_1DL_0037D0:
+men_room_1DL_7:
   type: GFX
   offset: 0x0037D0
-  symbol: men_room_1DL_0037D0
+  symbol: men_room_1DL_7
 
-men_room_1Vtx_0038C8:
+men_room_1Vtx_8:
   type: OOT:ARRAY
   offset: 0x0038C8
-  symbol: men_room_1Vtx_0038C8
+  symbol: men_room_1Vtx_8
   count: 62
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-men_room_1DL_003CA8:
+men_room_1DL_8:
   type: GFX
   offset: 0x003CA8
-  symbol: men_room_1DL_003CA8
+  symbol: men_room_1DL_8
 
-men_room_1Vtx_003DE0:
+men_room_1Vtx_9:
   type: OOT:ARRAY
   offset: 0x003DE0
-  symbol: men_room_1Vtx_003DE0
+  symbol: men_room_1Vtx_9
   count: 24
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-men_room_1DL_003F60:
+men_room_1DL_9:
   type: GFX
   offset: 0x003F60
-  symbol: men_room_1DL_003F60
+  symbol: men_room_1DL_9
 
-men_room_1Vtx_004060:
+men_room_1Vtx_10:
   type: OOT:ARRAY
   offset: 0x004060
-  symbol: men_room_1Vtx_004060
+  symbol: men_room_1Vtx_10
   count: 17
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-men_room_1DL_004170:
+men_room_1DL_10:
   type: GFX
   offset: 0x004170
-  symbol: men_room_1DL_004170
+  symbol: men_room_1DL_10

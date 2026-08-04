@@ -12,147 +12,147 @@ jyasinzou_room_24:
   offset: 0x0
   symbol: jyasinzou_room_24
 
-jyasinzou_room_24Tex_001B38:
+jyasinzou_room_24Tex_0:
   type: TEXTURE
   offset: 0x1B18
-  symbol: jyasinzou_room_24Tex_001B38
+  symbol: jyasinzou_room_24Tex_0
   format: RGBA16
   width: 32
   height: 64
 
-jyasinzou_room_24Tex_002B38:
+jyasinzou_room_24Tex_1:
   type: TEXTURE
   offset: 0x2B18
-  symbol: jyasinzou_room_24Tex_002B38
+  symbol: jyasinzou_room_24Tex_1
   format: CI8
   width: 64
   height: 32
   external_tlut: jyasinzou_scene
   external_tlut_offset: 0x17E00
 
-jyasinzou_room_24Tex_003338:
+jyasinzou_room_24Tex_2:
   type: TEXTURE
   offset: 0x3318
-  symbol: jyasinzou_room_24Tex_003338
+  symbol: jyasinzou_room_24Tex_2
   format: CI8
   width: 64
   height: 32
   external_tlut: jyasinzou_scene
   external_tlut_offset: 0x17E00
 
-jyasinzou_room_24Tex_003B38:
+jyasinzou_room_24Tex_3:
   type: TEXTURE
   offset: 0x3B18
-  symbol: jyasinzou_room_24Tex_003B38
+  symbol: jyasinzou_room_24Tex_3
   format: RGBA16
   width: 16
   height: 32
 
-jyasinzou_room_24Tex_003F38:
+jyasinzou_room_24Tex_4:
   type: TEXTURE
   offset: 0x3F18
-  symbol: jyasinzou_room_24Tex_003F38
+  symbol: jyasinzou_room_24Tex_4
   format: CI8
   width: 32
   height: 32
   external_tlut: jyasinzou_scene
   external_tlut_offset: 0x17C00
 
-jyasinzou_room_24Tex_004338:
+jyasinzou_room_24Tex_5:
   type: TEXTURE
   offset: 0x4318
-  symbol: jyasinzou_room_24Tex_004338
+  symbol: jyasinzou_room_24Tex_5
   format: CI8
   width: 64
   height: 32
   external_tlut: jyasinzou_scene
   external_tlut_offset: 0x17C00
 
-jyasinzou_room_24Tex_004B38:
+jyasinzou_room_24Tex_6:
   type: TEXTURE
   offset: 0x4B18
-  symbol: jyasinzou_room_24Tex_004B38
+  symbol: jyasinzou_room_24Tex_6
   format: CI4
   width: 64
   height: 64
   external_tlut: jyasinzou_scene
   external_tlut_offset: 0x18020
 
-jyasinzou_room_24Tex_0054D0:
+jyasinzou_room_24Tex_7:
   type: TEXTURE
   offset: 0x54B0
-  symbol: jyasinzou_room_24Tex_0054D0
+  symbol: jyasinzou_room_24Tex_7
   format: RGBA16
   width: 32
   height: 64
 
 
-jyasinzou_room_24Vtx_000140:
+jyasinzou_room_24Vtx_0:
   type: OOT:ARRAY
   offset: 0x000140
-  symbol: jyasinzou_room_24Vtx_000140
+  symbol: jyasinzou_room_24Vtx_0
   count: 141
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-jyasinzou_room_24DL_000A10:
+jyasinzou_room_24DL_0:
   type: GFX
   offset: 0x000A10
-  symbol: jyasinzou_room_24DL_000A10
+  symbol: jyasinzou_room_24DL_0
 
-jyasinzou_room_24Vtx_001210:
+jyasinzou_room_24Vtx_1:
   type: OOT:ARRAY
   offset: 0x001210
-  symbol: jyasinzou_room_24Vtx_001210
+  symbol: jyasinzou_room_24Vtx_1
   count: 22
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-jyasinzou_room_24DL_001370:
+jyasinzou_room_24DL_1:
   type: GFX
   offset: 0x001370
-  symbol: jyasinzou_room_24DL_001370
+  symbol: jyasinzou_room_24DL_1
 
-jyasinzou_room_24Vtx_001490:
+jyasinzou_room_24Vtx_2:
   type: OOT:ARRAY
   offset: 0x001490
-  symbol: jyasinzou_room_24Vtx_001490
+  symbol: jyasinzou_room_24Vtx_2
   count: 22
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-jyasinzou_room_24DL_0015F0:
+jyasinzou_room_24DL_2:
   type: GFX
   offset: 0x0015F0
-  symbol: jyasinzou_room_24DL_0015F0
+  symbol: jyasinzou_room_24DL_2
 
-jyasinzou_room_24Vtx_001710:
+jyasinzou_room_24Vtx_3:
   type: OOT:ARRAY
   offset: 0x001710
-  symbol: jyasinzou_room_24Vtx_001710
+  symbol: jyasinzou_room_24Vtx_3
   count: 34
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-jyasinzou_room_24DL_001930:
+jyasinzou_room_24DL_3:
   type: GFX
   offset: 0x001930
-  symbol: jyasinzou_room_24DL_001930
+  symbol: jyasinzou_room_24DL_3
 
-jyasinzou_room_24Vtx_005320:
+jyasinzou_room_24Vtx_4:
   type: OOT:ARRAY
   offset: 0x005320
-  symbol: jyasinzou_room_24Vtx_005320
+  symbol: jyasinzou_room_24Vtx_4
   count: 12
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-jyasinzou_room_24DL_0053E0:
+jyasinzou_room_24DL_4:
   type: GFX
   offset: 0x0053E0
-  symbol: jyasinzou_room_24DL_0053E0
+  symbol: jyasinzou_room_24DL_4

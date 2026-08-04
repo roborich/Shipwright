@@ -12,162 +12,162 @@ syotes2_room_0:
   offset: 0x0
   symbol: syotes2_room_0
 
-syotes2_room_0Tex_0046F8:
+syotes2_room_0Tex_0:
   type: TEXTURE
   offset: 0x46F8
-  symbol: syotes2_room_0Tex_0046F8
+  symbol: syotes2_room_0Tex_0
   format: RGBA16
   width: 32
   height: 32
 
-syotes2_room_0Tex_004EF8:
+syotes2_room_0Tex_1:
   type: TEXTURE
   offset: 0x4EF8
-  symbol: syotes2_room_0Tex_004EF8
+  symbol: syotes2_room_0Tex_1
   format: RGBA16
   width: 32
   height: 32
 
-syotes2_room_0Tex_0056F8:
+syotes2_room_0Tex_2:
   type: TEXTURE
   offset: 0x56F8
-  symbol: syotes2_room_0Tex_0056F8
+  symbol: syotes2_room_0Tex_2
   format: RGBA16
   width: 32
   height: 64
 
-syotes2_room_0Tex_0066F8:
+syotes2_room_0Tex_3:
   type: TEXTURE
   offset: 0x66F8
-  symbol: syotes2_room_0Tex_0066F8
+  symbol: syotes2_room_0Tex_3
   format: RGBA16
   width: 32
   height: 32
 
-syotes2_room_0Tex_006EF8:
+syotes2_room_0Tex_4:
   type: TEXTURE
   offset: 0x6EF8
-  symbol: syotes2_room_0Tex_006EF8
+  symbol: syotes2_room_0Tex_4
   format: RGBA16
   width: 64
   height: 32
 
-syotes2_room_0Tex_007EF8:
+syotes2_room_0Tex_5:
   type: TEXTURE
   offset: 0x7EF8
-  symbol: syotes2_room_0Tex_007EF8
+  symbol: syotes2_room_0Tex_5
   format: RGBA16
   width: 32
   height: 64
 
-syotes2_room_0Tex_008EF8:
+syotes2_room_0Tex_6:
   type: TEXTURE
   offset: 0x8EF8
-  symbol: syotes2_room_0Tex_008EF8
+  symbol: syotes2_room_0Tex_6
   format: RGBA16
   width: 32
   height: 64
 
 
-syotes2_room_0Vtx_000080:
+syotes2_room_0Vtx_0:
   type: OOT:ARRAY
   offset: 0x000080
-  symbol: syotes2_room_0Vtx_000080
+  symbol: syotes2_room_0Vtx_0
   count: 423
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-syotes2_room_0DL_001AF0:
+syotes2_room_0DL_0:
   type: GFX
   offset: 0x001AF0
-  symbol: syotes2_room_0DL_001AF0
+  symbol: syotes2_room_0DL_0
 
-syotes2_room_0Vtx_0027C0:
+syotes2_room_0Vtx_1:
   type: OOT:ARRAY
   offset: 0x0027C0
-  symbol: syotes2_room_0Vtx_0027C0
+  symbol: syotes2_room_0Vtx_1
   count: 50
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-syotes2_room_0DL_002AE0:
+syotes2_room_0DL_1:
   type: GFX
   offset: 0x002AE0
-  symbol: syotes2_room_0DL_002AE0
+  symbol: syotes2_room_0DL_1
 
-syotes2_room_0Vtx_002CE0:
+syotes2_room_0Vtx_2:
   type: OOT:ARRAY
   offset: 0x002CE0
-  symbol: syotes2_room_0Vtx_002CE0
+  symbol: syotes2_room_0Vtx_2
   count: 50
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-syotes2_room_0DL_003000:
+syotes2_room_0DL_2:
   type: GFX
   offset: 0x003000
-  symbol: syotes2_room_0DL_003000
+  symbol: syotes2_room_0DL_2
 
-syotes2_room_0Vtx_003208:
+syotes2_room_0Vtx_3:
   type: OOT:ARRAY
   offset: 0x003208
-  symbol: syotes2_room_0Vtx_003208
+  symbol: syotes2_room_0Vtx_3
   count: 50
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-syotes2_room_0DL_003528:
+syotes2_room_0DL_3:
   type: GFX
   offset: 0x003528
-  symbol: syotes2_room_0DL_003528
+  symbol: syotes2_room_0DL_3
 
-syotes2_room_0Vtx_003730:
+syotes2_room_0Vtx_4:
   type: OOT:ARRAY
   offset: 0x003730
-  symbol: syotes2_room_0Vtx_003730
+  symbol: syotes2_room_0Vtx_4
   count: 50
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-syotes2_room_0DL_003A50:
+syotes2_room_0DL_4:
   type: GFX
   offset: 0x003A50
-  symbol: syotes2_room_0DL_003A50
+  symbol: syotes2_room_0DL_4
 
-syotes2_room_0Vtx_003C60:
+syotes2_room_0Vtx_5:
   type: OOT:ARRAY
   offset: 0x003C60
-  symbol: syotes2_room_0Vtx_003C60
+  symbol: syotes2_room_0Vtx_5
   count: 50
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-syotes2_room_0DL_003F80:
+syotes2_room_0DL_5:
   type: GFX
   offset: 0x003F80
-  symbol: syotes2_room_0DL_003F80
+  symbol: syotes2_room_0DL_5
 
-syotes2_room_0Vtx_004188:
+syotes2_room_0Vtx_6:
   type: OOT:ARRAY
   offset: 0x004188
-  symbol: syotes2_room_0Vtx_004188
+  symbol: syotes2_room_0Vtx_6
   count: 50
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-syotes2_room_0DL_0044A8:
+syotes2_room_0DL_6:
   type: GFX
   offset: 0x0044A8
-  symbol: syotes2_room_0DL_0044A8
+  symbol: syotes2_room_0DL_6
 
-syotes2_room_0DL_0046B8:
+syotes2_room_0DL_7:
   type: GFX
   offset: 0x0046B8
-  symbol: syotes2_room_0DL_0046B8
+  symbol: syotes2_room_0DL_7

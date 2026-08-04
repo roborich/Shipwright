@@ -12,68 +12,68 @@ ddan_room_5:
   offset: 0x0
   symbol: ddan_room_5
 
-ddan_room_5Tex_0032B8:
+ddan_room_5Tex_0:
   type: TEXTURE
   offset: 0x32D8
-  symbol: ddan_room_5Tex_0032B8
+  symbol: ddan_room_5Tex_0
   format: CI8
   width: 32
   height: 64
   external_tlut: ddan_scene
   external_tlut_offset: 0x11D70
 
-ddan_room_5Tex_003AB8:
+ddan_room_5Tex_1:
   type: TEXTURE
   offset: 0x3AD8
-  symbol: ddan_room_5Tex_003AB8
+  symbol: ddan_room_5Tex_1
   format: CI8
   width: 32
   height: 64
   external_tlut: ddan_scene
   external_tlut_offset: 0x11D70
 
-ddan_room_5Tex_0042B8:
+ddan_room_5Tex_2:
   type: TEXTURE
   offset: 0x42D8
-  symbol: ddan_room_5Tex_0042B8
+  symbol: ddan_room_5Tex_2
   format: CI8
   width: 32
   height: 32
   external_tlut: ddan_scene
   external_tlut_offset: 0x11D70
 
-ddan_room_5Tex_0046B8:
+ddan_room_5Tex_3:
   type: TEXTURE
   offset: 0x46D8
-  symbol: ddan_room_5Tex_0046B8
+  symbol: ddan_room_5Tex_3
   format: CI8
   width: 32
   height: 32
   external_tlut: ddan_scene
   external_tlut_offset: 0x11D70
 
-ddan_room_5Tex_004AB8:
+ddan_room_5Tex_4:
   type: TEXTURE
   offset: 0x4AD8
-  symbol: ddan_room_5Tex_004AB8
+  symbol: ddan_room_5Tex_4
   format: CI8
   width: 32
   height: 32
   external_tlut: ddan_scene
   external_tlut_offset: 0x11D70
 
-ddan_room_5Tex_004EB8:
+ddan_room_5Tex_5:
   type: TEXTURE
   offset: 0x4ED8
-  symbol: ddan_room_5Tex_004EB8
+  symbol: ddan_room_5Tex_5
   format: RGBA16
   width: 32
   height: 32
 
-ddan_room_5Tex_0056B8:
+ddan_room_5Tex_6:
   type: TEXTURE
   offset: 0x56D8
-  symbol: ddan_room_5Tex_0056B8
+  symbol: ddan_room_5Tex_6
   format: CI8
   width: 32
   height: 64
@@ -81,16 +81,16 @@ ddan_room_5Tex_0056B8:
   external_tlut_offset: 0x11D70
 
 
-ddan_room_5Vtx_000120:
+ddan_room_5Vtx_0:
   type: OOT:ARRAY
   offset: 0x000120
-  symbol: ddan_room_5Vtx_000120
+  symbol: ddan_room_5Vtx_0
   count: 455
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ddan_room_5DL_001D90:
+ddan_room_5DL_0:
   type: GFX
   offset: 0x001D90
-  symbol: ddan_room_5DL_001D90
+  symbol: ddan_room_5DL_0

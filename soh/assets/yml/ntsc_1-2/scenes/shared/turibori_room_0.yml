@@ -13,222 +13,222 @@ turibori_room_0:
   symbol: turibori_room_0
 
 
-turibori_room_0Vtx_000080:
+turibori_room_0Vtx_0:
   type: OOT:ARRAY
   offset: 0x000080
-  symbol: turibori_room_0Vtx_000080
+  symbol: turibori_room_0Vtx_0
   count: 12
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-turibori_room_0DL_000140:
+turibori_room_0DL_0:
   type: GFX
   offset: 0x000140
-  symbol: turibori_room_0DL_000140
+  symbol: turibori_room_0DL_0
 
-turibori_room_0Vtx_0001F8:
+turibori_room_0Vtx_1:
   type: OOT:ARRAY
   offset: 0x0001F8
-  symbol: turibori_room_0Vtx_0001F8
+  symbol: turibori_room_0Vtx_1
   count: 62
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-turibori_room_0DL_0005D8:
+turibori_room_0DL_1:
   type: GFX
   offset: 0x0005D8
-  symbol: turibori_room_0DL_0005D8
+  symbol: turibori_room_0DL_1
 
-turibori_room_0Vtx_000980:
+turibori_room_0Vtx_2:
   type: OOT:ARRAY
   offset: 0x000980
-  symbol: turibori_room_0Vtx_000980
+  symbol: turibori_room_0Vtx_2
   count: 30
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-turibori_room_0DL_000B60:
+turibori_room_0DL_2:
   type: GFX
   offset: 0x000B60
-  symbol: turibori_room_0DL_000B60
+  symbol: turibori_room_0DL_2
 
-turibori_room_0Vtx_000CC0:
+turibori_room_0Vtx_3:
   type: OOT:ARRAY
   offset: 0x000CC0
-  symbol: turibori_room_0Vtx_000CC0
+  symbol: turibori_room_0Vtx_3
   count: 166
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-turibori_room_0DL_001720:
+turibori_room_0DL_3:
   type: GFX
   offset: 0x001720
-  symbol: turibori_room_0DL_001720
+  symbol: turibori_room_0DL_3
 
-turibori_room_0Vtx_001A78:
+turibori_room_0Vtx_4:
   type: OOT:ARRAY
   offset: 0x001A78
-  symbol: turibori_room_0Vtx_001A78
+  symbol: turibori_room_0Vtx_4
   count: 56
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-turibori_room_0DL_001DF8:
+turibori_room_0DL_4:
   type: GFX
   offset: 0x001DF8
-  symbol: turibori_room_0DL_001DF8
+  symbol: turibori_room_0DL_4
 
-turibori_room_0Vtx_001F10:
+turibori_room_0Vtx_5:
   type: OOT:ARRAY
   offset: 0x001F10
-  symbol: turibori_room_0Vtx_001F10
+  symbol: turibori_room_0Vtx_5
   count: 198
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-turibori_room_0DL_002B70:
+turibori_room_0DL_5:
   type: GFX
   offset: 0x002B70
-  symbol: turibori_room_0DL_002B70
+  symbol: turibori_room_0DL_5
 
-turibori_room_0Vtx_0030C0:
+turibori_room_0Vtx_6:
   type: OOT:ARRAY
   offset: 0x0030C0
-  symbol: turibori_room_0Vtx_0030C0
+  symbol: turibori_room_0Vtx_6
   count: 68
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-turibori_room_0DL_003500:
+turibori_room_0DL_6:
   type: GFX
   offset: 0x003500
-  symbol: turibori_room_0DL_003500
+  symbol: turibori_room_0DL_6
 
-turibori_room_0Vtx_003710:
+turibori_room_0Vtx_7:
   type: OOT:ARRAY
   offset: 0x003710
-  symbol: turibori_room_0Vtx_003710
+  symbol: turibori_room_0Vtx_7
   count: 108
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-turibori_room_0DL_003DD0:
+turibori_room_0DL_7:
   type: GFX
   offset: 0x003DD0
-  symbol: turibori_room_0DL_003DD0
+  symbol: turibori_room_0DL_7
 
-turibori_room_0Vtx_004370:
+turibori_room_0Vtx_8:
   type: OOT:ARRAY
   offset: 0x004370
-  symbol: turibori_room_0Vtx_004370
+  symbol: turibori_room_0Vtx_8
   count: 20
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-turibori_room_0DL_0044B0:
+turibori_room_0DL_8:
   type: GFX
   offset: 0x0044B0
-  symbol: turibori_room_0DL_0044B0
+  symbol: turibori_room_0DL_8
 
-turibori_room_0Vtx_0045B8:
+turibori_room_0Vtx_9:
   type: OOT:ARRAY
   offset: 0x0045B8
-  symbol: turibori_room_0Vtx_0045B8
+  symbol: turibori_room_0Vtx_9
   count: 56
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-turibori_room_0DL_004938:
+turibori_room_0DL_9:
   type: GFX
   offset: 0x004938
-  symbol: turibori_room_0DL_004938
+  symbol: turibori_room_0DL_9
 
-turibori_room_0Vtx_004A58:
+turibori_room_0Vtx_10:
   type: OOT:ARRAY
   offset: 0x004A58
-  symbol: turibori_room_0Vtx_004A58
+  symbol: turibori_room_0Vtx_10
   count: 100
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-turibori_room_0DL_005098:
+turibori_room_0DL_10:
   type: GFX
   offset: 0x005098
-  symbol: turibori_room_0DL_005098
+  symbol: turibori_room_0DL_10
 
-turibori_room_0Vtx_005238:
+turibori_room_0Vtx_11:
   type: OOT:ARRAY
   offset: 0x005238
-  symbol: turibori_room_0Vtx_005238
+  symbol: turibori_room_0Vtx_11
   count: 57
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-turibori_room_0DL_0055C8:
+turibori_room_0DL_11:
   type: GFX
   offset: 0x0055C8
-  symbol: turibori_room_0DL_0055C8
+  symbol: turibori_room_0DL_11
 
-turibori_room_0DL_0056F8:
+turibori_room_0DL_12:
   type: GFX
   offset: 0x0056F8
-  symbol: turibori_room_0DL_0056F8
+  symbol: turibori_room_0DL_12
 
-turibori_room_0Vtx_005760:
+turibori_room_0Vtx_12:
   type: OOT:ARRAY
   offset: 0x005760
-  symbol: turibori_room_0Vtx_005760
+  symbol: turibori_room_0Vtx_12
   count: 82
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-turibori_room_0DL_005C80:
+turibori_room_0DL_13:
   type: GFX
   offset: 0x005C80
-  symbol: turibori_room_0DL_005C80
+  symbol: turibori_room_0DL_13
 
-turibori_room_0Vtx_005FA8:
+turibori_room_0Vtx_13:
   type: OOT:ARRAY
   offset: 0x005FA8
-  symbol: turibori_room_0Vtx_005FA8
+  symbol: turibori_room_0Vtx_13
   count: 32
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-turibori_room_0DL_0061A8:
+turibori_room_0DL_14:
   type: GFX
   offset: 0x0061A8
-  symbol: turibori_room_0DL_0061A8
+  symbol: turibori_room_0DL_14
 
-turibori_room_0Vtx_006348:
+turibori_room_0Vtx_14:
   type: OOT:ARRAY
   offset: 0x006348
-  symbol: turibori_room_0Vtx_006348
+  symbol: turibori_room_0Vtx_14
   count: 39
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-turibori_room_0DL_0065B8:
+turibori_room_0DL_15:
   type: GFX
   offset: 0x0065B8
-  symbol: turibori_room_0DL_0065B8
+  symbol: turibori_room_0DL_15
 
-turibori_room_0DL_006740:
+turibori_room_0DL_16:
   type: GFX
   offset: 0x006740
-  symbol: turibori_room_0DL_006740
+  symbol: turibori_room_0DL_16

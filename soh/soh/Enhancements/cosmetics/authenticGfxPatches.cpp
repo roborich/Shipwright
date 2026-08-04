@@ -350,9 +350,9 @@ void PatchMirroredSoldOutGI() {
 // This is achieved by mirroring the texture at the boundary and overriding the vertex texture coordinates
 void PatchMirroredSunSongEtching() {
     // Only using these strings for graphics patching lookup, we don't need aligned assets here
-    static const char gRoyalGraveBackRoomDL[] = "__OTR__scenes/shared/hakaana_ouke_scene/hakaana_ouke_room_2DL_005040";
+    static const char gRoyalGraveBackRoomDL[] = "__OTR__scenes/shared/hakaana_ouke_scene/hakaana_ouke_room_2DL_8";
     static const char gRoyalGraveBackRoomSongVtx[] =
-        "__OTR__scenes/shared/hakaana_ouke_scene/hakaana_ouke_room_2Vtx_004F80";
+        "__OTR__scenes/shared/hakaana_ouke_scene/hakaana_ouke_room_2Vtx_7";
 
     static Vtx* mirroredSunSongVtx;
 

@@ -12,73 +12,73 @@ sutaru_room_0:
   offset: 0x0
   symbol: sutaru_room_0
 
-sutaru_room_0Tex_0020F0:
+sutaru_room_0Tex_0:
   type: TEXTURE
   offset: 0x20F0
-  symbol: sutaru_room_0Tex_0020F0
+  symbol: sutaru_room_0Tex_0
   format: RGBA16
   width: 32
   height: 32
 
-sutaru_room_0Tex_0028F0:
+sutaru_room_0Tex_1:
   type: TEXTURE
   offset: 0x28F0
-  symbol: sutaru_room_0Tex_0028F0
+  symbol: sutaru_room_0Tex_1
   format: RGBA16
   width: 16
   height: 16
 
-sutaru_room_0Tex_002AF0:
+sutaru_room_0Tex_2:
   type: TEXTURE
   offset: 0x2AF0
-  symbol: sutaru_room_0Tex_002AF0
+  symbol: sutaru_room_0Tex_2
   format: RGBA16
   width: 64
   height: 32
 
-sutaru_room_0Tex_003AF0:
+sutaru_room_0Tex_3:
   type: TEXTURE
   offset: 0x3AF0
-  symbol: sutaru_room_0Tex_003AF0
+  symbol: sutaru_room_0Tex_3
   format: RGBA16
   width: 32
   height: 32
 
-sutaru_room_0Tex_0042F0:
+sutaru_room_0Tex_4:
   type: TEXTURE
   offset: 0x42F0
-  symbol: sutaru_room_0Tex_0042F0
+  symbol: sutaru_room_0Tex_4
   format: RGBA16
   width: 64
   height: 32
 
-sutaru_room_0Tex_0052F0:
+sutaru_room_0Tex_5:
   type: TEXTURE
   offset: 0x52F0
-  symbol: sutaru_room_0Tex_0052F0
+  symbol: sutaru_room_0Tex_5
   format: RGBA16
   width: 32
   height: 64
 
-sutaru_room_0Tex_0062F0:
+sutaru_room_0Tex_6:
   type: TEXTURE
   offset: 0x62F0
-  symbol: sutaru_room_0Tex_0062F0
+  symbol: sutaru_room_0Tex_6
   format: RGBA16
   width: 32
   height: 64
 
 
-sutaru_room_0Vtx_0000C0:
+sutaru_room_0Vtx_0:
   type: OOT:ARRAY
   offset: 0x0000C0
-  symbol: sutaru_room_0Vtx_0000C0
+  symbol: sutaru_room_0Vtx_0
   count: 420
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-sutaru_room_0DL_001B00:
+sutaru_room_0DL_0:
   type: GFX
   offset: 0x001B00
-  symbol: sutaru_room_0DL_001B00
+  symbol: sutaru_room_0DL_0

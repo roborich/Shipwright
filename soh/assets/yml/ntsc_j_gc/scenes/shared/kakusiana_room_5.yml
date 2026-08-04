@@ -12,139 +12,139 @@ kakusiana_room_5:
   offset: 0x0
   symbol: kakusiana_room_5
 
-kakusiana_room_5Tex_001888:
+kakusiana_room_5Tex_0:
   type: TEXTURE
   offset: 0x1888
-  symbol: kakusiana_room_5Tex_001888
+  symbol: kakusiana_room_5Tex_0
   format: I8
   width: 64
   height: 64
 
-kakusiana_room_5Tex_002888:
+kakusiana_room_5Tex_1:
   type: TEXTURE
   offset: 0x2888
-  symbol: kakusiana_room_5Tex_002888
+  symbol: kakusiana_room_5Tex_1
   format: I8
   width: 64
   height: 64
 
-kakusiana_room_5Tex_003ED8:
+kakusiana_room_5Tex_2:
   type: TEXTURE
   offset: 0x3ED8
-  symbol: kakusiana_room_5Tex_003ED8
+  symbol: kakusiana_room_5Tex_2
   format: RGBA16
   width: 32
   height: 32
 
 
-kakusiana_room_5Vtx_000160:
+kakusiana_room_5Vtx_0:
   type: OOT:ARRAY
   offset: 0x000160
-  symbol: kakusiana_room_5Vtx_000160
+  symbol: kakusiana_room_5Vtx_0
   count: 103
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kakusiana_room_5DL_0007D0:
+kakusiana_room_5DL_0:
   type: GFX
   offset: 0x0007D0
-  symbol: kakusiana_room_5DL_0007D0
+  symbol: kakusiana_room_5DL_0
 
-kakusiana_room_5Vtx_000978:
+kakusiana_room_5Vtx_1:
   type: OOT:ARRAY
   offset: 0x000978
-  symbol: kakusiana_room_5Vtx_000978
+  symbol: kakusiana_room_5Vtx_1
   count: 54
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kakusiana_room_5DL_000CD8:
+kakusiana_room_5DL_1:
   type: GFX
   offset: 0x000CD8
-  symbol: kakusiana_room_5DL_000CD8
+  symbol: kakusiana_room_5DL_1
 
-kakusiana_room_5Vtx_000E40:
+kakusiana_room_5Vtx_2:
   type: OOT:ARRAY
   offset: 0x000E40
-  symbol: kakusiana_room_5Vtx_000E40
+  symbol: kakusiana_room_5Vtx_2
   count: 78
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kakusiana_room_5DL_001320:
+kakusiana_room_5DL_2:
   type: GFX
   offset: 0x001320
-  symbol: kakusiana_room_5DL_001320
+  symbol: kakusiana_room_5DL_2
 
-kakusiana_room_5Vtx_001508:
+kakusiana_room_5Vtx_3:
   type: OOT:ARRAY
   offset: 0x001508
-  symbol: kakusiana_room_5Vtx_001508
+  symbol: kakusiana_room_5Vtx_3
   count: 14
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kakusiana_room_5DL_0015E8:
+kakusiana_room_5DL_3:
   type: GFX
   offset: 0x0015E8
-  symbol: kakusiana_room_5DL_0015E8
+  symbol: kakusiana_room_5DL_3
 
-kakusiana_room_5Vtx_001670:
+kakusiana_room_5Vtx_4:
   type: OOT:ARRAY
   offset: 0x001670
-  symbol: kakusiana_room_5Vtx_001670
+  symbol: kakusiana_room_5Vtx_4
   count: 20
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kakusiana_room_5DL_0017B0:
+kakusiana_room_5DL_4:
   type: GFX
   offset: 0x0017B0
-  symbol: kakusiana_room_5DL_0017B0
+  symbol: kakusiana_room_5DL_4
 
-kakusiana_room_5Vtx_003890:
+kakusiana_room_5Vtx_5:
   type: OOT:ARRAY
   offset: 0x003890
-  symbol: kakusiana_room_5Vtx_003890
+  symbol: kakusiana_room_5Vtx_5
   count: 32
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kakusiana_room_5DL_003A90:
+kakusiana_room_5DL_5:
   type: GFX
   offset: 0x003A90
-  symbol: kakusiana_room_5DL_003A90
+  symbol: kakusiana_room_5DL_5
 
-kakusiana_room_5Vtx_003B78:
+kakusiana_room_5Vtx_6:
   type: OOT:ARRAY
   offset: 0x003B78
-  symbol: kakusiana_room_5Vtx_003B78
+  symbol: kakusiana_room_5Vtx_6
   count: 15
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kakusiana_room_5DL_003C68:
+kakusiana_room_5DL_6:
   type: GFX
   offset: 0x003C68
-  symbol: kakusiana_room_5DL_003C68
+  symbol: kakusiana_room_5DL_6
 
-kakusiana_room_5Vtx_003D50:
+kakusiana_room_5Vtx_7:
   type: OOT:ARRAY
   offset: 0x003D50
-  symbol: kakusiana_room_5Vtx_003D50
+  symbol: kakusiana_room_5Vtx_7
   count: 14
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kakusiana_room_5DL_003E30:
+kakusiana_room_5DL_7:
   type: GFX
   offset: 0x003E30
-  symbol: kakusiana_room_5DL_003E30
+  symbol: kakusiana_room_5DL_7

@@ -13,59 +13,59 @@ gGanonSonogoPath_00254:
   symbol: gGanonSonogoPath_00254
   num_paths: 5
 
-ganon_sonogo_sceneTLUT_006300:
+ganon_sonogo_sceneTLUT_0:
   type: TEXTURE
   offset: 0x6300
-  symbol: ganon_sonogo_sceneTLUT_006300
+  symbol: ganon_sonogo_sceneTLUT_0
   format: RGBA16
   width: 16
   height: 16
 
-ganon_sonogo_sceneTLUT_006508:
+ganon_sonogo_sceneTLUT_1:
   type: TEXTURE
   offset: 0x6508
-  symbol: ganon_sonogo_sceneTLUT_006508
+  symbol: ganon_sonogo_sceneTLUT_1
   format: RGBA16
   width: 16
   height: 16
 
-ganon_sonogo_sceneTex_006710:
+ganon_sonogo_sceneTex_0:
   type: TEXTURE
   offset: 0x6710
-  symbol: ganon_sonogo_sceneTex_006710
+  symbol: ganon_sonogo_sceneTex_0
   format: CI8
   width: 32
   height: 64
   tlut: 0x6300
 
-ganon_sonogo_sceneTex_006F10:
+ganon_sonogo_sceneTex_1:
   type: TEXTURE
   offset: 0x6F10
-  symbol: ganon_sonogo_sceneTex_006F10
+  symbol: ganon_sonogo_sceneTex_1
   format: CI8
   width: 32
   height: 32
   tlut: 0x6508
 
-ganon_sonogo_sceneTex_007310:
+ganon_sonogo_sceneTex_2:
   type: TEXTURE
   offset: 0x7310
-  symbol: ganon_sonogo_sceneTex_007310
+  symbol: ganon_sonogo_sceneTex_2
   format: CI8
   width: 32
   height: 32
   tlut: 0x6300
 
-ganon_sonogo_sceneTex_007710:
+ganon_sonogo_sceneTex_3:
   type: TEXTURE
   offset: 0x7710
-  symbol: ganon_sonogo_sceneTex_007710
+  symbol: ganon_sonogo_sceneTex_3
   format: IA16
   width: 32
   height: 32
 
 
-ganon_sonogo_sceneCollisionHeader_0062CC:
+ganon_sonogo_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x0062CC
-  symbol: ganon_sonogo_sceneCollisionHeader_0062CC
+  symbol: ganon_sonogo_sceneCollisionHeader_0

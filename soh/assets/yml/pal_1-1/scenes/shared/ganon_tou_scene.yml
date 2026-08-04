@@ -3,7 +3,7 @@
     - [ 2, 0x01BA8D70 ]
 
   external_files:
-    - pal_1-1/scenes/shared/ganon_tou_sceneSet_003180.yml
+    - pal_1-1/scenes/shared/ganon_tou_sceneSet_0.yml
 ganon_tou_scene:
   type: OOT:SCENE
   offset: 0x0
@@ -19,16 +19,16 @@ gRainbowBridgeCs:
   offset: 0x2640
   symbol: gRainbowBridgeCs
 
-ganon_tou_sceneTex_003280:
+ganon_tou_sceneTex_0:
   type: TEXTURE
   offset: 0x3280
-  symbol: ganon_tou_sceneTex_003280
+  symbol: ganon_tou_sceneTex_0
   format: I8
   width: 64
   height: 64
 
 
-ganon_tou_sceneCollisionHeader_002610:
+ganon_tou_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x002610
-  symbol: ganon_tou_sceneCollisionHeader_002610
+  symbol: ganon_tou_sceneCollisionHeader_0

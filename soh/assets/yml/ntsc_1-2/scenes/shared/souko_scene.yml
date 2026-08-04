@@ -23,40 +23,40 @@ gLonLonHouseNightEntranceTex:
   width: 64
   height: 4
 
-souko_sceneTex_004410:
+souko_sceneTex_0:
   type: TEXTURE
   offset: 0x4410
-  symbol: souko_sceneTex_004410
+  symbol: souko_sceneTex_0
   format: RGBA16
   width: 32
   height: 32
 
-souko_sceneTex_004C10:
+souko_sceneTex_1:
   type: TEXTURE
   offset: 0x4C10
-  symbol: souko_sceneTex_004C10
+  symbol: souko_sceneTex_1
   format: RGBA16
   width: 32
   height: 16
 
-souko_sceneTex_005410:
+souko_sceneTex_2:
   type: TEXTURE
   offset: 0x5410
-  symbol: souko_sceneTex_005410
+  symbol: souko_sceneTex_2
   format: RGBA16
   width: 32
   height: 32
 
-souko_sceneTex_005C10:
+souko_sceneTex_3:
   type: TEXTURE
   offset: 0x5C10
-  symbol: souko_sceneTex_005C10
+  symbol: souko_sceneTex_3
   format: RGBA16
   width: 64
   height: 32
 
 
-souko_sceneCollisionHeader_0043E0:
+souko_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x0043E0
-  symbol: souko_sceneCollisionHeader_0043E0
+  symbol: souko_sceneCollisionHeader_0

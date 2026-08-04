@@ -12,87 +12,87 @@ ganon_room_8:
   offset: 0x0
   symbol: ganon_room_8
 
-ganon_room_8TLUT_004950:
+ganon_room_8TLUT_0:
   type: TEXTURE
   offset: 0x4950
-  symbol: ganon_room_8TLUT_004950
+  symbol: ganon_room_8TLUT_0
   format: RGBA16
   width: 16
   height: 16
 
-ganon_room_8Tex_004A20:
+ganon_room_8Tex_0:
   type: TEXTURE
   offset: 0x4A20
-  symbol: ganon_room_8Tex_004A20
+  symbol: ganon_room_8Tex_0
   format: CI8
   width: 32
   height: 64
   tlut: 0x4950
 
-ganon_room_8Tex_005220:
+ganon_room_8Tex_1:
   type: TEXTURE
   offset: 0x5220
-  symbol: ganon_room_8Tex_005220
+  symbol: ganon_room_8Tex_1
   format: CI8
   width: 16
   height: 16
   external_tlut: ganon_scene
   external_tlut_offset: 0xEBE0
 
-ganon_room_8Tex_005320:
+ganon_room_8Tex_2:
   type: TEXTURE
   offset: 0x5320
-  symbol: ganon_room_8Tex_005320
+  symbol: ganon_room_8Tex_2
   format: CI8
   width: 8
   height: 8
   external_tlut: ganon_scene
   external_tlut_offset: 0xEBE0
 
-ganon_room_8Tex_005360:
+ganon_room_8Tex_3:
   type: TEXTURE
   offset: 0x5360
-  symbol: ganon_room_8Tex_005360
+  symbol: ganon_room_8Tex_3
   format: CI8
   width: 16
   height: 8
   external_tlut: ganon_scene
   external_tlut_offset: 0xEBE0
 
-ganon_room_8Tex_0053E0:
+ganon_room_8Tex_4:
   type: TEXTURE
   offset: 0x53E0
-  symbol: ganon_room_8Tex_0053E0
+  symbol: ganon_room_8Tex_4
   format: CI8
   width: 32
   height: 64
   external_tlut: ganon_scene
   external_tlut_offset: 0xE9D8
 
-ganon_room_8Tex_005BE0:
+ganon_room_8Tex_5:
   type: TEXTURE
   offset: 0x5BE0
-  symbol: ganon_room_8Tex_005BE0
+  symbol: ganon_room_8Tex_5
   format: CI8
   width: 32
   height: 32
   external_tlut: ganon_scene
   external_tlut_offset: 0xEBE0
 
-ganon_room_8Tex_005FE0:
+ganon_room_8Tex_6:
   type: TEXTURE
   offset: 0x5FE0
-  symbol: ganon_room_8Tex_005FE0
+  symbol: ganon_room_8Tex_6
   format: CI8
   width: 32
   height: 32
   external_tlut: ganon_scene
   external_tlut_offset: 0xEDA0
 
-ganon_room_8Tex_0063E0:
+ganon_room_8Tex_7:
   type: TEXTURE
   offset: 0x63E0
-  symbol: ganon_room_8Tex_0063E0
+  symbol: ganon_room_8Tex_7
   format: CI8
   width: 32
   height: 64
@@ -100,21 +100,21 @@ ganon_room_8Tex_0063E0:
   external_tlut_offset: 0xEDA0
 
 
-ganon_room_8Vtx_0001A0:
+ganon_room_8Vtx_0:
   type: OOT:ARRAY
   offset: 0x0001A0
-  symbol: ganon_room_8Vtx_0001A0
+  symbol: ganon_room_8Vtx_0
   count: 555
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ganon_room_8DL_002450:
+ganon_room_8DL_0:
   type: GFX
   offset: 0x002450
-  symbol: ganon_room_8DL_002450
+  symbol: ganon_room_8DL_0
 
-ganon_room_8DL_004940:
+ganon_room_8DL_1:
   type: GFX
   offset: 0x004940
-  symbol: ganon_room_8DL_004940
+  symbol: ganon_room_8DL_1

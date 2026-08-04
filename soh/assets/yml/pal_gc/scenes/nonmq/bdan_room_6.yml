@@ -6,27 +6,27 @@
   external_files:
     - pal_gc/scenes/nonmq/bdan_scene.yml
     - pal_gc/code/sys_matrix.yml
-    - pal_gc/scenes/nonmq/bdan_room_6Set_000120.yml
+    - pal_gc/scenes/nonmq/bdan_room_6Set_0.yml
 
 bdan_room_6:
   type: OOT:ROOM
   offset: 0x0
   symbol: bdan_room_6
 
-bdan_room_6Tex_003068:
+bdan_room_6Tex_0:
   type: TEXTURE
   offset: 0x3068
-  symbol: bdan_room_6Tex_003068
+  symbol: bdan_room_6Tex_0
   format: CI8
   width: 32
   height: 64
   external_tlut: bdan_scene
   external_tlut_offset: 0x13BD8
 
-bdan_room_6Tex_003868:
+bdan_room_6Tex_1:
   type: TEXTURE
   offset: 0x3868
-  symbol: bdan_room_6Tex_003868
+  symbol: bdan_room_6Tex_1
   format: CI8
   width: 32
   height: 64
@@ -34,68 +34,68 @@ bdan_room_6Tex_003868:
   external_tlut_offset: 0x13BD8
 
 
-bdan_room_6Vtx_0001B0:
+bdan_room_6Vtx_0:
   type: OOT:ARRAY
   offset: 0x0001B0
-  symbol: bdan_room_6Vtx_0001B0
+  symbol: bdan_room_6Vtx_0
   count: 179
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-bdan_room_6DL_000CE0:
+bdan_room_6DL_0:
   type: GFX
   offset: 0x000CE0
-  symbol: bdan_room_6DL_000CE0
+  symbol: bdan_room_6DL_0
 
-bdan_room_6Vtx_0012A8:
+bdan_room_6Vtx_1:
   type: OOT:ARRAY
   offset: 0x0012A8
-  symbol: bdan_room_6Vtx_0012A8
+  symbol: bdan_room_6Vtx_1
   count: 210
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-bdan_room_6DL_001FC8:
+bdan_room_6DL_1:
   type: GFX
   offset: 0x001FC8
-  symbol: bdan_room_6DL_001FC8
+  symbol: bdan_room_6DL_1
 
-bdan_room_6Vtx_002630:
+bdan_room_6Vtx_2:
   type: OOT:ARRAY
   offset: 0x002630
-  symbol: bdan_room_6Vtx_002630
+  symbol: bdan_room_6Vtx_2
   count: 72
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-bdan_room_6DL_002AB0:
+bdan_room_6DL_2:
   type: GFX
   offset: 0x002AB0
-  symbol: bdan_room_6DL_002AB0
+  symbol: bdan_room_6DL_2
 
-bdan_room_6DL_003048:
+bdan_room_6DL_3:
   type: GFX
   offset: 0x003048
-  symbol: bdan_room_6DL_003048
+  symbol: bdan_room_6DL_3
 
-bdan_room_6Vtx_004070:
+bdan_room_6Vtx_3:
   type: OOT:ARRAY
   offset: 0x004070
-  symbol: bdan_room_6Vtx_004070
+  symbol: bdan_room_6Vtx_3
   count: 13
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-bdan_room_6DL_004140:
+bdan_room_6DL_4:
   type: GFX
   offset: 0x004140
-  symbol: bdan_room_6DL_004140
+  symbol: bdan_room_6DL_4
 
-bdan_room_6DL_004230:
+bdan_room_6DL_5:
   type: GFX
   offset: 0x004230
-  symbol: bdan_room_6DL_004230
+  symbol: bdan_room_6DL_5

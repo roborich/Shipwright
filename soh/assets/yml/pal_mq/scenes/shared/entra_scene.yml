@@ -8,7 +8,7 @@ entra_scene:
   symbol: entra_scene
 
 
-entra_sceneCollisionHeader_0003B4:
+entra_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x0003B4
-  symbol: entra_sceneCollisionHeader_0003B4
+  symbol: entra_sceneCollisionHeader_0

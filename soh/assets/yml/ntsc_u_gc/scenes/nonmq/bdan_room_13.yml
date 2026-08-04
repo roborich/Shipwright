@@ -6,37 +6,37 @@
   external_files:
     - ntsc_u_gc/scenes/nonmq/bdan_scene.yml
     - ntsc_u_gc/code/sys_matrix.yml
-    - ntsc_u_gc/scenes/nonmq/bdan_room_13Set_000110.yml
+    - ntsc_u_gc/scenes/nonmq/bdan_room_13Set_0.yml
 
 bdan_room_13:
   type: OOT:ROOM
   offset: 0x0
   symbol: bdan_room_13
 
-bdan_room_13Tex_0015B8:
+bdan_room_13Tex_0:
   type: TEXTURE
   offset: 0x1588
-  symbol: bdan_room_13Tex_0015B8
+  symbol: bdan_room_13Tex_0
   format: CI8
   width: 32
   height: 64
   external_tlut: bdan_scene
   external_tlut_offset: 0x13BD8
 
-bdan_room_13Tex_001DB8:
+bdan_room_13Tex_1:
   type: TEXTURE
   offset: 0x1D88
-  symbol: bdan_room_13Tex_001DB8
+  symbol: bdan_room_13Tex_1
   format: CI8
   width: 32
   height: 32
   external_tlut: bdan_scene
   external_tlut_offset: 0x13BD8
 
-bdan_room_13Tex_0021B8:
+bdan_room_13Tex_2:
   type: TEXTURE
   offset: 0x2188
-  symbol: bdan_room_13Tex_0021B8
+  symbol: bdan_room_13Tex_2
   format: CI8
   width: 32
   height: 64
@@ -44,40 +44,40 @@ bdan_room_13Tex_0021B8:
   external_tlut_offset: 0x13BD8
 
 
-bdan_room_13Vtx_000150:
+bdan_room_13Vtx_0:
   type: OOT:ARRAY
   offset: 0x000150
-  symbol: bdan_room_13Vtx_000150
+  symbol: bdan_room_13Vtx_0
   count: 213
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-bdan_room_13DL_000EA0:
+bdan_room_13DL_0:
   type: GFX
   offset: 0x000EA0
-  symbol: bdan_room_13DL_000EA0
+  symbol: bdan_room_13DL_0
 
-bdan_room_13DL_001578:
+bdan_room_13DL_1:
   type: GFX
   offset: 0x001578
-  symbol: bdan_room_13DL_001578
+  symbol: bdan_room_13DL_1
 
-bdan_room_13Vtx_002990:
+bdan_room_13Vtx_1:
   type: OOT:ARRAY
   offset: 0x002990
-  symbol: bdan_room_13Vtx_002990
+  symbol: bdan_room_13Vtx_1
   count: 12
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-bdan_room_13DL_002A50:
+bdan_room_13DL_2:
   type: GFX
   offset: 0x002A50
-  symbol: bdan_room_13DL_002A50
+  symbol: bdan_room_13DL_2
 
-bdan_room_13DL_002B38:
+bdan_room_13DL_3:
   type: GFX
   offset: 0x002B38
-  symbol: bdan_room_13DL_002B38
+  symbol: bdan_room_13DL_3

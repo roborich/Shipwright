@@ -6,124 +6,124 @@
   external_files:
     - pal_1-1/scenes/shared/spot10_scene.yml
     - pal_1-1/code/sys_matrix.yml
-    - pal_1-1/scenes/shared/spot10_room_2Set_000110.yml
-    - pal_1-1/scenes/shared/spot10_room_2Set_0001F0.yml
+    - pal_1-1/scenes/shared/spot10_room_2Set_0.yml
+    - pal_1-1/scenes/shared/spot10_room_2Set_1.yml
 
 spot10_room_2:
   type: OOT:ROOM
   offset: 0x0
   symbol: spot10_room_2
 
-spot10_room_2Tex_0023E8:
+spot10_room_2Tex_0:
   type: TEXTURE
   offset: 0x23E8
-  symbol: spot10_room_2Tex_0023E8
+  symbol: spot10_room_2Tex_0
   format: RGBA16
   width: 64
   height: 32
 
-spot10_room_2Tex_0033E8:
+spot10_room_2Tex_1:
   type: TEXTURE
   offset: 0x33E8
-  symbol: spot10_room_2Tex_0033E8
+  symbol: spot10_room_2Tex_1
   format: RGBA16
   width: 64
   height: 32
 
-spot10_room_2Tex_0043E8:
+spot10_room_2Tex_2:
   type: TEXTURE
   offset: 0x43E8
-  symbol: spot10_room_2Tex_0043E8
+  symbol: spot10_room_2Tex_2
   format: RGBA16
   width: 16
   height: 64
 
 
-spot10_room_2Vtx_000220:
+spot10_room_2Vtx_0:
   type: OOT:ARRAY
   offset: 0x000220
-  symbol: spot10_room_2Vtx_000220
+  symbol: spot10_room_2Vtx_0
   count: 16
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-spot10_room_2DL_000320:
+spot10_room_2DL_0:
   type: GFX
   offset: 0x000320
-  symbol: spot10_room_2DL_000320
+  symbol: spot10_room_2DL_0
 
-spot10_room_2Vtx_000420:
+spot10_room_2Vtx_1:
   type: OOT:ARRAY
   offset: 0x000420
-  symbol: spot10_room_2Vtx_000420
+  symbol: spot10_room_2Vtx_1
   count: 73
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-spot10_room_2DL_0008B0:
+spot10_room_2DL_1:
   type: GFX
   offset: 0x0008B0
-  symbol: spot10_room_2DL_0008B0
+  symbol: spot10_room_2DL_1
 
-spot10_room_2Vtx_000B80:
+spot10_room_2Vtx_2:
   type: OOT:ARRAY
   offset: 0x000B80
-  symbol: spot10_room_2Vtx_000B80
+  symbol: spot10_room_2Vtx_2
   count: 78
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-spot10_room_2DL_001060:
+spot10_room_2DL_2:
   type: GFX
   offset: 0x001060
-  symbol: spot10_room_2DL_001060
+  symbol: spot10_room_2DL_2
 
-spot10_room_2Vtx_001348:
+spot10_room_2Vtx_3:
   type: OOT:ARRAY
   offset: 0x001348
-  symbol: spot10_room_2Vtx_001348
+  symbol: spot10_room_2Vtx_3
   count: 71
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-spot10_room_2DL_0017B8:
+spot10_room_2DL_3:
   type: GFX
   offset: 0x0017B8
-  symbol: spot10_room_2DL_0017B8
+  symbol: spot10_room_2DL_3
 
-spot10_room_2Vtx_001A88:
+spot10_room_2Vtx_4:
   type: OOT:ARRAY
   offset: 0x001A88
-  symbol: spot10_room_2Vtx_001A88
+  symbol: spot10_room_2Vtx_4
   count: 53
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-spot10_room_2DL_001DD8:
+spot10_room_2DL_4:
   type: GFX
   offset: 0x001DD8
-  symbol: spot10_room_2DL_001DD8
+  symbol: spot10_room_2DL_4
 
-spot10_room_2Vtx_001FE8:
+spot10_room_2Vtx_5:
   type: OOT:ARRAY
   offset: 0x001FE8
-  symbol: spot10_room_2Vtx_001FE8
+  symbol: spot10_room_2Vtx_5
   count: 40
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-spot10_room_2DL_002268:
+spot10_room_2DL_5:
   type: GFX
   offset: 0x002268
-  symbol: spot10_room_2DL_002268
+  symbol: spot10_room_2DL_5
 
-spot10_room_2DL_0023B0:
+spot10_room_2DL_6:
   type: GFX
   offset: 0x0023B0
-  symbol: spot10_room_2DL_0023B0
+  symbol: spot10_room_2DL_6

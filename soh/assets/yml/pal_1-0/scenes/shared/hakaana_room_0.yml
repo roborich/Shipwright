@@ -12,191 +12,191 @@ hakaana_room_0:
   offset: 0x0
   symbol: hakaana_room_0
 
-hakaana_room_0Tex_002658:
+hakaana_room_0Tex_0:
   type: TEXTURE
   offset: 0x2658
-  symbol: hakaana_room_0Tex_002658
+  symbol: hakaana_room_0Tex_0
   format: RGBA16
   width: 32
   height: 32
 
-hakaana_room_0Tex_002E58:
+hakaana_room_0Tex_1:
   type: TEXTURE
   offset: 0x2E58
-  symbol: hakaana_room_0Tex_002E58
+  symbol: hakaana_room_0Tex_1
   format: RGBA16
   width: 32
   height: 16
 
-hakaana_room_0Tex_003258:
+hakaana_room_0Tex_2:
   type: TEXTURE
   offset: 0x3258
-  symbol: hakaana_room_0Tex_003258
+  symbol: hakaana_room_0Tex_2
   format: RGBA16
   width: 32
   height: 16
 
-hakaana_room_0Tex_003658:
+hakaana_room_0Tex_3:
   type: TEXTURE
   offset: 0x3658
-  symbol: hakaana_room_0Tex_003658
+  symbol: hakaana_room_0Tex_3
   format: RGBA16
   width: 32
   height: 32
 
-hakaana_room_0Tex_003E58:
+hakaana_room_0Tex_4:
   type: TEXTURE
   offset: 0x3E58
-  symbol: hakaana_room_0Tex_003E58
+  symbol: hakaana_room_0Tex_4
   format: I4
   width: 128
   height: 32
 
-hakaana_room_0Tex_004658:
+hakaana_room_0Tex_5:
   type: TEXTURE
   offset: 0x4658
-  symbol: hakaana_room_0Tex_004658
+  symbol: hakaana_room_0Tex_5
   format: RGBA16
   width: 32
   height: 32
 
-hakaana_room_0Tex_004E58:
+hakaana_room_0Tex_6:
   type: TEXTURE
   offset: 0x4E58
-  symbol: hakaana_room_0Tex_004E58
+  symbol: hakaana_room_0Tex_6
   format: I4
   width: 64
   height: 64
 
-hakaana_room_0Tex_005658:
+hakaana_room_0Tex_7:
   type: TEXTURE
   offset: 0x5658
-  symbol: hakaana_room_0Tex_005658
+  symbol: hakaana_room_0Tex_7
   format: I4
   width: 64
   height: 64
 
-hakaana_room_0Tex_005E58:
+hakaana_room_0Tex_8:
   type: TEXTURE
   offset: 0x5E58
-  symbol: hakaana_room_0Tex_005E58
+  symbol: hakaana_room_0Tex_8
   format: I4
   width: 64
   height: 64
 
-hakaana_room_0Tex_0068C8:
+hakaana_room_0Tex_9:
   type: TEXTURE
   offset: 0x68C8
-  symbol: hakaana_room_0Tex_0068C8
+  symbol: hakaana_room_0Tex_9
   format: IA16
   width: 128
   height: 16
 
 
-hakaana_room_0Vtx_0000B0:
+hakaana_room_0Vtx_0:
   type: OOT:ARRAY
   offset: 0x0000B0
-  symbol: hakaana_room_0Vtx_0000B0
+  symbol: hakaana_room_0Vtx_0
   count: 71
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hakaana_room_0DL_000520:
+hakaana_room_0DL_0:
   type: GFX
   offset: 0x000520
-  symbol: hakaana_room_0DL_000520
+  symbol: hakaana_room_0DL_0
 
-hakaana_room_0Vtx_000728:
+hakaana_room_0Vtx_1:
   type: OOT:ARRAY
   offset: 0x000728
-  symbol: hakaana_room_0Vtx_000728
+  symbol: hakaana_room_0Vtx_1
   count: 61
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hakaana_room_0DL_000AF8:
+hakaana_room_0DL_1:
   type: GFX
   offset: 0x000AF8
-  symbol: hakaana_room_0DL_000AF8
+  symbol: hakaana_room_0DL_1
 
-hakaana_room_0Vtx_000D60:
+hakaana_room_0Vtx_2:
   type: OOT:ARRAY
   offset: 0x000D60
-  symbol: hakaana_room_0Vtx_000D60
+  symbol: hakaana_room_0Vtx_2
   count: 83
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hakaana_room_0DL_001290:
+hakaana_room_0DL_2:
   type: GFX
   offset: 0x001290
-  symbol: hakaana_room_0DL_001290
+  symbol: hakaana_room_0DL_2
 
-hakaana_room_0Vtx_001648:
+hakaana_room_0Vtx_3:
   type: OOT:ARRAY
   offset: 0x001648
-  symbol: hakaana_room_0Vtx_001648
+  symbol: hakaana_room_0Vtx_3
   count: 28
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hakaana_room_0DL_001808:
+hakaana_room_0DL_3:
   type: GFX
   offset: 0x001808
-  symbol: hakaana_room_0DL_001808
+  symbol: hakaana_room_0DL_3
 
-hakaana_room_0Vtx_001938:
+hakaana_room_0Vtx_4:
   type: OOT:ARRAY
   offset: 0x001938
-  symbol: hakaana_room_0Vtx_001938
+  symbol: hakaana_room_0Vtx_4
   count: 13
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hakaana_room_0DL_001A08:
+hakaana_room_0DL_4:
   type: GFX
   offset: 0x001A08
-  symbol: hakaana_room_0DL_001A08
+  symbol: hakaana_room_0DL_4
 
-hakaana_room_0Vtx_001A90:
+hakaana_room_0Vtx_5:
   type: OOT:ARRAY
   offset: 0x001A90
-  symbol: hakaana_room_0Vtx_001A90
+  symbol: hakaana_room_0Vtx_5
   count: 114
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hakaana_room_0DL_0021B0:
+hakaana_room_0DL_5:
   type: GFX
   offset: 0x0021B0
-  symbol: hakaana_room_0DL_0021B0
+  symbol: hakaana_room_0DL_5
 
-hakaana_room_0DL_002620:
+hakaana_room_0DL_6:
   type: GFX
   offset: 0x002620
-  symbol: hakaana_room_0DL_002620
+  symbol: hakaana_room_0DL_6
 
-hakaana_room_0Vtx_006660:
+hakaana_room_0Vtx_6:
   type: OOT:ARRAY
   offset: 0x006660
-  symbol: hakaana_room_0Vtx_006660
+  symbol: hakaana_room_0Vtx_6
   count: 24
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hakaana_room_0DL_0067E0:
+hakaana_room_0DL_7:
   type: GFX
   offset: 0x0067E0
-  symbol: hakaana_room_0DL_0067E0
+  symbol: hakaana_room_0DL_7
 
-hakaana_room_0DL_0068B8:
+hakaana_room_0DL_8:
   type: GFX
   offset: 0x0068B8
-  symbol: hakaana_room_0DL_0068B8
+  symbol: hakaana_room_0DL_8

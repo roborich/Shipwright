@@ -13,21 +13,21 @@ entra_n_room_0:
   symbol: entra_n_room_0
 
 
-entra_n_room_0Vtx_0000A0:
+entra_n_room_0Vtx_0:
   type: OOT:ARRAY
   offset: 0x0000A0
-  symbol: entra_n_room_0Vtx_0000A0
+  symbol: entra_n_room_0Vtx_0
   count: 32
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-entra_n_room_0DL_0002A0:
+entra_n_room_0DL_0:
   type: GFX
   offset: 0x0002A0
-  symbol: entra_n_room_0DL_0002A0
+  symbol: entra_n_room_0DL_0
 
-entra_n_room_0DL_000348:
+entra_n_room_0DL_1:
   type: GFX
   offset: 0x000348
-  symbol: entra_n_room_0DL_000348
+  symbol: entra_n_room_0DL_1

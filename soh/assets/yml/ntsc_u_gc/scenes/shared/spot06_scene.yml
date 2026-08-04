@@ -3,9 +3,9 @@
     - [ 2, 0x01B0F470 ]
 
   external_files:
-    - ntsc_u_gc/scenes/shared/spot06_sceneSet_007450.yml
-    - ntsc_u_gc/scenes/shared/spot06_sceneSet_007780.yml
-    - ntsc_u_gc/scenes/shared/spot06_sceneSet_007920.yml
+    - ntsc_u_gc/scenes/shared/spot06_sceneSet_0.yml
+    - ntsc_u_gc/scenes/shared/spot06_sceneSet_1.yml
+    - ntsc_u_gc/scenes/shared/spot06_sceneSet_2.yml
 spot06_scene:
   type: OOT:SCENE
   offset: 0x0
@@ -26,359 +26,359 @@ gLakeHyliaOwlCs:
   offset: 0x1B0C0
   symbol: gLakeHyliaOwlCs
 
-gSpot06Path_007764:
+gSpot06Path_0:
   type: OOT:PATH
   offset: 0x7764
-  symbol: gSpot06Path_007764
+  symbol: gSpot06Path_0
   num_paths: 2
 
-spot06_sceneTLUT_007C10:
+spot06_sceneTLUT_0:
   type: TEXTURE
   offset: 0x7C10
-  symbol: spot06_sceneTLUT_007C10
+  symbol: spot06_sceneTLUT_0
   format: RGBA16
   width: 4
   height: 4
 
-spot06_sceneTex_007C38:
+spot06_sceneTex_0:
   type: TEXTURE
   offset: 0x7C38
-  symbol: spot06_sceneTex_007C38
+  symbol: spot06_sceneTex_0
   format: RGBA16
   width: 16
   height: 32
 
-spot06_sceneTex_008038:
+spot06_sceneTex_1:
   type: TEXTURE
   offset: 0x8038
-  symbol: spot06_sceneTex_008038
+  symbol: spot06_sceneTex_1
   format: RGBA16
   width: 16
   height: 32
 
-spot06_sceneTex_008438:
+spot06_sceneTex_2:
   type: TEXTURE
   offset: 0x8438
-  symbol: spot06_sceneTex_008438
+  symbol: spot06_sceneTex_2
   format: RGBA16
   width: 16
   height: 32
 
-spot06_sceneTex_008838:
+spot06_sceneTex_3:
   type: TEXTURE
   offset: 0x8838
-  symbol: spot06_sceneTex_008838
+  symbol: spot06_sceneTex_3
   format: RGBA16
   width: 32
   height: 64
 
-spot06_sceneTex_009838:
+spot06_sceneTex_4:
   type: TEXTURE
   offset: 0x9838
-  symbol: spot06_sceneTex_009838
+  symbol: spot06_sceneTex_4
   format: RGBA16
   width: 8
   height: 8
 
-spot06_sceneTex_0098B8:
+spot06_sceneTex_5:
   type: TEXTURE
   offset: 0x98B8
-  symbol: spot06_sceneTex_0098B8
+  symbol: spot06_sceneTex_5
   format: RGBA16
   width: 8
   height: 32
 
-spot06_sceneTex_009AB8:
+spot06_sceneTex_6:
   type: TEXTURE
   offset: 0x9AB8
-  symbol: spot06_sceneTex_009AB8
+  symbol: spot06_sceneTex_6
   format: RGBA16
   width: 32
   height: 64
 
-spot06_sceneTex_00AAB8:
+spot06_sceneTex_7:
   type: TEXTURE
   offset: 0xAAB8
-  symbol: spot06_sceneTex_00AAB8
+  symbol: spot06_sceneTex_7
   format: RGBA16
   width: 32
   height: 16
 
-spot06_sceneTex_00AEB8:
+spot06_sceneTex_8:
   type: TEXTURE
   offset: 0xAEB8
-  symbol: spot06_sceneTex_00AEB8
+  symbol: spot06_sceneTex_8
   format: RGBA16
   width: 32
   height: 32
 
-spot06_sceneTex_00B6B8:
+spot06_sceneTex_9:
   type: TEXTURE
   offset: 0xB6B8
-  symbol: spot06_sceneTex_00B6B8
+  symbol: spot06_sceneTex_9
   format: RGBA16
   width: 16
   height: 32
 
-spot06_sceneTex_00BAB8:
+spot06_sceneTex_10:
   type: TEXTURE
   offset: 0xBAB8
-  symbol: spot06_sceneTex_00BAB8
+  symbol: spot06_sceneTex_10
   format: IA8
   width: 32
   height: 32
 
-spot06_sceneTex_00BEB8:
+spot06_sceneTex_11:
   type: TEXTURE
   offset: 0xBEB8
-  symbol: spot06_sceneTex_00BEB8
+  symbol: spot06_sceneTex_11
   format: RGBA16
   width: 32
   height: 16
 
-spot06_sceneTex_00C2B8:
+spot06_sceneTex_12:
   type: TEXTURE
   offset: 0xC2B8
-  symbol: spot06_sceneTex_00C2B8
+  symbol: spot06_sceneTex_12
   format: RGBA16
   width: 16
   height: 16
 
-spot06_sceneTex_00C4B8:
+spot06_sceneTex_13:
   type: TEXTURE
   offset: 0xC4B8
-  symbol: spot06_sceneTex_00C4B8
+  symbol: spot06_sceneTex_13
   format: RGBA16
   width: 32
   height: 32
 
-spot06_sceneTex_00CCB8:
+spot06_sceneTex_14:
   type: TEXTURE
   offset: 0xCCB8
-  symbol: spot06_sceneTex_00CCB8
+  symbol: spot06_sceneTex_14
   format: RGBA16
   width: 32
   height: 64
 
-spot06_sceneTex_00DCB8:
+spot06_sceneTex_15:
   type: TEXTURE
   offset: 0xDCB8
-  symbol: spot06_sceneTex_00DCB8
+  symbol: spot06_sceneTex_15
   format: RGBA16
   width: 32
   height: 64
 
-spot06_sceneTex_00ECB8:
+spot06_sceneTex_16:
   type: TEXTURE
   offset: 0xECB8
-  symbol: spot06_sceneTex_00ECB8
+  symbol: spot06_sceneTex_16
   format: RGBA16
   width: 16
   height: 64
 
-spot06_sceneTex_00F4B8:
+spot06_sceneTex_17:
   type: TEXTURE
   offset: 0xF4B8
-  symbol: spot06_sceneTex_00F4B8
+  symbol: spot06_sceneTex_17
   format: RGBA16
   width: 16
   height: 16
 
-spot06_sceneTex_00F6B8:
+spot06_sceneTex_18:
   type: TEXTURE
   offset: 0xF6B8
-  symbol: spot06_sceneTex_00F6B8
+  symbol: spot06_sceneTex_18
   format: RGBA16
   width: 32
   height: 32
 
-spot06_sceneTex_00FEB8:
+spot06_sceneTex_19:
   type: TEXTURE
   offset: 0xFEB8
-  symbol: spot06_sceneTex_00FEB8
+  symbol: spot06_sceneTex_19
   format: RGBA16
   width: 32
   height: 64
 
-spot06_sceneTex_010EB8:
+spot06_sceneTex_20:
   type: TEXTURE
   offset: 0x10EB8
-  symbol: spot06_sceneTex_010EB8
+  symbol: spot06_sceneTex_20
   format: RGBA16
   width: 32
   height: 32
 
-spot06_sceneTex_0116B8:
+spot06_sceneTex_21:
   type: TEXTURE
   offset: 0x116B8
-  symbol: spot06_sceneTex_0116B8
+  symbol: spot06_sceneTex_21
   format: RGBA16
   width: 32
   height: 32
 
-spot06_sceneTex_011EB8:
+spot06_sceneTex_22:
   type: TEXTURE
   offset: 0x11EB8
-  symbol: spot06_sceneTex_011EB8
+  symbol: spot06_sceneTex_22
   format: RGBA16
   width: 16
   height: 32
 
-spot06_sceneTex_0122B8:
+spot06_sceneTex_23:
   type: TEXTURE
   offset: 0x122B8
-  symbol: spot06_sceneTex_0122B8
+  symbol: spot06_sceneTex_23
   format: RGBA16
   width: 32
   height: 16
 
-spot06_sceneTex_0126B8:
+spot06_sceneTex_24:
   type: TEXTURE
   offset: 0x126B8
-  symbol: spot06_sceneTex_0126B8
+  symbol: spot06_sceneTex_24
   format: RGBA16
   width: 32
   height: 32
 
-spot06_sceneTex_012EB8:
+spot06_sceneTex_25:
   type: TEXTURE
   offset: 0x12EB8
-  symbol: spot06_sceneTex_012EB8
+  symbol: spot06_sceneTex_25
   format: RGBA16
   width: 8
   height: 32
 
-spot06_sceneTex_0130B8:
+spot06_sceneTex_26:
   type: TEXTURE
   offset: 0x130B8
-  symbol: spot06_sceneTex_0130B8
+  symbol: spot06_sceneTex_26
   format: RGBA16
   width: 32
   height: 64
 
-spot06_sceneTex_0140B8:
+spot06_sceneTex_27:
   type: TEXTURE
   offset: 0x140B8
-  symbol: spot06_sceneTex_0140B8
+  symbol: spot06_sceneTex_27
   format: RGBA16
   width: 16
   height: 64
 
-spot06_sceneTex_0148B8:
+spot06_sceneTex_28:
   type: TEXTURE
   offset: 0x148B8
-  symbol: spot06_sceneTex_0148B8
+  symbol: spot06_sceneTex_28
   format: RGBA16
   width: 16
   height: 32
 
-spot06_sceneTex_014CB8:
+spot06_sceneTex_29:
   type: TEXTURE
   offset: 0x14CB8
-  symbol: spot06_sceneTex_014CB8
+  symbol: spot06_sceneTex_29
   format: RGBA16
   width: 32
   height: 32
 
-spot06_sceneTex_0154B8:
+spot06_sceneTex_30:
   type: TEXTURE
   offset: 0x154B8
-  symbol: spot06_sceneTex_0154B8
+  symbol: spot06_sceneTex_30
   format: RGBA16
   width: 16
   height: 64
 
-spot06_sceneTex_015CB8:
+spot06_sceneTex_31:
   type: TEXTURE
   offset: 0x15CB8
-  symbol: spot06_sceneTex_015CB8
+  symbol: spot06_sceneTex_31
   format: RGBA16
   width: 16
   height: 64
 
-spot06_sceneTex_0164B8:
+spot06_sceneTex_32:
   type: TEXTURE
   offset: 0x164B8
-  symbol: spot06_sceneTex_0164B8
+  symbol: spot06_sceneTex_32
   format: RGBA16
   width: 32
   height: 32
 
-spot06_sceneTex_016CB8:
+spot06_sceneTex_33:
   type: TEXTURE
   offset: 0x16CB8
-  symbol: spot06_sceneTex_016CB8
+  symbol: spot06_sceneTex_33
   format: RGBA16
   width: 16
   height: 32
 
-spot06_sceneTex_0170B8:
+spot06_sceneTex_34:
   type: TEXTURE
   offset: 0x170B8
-  symbol: spot06_sceneTex_0170B8
+  symbol: spot06_sceneTex_34
   format: RGBA16
   width: 32
   height: 32
 
-spot06_sceneTex_0178B8:
+spot06_sceneTex_35:
   type: TEXTURE
   offset: 0x178B8
-  symbol: spot06_sceneTex_0178B8
+  symbol: spot06_sceneTex_35
   format: RGBA16
   width: 16
   height: 32
 
-spot06_sceneTex_017CB8:
+spot06_sceneTex_36:
   type: TEXTURE
   offset: 0x17CB8
-  symbol: spot06_sceneTex_017CB8
+  symbol: spot06_sceneTex_36
   format: CI4
   width: 64
   height: 64
   tlut: 0x7C10
 
-spot06_sceneTex_0184B8:
+spot06_sceneTex_37:
   type: TEXTURE
   offset: 0x184B8
-  symbol: spot06_sceneTex_0184B8
+  symbol: spot06_sceneTex_37
   format: RGBA16
   width: 32
   height: 32
 
-spot06_sceneTex_018CB8:
+spot06_sceneTex_38:
   type: TEXTURE
   offset: 0x18CB8
-  symbol: spot06_sceneTex_018CB8
+  symbol: spot06_sceneTex_38
   format: RGBA16
   width: 32
   height: 32
 
-spot06_sceneTex_0194B8:
+spot06_sceneTex_39:
   type: TEXTURE
   offset: 0x194B8
-  symbol: spot06_sceneTex_0194B8
+  symbol: spot06_sceneTex_39
   format: RGBA16
   width: 16
   height: 128
 
-spot06_sceneTex_01A4B8:
+spot06_sceneTex_40:
   type: TEXTURE
   offset: 0x1A4B8
-  symbol: spot06_sceneTex_01A4B8
+  symbol: spot06_sceneTex_40
   format: I4
   width: 64
   height: 64
 
-spot06_sceneTex_01ACB8:
+spot06_sceneTex_41:
   type: TEXTURE
   offset: 0x1ACB8
-  symbol: spot06_sceneTex_01ACB8
+  symbol: spot06_sceneTex_41
   format: RGBA16
   width: 16
   height: 32
 
 
-spot06_sceneCollisionHeader_0055AC:
+spot06_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x0055AC
-  symbol: spot06_sceneCollisionHeader_0055AC
+  symbol: spot06_sceneCollisionHeader_0

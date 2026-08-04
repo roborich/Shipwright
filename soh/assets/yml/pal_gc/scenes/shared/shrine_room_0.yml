@@ -13,426 +13,426 @@ shrine_room_0:
   symbol: shrine_room_0
 
 
-shrine_room_0Vtx_0000F0:
+shrine_room_0Vtx_0:
   type: OOT:ARRAY
   offset: 0x0000F0
-  symbol: shrine_room_0Vtx_0000F0
+  symbol: shrine_room_0Vtx_0
   count: 52
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-shrine_room_0Vtx_000430:
+shrine_room_0Vtx_1:
   type: OOT:ARRAY
   offset: 0x000430
-  symbol: shrine_room_0Vtx_000430
+  symbol: shrine_room_0Vtx_1
   count: 52
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-shrine_room_0Vtx_000770:
+shrine_room_0Vtx_2:
   type: OOT:ARRAY
   offset: 0x000770
-  symbol: shrine_room_0Vtx_000770
+  symbol: shrine_room_0Vtx_2
   count: 20
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-shrine_room_0Vtx_0008B0:
+shrine_room_0Vtx_3:
   type: OOT:ARRAY
   offset: 0x0008B0
-  symbol: shrine_room_0Vtx_0008B0
+  symbol: shrine_room_0Vtx_3
   count: 16
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-shrine_room_0Vtx_0009B0:
+shrine_room_0Vtx_4:
   type: OOT:ARRAY
   offset: 0x0009B0
-  symbol: shrine_room_0Vtx_0009B0
+  symbol: shrine_room_0Vtx_4
   count: 16
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-shrine_room_0Vtx_000AB0:
+shrine_room_0Vtx_5:
   type: OOT:ARRAY
   offset: 0x000AB0
-  symbol: shrine_room_0Vtx_000AB0
+  symbol: shrine_room_0Vtx_5
   count: 16
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-shrine_room_0Vtx_000BB0:
+shrine_room_0Vtx_6:
   type: OOT:ARRAY
   offset: 0x000BB0
-  symbol: shrine_room_0Vtx_000BB0
+  symbol: shrine_room_0Vtx_6
   count: 12
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-shrine_room_0Vtx_000C70:
+shrine_room_0Vtx_7:
   type: OOT:ARRAY
   offset: 0x000C70
-  symbol: shrine_room_0Vtx_000C70
+  symbol: shrine_room_0Vtx_7
   count: 44
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-shrine_room_0Vtx_000F30:
+shrine_room_0Vtx_8:
   type: OOT:ARRAY
   offset: 0x000F30
-  symbol: shrine_room_0Vtx_000F30
+  symbol: shrine_room_0Vtx_8
   count: 20
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-shrine_room_0Vtx_001070:
+shrine_room_0Vtx_9:
   type: OOT:ARRAY
   offset: 0x001070
-  symbol: shrine_room_0Vtx_001070
+  symbol: shrine_room_0Vtx_9
   count: 41
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-shrine_room_0Vtx_001300:
+shrine_room_0Vtx_10:
   type: OOT:ARRAY
   offset: 0x001300
-  symbol: shrine_room_0Vtx_001300
+  symbol: shrine_room_0Vtx_10
   count: 20
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-shrine_room_0Vtx_001440:
+shrine_room_0Vtx_11:
   type: OOT:ARRAY
   offset: 0x001440
-  symbol: shrine_room_0Vtx_001440
+  symbol: shrine_room_0Vtx_11
   count: 16
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-shrine_room_0Vtx_001540:
+shrine_room_0Vtx_12:
   type: OOT:ARRAY
   offset: 0x001540
-  symbol: shrine_room_0Vtx_001540
+  symbol: shrine_room_0Vtx_12
   count: 20
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-shrine_room_0Vtx_001680:
+shrine_room_0Vtx_13:
   type: OOT:ARRAY
   offset: 0x001680
-  symbol: shrine_room_0Vtx_001680
+  symbol: shrine_room_0Vtx_13
   count: 20
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-shrine_room_0Vtx_0017C0:
+shrine_room_0Vtx_14:
   type: OOT:ARRAY
   offset: 0x0017C0
-  symbol: shrine_room_0Vtx_0017C0
+  symbol: shrine_room_0Vtx_14
   count: 20
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-shrine_room_0Vtx_001900:
+shrine_room_0Vtx_15:
   type: OOT:ARRAY
   offset: 0x001900
-  symbol: shrine_room_0Vtx_001900
+  symbol: shrine_room_0Vtx_15
   count: 76
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-shrine_room_0Vtx_001DC0:
+shrine_room_0Vtx_16:
   type: OOT:ARRAY
   offset: 0x001DC0
-  symbol: shrine_room_0Vtx_001DC0
+  symbol: shrine_room_0Vtx_16
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-shrine_room_0Vtx_001E40:
+shrine_room_0Vtx_17:
   type: OOT:ARRAY
   offset: 0x001E40
-  symbol: shrine_room_0Vtx_001E40
+  symbol: shrine_room_0Vtx_17
   count: 883
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-shrine_room_0Vtx_005570:
+shrine_room_0Vtx_18:
   type: OOT:ARRAY
   offset: 0x005570
-  symbol: shrine_room_0Vtx_005570
+  symbol: shrine_room_0Vtx_18
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-shrine_room_0Vtx_0055F0:
+shrine_room_0Vtx_19:
   type: OOT:ARRAY
   offset: 0x0055F0
-  symbol: shrine_room_0Vtx_0055F0
+  symbol: shrine_room_0Vtx_19
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-shrine_room_0Vtx_005670:
+shrine_room_0Vtx_20:
   type: OOT:ARRAY
   offset: 0x005670
-  symbol: shrine_room_0Vtx_005670
+  symbol: shrine_room_0Vtx_20
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-shrine_room_0Vtx_0056F0:
+shrine_room_0Vtx_21:
   type: OOT:ARRAY
   offset: 0x0056F0
-  symbol: shrine_room_0Vtx_0056F0
+  symbol: shrine_room_0Vtx_21
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-shrine_room_0Vtx_005770:
+shrine_room_0Vtx_22:
   type: OOT:ARRAY
   offset: 0x005770
-  symbol: shrine_room_0Vtx_005770
+  symbol: shrine_room_0Vtx_22
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-shrine_room_0Vtx_0057F0:
+shrine_room_0Vtx_23:
   type: OOT:ARRAY
   offset: 0x0057F0
-  symbol: shrine_room_0Vtx_0057F0
+  symbol: shrine_room_0Vtx_23
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-shrine_room_0Vtx_005870:
+shrine_room_0Vtx_24:
   type: OOT:ARRAY
   offset: 0x005870
-  symbol: shrine_room_0Vtx_005870
+  symbol: shrine_room_0Vtx_24
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-shrine_room_0Vtx_0058F0:
+shrine_room_0Vtx_25:
   type: OOT:ARRAY
   offset: 0x0058F0
-  symbol: shrine_room_0Vtx_0058F0
+  symbol: shrine_room_0Vtx_25
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-shrine_room_0Vtx_005970:
+shrine_room_0Vtx_26:
   type: OOT:ARRAY
   offset: 0x005970
-  symbol: shrine_room_0Vtx_005970
+  symbol: shrine_room_0Vtx_26
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-shrine_room_0Vtx_0059F0:
+shrine_room_0Vtx_27:
   type: OOT:ARRAY
   offset: 0x0059F0
-  symbol: shrine_room_0Vtx_0059F0
+  symbol: shrine_room_0Vtx_27
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-shrine_room_0Vtx_005A70:
+shrine_room_0Vtx_28:
   type: OOT:ARRAY
   offset: 0x005A70
-  symbol: shrine_room_0Vtx_005A70
+  symbol: shrine_room_0Vtx_28
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-shrine_room_0Vtx_005AF0:
+shrine_room_0Vtx_29:
   type: OOT:ARRAY
   offset: 0x005AF0
-  symbol: shrine_room_0Vtx_005AF0
+  symbol: shrine_room_0Vtx_29
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-shrine_room_0Vtx_005B70:
+shrine_room_0Vtx_30:
   type: OOT:ARRAY
   offset: 0x005B70
-  symbol: shrine_room_0Vtx_005B70
+  symbol: shrine_room_0Vtx_30
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-shrine_room_0Vtx_005BF0:
+shrine_room_0Vtx_31:
   type: OOT:ARRAY
   offset: 0x005BF0
-  symbol: shrine_room_0Vtx_005BF0
+  symbol: shrine_room_0Vtx_31
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-shrine_room_0Vtx_005C70:
+shrine_room_0Vtx_32:
   type: OOT:ARRAY
   offset: 0x005C70
-  symbol: shrine_room_0Vtx_005C70
+  symbol: shrine_room_0Vtx_32
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-shrine_room_0Vtx_005CF0:
+shrine_room_0Vtx_33:
   type: OOT:ARRAY
   offset: 0x005CF0
-  symbol: shrine_room_0Vtx_005CF0
+  symbol: shrine_room_0Vtx_33
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-shrine_room_0Vtx_005D70:
+shrine_room_0Vtx_34:
   type: OOT:ARRAY
   offset: 0x005D70
-  symbol: shrine_room_0Vtx_005D70
+  symbol: shrine_room_0Vtx_34
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-shrine_room_0Vtx_005DF0:
+shrine_room_0Vtx_35:
   type: OOT:ARRAY
   offset: 0x005DF0
-  symbol: shrine_room_0Vtx_005DF0
+  symbol: shrine_room_0Vtx_35
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-shrine_room_0DL_005E70:
+shrine_room_0DL_0:
   type: GFX
   offset: 0x005E70
-  symbol: shrine_room_0DL_005E70
+  symbol: shrine_room_0DL_0
 
-shrine_room_0DL_005F68:
+shrine_room_0DL_1:
   type: GFX
   offset: 0x005F68
-  symbol: shrine_room_0DL_005F68
+  symbol: shrine_room_0DL_1
 
-shrine_room_0DL_006060:
+shrine_room_0DL_2:
   type: GFX
   offset: 0x006060
-  symbol: shrine_room_0DL_006060
+  symbol: shrine_room_0DL_2
 
-shrine_room_0DL_006100:
+shrine_room_0DL_3:
   type: GFX
   offset: 0x006100
-  symbol: shrine_room_0DL_006100
+  symbol: shrine_room_0DL_3
 
-shrine_room_0DL_006198:
+shrine_room_0DL_4:
   type: GFX
   offset: 0x006198
-  symbol: shrine_room_0DL_006198
+  symbol: shrine_room_0DL_4
 
-shrine_room_0DL_006230:
+shrine_room_0DL_5:
   type: GFX
   offset: 0x006230
-  symbol: shrine_room_0DL_006230
+  symbol: shrine_room_0DL_5
 
-shrine_room_0DL_0062C8:
+shrine_room_0DL_6:
   type: GFX
   offset: 0x0062C8
-  symbol: shrine_room_0DL_0062C8
+  symbol: shrine_room_0DL_6
 
-shrine_room_0DL_006358:
+shrine_room_0DL_7:
   type: GFX
   offset: 0x006358
-  symbol: shrine_room_0DL_006358
+  symbol: shrine_room_0DL_7
 
-shrine_room_0DL_006430:
+shrine_room_0DL_8:
   type: GFX
   offset: 0x006430
-  symbol: shrine_room_0DL_006430
+  symbol: shrine_room_0DL_8
 
-shrine_room_0DL_0064E0:
+shrine_room_0DL_9:
   type: GFX
   offset: 0x0064E0
-  symbol: shrine_room_0DL_0064E0
+  symbol: shrine_room_0DL_9
 
-shrine_room_0DL_0065B8:
+shrine_room_0DL_10:
   type: GFX
   offset: 0x0065B8
-  symbol: shrine_room_0DL_0065B8
+  symbol: shrine_room_0DL_10
 
-shrine_room_0DL_006668:
+shrine_room_0DL_11:
   type: GFX
   offset: 0x006668
-  symbol: shrine_room_0DL_006668
+  symbol: shrine_room_0DL_11
 
-shrine_room_0DL_006700:
+shrine_room_0DL_12:
   type: GFX
   offset: 0x006700
-  symbol: shrine_room_0DL_006700
+  symbol: shrine_room_0DL_12
 
-shrine_room_0DL_0067A0:
+shrine_room_0DL_13:
   type: GFX
   offset: 0x0067A0
-  symbol: shrine_room_0DL_0067A0
+  symbol: shrine_room_0DL_13
 
-shrine_room_0DL_006840:
+shrine_room_0DL_14:
   type: GFX
   offset: 0x006840
-  symbol: shrine_room_0DL_006840
+  symbol: shrine_room_0DL_14
 
-shrine_room_0DL_0068E0:
+shrine_room_0DL_15:
   type: GFX
   offset: 0x0068E0
-  symbol: shrine_room_0DL_0068E0
+  symbol: shrine_room_0DL_15
 
-shrine_room_0DL_006A20:
+shrine_room_0DL_16:
   type: GFX
   offset: 0x006A20
-  symbol: shrine_room_0DL_006A20
+  symbol: shrine_room_0DL_16
 
-shrine_room_0DL_006AA8:
+shrine_room_0DL_17:
   type: GFX
   offset: 0x006AA8
-  symbol: shrine_room_0DL_006AA8
+  symbol: shrine_room_0DL_17
 
-shrine_room_0DL_007A48:
+shrine_room_0DL_18:
   type: GFX
   offset: 0x007A48
-  symbol: shrine_room_0DL_007A48
+  symbol: shrine_room_0DL_18
 
-shrine_room_0DL_007AE0:
+shrine_room_0DL_19:
   type: GFX
   offset: 0x007AE0
-  symbol: shrine_room_0DL_007AE0
+  symbol: shrine_room_0DL_19

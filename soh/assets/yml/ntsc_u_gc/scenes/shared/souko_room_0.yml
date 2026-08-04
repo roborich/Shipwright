@@ -12,221 +12,221 @@ souko_room_0:
   offset: 0x0
   symbol: souko_room_0
 
-souko_room_0Tex_0054F8:
+souko_room_0Tex_0:
   type: TEXTURE
   offset: 0x54F8
-  symbol: souko_room_0Tex_0054F8
+  symbol: souko_room_0Tex_0
   format: I4
   width: 64
   height: 64
 
-souko_room_0Tex_005CF8:
+souko_room_0Tex_1:
   type: TEXTURE
   offset: 0x5CF8
-  symbol: souko_room_0Tex_005CF8
+  symbol: souko_room_0Tex_1
   format: RGBA16
   width: 32
   height: 32
 
-souko_room_0Tex_0064F8:
+souko_room_0Tex_2:
   type: TEXTURE
   offset: 0x64F8
-  symbol: souko_room_0Tex_0064F8
+  symbol: souko_room_0Tex_2
   format: RGBA16
   width: 32
   height: 32
 
-souko_room_0Tex_006CF8:
+souko_room_0Tex_3:
   type: TEXTURE
   offset: 0x6CF8
-  symbol: souko_room_0Tex_006CF8
+  symbol: souko_room_0Tex_3
   format: RGBA16
   width: 16
   height: 32
 
-souko_room_0Tex_0070F8:
+souko_room_0Tex_4:
   type: TEXTURE
   offset: 0x70F8
-  symbol: souko_room_0Tex_0070F8
+  symbol: souko_room_0Tex_4
   format: RGBA16
   width: 32
   height: 32
 
-souko_room_0Tex_0078F8:
+souko_room_0Tex_5:
   type: TEXTURE
   offset: 0x78F8
-  symbol: souko_room_0Tex_0078F8
+  symbol: souko_room_0Tex_5
   format: RGBA16
   width: 32
   height: 32
 
-souko_room_0Tex_0080F8:
+souko_room_0Tex_6:
   type: TEXTURE
   offset: 0x80F8
-  symbol: souko_room_0Tex_0080F8
+  symbol: souko_room_0Tex_6
   format: RGBA16
   width: 32
   height: 64
 
-souko_room_0Tex_0090F8:
+souko_room_0Tex_7:
   type: TEXTURE
   offset: 0x90F8
-  symbol: souko_room_0Tex_0090F8
+  symbol: souko_room_0Tex_7
   format: I4
   width: 32
   height: 32
 
 
-souko_room_0Vtx_0001A0:
+souko_room_0Vtx_0:
   type: OOT:ARRAY
   offset: 0x0001A0
-  symbol: souko_room_0Vtx_0001A0
+  symbol: souko_room_0Vtx_0
   count: 113
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-souko_room_0DL_0008B0:
+souko_room_0DL_0:
   type: GFX
   offset: 0x0008B0
-  symbol: souko_room_0DL_0008B0
+  symbol: souko_room_0DL_0
 
-souko_room_0Vtx_000B98:
+souko_room_0Vtx_1:
   type: OOT:ARRAY
   offset: 0x000B98
-  symbol: souko_room_0Vtx_000B98
+  symbol: souko_room_0Vtx_1
   count: 12
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-souko_room_0DL_000C58:
+souko_room_0DL_1:
   type: GFX
   offset: 0x000C58
-  symbol: souko_room_0DL_000C58
+  symbol: souko_room_0DL_1
 
-souko_room_0Vtx_000D10:
+souko_room_0Vtx_2:
   type: OOT:ARRAY
   offset: 0x000D10
-  symbol: souko_room_0Vtx_000D10
+  symbol: souko_room_0Vtx_2
   count: 45
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-souko_room_0DL_000FE0:
+souko_room_0DL_2:
   type: GFX
   offset: 0x000FE0
-  symbol: souko_room_0DL_000FE0
+  symbol: souko_room_0DL_2
 
-souko_room_0Vtx_001140:
+souko_room_0Vtx_3:
   type: OOT:ARRAY
   offset: 0x001140
-  symbol: souko_room_0Vtx_001140
+  symbol: souko_room_0Vtx_3
   count: 88
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-souko_room_0DL_0016C0:
+souko_room_0DL_3:
   type: GFX
   offset: 0x0016C0
-  symbol: souko_room_0DL_0016C0
+  symbol: souko_room_0DL_3
 
-souko_room_0Vtx_001848:
+souko_room_0Vtx_4:
   type: OOT:ARRAY
   offset: 0x001848
-  symbol: souko_room_0Vtx_001848
+  symbol: souko_room_0Vtx_4
   count: 12
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-souko_room_0DL_001908:
+souko_room_0DL_4:
   type: GFX
   offset: 0x001908
-  symbol: souko_room_0DL_001908
+  symbol: souko_room_0DL_4
 
-souko_room_0Vtx_0019C0:
+souko_room_0Vtx_5:
   type: OOT:ARRAY
   offset: 0x0019C0
-  symbol: souko_room_0Vtx_0019C0
+  symbol: souko_room_0Vtx_5
   count: 71
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-souko_room_0DL_001E30:
+souko_room_0DL_5:
   type: GFX
   offset: 0x001E30
-  symbol: souko_room_0DL_001E30
+  symbol: souko_room_0DL_5
 
-souko_room_0Vtx_001FA0:
+souko_room_0Vtx_6:
   type: OOT:ARRAY
   offset: 0x001FA0
-  symbol: souko_room_0Vtx_001FA0
+  symbol: souko_room_0Vtx_6
   count: 78
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-souko_room_0DL_002480:
+souko_room_0DL_6:
   type: GFX
   offset: 0x002480
-  symbol: souko_room_0DL_002480
+  symbol: souko_room_0DL_6
 
-souko_room_0Vtx_002730:
+souko_room_0Vtx_7:
   type: OOT:ARRAY
   offset: 0x002730
-  symbol: souko_room_0Vtx_002730
+  symbol: souko_room_0Vtx_7
   count: 290
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-souko_room_0DL_003950:
+souko_room_0DL_7:
   type: GFX
   offset: 0x003950
-  symbol: souko_room_0DL_003950
+  symbol: souko_room_0DL_7
 
-souko_room_0Vtx_003FA0:
+souko_room_0Vtx_8:
   type: OOT:ARRAY
   offset: 0x003FA0
-  symbol: souko_room_0Vtx_003FA0
+  symbol: souko_room_0Vtx_8
   count: 170
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-souko_room_0DL_004A40:
+souko_room_0DL_8:
   type: GFX
   offset: 0x004A40
-  symbol: souko_room_0DL_004A40
+  symbol: souko_room_0DL_8
 
-souko_room_0Vtx_004DA0:
+souko_room_0Vtx_9:
   type: OOT:ARRAY
   offset: 0x004DA0
-  symbol: souko_room_0Vtx_004DA0
+  symbol: souko_room_0Vtx_9
   count: 80
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-souko_room_0DL_0052A0:
+souko_room_0DL_9:
   type: GFX
   offset: 0x0052A0
-  symbol: souko_room_0DL_0052A0
+  symbol: souko_room_0DL_9
 
-souko_room_0Vtx_009300:
+souko_room_0Vtx_10:
   type: OOT:ARRAY
   offset: 0x009300
-  symbol: souko_room_0Vtx_009300
+  symbol: souko_room_0Vtx_10
   count: 20
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-souko_room_0DL_009440:
+souko_room_0DL_10:
   type: GFX
   offset: 0x009440
-  symbol: souko_room_0DL_009440
+  symbol: souko_room_0DL_10

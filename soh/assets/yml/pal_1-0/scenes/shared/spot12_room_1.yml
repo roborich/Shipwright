@@ -6,226 +6,226 @@
   external_files:
     - pal_1-0/scenes/shared/spot12_scene.yml
     - pal_1-0/code/sys_matrix.yml
-    - pal_1-0/scenes/shared/spot12_room_1Set_000200.yml
-    - pal_1-0/scenes/shared/spot12_room_1Set_0003B0.yml
-    - pal_1-0/scenes/shared/spot12_room_1Set_000500.yml
-    - pal_1-0/scenes/shared/spot12_room_1Set_000720.yml
-    - pal_1-0/scenes/shared/spot12_room_1Set_0007F0.yml
+    - pal_1-0/scenes/shared/spot12_room_1Set_0.yml
+    - pal_1-0/scenes/shared/spot12_room_1Set_1.yml
+    - pal_1-0/scenes/shared/spot12_room_1Set_2.yml
+    - pal_1-0/scenes/shared/spot12_room_1Set_3.yml
+    - pal_1-0/scenes/shared/spot12_room_1Set_4.yml
 
 spot12_room_1:
   type: OOT:ROOM
   offset: 0x0
   symbol: spot12_room_1
 
-spot12_room_1Tex_005638:
+spot12_room_1Tex_0:
   type: TEXTURE
   offset: 0x5638
-  symbol: spot12_room_1Tex_005638
+  symbol: spot12_room_1Tex_0
   format: RGBA16
   width: 32
   height: 64
 
-spot12_room_1Tex_006638:
+spot12_room_1Tex_1:
   type: TEXTURE
   offset: 0x6638
-  symbol: spot12_room_1Tex_006638
+  symbol: spot12_room_1Tex_1
   format: RGBA16
   width: 32
   height: 64
 
-spot12_room_1Tex_007638:
+spot12_room_1Tex_2:
   type: TEXTURE
   offset: 0x7638
-  symbol: spot12_room_1Tex_007638
+  symbol: spot12_room_1Tex_2
   format: RGBA16
   width: 32
   height: 32
 
-spot12_room_1Tex_007E38:
+spot12_room_1Tex_3:
   type: TEXTURE
   offset: 0x7E38
-  symbol: spot12_room_1Tex_007E38
+  symbol: spot12_room_1Tex_3
   format: RGBA16
   width: 64
   height: 32
 
-spot12_room_1Tex_008E38:
+spot12_room_1Tex_4:
   type: TEXTURE
   offset: 0x8E38
-  symbol: spot12_room_1Tex_008E38
+  symbol: spot12_room_1Tex_4
   format: RGBA16
   width: 64
   height: 32
 
-spot12_room_1Tex_009E38:
+spot12_room_1Tex_5:
   type: TEXTURE
   offset: 0x9E38
-  symbol: spot12_room_1Tex_009E38
+  symbol: spot12_room_1Tex_5
   format: RGBA16
   width: 32
   height: 32
 
-spot12_room_1Tex_00A638:
+spot12_room_1Tex_6:
   type: TEXTURE
   offset: 0xA638
-  symbol: spot12_room_1Tex_00A638
+  symbol: spot12_room_1Tex_6
   format: I4
   width: 64
   height: 64
 
-spot12_room_1Tex_00B0A0:
+spot12_room_1Tex_7:
   type: TEXTURE
   offset: 0xB0A0
-  symbol: spot12_room_1Tex_00B0A0
+  symbol: spot12_room_1Tex_7
   format: I8
   width: 32
   height: 64
 
-spot12_room_1Tex_00B8A0:
+spot12_room_1Tex_8:
   type: TEXTURE
   offset: 0xB8A0
-  symbol: spot12_room_1Tex_00B8A0
+  symbol: spot12_room_1Tex_8
   format: I8
   width: 32
   height: 64
 
 
-spot12_room_1Vtx_0008A0:
+spot12_room_1Vtx_0:
   type: OOT:ARRAY
   offset: 0x0008A0
-  symbol: spot12_room_1Vtx_0008A0
+  symbol: spot12_room_1Vtx_0
   count: 142
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-spot12_room_1DL_001180:
+spot12_room_1DL_0:
   type: GFX
   offset: 0x001180
-  symbol: spot12_room_1DL_001180
+  symbol: spot12_room_1DL_0
 
-spot12_room_1Vtx_001548:
+spot12_room_1Vtx_1:
   type: OOT:ARRAY
   offset: 0x001548
-  symbol: spot12_room_1Vtx_001548
+  symbol: spot12_room_1Vtx_1
   count: 145
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-spot12_room_1DL_001E58:
+spot12_room_1DL_1:
   type: GFX
   offset: 0x001E58
-  symbol: spot12_room_1DL_001E58
+  symbol: spot12_room_1DL_1
 
-spot12_room_1Vtx_002228:
+spot12_room_1Vtx_2:
   type: OOT:ARRAY
   offset: 0x002228
-  symbol: spot12_room_1Vtx_002228
+  symbol: spot12_room_1Vtx_2
   count: 72
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-spot12_room_1DL_0026A8:
+spot12_room_1DL_2:
   type: GFX
   offset: 0x0026A8
-  symbol: spot12_room_1DL_0026A8
+  symbol: spot12_room_1DL_2
 
-spot12_room_1Vtx_002960:
+spot12_room_1Vtx_3:
   type: OOT:ARRAY
   offset: 0x002960
-  symbol: spot12_room_1Vtx_002960
+  symbol: spot12_room_1Vtx_3
   count: 16
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-spot12_room_1DL_002A60:
+spot12_room_1DL_3:
   type: GFX
   offset: 0x002A60
-  symbol: spot12_room_1DL_002A60
+  symbol: spot12_room_1DL_3
 
-spot12_room_1Vtx_002B20:
+spot12_room_1Vtx_4:
   type: OOT:ARRAY
   offset: 0x002B20
-  symbol: spot12_room_1Vtx_002B20
+  symbol: spot12_room_1Vtx_4
   count: 41
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-spot12_room_1DL_002DB0:
+spot12_room_1DL_4:
   type: GFX
   offset: 0x002DB0
-  symbol: spot12_room_1DL_002DB0
+  symbol: spot12_room_1DL_4
 
-spot12_room_1Vtx_002F38:
+spot12_room_1Vtx_5:
   type: OOT:ARRAY
   offset: 0x002F38
-  symbol: spot12_room_1Vtx_002F38
+  symbol: spot12_room_1Vtx_5
   count: 91
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-spot12_room_1DL_0034E8:
+spot12_room_1DL_5:
   type: GFX
   offset: 0x0034E8
-  symbol: spot12_room_1DL_0034E8
+  symbol: spot12_room_1DL_5
 
-spot12_room_1Vtx_003890:
+spot12_room_1Vtx_6:
   type: OOT:ARRAY
   offset: 0x003890
-  symbol: spot12_room_1Vtx_003890
+  symbol: spot12_room_1Vtx_6
   count: 91
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-spot12_room_1DL_003E40:
+spot12_room_1DL_6:
   type: GFX
   offset: 0x003E40
-  symbol: spot12_room_1DL_003E40
+  symbol: spot12_room_1DL_6
 
-spot12_room_1Vtx_0041E8:
+spot12_room_1Vtx_7:
   type: OOT:ARRAY
   offset: 0x0041E8
-  symbol: spot12_room_1Vtx_0041E8
+  symbol: spot12_room_1Vtx_7
   count: 91
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-spot12_room_1DL_004798:
+spot12_room_1DL_7:
   type: GFX
   offset: 0x004798
-  symbol: spot12_room_1DL_004798
+  symbol: spot12_room_1DL_7
 
-spot12_room_1Vtx_004B40:
+spot12_room_1Vtx_8:
   type: OOT:ARRAY
   offset: 0x004B40
-  symbol: spot12_room_1Vtx_004B40
+  symbol: spot12_room_1Vtx_8
   count: 86
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-spot12_room_1DL_0050A0:
+spot12_room_1DL_8:
   type: GFX
   offset: 0x0050A0
-  symbol: spot12_room_1DL_0050A0
+  symbol: spot12_room_1DL_8
 
-spot12_room_1Vtx_00AE40:
+spot12_room_1Vtx_9:
   type: OOT:ARRAY
   offset: 0x00AE40
-  symbol: spot12_room_1Vtx_00AE40
+  symbol: spot12_room_1Vtx_9
   count: 20
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-spot12_room_1DL_00AF80:
+spot12_room_1DL_9:
   type: GFX
   offset: 0x00AF80
-  symbol: spot12_room_1DL_00AF80
+  symbol: spot12_room_1DL_9

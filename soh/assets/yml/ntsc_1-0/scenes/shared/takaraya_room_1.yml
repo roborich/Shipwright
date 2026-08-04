@@ -12,72 +12,72 @@ takaraya_room_1:
   offset: 0x0
   symbol: takaraya_room_1
 
-takaraya_room_1Tex_0017F8:
+takaraya_room_1Tex_0:
   type: TEXTURE
   offset: 0x17F8
-  symbol: takaraya_room_1Tex_0017F8
+  symbol: takaraya_room_1Tex_0
   format: RGBA16
   width: 16
   height: 64
 
 
-takaraya_room_1Vtx_0000A0:
+takaraya_room_1Vtx_0:
   type: OOT:ARRAY
   offset: 0x0000A0
-  symbol: takaraya_room_1Vtx_0000A0
+  symbol: takaraya_room_1Vtx_0
   count: 24
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-takaraya_room_1DL_000220:
+takaraya_room_1DL_0:
   type: GFX
   offset: 0x000220
-  symbol: takaraya_room_1DL_000220
+  symbol: takaraya_room_1DL_0
 
-takaraya_room_1Vtx_000300:
+takaraya_room_1Vtx_1:
   type: OOT:ARRAY
   offset: 0x000300
-  symbol: takaraya_room_1Vtx_000300
+  symbol: takaraya_room_1Vtx_1
   count: 144
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-takaraya_room_1DL_000C00:
+takaraya_room_1DL_1:
   type: GFX
   offset: 0x000C00
-  symbol: takaraya_room_1DL_000C00
+  symbol: takaraya_room_1DL_1
 
-takaraya_room_1Vtx_000E10:
+takaraya_room_1Vtx_2:
   type: OOT:ARRAY
   offset: 0x000E10
-  symbol: takaraya_room_1Vtx_000E10
+  symbol: takaraya_room_1Vtx_2
   count: 32
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-takaraya_room_1DL_001010:
+takaraya_room_1DL_2:
   type: GFX
   offset: 0x001010
-  symbol: takaraya_room_1DL_001010
+  symbol: takaraya_room_1DL_2
 
-takaraya_room_1Vtx_001100:
+takaraya_room_1Vtx_3:
   type: OOT:ARRAY
   offset: 0x001100
-  symbol: takaraya_room_1Vtx_001100
+  symbol: takaraya_room_1Vtx_3
   count: 85
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-takaraya_room_1DL_001650:
+takaraya_room_1DL_3:
   type: GFX
   offset: 0x001650
-  symbol: takaraya_room_1DL_001650
+  symbol: takaraya_room_1DL_3
 
-takaraya_room_1DL_0017D0:
+takaraya_room_1DL_4:
   type: GFX
   offset: 0x0017D0
-  symbol: takaraya_room_1DL_0017D0
+  symbol: takaraya_room_1DL_4

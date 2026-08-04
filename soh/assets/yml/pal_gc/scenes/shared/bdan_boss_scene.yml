@@ -8,7 +8,7 @@ bdan_boss_scene:
   symbol: bdan_boss_scene
 
 
-bdan_boss_sceneCollisionHeader_000E14:
+bdan_boss_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x000E14
-  symbol: bdan_boss_sceneCollisionHeader_000E14
+  symbol: bdan_boss_sceneCollisionHeader_0

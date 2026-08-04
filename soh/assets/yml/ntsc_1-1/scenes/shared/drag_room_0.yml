@@ -13,145 +13,145 @@ drag_room_0:
   symbol: drag_room_0
 
 
-drag_room_0Vtx_0000C0:
+drag_room_0Vtx_0:
   type: OOT:ARRAY
   offset: 0x0000C0
-  symbol: drag_room_0Vtx_0000C0
+  symbol: drag_room_0Vtx_0
   count: 50
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-drag_room_0Vtx_0003E0:
+drag_room_0Vtx_1:
   type: OOT:ARRAY
   offset: 0x0003E0
-  symbol: drag_room_0Vtx_0003E0
+  symbol: drag_room_0Vtx_1
   count: 56
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-drag_room_0Vtx_000760:
+drag_room_0Vtx_2:
   type: OOT:ARRAY
   offset: 0x000760
-  symbol: drag_room_0Vtx_000760
+  symbol: drag_room_0Vtx_2
   count: 28
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-drag_room_0Vtx_000920:
+drag_room_0Vtx_3:
   type: OOT:ARRAY
   offset: 0x000920
-  symbol: drag_room_0Vtx_000920
+  symbol: drag_room_0Vtx_3
   count: 16
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-drag_room_0Vtx_000A20:
+drag_room_0Vtx_4:
   type: OOT:ARRAY
   offset: 0x000A20
-  symbol: drag_room_0Vtx_000A20
+  symbol: drag_room_0Vtx_4
   count: 12
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-drag_room_0Vtx_000AE0:
+drag_room_0Vtx_5:
   type: OOT:ARRAY
   offset: 0x000AE0
-  symbol: drag_room_0Vtx_000AE0
+  symbol: drag_room_0Vtx_5
   count: 1070
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-drag_room_0Vtx_004DC0:
+drag_room_0Vtx_6:
   type: OOT:ARRAY
   offset: 0x004DC0
-  symbol: drag_room_0Vtx_004DC0
+  symbol: drag_room_0Vtx_6
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-drag_room_0Vtx_004E40:
+drag_room_0Vtx_7:
   type: OOT:ARRAY
   offset: 0x004E40
-  symbol: drag_room_0Vtx_004E40
+  symbol: drag_room_0Vtx_7
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-drag_room_0Vtx_004EC0:
+drag_room_0Vtx_8:
   type: OOT:ARRAY
   offset: 0x004EC0
-  symbol: drag_room_0Vtx_004EC0
+  symbol: drag_room_0Vtx_8
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-drag_room_0Vtx_004F40:
+drag_room_0Vtx_9:
   type: OOT:ARRAY
   offset: 0x004F40
-  symbol: drag_room_0Vtx_004F40
+  symbol: drag_room_0Vtx_9
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-drag_room_0Vtx_004FC0:
+drag_room_0Vtx_10:
   type: OOT:ARRAY
   offset: 0x004FC0
-  symbol: drag_room_0Vtx_004FC0
+  symbol: drag_room_0Vtx_10
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-drag_room_0Vtx_005040:
+drag_room_0Vtx_11:
   type: OOT:ARRAY
   offset: 0x005040
-  symbol: drag_room_0Vtx_005040
+  symbol: drag_room_0Vtx_11
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-drag_room_0DL_0050C0:
+drag_room_0DL_0:
   type: GFX
   offset: 0x0050C0
-  symbol: drag_room_0DL_0050C0
+  symbol: drag_room_0DL_0
 
-drag_room_0DL_005230:
+drag_room_0DL_1:
   type: GFX
   offset: 0x005230
-  symbol: drag_room_0DL_005230
+  symbol: drag_room_0DL_1
 
-drag_room_0DL_005320:
+drag_room_0DL_2:
   type: GFX
   offset: 0x005320
-  symbol: drag_room_0DL_005320
+  symbol: drag_room_0DL_2
 
-drag_room_0DL_0053F0:
+drag_room_0DL_3:
   type: GFX
   offset: 0x0053F0
-  symbol: drag_room_0DL_0053F0
+  symbol: drag_room_0DL_3
 
-drag_room_0DL_0054A0:
+drag_room_0DL_4:
   type: GFX
   offset: 0x0054A0
-  symbol: drag_room_0DL_0054A0
+  symbol: drag_room_0DL_4
 
-drag_room_0DL_005530:
+drag_room_0DL_5:
   type: GFX
   offset: 0x005530
-  symbol: drag_room_0DL_005530
+  symbol: drag_room_0DL_5
 
-drag_room_0DL_006618:
+drag_room_0DL_6:
   type: GFX
   offset: 0x006618
-  symbol: drag_room_0DL_006618
+  symbol: drag_room_0DL_6

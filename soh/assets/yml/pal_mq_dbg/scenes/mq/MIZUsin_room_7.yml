@@ -12,79 +12,79 @@ MIZUsin_room_7:
   offset: 0x0
   symbol: MIZUsin_room_7
 
-MIZUsin_room_7Tex_002560:
+MIZUsin_room_7Tex_6:
   type: TEXTURE
   offset: 0x2560
-  symbol: MIZUsin_room_7Tex_002560
+  symbol: MIZUsin_room_7Tex_6
   format: RGBA16
   width: 32
   height: 32
 
-MIZUsin_room_7Tex_002D60:
+MIZUsin_room_7Tex_7:
   type: TEXTURE
   offset: 0x2D60
-  symbol: MIZUsin_room_7Tex_002D60
+  symbol: MIZUsin_room_7Tex_7
   format: RGBA16
   width: 32
   height: 32
 
-MIZUsin_room_7Tex_003560:
+MIZUsin_room_7Tex_8:
   type: TEXTURE
   offset: 0x3560
-  symbol: MIZUsin_room_7Tex_003560
+  symbol: MIZUsin_room_7Tex_8
   format: RGBA16
   width: 32
   height: 32
 
-MIZUsin_room_7Tex_003D60:
+MIZUsin_room_7Tex_9:
   type: TEXTURE
   offset: 0x3D60
-  symbol: MIZUsin_room_7Tex_003D60
+  symbol: MIZUsin_room_7Tex_9
   format: RGBA16
   width: 32
   height: 32
 
-MIZUsin_room_7Tex_004560:
+MIZUsin_room_7Tex_10:
   type: TEXTURE
   offset: 0x4560
-  symbol: MIZUsin_room_7Tex_004560
+  symbol: MIZUsin_room_7Tex_10
   format: RGBA16
   width: 32
   height: 32
 
-MIZUsin_room_7Tex_004D60:
+MIZUsin_room_7Tex_11:
   type: TEXTURE
   offset: 0x4D60
-  symbol: MIZUsin_room_7Tex_004D60
+  symbol: MIZUsin_room_7Tex_11
   format: RGBA16
   width: 32
   height: 32
 
 
-MIZUsin_room_7Vtx_0000D0:
+MIZUsin_room_7Vtx_0:
   type: OOT:ARRAY
   offset: 0x0000D0
-  symbol: MIZUsin_room_7Vtx_0000D0
+  symbol: MIZUsin_room_7Vtx_0
   count: 318
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-MIZUsin_room_7DL_0014B0:
+MIZUsin_room_7DL_2:
   type: GFX
   offset: 0x0014B0
-  symbol: MIZUsin_room_7DL_0014B0
+  symbol: MIZUsin_room_7DL_2
 
-MIZUsin_room_7Vtx_002360:
+MIZUsin_room_7Vtx_1:
   type: OOT:ARRAY
   offset: 0x002360
-  symbol: MIZUsin_room_7Vtx_002360
+  symbol: MIZUsin_room_7Vtx_1
   count: 14
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-MIZUsin_room_7DL_002440:
+MIZUsin_room_7DL_3:
   type: GFX
   offset: 0x002440
-  symbol: MIZUsin_room_7DL_002440
+  symbol: MIZUsin_room_7DL_3

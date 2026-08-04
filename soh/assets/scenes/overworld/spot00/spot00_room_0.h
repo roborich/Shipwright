@@ -114,7 +114,7 @@ static const ALIGN_ASSET(2) char spot00_room_0DL_0112B8[] = dspot00_room_0DL_011
 #define dspot00_room_0DL_0121D0 "__OTR__scenes/shared/spot00_scene/spot00_room_0DL_0121D0"
 static const ALIGN_ASSET(2) char spot00_room_0DL_0121D0[] = dspot00_room_0DL_0121D0;
 
-#define dspot00_room_0DL_012B20 "__OTR__scenes/shared/spot00_scene/spot00_room_0DL_012B20"
+#define dspot00_room_0DL_012B20 "__OTR__scenes/shared/spot00_scene/spot00_room_0DL_30"
 static const ALIGN_ASSET(2) char spot00_room_0DL_012B20[] = dspot00_room_0DL_012B20;
 
 #define dspot00_room_0Set_000C50DL_013250 "__OTR__scenes/shared/spot00_scene/spot00_room_0Set_000C50DL_013250"

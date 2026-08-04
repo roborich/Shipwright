@@ -12,74 +12,74 @@ HIDAN_room_5:
   offset: 0x0
   symbol: HIDAN_room_5
 
-HIDAN_room_5Tex_007EE0:
+HIDAN_room_5Tex_0:
   type: TEXTURE
   offset: 0x7E30
-  symbol: HIDAN_room_5Tex_007EE0
+  symbol: HIDAN_room_5Tex_0
   format: RGBA16
   width: 32
   height: 8
 
-HIDAN_room_5Tex_0080E0:
+HIDAN_room_5Tex_1:
   type: TEXTURE
   offset: 0x8030
-  symbol: HIDAN_room_5Tex_0080E0
+  symbol: HIDAN_room_5Tex_1
   format: RGBA16
   width: 32
   height: 32
 
-HIDAN_room_5Tex_0088E0:
+HIDAN_room_5Tex_2:
   type: TEXTURE
   offset: 0x8830
-  symbol: HIDAN_room_5Tex_0088E0
+  symbol: HIDAN_room_5Tex_2
   format: CI4
   width: 32
   height: 64
   external_tlut: HIDAN_scene
   external_tlut_offset: 0x18B50
 
-HIDAN_room_5Tex_008CE0:
+HIDAN_room_5Tex_3:
   type: TEXTURE
   offset: 0x8C30
-  symbol: HIDAN_room_5Tex_008CE0
+  symbol: HIDAN_room_5Tex_3
   format: RGBA16
   width: 32
   height: 32
 
-HIDAN_room_5Tex_0094E0:
+HIDAN_room_5Tex_4:
   type: TEXTURE
   offset: 0x9430
-  symbol: HIDAN_room_5Tex_0094E0
+  symbol: HIDAN_room_5Tex_4
   format: CI4
   width: 32
   height: 32
   external_tlut: HIDAN_scene
   external_tlut_offset: 0x18B30
 
-HIDAN_room_5Tex_0096E0:
+HIDAN_room_5Tex_5:
   type: TEXTURE
   offset: 0x9630
-  symbol: HIDAN_room_5Tex_0096E0
+  symbol: HIDAN_room_5Tex_5
   format: CI4
   width: 32
   height: 64
   external_tlut: HIDAN_scene
   external_tlut_offset: 0x18B50
 
-HIDAN_room_5Tex_009AE0:
+HIDAN_room_5Tex_6:
   type: TEXTURE
   offset: 0x9A30
-  symbol: HIDAN_room_5Tex_009AE0
+  symbol: HIDAN_room_5Tex_6
   format: CI4
   width: 32
   height: 64
   external_tlut: HIDAN_scene
   external_tlut_offset: 0x18B50
 
-HIDAN_room_5Tex_009EE0:
+HIDAN_room_5Tex_7:
   type: TEXTURE
   offset: 0x9E30
-  symbol: HIDAN_room_5Tex_009EE0
+  symbol: HIDAN_room_5Tex_7
   format: CI4
   width: 32
   height: 64
@@ -87,86 +87,86 @@ HIDAN_room_5Tex_009EE0:
   external_tlut_offset: 0x18B50
 
 
-HIDAN_room_5Vtx_000240:
+HIDAN_room_5Vtx_0:
   type: OOT:ARRAY
   offset: 0x000240
-  symbol: HIDAN_room_5Vtx_000240
+  symbol: HIDAN_room_5Vtx_0
   count: 119
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HIDAN_room_5DL_0009B0:
+HIDAN_room_5DL_0:
   type: GFX
   offset: 0x0009B0
-  symbol: HIDAN_room_5DL_0009B0
+  symbol: HIDAN_room_5DL_0
 
-HIDAN_room_5Vtx_001070:
+HIDAN_room_5Vtx_1:
   type: OOT:ARRAY
   offset: 0x001070
-  symbol: HIDAN_room_5Vtx_001070
+  symbol: HIDAN_room_5Vtx_1
   count: 258
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HIDAN_room_5DL_002090:
+HIDAN_room_5DL_1:
   type: GFX
   offset: 0x002090
-  symbol: HIDAN_room_5DL_002090
+  symbol: HIDAN_room_5DL_1
 
-HIDAN_room_5Vtx_0030A0:
+HIDAN_room_5Vtx_2:
   type: OOT:ARRAY
   offset: 0x0030A0
-  symbol: HIDAN_room_5Vtx_0030A0
+  symbol: HIDAN_room_5Vtx_2
   count: 169
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HIDAN_room_5DL_003B30:
+HIDAN_room_5DL_2:
   type: GFX
   offset: 0x003B30
-  symbol: HIDAN_room_5DL_003B30
+  symbol: HIDAN_room_5DL_2
 
-HIDAN_room_5Vtx_004628:
+HIDAN_room_5Vtx_3:
   type: OOT:ARRAY
   offset: 0x004628
-  symbol: HIDAN_room_5Vtx_004628
+  symbol: HIDAN_room_5Vtx_3
   count: 152
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HIDAN_room_5DL_004FA8:
+HIDAN_room_5DL_3:
   type: GFX
   offset: 0x004FA8
-  symbol: HIDAN_room_5DL_004FA8
+  symbol: HIDAN_room_5DL_3
 
-HIDAN_room_5Vtx_0057D0:
+HIDAN_room_5Vtx_4:
   type: OOT:ARRAY
   offset: 0x0057D0
-  symbol: HIDAN_room_5Vtx_0057D0
+  symbol: HIDAN_room_5Vtx_4
   count: 80
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HIDAN_room_5DL_005CD0:
+HIDAN_room_5DL_4:
   type: GFX
   offset: 0x005CD0
-  symbol: HIDAN_room_5DL_005CD0
+  symbol: HIDAN_room_5DL_4
 
-HIDAN_room_5Vtx_006080:
+HIDAN_room_5Vtx_5:
   type: OOT:ARRAY
   offset: 0x006080
-  symbol: HIDAN_room_5Vtx_006080
+  symbol: HIDAN_room_5Vtx_5
   count: 256
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HIDAN_room_5DL_007080:
+HIDAN_room_5DL_5:
   type: GFX
   offset: 0x007080
-  symbol: HIDAN_room_5DL_007080
+  symbol: HIDAN_room_5DL_5

@@ -12,90 +12,90 @@ jyasinzou_room_1:
   offset: 0x0
   symbol: jyasinzou_room_1
 
-jyasinzou_room_1Tex_004F48:
+jyasinzou_room_1Tex_9:
   type: TEXTURE
   offset: 0x4F48
-  symbol: jyasinzou_room_1Tex_004F48
+  symbol: jyasinzou_room_1Tex_9
   format: CI8
   width: 64
   height: 32
   external_tlut: jyasinzou_scene
   external_tlut_offset: 0x17DE0
 
-jyasinzou_room_1Tex_005748:
+jyasinzou_room_1Tex_10:
   type: TEXTURE
   offset: 0x5748
-  symbol: jyasinzou_room_1Tex_005748
+  symbol: jyasinzou_room_1Tex_10
   format: CI8
   width: 32
   height: 64
   external_tlut: jyasinzou_scene
   external_tlut_offset: 0x17BE0
 
-jyasinzou_room_1Tex_005F48:
+jyasinzou_room_1Tex_11:
   type: TEXTURE
   offset: 0x5F48
-  symbol: jyasinzou_room_1Tex_005F48
+  symbol: jyasinzou_room_1Tex_11
   format: CI8
   width: 32
   height: 64
   external_tlut: jyasinzou_scene
   external_tlut_offset: 0x17BE0
 
-jyasinzou_room_1Tex_006748:
+jyasinzou_room_1Tex_12:
   type: TEXTURE
   offset: 0x6748
-  symbol: jyasinzou_room_1Tex_006748
+  symbol: jyasinzou_room_1Tex_12
   format: CI8
   width: 32
   height: 32
   external_tlut: jyasinzou_scene
   external_tlut_offset: 0x17BE0
 
-jyasinzou_room_1Tex_006B48:
+jyasinzou_room_1Tex_13:
   type: TEXTURE
   offset: 0x6B48
-  symbol: jyasinzou_room_1Tex_006B48
+  symbol: jyasinzou_room_1Tex_13
   format: CI8
   width: 32
   height: 64
   external_tlut: jyasinzou_scene
   external_tlut_offset: 0x17BE0
 
-jyasinzou_room_1Tex_007348:
+jyasinzou_room_1Tex_14:
   type: TEXTURE
   offset: 0x7348
-  symbol: jyasinzou_room_1Tex_007348
+  symbol: jyasinzou_room_1Tex_14
   format: CI8
   width: 64
   height: 32
   external_tlut: jyasinzou_scene
   external_tlut_offset: 0x17BE0
 
-jyasinzou_room_1Tex_007B48:
+jyasinzou_room_1Tex_15:
   type: TEXTURE
   offset: 0x7B48
-  symbol: jyasinzou_room_1Tex_007B48
+  symbol: jyasinzou_room_1Tex_15
   format: CI8
   width: 64
   height: 32
   external_tlut: jyasinzou_scene
   external_tlut_offset: 0x17BE0
 
-jyasinzou_room_1Tex_008348:
+jyasinzou_room_1Tex_16:
   type: TEXTURE
   offset: 0x8348
-  symbol: jyasinzou_room_1Tex_008348
+  symbol: jyasinzou_room_1Tex_16
   format: CI4
   width: 64
   height: 64
   external_tlut: jyasinzou_scene
   external_tlut_offset: 0x17FE0
 
-jyasinzou_room_1Tex_008B48:
+jyasinzou_room_1Tex_17:
   type: TEXTURE
   offset: 0x8B48
-  symbol: jyasinzou_room_1Tex_008B48
+  symbol: jyasinzou_room_1Tex_17
   format: CI4
   width: 64
   height: 64
@@ -103,58 +103,58 @@ jyasinzou_room_1Tex_008B48:
   external_tlut_offset: 0x18000
 
 
-jyasinzou_room_1Vtx_0002A0:
+jyasinzou_room_1Vtx_0:
   type: OOT:ARRAY
   offset: 0x0002A0
-  symbol: jyasinzou_room_1Vtx_0002A0
+  symbol: jyasinzou_room_1Vtx_0
   count: 20
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-jyasinzou_room_1DL_0003E0:
+jyasinzou_room_1DL_4:
   type: GFX
   offset: 0x0003E0
-  symbol: jyasinzou_room_1DL_0003E0
+  symbol: jyasinzou_room_1DL_4
 
-jyasinzou_room_1Vtx_0004D8:
+jyasinzou_room_1Vtx_1:
   type: OOT:ARRAY
   offset: 0x0004D8
-  symbol: jyasinzou_room_1Vtx_0004D8
+  symbol: jyasinzou_room_1Vtx_1
   count: 529
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-jyasinzou_room_1DL_0025E8:
+jyasinzou_room_1DL_5:
   type: GFX
   offset: 0x0025E8
-  symbol: jyasinzou_room_1DL_0025E8
+  symbol: jyasinzou_room_1DL_5
 
-jyasinzou_room_1Vtx_0041C8:
+jyasinzou_room_1Vtx_2:
   type: OOT:ARRAY
   offset: 0x0041C8
-  symbol: jyasinzou_room_1Vtx_0041C8
+  symbol: jyasinzou_room_1Vtx_2
   count: 66
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-jyasinzou_room_1DL_0045E8:
+jyasinzou_room_1DL_6:
   type: GFX
   offset: 0x0045E8
-  symbol: jyasinzou_room_1DL_0045E8
+  symbol: jyasinzou_room_1DL_6
 
-jyasinzou_room_1Vtx_0049C0:
+jyasinzou_room_1Vtx_3:
   type: OOT:ARRAY
   offset: 0x0049C0
-  symbol: jyasinzou_room_1Vtx_0049C0
+  symbol: jyasinzou_room_1Vtx_3
   count: 57
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-jyasinzou_room_1DL_004D50:
+jyasinzou_room_1DL_7:
   type: GFX
   offset: 0x004D50
-  symbol: jyasinzou_room_1DL_004D50
+  symbol: jyasinzou_room_1DL_7

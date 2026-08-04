@@ -12,169 +12,169 @@ kakusiana_room_13:
   offset: 0x0
   symbol: kakusiana_room_13
 
-kakusiana_room_13Tex_001950:
+kakusiana_room_13Tex_0:
   type: TEXTURE
   offset: 0x1950
-  symbol: kakusiana_room_13Tex_001950
+  symbol: kakusiana_room_13Tex_0
   format: RGBA16
   width: 32
   height: 64
 
-kakusiana_room_13Tex_002950:
+kakusiana_room_13Tex_1:
   type: TEXTURE
   offset: 0x2950
-  symbol: kakusiana_room_13Tex_002950
+  symbol: kakusiana_room_13Tex_1
   format: RGBA16
   width: 32
   height: 64
 
-kakusiana_room_13Tex_003950:
+kakusiana_room_13Tex_2:
   type: TEXTURE
   offset: 0x3950
-  symbol: kakusiana_room_13Tex_003950
+  symbol: kakusiana_room_13Tex_2
   format: RGBA16
   width: 32
   height: 32
 
-kakusiana_room_13Tex_004EC8:
+kakusiana_room_13Tex_3:
   type: TEXTURE
   offset: 0x4EC8
-  symbol: kakusiana_room_13Tex_004EC8
+  symbol: kakusiana_room_13Tex_3
   format: I8
   width: 64
   height: 64
 
-kakusiana_room_13Tex_005EC8:
+kakusiana_room_13Tex_4:
   type: TEXTURE
   offset: 0x5EC8
-  symbol: kakusiana_room_13Tex_005EC8
+  symbol: kakusiana_room_13Tex_4
   format: I8
   width: 64
   height: 64
 
 
-kakusiana_room_13Vtx_000100:
+kakusiana_room_13Vtx_0:
   type: OOT:ARRAY
   offset: 0x000100
-  symbol: kakusiana_room_13Vtx_000100
+  symbol: kakusiana_room_13Vtx_0
   count: 95
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kakusiana_room_13DL_0006F0:
+kakusiana_room_13DL_0:
   type: GFX
   offset: 0x0006F0
-  symbol: kakusiana_room_13DL_0006F0
+  symbol: kakusiana_room_13DL_0
 
-kakusiana_room_13Vtx_000898:
+kakusiana_room_13Vtx_1:
   type: OOT:ARRAY
   offset: 0x000898
-  symbol: kakusiana_room_13Vtx_000898
+  symbol: kakusiana_room_13Vtx_1
   count: 55
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kakusiana_room_13DL_000C08:
+kakusiana_room_13DL_1:
   type: GFX
   offset: 0x000C08
-  symbol: kakusiana_room_13DL_000C08
+  symbol: kakusiana_room_13DL_1
 
-kakusiana_room_13Vtx_000DA8:
+kakusiana_room_13Vtx_2:
   type: OOT:ARRAY
   offset: 0x000DA8
-  symbol: kakusiana_room_13Vtx_000DA8
+  symbol: kakusiana_room_13Vtx_2
   count: 37
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kakusiana_room_13DL_000FF8:
+kakusiana_room_13DL_2:
   type: GFX
   offset: 0x000FF8
-  symbol: kakusiana_room_13DL_000FF8
+  symbol: kakusiana_room_13DL_2
 
-kakusiana_room_13Vtx_001128:
+kakusiana_room_13Vtx_3:
   type: OOT:ARRAY
   offset: 0x001128
-  symbol: kakusiana_room_13Vtx_001128
+  symbol: kakusiana_room_13Vtx_3
   count: 14
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kakusiana_room_13DL_001208:
+kakusiana_room_13DL_3:
   type: GFX
   offset: 0x001208
-  symbol: kakusiana_room_13DL_001208
+  symbol: kakusiana_room_13DL_3
 
-kakusiana_room_13Vtx_001290:
+kakusiana_room_13Vtx_4:
   type: OOT:ARRAY
   offset: 0x001290
-  symbol: kakusiana_room_13Vtx_001290
+  symbol: kakusiana_room_13Vtx_4
   count: 20
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kakusiana_room_13DL_0013D0:
+kakusiana_room_13DL_4:
   type: GFX
   offset: 0x0013D0
-  symbol: kakusiana_room_13DL_0013D0
+  symbol: kakusiana_room_13DL_4
 
-kakusiana_room_13Vtx_001478:
+kakusiana_room_13Vtx_5:
   type: OOT:ARRAY
   offset: 0x001478
-  symbol: kakusiana_room_13Vtx_001478
+  symbol: kakusiana_room_13Vtx_5
   count: 52
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kakusiana_room_13DL_0017B8:
+kakusiana_room_13DL_5:
   type: GFX
   offset: 0x0017B8
-  symbol: kakusiana_room_13DL_0017B8
+  symbol: kakusiana_room_13DL_5
 
-kakusiana_room_13Vtx_004150:
+kakusiana_room_13Vtx_6:
   type: OOT:ARRAY
   offset: 0x004150
-  symbol: kakusiana_room_13Vtx_004150
+  symbol: kakusiana_room_13Vtx_6
   count: 32
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kakusiana_room_13DL_004350:
+kakusiana_room_13DL_6:
   type: GFX
   offset: 0x004350
-  symbol: kakusiana_room_13DL_004350
+  symbol: kakusiana_room_13DL_6
 
-kakusiana_room_13Vtx_004438:
+kakusiana_room_13Vtx_7:
   type: OOT:ARRAY
   offset: 0x004438
-  symbol: kakusiana_room_13Vtx_004438
+  symbol: kakusiana_room_13Vtx_7
   count: 14
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kakusiana_room_13DL_004518:
+kakusiana_room_13DL_7:
   type: GFX
   offset: 0x004518
-  symbol: kakusiana_room_13DL_004518
+  symbol: kakusiana_room_13DL_7
 
-kakusiana_room_13Vtx_0045A0:
+kakusiana_room_13Vtx_8:
   type: OOT:ARRAY
   offset: 0x0045A0
-  symbol: kakusiana_room_13Vtx_0045A0
+  symbol: kakusiana_room_13Vtx_8
   count: 107
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-kakusiana_room_13DL_004C50:
+kakusiana_room_13DL_8:
   type: GFX
   offset: 0x004C50
-  symbol: kakusiana_room_13DL_004C50
+  symbol: kakusiana_room_13DL_8

@@ -3,10 +3,10 @@
 
 #include "align_asset_macro.h"
 
-#define dgYdanTex_00BA18_MQ "__OTR__scenes/mq/ydan_scene/gYdanTex_00BA18"
+#define dgYdanTex_00BA18_MQ "__OTR__scenes/mq/ydan_scene/gYdanTex_0"
 static const ALIGN_ASSET(2) char gYdanTex_00BA18_MQ[] = dgYdanTex_00BA18_MQ;
 
-#define dgYdanTex_00CA18_MQ "__OTR__scenes/mq/ydan_scene/gYdanTex_00CA18"
+#define dgYdanTex_00CA18_MQ "__OTR__scenes/mq/ydan_scene/gYdanTex_1"
 static const ALIGN_ASSET(2) char gYdanTex_00CA18_MQ[] = dgYdanTex_00CA18_MQ;
 void* D_8012A2F8_MQ[] = {
     gYdanTex_00BA18_MQ,

@@ -12,74 +12,74 @@ HIDAN_room_5:
   offset: 0x0
   symbol: HIDAN_room_5
 
-HIDAN_room_5Tex_007EE0:
+HIDAN_room_5Tex_8:
   type: TEXTURE
   offset: 0x7EE0
-  symbol: HIDAN_room_5Tex_007EE0
+  symbol: HIDAN_room_5Tex_8
   format: RGBA16
   width: 32
   height: 8
 
-HIDAN_room_5Tex_0080E0:
+HIDAN_room_5Tex_9:
   type: TEXTURE
   offset: 0x80E0
-  symbol: HIDAN_room_5Tex_0080E0
+  symbol: HIDAN_room_5Tex_9
   format: RGBA16
   width: 32
   height: 32
 
-HIDAN_room_5Tex_0088E0:
+HIDAN_room_5Tex_10:
   type: TEXTURE
   offset: 0x88E0
-  symbol: HIDAN_room_5Tex_0088E0
+  symbol: HIDAN_room_5Tex_10
   format: CI4
   width: 32
   height: 64
   external_tlut: HIDAN_scene
   external_tlut_offset: 0x189B0
 
-HIDAN_room_5Tex_008CE0:
+HIDAN_room_5Tex_11:
   type: TEXTURE
   offset: 0x8CE0
-  symbol: HIDAN_room_5Tex_008CE0
+  symbol: HIDAN_room_5Tex_11
   format: RGBA16
   width: 32
   height: 32
 
-HIDAN_room_5Tex_0094E0:
+HIDAN_room_5Tex_12:
   type: TEXTURE
   offset: 0x94E0
-  symbol: HIDAN_room_5Tex_0094E0
+  symbol: HIDAN_room_5Tex_12
   format: CI4
   width: 32
   height: 32
   external_tlut: HIDAN_scene
   external_tlut_offset: 0x18990
 
-HIDAN_room_5Tex_0096E0:
+HIDAN_room_5Tex_13:
   type: TEXTURE
   offset: 0x96E0
-  symbol: HIDAN_room_5Tex_0096E0
+  symbol: HIDAN_room_5Tex_13
   format: CI4
   width: 32
   height: 64
   external_tlut: HIDAN_scene
   external_tlut_offset: 0x189B0
 
-HIDAN_room_5Tex_009AE0:
+HIDAN_room_5Tex_14:
   type: TEXTURE
   offset: 0x9AE0
-  symbol: HIDAN_room_5Tex_009AE0
+  symbol: HIDAN_room_5Tex_14
   format: CI4
   width: 32
   height: 64
   external_tlut: HIDAN_scene
   external_tlut_offset: 0x189B0
 
-HIDAN_room_5Tex_009EE0:
+HIDAN_room_5Tex_15:
   type: TEXTURE
   offset: 0x9EE0
-  symbol: HIDAN_room_5Tex_009EE0
+  symbol: HIDAN_room_5Tex_15
   format: CI4
   width: 32
   height: 64
@@ -87,86 +87,86 @@ HIDAN_room_5Tex_009EE0:
   external_tlut_offset: 0x189B0
 
 
-HIDAN_room_5Vtx_0002F0:
+HIDAN_room_5Vtx_0:
   type: OOT:ARRAY
   offset: 0x0002F0
-  symbol: HIDAN_room_5Vtx_0002F0
+  symbol: HIDAN_room_5Vtx_0
   count: 119
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HIDAN_room_5DL_000A60:
+HIDAN_room_5DL_6:
   type: GFX
   offset: 0x000A60
-  symbol: HIDAN_room_5DL_000A60
+  symbol: HIDAN_room_5DL_6
 
-HIDAN_room_5Vtx_001120:
+HIDAN_room_5Vtx_1:
   type: OOT:ARRAY
   offset: 0x001120
-  symbol: HIDAN_room_5Vtx_001120
+  symbol: HIDAN_room_5Vtx_1
   count: 258
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HIDAN_room_5DL_002140:
+HIDAN_room_5DL_7:
   type: GFX
   offset: 0x002140
-  symbol: HIDAN_room_5DL_002140
+  symbol: HIDAN_room_5DL_7
 
-HIDAN_room_5Vtx_003150:
+HIDAN_room_5Vtx_2:
   type: OOT:ARRAY
   offset: 0x003150
-  symbol: HIDAN_room_5Vtx_003150
+  symbol: HIDAN_room_5Vtx_2
   count: 169
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HIDAN_room_5DL_003BE0:
+HIDAN_room_5DL_8:
   type: GFX
   offset: 0x003BE0
-  symbol: HIDAN_room_5DL_003BE0
+  symbol: HIDAN_room_5DL_8
 
-HIDAN_room_5Vtx_0046D8:
+HIDAN_room_5Vtx_3:
   type: OOT:ARRAY
   offset: 0x0046D8
-  symbol: HIDAN_room_5Vtx_0046D8
+  symbol: HIDAN_room_5Vtx_3
   count: 152
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HIDAN_room_5DL_005058:
+HIDAN_room_5DL_9:
   type: GFX
   offset: 0x005058
-  symbol: HIDAN_room_5DL_005058
+  symbol: HIDAN_room_5DL_9
 
-HIDAN_room_5Vtx_005880:
+HIDAN_room_5Vtx_4:
   type: OOT:ARRAY
   offset: 0x005880
-  symbol: HIDAN_room_5Vtx_005880
+  symbol: HIDAN_room_5Vtx_4
   count: 80
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HIDAN_room_5DL_005D80:
+HIDAN_room_5DL_10:
   type: GFX
   offset: 0x005D80
-  symbol: HIDAN_room_5DL_005D80
+  symbol: HIDAN_room_5DL_10
 
-HIDAN_room_5Vtx_006130:
+HIDAN_room_5Vtx_5:
   type: OOT:ARRAY
   offset: 0x006130
-  symbol: HIDAN_room_5Vtx_006130
+  symbol: HIDAN_room_5Vtx_5
   count: 256
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HIDAN_room_5DL_007130:
+HIDAN_room_5DL_11:
   type: GFX
   offset: 0x007130
-  symbol: HIDAN_room_5DL_007130
+  symbol: HIDAN_room_5DL_11

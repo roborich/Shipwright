@@ -6,47 +6,47 @@
   external_files:
     - pal_mq_dbg/scenes/mq/bdan_scene.yml
     - pal_mq_dbg/code/sys_matrix.yml
-    - pal_mq_dbg/scenes/mq/bdan_room_14Set_000190.yml
+    - pal_mq_dbg/scenes/mq/bdan_room_14Set_1.yml
 
 bdan_room_14:
   type: OOT:ROOM
   offset: 0x0
   symbol: bdan_room_14
 
-bdan_room_14Tex_0045C8:
+bdan_room_14Tex_4:
   type: TEXTURE
   offset: 0x45C8
-  symbol: bdan_room_14Tex_0045C8
+  symbol: bdan_room_14Tex_4
   format: CI8
   width: 32
   height: 64
   external_tlut: bdan_scene
   external_tlut_offset: 0x13BF8
 
-bdan_room_14Tex_004DC8:
+bdan_room_14Tex_5:
   type: TEXTURE
   offset: 0x4DC8
-  symbol: bdan_room_14Tex_004DC8
+  symbol: bdan_room_14Tex_5
   format: CI8
   width: 32
   height: 64
   external_tlut: bdan_scene
   external_tlut_offset: 0x13BF8
 
-bdan_room_14Tex_0055C8:
+bdan_room_14Tex_6:
   type: TEXTURE
   offset: 0x55C8
-  symbol: bdan_room_14Tex_0055C8
+  symbol: bdan_room_14Tex_6
   format: CI8
   width: 32
   height: 32
   external_tlut: bdan_scene
   external_tlut_offset: 0x13BF8
 
-bdan_room_14Tex_0059C8:
+bdan_room_14Tex_7:
   type: TEXTURE
   offset: 0x59C8
-  symbol: bdan_room_14Tex_0059C8
+  symbol: bdan_room_14Tex_7
   format: CI8
   width: 32
   height: 64
@@ -54,21 +54,21 @@ bdan_room_14Tex_0059C8:
   external_tlut_offset: 0x13BF8
 
 
-bdan_room_14Vtx_0001D0:
+bdan_room_14Vtx_0:
   type: OOT:ARRAY
   offset: 0x0001D0
-  symbol: bdan_room_14Vtx_0001D0
+  symbol: bdan_room_14Vtx_0
   count: 806
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-bdan_room_14DL_003430:
+bdan_room_14DL_2:
   type: GFX
   offset: 0x003430
-  symbol: bdan_room_14DL_003430
+  symbol: bdan_room_14DL_2
 
-bdan_room_14DL_0045B8:
+bdan_room_14DL_3:
   type: GFX
   offset: 0x0045B8
-  symbol: bdan_room_14DL_0045B8
+  symbol: bdan_room_14DL_3

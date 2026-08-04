@@ -3,102 +3,102 @@
     - [ 2, 0x01F443A0 ]
 
   external_files:
-    - ntsc_u_gc/scenes/shared/ganon_demo_sceneSet_001AD0.yml
+    - ntsc_u_gc/scenes/shared/ganon_demo_sceneSet_0.yml
 ganon_demo_scene:
   type: OOT:SCENE
   offset: 0x0
   symbol: ganon_demo_scene
 
-ganon_demo_sceneTex_001B70:
+ganon_demo_sceneTex_0:
   type: TEXTURE
   offset: 0x1B70
-  symbol: ganon_demo_sceneTex_001B70
+  symbol: ganon_demo_sceneTex_0
   format: I8
   width: 128
   height: 32
 
-ganon_demo_sceneTex_002B70:
+ganon_demo_sceneTex_1:
   type: TEXTURE
   offset: 0x2B70
-  symbol: ganon_demo_sceneTex_002B70
+  symbol: ganon_demo_sceneTex_1
   format: I8
   width: 64
   height: 64
 
-ganon_demo_sceneTex_003B70:
+ganon_demo_sceneTex_2:
   type: TEXTURE
   offset: 0x3B70
-  symbol: ganon_demo_sceneTex_003B70
+  symbol: ganon_demo_sceneTex_2
   format: I8
   width: 64
   height: 64
 
-ganon_demo_sceneTex_004B70:
+ganon_demo_sceneTex_3:
   type: TEXTURE
   offset: 0x4B70
-  symbol: ganon_demo_sceneTex_004B70
+  symbol: ganon_demo_sceneTex_3
   format: I8
   width: 64
   height: 64
 
-ganon_demo_sceneTex_005B70:
+ganon_demo_sceneTex_4:
   type: TEXTURE
   offset: 0x5B70
-  symbol: ganon_demo_sceneTex_005B70
+  symbol: ganon_demo_sceneTex_4
   format: RGBA16
   width: 64
   height: 16
 
-ganon_demo_sceneTex_006370:
+ganon_demo_sceneTex_5:
   type: TEXTURE
   offset: 0x6370
-  symbol: ganon_demo_sceneTex_006370
+  symbol: ganon_demo_sceneTex_5
   format: RGBA16
   width: 32
   height: 32
 
-ganon_demo_sceneTex_006B70:
+ganon_demo_sceneTex_6:
   type: TEXTURE
   offset: 0x6B70
-  symbol: ganon_demo_sceneTex_006B70
+  symbol: ganon_demo_sceneTex_6
   format: IA4
   width: 128
   height: 32
 
-ganon_demo_sceneTex_007370:
+ganon_demo_sceneTex_7:
   type: TEXTURE
   offset: 0x7370
-  symbol: ganon_demo_sceneTex_007370
+  symbol: ganon_demo_sceneTex_7
   format: RGBA16
   width: 32
   height: 64
 
-ganon_demo_sceneTex_008370:
+ganon_demo_sceneTex_8:
   type: TEXTURE
   offset: 0x8370
-  symbol: ganon_demo_sceneTex_008370
+  symbol: ganon_demo_sceneTex_8
   format: RGBA16
   width: 16
   height: 32
 
-ganon_demo_sceneTex_008770:
+ganon_demo_sceneTex_9:
   type: TEXTURE
   offset: 0x8770
-  symbol: ganon_demo_sceneTex_008770
+  symbol: ganon_demo_sceneTex_9
   format: I8
   width: 16
   height: 16
 
-ganon_demo_sceneTex_008870:
+ganon_demo_sceneTex_10:
   type: TEXTURE
   offset: 0x8870
-  symbol: ganon_demo_sceneTex_008870
+  symbol: ganon_demo_sceneTex_10
   format: RGBA16
   width: 32
   height: 32
 
 
-ganon_demo_sceneCollisionHeader_001AA0:
+ganon_demo_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x001AA0
-  symbol: ganon_demo_sceneCollisionHeader_001AA0
+  symbol: ganon_demo_sceneCollisionHeader_0

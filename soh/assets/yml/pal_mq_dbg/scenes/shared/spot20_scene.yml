@@ -3,17 +3,17 @@
     - [ 2, 0x02D7F000 ]
 
   external_files:
-    - pal_mq_dbg/scenes/shared/spot20_sceneSet_004A50.yml
-    - pal_mq_dbg/scenes/shared/spot20_sceneSet_004CD0.yml
-    - pal_mq_dbg/scenes/shared/spot20_sceneSet_004F50.yml
-    - pal_mq_dbg/scenes/shared/spot20_sceneSet_0051D0.yml
-    - pal_mq_dbg/scenes/shared/spot20_sceneSet_0052F0.yml
-    - pal_mq_dbg/scenes/shared/spot20_sceneSet_0054B0.yml
-    - pal_mq_dbg/scenes/shared/spot20_sceneSet_0055D0.yml
-    - pal_mq_dbg/scenes/shared/spot20_sceneSet_0056D0.yml
-    - pal_mq_dbg/scenes/shared/spot20_sceneSet_005860.yml
-    - pal_mq_dbg/scenes/shared/spot20_sceneSet_005960.yml
-    - pal_mq_dbg/scenes/shared/spot20_sceneSet_005AE0.yml
+    - pal_mq_dbg/scenes/shared/spot20_sceneSet_0.yml
+    - pal_mq_dbg/scenes/shared/spot20_sceneSet_1.yml
+    - pal_mq_dbg/scenes/shared/spot20_sceneSet_2.yml
+    - pal_mq_dbg/scenes/shared/spot20_sceneSet_3.yml
+    - pal_mq_dbg/scenes/shared/spot20_sceneSet_4.yml
+    - pal_mq_dbg/scenes/shared/spot20_sceneSet_5.yml
+    - pal_mq_dbg/scenes/shared/spot20_sceneSet_6.yml
+    - pal_mq_dbg/scenes/shared/spot20_sceneSet_7.yml
+    - pal_mq_dbg/scenes/shared/spot20_sceneSet_8.yml
+    - pal_mq_dbg/scenes/shared/spot20_sceneSet_9.yml
+    - pal_mq_dbg/scenes/shared/spot20_sceneSet_10.yml
 spot20_scene:
   type: OOT:SCENE
   offset: 0x0
@@ -40,199 +40,199 @@ gLonLonRangeNightWindowsTex:
   width: 32
   height: 64
 
-spot20_scenePathList_005844:
+spot20_scenePathList_0:
   type: OOT:PATH
   offset: 0x5844
-  symbol: spot20_scenePathList_005844
+  symbol: spot20_scenePathList_0
   num_paths: 2
 
-spot20_sceneTLUT_005DB0:
+spot20_sceneTLUT_0:
   type: TEXTURE
   offset: 0x5DB0
-  symbol: spot20_sceneTLUT_005DB0
+  symbol: spot20_sceneTLUT_0
   format: RGBA16
   width: 16
   height: 16
 
-spot20_sceneTLUT_005FB8:
+spot20_sceneTLUT_1:
   type: TEXTURE
   offset: 0x5FB8
-  symbol: spot20_sceneTLUT_005FB8
+  symbol: spot20_sceneTLUT_1
   format: RGBA16
   width: 4
   height: 4
 
-spot20_sceneTex_005FE0:
+spot20_sceneTex_0:
   type: TEXTURE
   offset: 0x5FE0
-  symbol: spot20_sceneTex_005FE0
+  symbol: spot20_sceneTex_0
   format: CI8
   width: 32
   height: 64
   tlut: 0x5DB0
 
-spot20_sceneTex_0067E0:
+spot20_sceneTex_1:
   type: TEXTURE
   offset: 0x67E0
-  symbol: spot20_sceneTex_0067E0
+  symbol: spot20_sceneTex_1
   format: CI8
   width: 16
   height: 32
   tlut: 0x5DB0
 
-spot20_sceneTex_0069E0:
+spot20_sceneTex_2:
   type: TEXTURE
   offset: 0x69E0
-  symbol: spot20_sceneTex_0069E0
+  symbol: spot20_sceneTex_2
   format: CI8
   width: 64
   height: 32
   tlut: 0x5DB0
 
-spot20_sceneTex_0071E0:
+spot20_sceneTex_3:
   type: TEXTURE
   offset: 0x71E0
-  symbol: spot20_sceneTex_0071E0
+  symbol: spot20_sceneTex_3
   format: RGBA16
   width: 64
   height: 32
 
-spot20_sceneTex_0091E0:
+spot20_sceneTex_4:
   type: TEXTURE
   offset: 0x91E0
-  symbol: spot20_sceneTex_0091E0
+  symbol: spot20_sceneTex_4
   format: CI8
   width: 16
   height: 32
   tlut: 0x5DB0
 
-spot20_sceneTex_0093E0:
+spot20_sceneTex_5:
   type: TEXTURE
   offset: 0x93E0
-  symbol: spot20_sceneTex_0093E0
+  symbol: spot20_sceneTex_5
   format: RGBA16
   width: 16
   height: 64
 
-spot20_sceneTex_009BE0:
+spot20_sceneTex_6:
   type: TEXTURE
   offset: 0x9BE0
-  symbol: spot20_sceneTex_009BE0
+  symbol: spot20_sceneTex_6
   format: RGBA16
   width: 64
   height: 32
 
-spot20_sceneTex_00ABE0:
+spot20_sceneTex_7:
   type: TEXTURE
   offset: 0xABE0
-  symbol: spot20_sceneTex_00ABE0
+  symbol: spot20_sceneTex_7
   format: RGBA16
   width: 32
   height: 64
 
-spot20_sceneTex_00BBE0:
+spot20_sceneTex_8:
   type: TEXTURE
   offset: 0xBBE0
-  symbol: spot20_sceneTex_00BBE0
+  symbol: spot20_sceneTex_8
   format: CI8
   width: 32
   height: 16
   tlut: 0x5DB0
 
-spot20_sceneTex_00BDE0:
+spot20_sceneTex_9:
   type: TEXTURE
   offset: 0xBDE0
-  symbol: spot20_sceneTex_00BDE0
+  symbol: spot20_sceneTex_9
   format: CI8
   width: 32
   height: 32
   tlut: 0x5DB0
 
-spot20_sceneTex_00C1E0:
+spot20_sceneTex_10:
   type: TEXTURE
   offset: 0xC1E0
-  symbol: spot20_sceneTex_00C1E0
+  symbol: spot20_sceneTex_10
   format: CI4
   width: 64
   height: 64
   tlut: 0x5FB8
 
-spot20_sceneTex_00C9E0:
+spot20_sceneTex_11:
   type: TEXTURE
   offset: 0xC9E0
-  symbol: spot20_sceneTex_00C9E0
+  symbol: spot20_sceneTex_11
   format: CI8
   width: 32
   height: 64
   tlut: 0x5DB0
 
-spot20_sceneTex_00D1E0:
+spot20_sceneTex_12:
   type: TEXTURE
   offset: 0xD1E0
-  symbol: spot20_sceneTex_00D1E0
+  symbol: spot20_sceneTex_12
   format: RGBA16
   width: 32
   height: 32
 
-spot20_sceneTex_00D9E0:
+spot20_sceneTex_13:
   type: TEXTURE
   offset: 0xD9E0
-  symbol: spot20_sceneTex_00D9E0
+  symbol: spot20_sceneTex_13
   format: RGBA16
   width: 32
   height: 32
 
-spot20_sceneTex_00E1E0:
+spot20_sceneTex_14:
   type: TEXTURE
   offset: 0xE1E0
-  symbol: spot20_sceneTex_00E1E0
+  symbol: spot20_sceneTex_14
   format: I4
   width: 64
   height: 64
 
-spot20_sceneTex_00E9E0:
+spot20_sceneTex_15:
   type: TEXTURE
   offset: 0xE9E0
-  symbol: spot20_sceneTex_00E9E0
+  symbol: spot20_sceneTex_15
   format: I4
   width: 64
   height: 64
 
-spot20_sceneTex_00F1E0:
+spot20_sceneTex_16:
   type: TEXTURE
   offset: 0xF1E0
-  symbol: spot20_sceneTex_00F1E0
+  symbol: spot20_sceneTex_16
   format: I4
   width: 64
   height: 64
 
-spot20_sceneTex_00F9E0:
+spot20_sceneTex_17:
   type: TEXTURE
   offset: 0xF9E0
-  symbol: spot20_sceneTex_00F9E0
+  symbol: spot20_sceneTex_17
   format: CI8
   width: 8
   height: 64
   tlut: 0x5DB0
 
-spot20_sceneTex_010BE0:
+spot20_sceneTex_18:
   type: TEXTURE
   offset: 0x10BE0
-  symbol: spot20_sceneTex_010BE0
+  symbol: spot20_sceneTex_18
   format: I4
   width: 64
   height: 18
 
-spot20_sceneTex_010E20:
+spot20_sceneTex_19:
   type: TEXTURE
   offset: 0x10E20
-  symbol: spot20_sceneTex_010E20
+  symbol: spot20_sceneTex_19
   format: IA8
   width: 64
   height: 64
 
 
-spot20_sceneCollisionHeader_002948:
+spot20_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x002948
-  symbol: spot20_sceneCollisionHeader_002948
+  symbol: spot20_sceneCollisionHeader_0

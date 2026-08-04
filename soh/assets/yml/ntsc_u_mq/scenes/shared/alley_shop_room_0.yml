@@ -13,145 +13,145 @@ alley_shop_room_0:
   symbol: alley_shop_room_0
 
 
-alley_shop_room_0Vtx_0000C0:
+alley_shop_room_0Vtx_0:
   type: OOT:ARRAY
   offset: 0x0000C0
-  symbol: alley_shop_room_0Vtx_0000C0
+  symbol: alley_shop_room_0Vtx_0
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-alley_shop_room_0Vtx_000140:
+alley_shop_room_0Vtx_1:
   type: OOT:ARRAY
   offset: 0x000140
-  symbol: alley_shop_room_0Vtx_000140
+  symbol: alley_shop_room_0Vtx_1
   count: 28
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-alley_shop_room_0Vtx_000300:
+alley_shop_room_0Vtx_2:
   type: OOT:ARRAY
   offset: 0x000300
-  symbol: alley_shop_room_0Vtx_000300
+  symbol: alley_shop_room_0Vtx_2
   count: 4
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-alley_shop_room_0Vtx_000340:
+alley_shop_room_0Vtx_3:
   type: OOT:ARRAY
   offset: 0x000340
-  symbol: alley_shop_room_0Vtx_000340
+  symbol: alley_shop_room_0Vtx_3
   count: 62
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-alley_shop_room_0Vtx_000720:
+alley_shop_room_0Vtx_4:
   type: OOT:ARRAY
   offset: 0x000720
-  symbol: alley_shop_room_0Vtx_000720
+  symbol: alley_shop_room_0Vtx_4
   count: 16
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-alley_shop_room_0Vtx_000820:
+alley_shop_room_0Vtx_5:
   type: OOT:ARRAY
   offset: 0x000820
-  symbol: alley_shop_room_0Vtx_000820
+  symbol: alley_shop_room_0Vtx_5
   count: 67
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-alley_shop_room_0Vtx_000C50:
+alley_shop_room_0Vtx_6:
   type: OOT:ARRAY
   offset: 0x000C50
-  symbol: alley_shop_room_0Vtx_000C50
+  symbol: alley_shop_room_0Vtx_6
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-alley_shop_room_0Vtx_000CD0:
+alley_shop_room_0Vtx_7:
   type: OOT:ARRAY
   offset: 0x000CD0
-  symbol: alley_shop_room_0Vtx_000CD0
+  symbol: alley_shop_room_0Vtx_7
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-alley_shop_room_0Vtx_000D50:
+alley_shop_room_0Vtx_8:
   type: OOT:ARRAY
   offset: 0x000D50
-  symbol: alley_shop_room_0Vtx_000D50
+  symbol: alley_shop_room_0Vtx_8
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-alley_shop_room_0Vtx_000DD0:
+alley_shop_room_0Vtx_9:
   type: OOT:ARRAY
   offset: 0x000DD0
-  symbol: alley_shop_room_0Vtx_000DD0
+  symbol: alley_shop_room_0Vtx_9
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-alley_shop_room_0Vtx_000E50:
+alley_shop_room_0Vtx_10:
   type: OOT:ARRAY
   offset: 0x000E50
-  symbol: alley_shop_room_0Vtx_000E50
+  symbol: alley_shop_room_0Vtx_10
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-alley_shop_room_0Vtx_000ED0:
+alley_shop_room_0Vtx_11:
   type: OOT:ARRAY
   offset: 0x000ED0
-  symbol: alley_shop_room_0Vtx_000ED0
+  symbol: alley_shop_room_0Vtx_11
   count: 8
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-alley_shop_room_0DL_000F50:
+alley_shop_room_0DL_0:
   type: GFX
   offset: 0x000F50
-  symbol: alley_shop_room_0DL_000F50
+  symbol: alley_shop_room_0DL_0
 
-alley_shop_room_0DL_000FD8:
+alley_shop_room_0DL_1:
   type: GFX
   offset: 0x000FD8
-  symbol: alley_shop_room_0DL_000FD8
+  symbol: alley_shop_room_0DL_1
 
-alley_shop_room_0DL_001098:
+alley_shop_room_0DL_2:
   type: GFX
   offset: 0x001098
-  symbol: alley_shop_room_0DL_001098
+  symbol: alley_shop_room_0DL_2
 
-alley_shop_room_0DL_001118:
+alley_shop_room_0DL_3:
   type: GFX
   offset: 0x001118
-  symbol: alley_shop_room_0DL_001118
+  symbol: alley_shop_room_0DL_3
 
-alley_shop_room_0DL_001220:
+alley_shop_room_0DL_4:
   type: GFX
   offset: 0x001220
-  symbol: alley_shop_room_0DL_001220
+  symbol: alley_shop_room_0DL_4
 
-alley_shop_room_0DL_0012B8:
+alley_shop_room_0DL_5:
   type: GFX
   offset: 0x0012B8
-  symbol: alley_shop_room_0DL_0012B8
+  symbol: alley_shop_room_0DL_5
 
-alley_shop_room_0DL_0013E0:
+alley_shop_room_0DL_6:
   type: GFX
   offset: 0x0013E0
-  symbol: alley_shop_room_0DL_0013E0
+  symbol: alley_shop_room_0DL_6

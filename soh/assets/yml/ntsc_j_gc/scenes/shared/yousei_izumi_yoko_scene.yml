@@ -3,9 +3,9 @@
     - [ 2, 0x01D6B4F0 ]
 
   external_files:
-    - ntsc_j_gc/scenes/shared/yousei_izumi_yoko_sceneSet_0039E0.yml
-    - ntsc_j_gc/scenes/shared/yousei_izumi_yoko_sceneSet_003B20.yml
-    - ntsc_j_gc/scenes/shared/yousei_izumi_yoko_sceneSet_003C60.yml
+    - ntsc_j_gc/scenes/shared/yousei_izumi_yoko_sceneSet_0.yml
+    - ntsc_j_gc/scenes/shared/yousei_izumi_yoko_sceneSet_1.yml
+    - ntsc_j_gc/scenes/shared/yousei_izumi_yoko_sceneSet_2.yml
 yousei_izumi_yoko_scene:
   type: OOT:SCENE
   offset: 0x0
@@ -26,112 +26,112 @@ gGreatFairyNayrusLoveCs:
   offset: 0x1F40
   symbol: gGreatFairyNayrusLoveCs
 
-yousei_izumi_yoko_sceneTex_003DA0:
+yousei_izumi_yoko_sceneTex_0:
   type: TEXTURE
   offset: 0x3DA0
-  symbol: yousei_izumi_yoko_sceneTex_003DA0
+  symbol: yousei_izumi_yoko_sceneTex_0
   format: I8
   width: 32
   height: 64
 
-yousei_izumi_yoko_sceneTex_0045A0:
+yousei_izumi_yoko_sceneTex_1:
   type: TEXTURE
   offset: 0x45A0
-  symbol: yousei_izumi_yoko_sceneTex_0045A0
+  symbol: yousei_izumi_yoko_sceneTex_1
   format: RGBA16
   width: 32
   height: 32
 
-yousei_izumi_yoko_sceneTex_004DA0:
+yousei_izumi_yoko_sceneTex_2:
   type: TEXTURE
   offset: 0x4DA0
-  symbol: yousei_izumi_yoko_sceneTex_004DA0
+  symbol: yousei_izumi_yoko_sceneTex_2
   format: RGBA16
   width: 32
   height: 32
 
-yousei_izumi_yoko_sceneTex_0055A0:
+yousei_izumi_yoko_sceneTex_3:
   type: TEXTURE
   offset: 0x55A0
-  symbol: yousei_izumi_yoko_sceneTex_0055A0
+  symbol: yousei_izumi_yoko_sceneTex_3
   format: IA4
   width: 64
   height: 128
 
-yousei_izumi_yoko_sceneTex_0065A0:
+yousei_izumi_yoko_sceneTex_4:
   type: TEXTURE
   offset: 0x65A0
-  symbol: yousei_izumi_yoko_sceneTex_0065A0
+  symbol: yousei_izumi_yoko_sceneTex_4
   format: RGBA16
   width: 32
   height: 64
 
-yousei_izumi_yoko_sceneTex_0075A0:
+yousei_izumi_yoko_sceneTex_5:
   type: TEXTURE
   offset: 0x75A0
-  symbol: yousei_izumi_yoko_sceneTex_0075A0
+  symbol: yousei_izumi_yoko_sceneTex_5
   format: RGBA16
   width: 32
   height: 64
 
-yousei_izumi_yoko_sceneTex_0085A0:
+yousei_izumi_yoko_sceneTex_6:
   type: TEXTURE
   offset: 0x85A0
-  symbol: yousei_izumi_yoko_sceneTex_0085A0
+  symbol: yousei_izumi_yoko_sceneTex_6
   format: RGBA16
   width: 32
   height: 64
 
-yousei_izumi_yoko_sceneTex_0095A0:
+yousei_izumi_yoko_sceneTex_7:
   type: TEXTURE
   offset: 0x95A0
-  symbol: yousei_izumi_yoko_sceneTex_0095A0
+  symbol: yousei_izumi_yoko_sceneTex_7
   format: RGBA16
   width: 32
   height: 32
 
-yousei_izumi_yoko_sceneTex_009DA0:
+yousei_izumi_yoko_sceneTex_8:
   type: TEXTURE
   offset: 0x9DA0
-  symbol: yousei_izumi_yoko_sceneTex_009DA0
+  symbol: yousei_izumi_yoko_sceneTex_8
   format: I8
   width: 32
   height: 128
 
-yousei_izumi_yoko_sceneTex_00ADA0:
+yousei_izumi_yoko_sceneTex_9:
   type: TEXTURE
   offset: 0xADA0
-  symbol: yousei_izumi_yoko_sceneTex_00ADA0
+  symbol: yousei_izumi_yoko_sceneTex_9
   format: RGBA16
   width: 32
   height: 32
 
-yousei_izumi_yoko_sceneTex_00B5A0:
+yousei_izumi_yoko_sceneTex_10:
   type: TEXTURE
   offset: 0xB5A0
-  symbol: yousei_izumi_yoko_sceneTex_00B5A0
+  symbol: yousei_izumi_yoko_sceneTex_10
   format: IA8
   width: 64
   height: 32
 
-yousei_izumi_yoko_sceneTex_00BDA0:
+yousei_izumi_yoko_sceneTex_11:
   type: TEXTURE
   offset: 0xBDA0
-  symbol: yousei_izumi_yoko_sceneTex_00BDA0
+  symbol: yousei_izumi_yoko_sceneTex_11
   format: RGBA16
   width: 32
   height: 32
 
-yousei_izumi_yoko_sceneTex_00C5A0:
+yousei_izumi_yoko_sceneTex_12:
   type: TEXTURE
   offset: 0xC5A0
-  symbol: yousei_izumi_yoko_sceneTex_00C5A0
+  symbol: yousei_izumi_yoko_sceneTex_12
   format: RGBA16
   width: 32
   height: 32
 
 
-yousei_izumi_yoko_sceneCollisionHeader_0039A8:
+yousei_izumi_yoko_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x0039A8
-  symbol: yousei_izumi_yoko_sceneCollisionHeader_0039A8
+  symbol: yousei_izumi_yoko_sceneCollisionHeader_0

@@ -12,106 +12,106 @@ ddan_room_4:
   offset: 0x0
   symbol: ddan_room_4
 
-ddan_room_4TLUT_006B50:
+ddan_room_4TLUT_0:
   type: TEXTURE
   offset: 0x6A40
-  symbol: ddan_room_4TLUT_006B50
+  symbol: ddan_room_4TLUT_0
   format: RGBA16
   width: 16
   height: 16
 
-ddan_room_4Tex_006D58:
+ddan_room_4Tex_0:
   type: TEXTURE
   offset: 0x6C48
-  symbol: ddan_room_4Tex_006D58
+  symbol: ddan_room_4Tex_0
   format: CI8
   width: 32
   height: 32
   external_tlut: ddan_scene
   external_tlut_offset: 0x11D70
 
-ddan_room_4Tex_007158:
+ddan_room_4Tex_1:
   type: TEXTURE
   offset: 0x7048
-  symbol: ddan_room_4Tex_007158
+  symbol: ddan_room_4Tex_1
   format: CI8
   width: 32
   height: 32
   tlut: 0x6A40
 
-ddan_room_4Tex_007558:
+ddan_room_4Tex_2:
   type: TEXTURE
   offset: 0x7448
-  symbol: ddan_room_4Tex_007558
+  symbol: ddan_room_4Tex_2
   format: CI8
   width: 64
   height: 32
   tlut: 0x6A40
 
-ddan_room_4Tex_007D58:
+ddan_room_4Tex_3:
   type: TEXTURE
   offset: 0x7C48
-  symbol: ddan_room_4Tex_007D58
+  symbol: ddan_room_4Tex_3
   format: CI8
   width: 32
   height: 64
   external_tlut: ddan_scene
   external_tlut_offset: 0x11D70
 
-ddan_room_4Tex_008558:
+ddan_room_4Tex_4:
   type: TEXTURE
   offset: 0x8448
-  symbol: ddan_room_4Tex_008558
+  symbol: ddan_room_4Tex_4
   format: CI8
   width: 32
   height: 64
   external_tlut: ddan_scene
   external_tlut_offset: 0x11D70
 
-ddan_room_4Tex_008D58:
+ddan_room_4Tex_5:
   type: TEXTURE
   offset: 0x8C48
-  symbol: ddan_room_4Tex_008D58
+  symbol: ddan_room_4Tex_5
   format: CI8
   width: 32
   height: 32
   external_tlut: ddan_scene
   external_tlut_offset: 0x11D70
 
-ddan_room_4Tex_009158:
+ddan_room_4Tex_6:
   type: TEXTURE
   offset: 0x9048
-  symbol: ddan_room_4Tex_009158
+  symbol: ddan_room_4Tex_6
   format: CI8
   width: 64
   height: 32
   tlut: 0x6A40
 
 
-ddan_room_4Vtx_000170:
+ddan_room_4Vtx_0:
   type: OOT:ARRAY
   offset: 0x000170
-  symbol: ddan_room_4Vtx_000170
+  symbol: ddan_room_4Vtx_0
   count: 766
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ddan_room_4DL_003150:
+ddan_room_4DL_0:
   type: GFX
   offset: 0x003150
-  symbol: ddan_room_4DL_003150
+  symbol: ddan_room_4DL_0
 
-ddan_room_4Vtx_005E70:
+ddan_room_4Vtx_1:
   type: OOT:ARRAY
   offset: 0x005E70
-  symbol: ddan_room_4Vtx_005E70
+  symbol: ddan_room_4Vtx_1
   count: 148
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ddan_room_4DL_0067B0:
+ddan_room_4DL_1:
   type: GFX
   offset: 0x0067B0
-  symbol: ddan_room_4DL_0067B0
+  symbol: ddan_room_4DL_1

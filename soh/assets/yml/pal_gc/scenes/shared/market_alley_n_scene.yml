@@ -14,7 +14,7 @@ gMarketAlleyNightPath_0019C:
   num_paths: 4
 
 
-market_alley_n_sceneCollisionHeader_0012C0:
+market_alley_n_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x0012C0
-  symbol: market_alley_n_sceneCollisionHeader_0012C0
+  symbol: market_alley_n_sceneCollisionHeader_0

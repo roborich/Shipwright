@@ -12,48 +12,48 @@ HIDAN_room_18:
   offset: 0x0
   symbol: HIDAN_room_18
 
-HIDAN_room_18Tex_0027F8:
+HIDAN_room_18Tex_5:
   type: TEXTURE
   offset: 0x27F8
-  symbol: HIDAN_room_18Tex_0027F8
+  symbol: HIDAN_room_18Tex_5
   format: RGBA16
   width: 32
   height: 32
 
-HIDAN_room_18Tex_002FF8:
+HIDAN_room_18Tex_6:
   type: TEXTURE
   offset: 0x2FF8
-  symbol: HIDAN_room_18Tex_002FF8
+  symbol: HIDAN_room_18Tex_6
   format: CI4
   width: 32
   height: 64
   external_tlut: HIDAN_scene
   external_tlut_offset: 0x189B0
 
-HIDAN_room_18Tex_0033F8:
+HIDAN_room_18Tex_7:
   type: TEXTURE
   offset: 0x33F8
-  symbol: HIDAN_room_18Tex_0033F8
+  symbol: HIDAN_room_18Tex_7
   format: CI4
   width: 64
   height: 32
   external_tlut: HIDAN_scene
   external_tlut_offset: 0x18990
 
-HIDAN_room_18Tex_0037F8:
+HIDAN_room_18Tex_8:
   type: TEXTURE
   offset: 0x37F8
-  symbol: HIDAN_room_18Tex_0037F8
+  symbol: HIDAN_room_18Tex_8
   format: CI4
   width: 32
   height: 32
   external_tlut: HIDAN_scene
   external_tlut_offset: 0x18990
 
-HIDAN_room_18Tex_0039F8:
+HIDAN_room_18Tex_9:
   type: TEXTURE
   offset: 0x39F8
-  symbol: HIDAN_room_18Tex_0039F8
+  symbol: HIDAN_room_18Tex_9
   format: CI4
   width: 32
   height: 32
@@ -61,16 +61,16 @@ HIDAN_room_18Tex_0039F8:
   external_tlut_offset: 0x18990
 
 
-HIDAN_room_18Vtx_000170:
+HIDAN_room_18Vtx_0:
   type: OOT:ARRAY
   offset: 0x000170
-  symbol: HIDAN_room_18Vtx_000170
+  symbol: HIDAN_room_18Vtx_0
   count: 370
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HIDAN_room_18DL_001890:
+HIDAN_room_18DL_1:
   type: GFX
   offset: 0x001890
-  symbol: HIDAN_room_18DL_001890
+  symbol: HIDAN_room_18DL_1

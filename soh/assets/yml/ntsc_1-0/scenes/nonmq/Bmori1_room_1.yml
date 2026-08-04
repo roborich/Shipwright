@@ -12,36 +12,36 @@ Bmori1_room_1:
   offset: 0x0
   symbol: Bmori1_room_1
 
-Bmori1_room_1Tex_003368:
+Bmori1_room_1Tex_0:
   type: TEXTURE
   offset: 0x3358
-  symbol: Bmori1_room_1Tex_003368
+  symbol: Bmori1_room_1Tex_0
   format: RGBA16
   width: 32
   height: 32
 
-Bmori1_room_1Tex_003B68:
+Bmori1_room_1Tex_1:
   type: TEXTURE
   offset: 0x3B58
-  symbol: Bmori1_room_1Tex_003B68
+  symbol: Bmori1_room_1Tex_1
   format: CI8
   width: 64
   height: 32
   external_tlut: Bmori1_scene
   external_tlut_offset: 0x14288
 
-Bmori1_room_1Tex_004368:
+Bmori1_room_1Tex_2:
   type: TEXTURE
   offset: 0x4358
-  symbol: Bmori1_room_1Tex_004368
+  symbol: Bmori1_room_1Tex_2
   format: RGBA16
   width: 32
   height: 64
 
-Bmori1_room_1Tex_005368:
+Bmori1_room_1Tex_3:
   type: TEXTURE
   offset: 0x5358
-  symbol: Bmori1_room_1Tex_005368
+  symbol: Bmori1_room_1Tex_3
   format: CI8
   width: 32
   height: 64
@@ -49,30 +49,30 @@ Bmori1_room_1Tex_005368:
   external_tlut_offset: 0x14288
 
 
-Bmori1_room_1Vtx_0000A0:
+Bmori1_room_1Vtx_0:
   type: OOT:ARRAY
   offset: 0x0000A0
-  symbol: Bmori1_room_1Vtx_0000A0
+  symbol: Bmori1_room_1Vtx_0
   count: 516
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-Bmori1_room_1DL_0020E0:
+Bmori1_room_1DL_0:
   type: GFX
   offset: 0x0020E0
-  symbol: Bmori1_room_1DL_0020E0
+  symbol: Bmori1_room_1DL_0
 
-Bmori1_room_1Vtx_002F30:
+Bmori1_room_1Vtx_1:
   type: OOT:ARRAY
   offset: 0x002F30
-  symbol: Bmori1_room_1Vtx_002F30
+  symbol: Bmori1_room_1Vtx_1
   count: 50
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-Bmori1_room_1DL_003250:
+Bmori1_room_1DL_1:
   type: GFX
   offset: 0x003250
-  symbol: Bmori1_room_1DL_003250
+  symbol: Bmori1_room_1DL_1

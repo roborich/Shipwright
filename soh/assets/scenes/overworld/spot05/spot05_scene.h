@@ -87,7 +87,7 @@ static const ALIGN_ASSET(2) char spot05_sceneTLUT_006BC0[] = dspot05_sceneTLUT_0
 #define dgMinuetCs "__OTR__scenes/shared/spot05_scene/gMinuetCs"
 static const ALIGN_ASSET(2) char gMinuetCs[] = dgMinuetCs;
 
-#define dspot05_scene_Cs_005730 "__OTR__scenes/shared/spot05_scene/spot05_scene_Cs_005730"
+#define dspot05_scene_Cs_005730 "__OTR__scenes/shared/spot05_scene/spot05_scene_Cs_0"
 static const ALIGN_ASSET(2) char spot05_scene_Cs_005730[] = dspot05_scene_Cs_005730;
 
 #define dspot05_sceneCollisionHeader_003F4C "__OTR__scenes/shared/spot05_scene/spot05_sceneCollisionHeader_003F4C"

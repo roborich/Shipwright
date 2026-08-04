@@ -12,44 +12,44 @@ moribossroom_room_0:
   offset: 0x0
   symbol: moribossroom_room_0
 
-moribossroom_room_0Tex_0038B8:
+moribossroom_room_0Tex_0:
   type: TEXTURE
   offset: 0x38B8
-  symbol: moribossroom_room_0Tex_0038B8
+  symbol: moribossroom_room_0Tex_0
   format: RGBA16
   width: 32
   height: 32
 
-moribossroom_room_0Tex_0040B8:
+moribossroom_room_0Tex_1:
   type: TEXTURE
   offset: 0x40B8
-  symbol: moribossroom_room_0Tex_0040B8
+  symbol: moribossroom_room_0Tex_1
   format: CI8
   width: 32
   height: 32
   external_tlut: moribossroom_scene
   external_tlut_offset: 0xB50
 
-moribossroom_room_0Tex_0044B8:
+moribossroom_room_0Tex_2:
   type: TEXTURE
   offset: 0x44B8
-  symbol: moribossroom_room_0Tex_0044B8
+  symbol: moribossroom_room_0Tex_2
   format: RGBA16
   width: 64
   height: 32
 
-moribossroom_room_0Tex_0054B8:
+moribossroom_room_0Tex_3:
   type: TEXTURE
   offset: 0x54B8
-  symbol: moribossroom_room_0Tex_0054B8
+  symbol: moribossroom_room_0Tex_3
   format: RGBA16
   width: 16
   height: 16
 
-moribossroom_room_0Tex_0056B8:
+moribossroom_room_0Tex_4:
   type: TEXTURE
   offset: 0x56B8
-  symbol: moribossroom_room_0Tex_0056B8
+  symbol: moribossroom_room_0Tex_4
   format: CI8
   width: 32
   height: 64
@@ -57,77 +57,77 @@ moribossroom_room_0Tex_0056B8:
   external_tlut_offset: 0xB50
 
 
-moribossroom_room_0Vtx_000070:
+moribossroom_room_0Vtx_0:
   type: OOT:ARRAY
   offset: 0x000070
-  symbol: moribossroom_room_0Vtx_000070
+  symbol: moribossroom_room_0Vtx_0
   count: 40
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-moribossroom_room_0DL_0002F0:
+moribossroom_room_0DL_0:
   type: GFX
   offset: 0x0002F0
-  symbol: moribossroom_room_0DL_0002F0
+  symbol: moribossroom_room_0DL_0
 
-moribossroom_room_0Vtx_000418:
+moribossroom_room_0Vtx_1:
   type: OOT:ARRAY
   offset: 0x000418
-  symbol: moribossroom_room_0Vtx_000418
+  symbol: moribossroom_room_0Vtx_1
   count: 78
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-moribossroom_room_0DL_0008F8:
+moribossroom_room_0DL_1:
   type: GFX
   offset: 0x0008F8
-  symbol: moribossroom_room_0DL_0008F8
+  symbol: moribossroom_room_0DL_1
 
-moribossroom_room_0Vtx_000AE8:
+moribossroom_room_0Vtx_2:
   type: OOT:ARRAY
   offset: 0x000AE8
-  symbol: moribossroom_room_0Vtx_000AE8
+  symbol: moribossroom_room_0Vtx_2
   count: 56
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-moribossroom_room_0DL_000E68:
+moribossroom_room_0DL_2:
   type: GFX
   offset: 0x000E68
-  symbol: moribossroom_room_0DL_000E68
+  symbol: moribossroom_room_0DL_2
 
-moribossroom_room_0Vtx_000FC0:
+moribossroom_room_0Vtx_3:
   type: OOT:ARRAY
   offset: 0x000FC0
-  symbol: moribossroom_room_0Vtx_000FC0
+  symbol: moribossroom_room_0Vtx_3
   count: 370
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-moribossroom_room_0DL_0026E0:
+moribossroom_room_0DL_3:
   type: GFX
   offset: 0x0026E0
-  symbol: moribossroom_room_0DL_0026E0
+  symbol: moribossroom_room_0DL_3
 
-moribossroom_room_0Vtx_002CB8:
+moribossroom_room_0Vtx_4:
   type: OOT:ARRAY
   offset: 0x002CB8
-  symbol: moribossroom_room_0Vtx_002CB8
+  symbol: moribossroom_room_0Vtx_4
   count: 144
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-moribossroom_room_0DL_0035B8:
+moribossroom_room_0DL_4:
   type: GFX
   offset: 0x0035B8
-  symbol: moribossroom_room_0DL_0035B8
+  symbol: moribossroom_room_0DL_4
 
-moribossroom_room_0DL_003888:
+moribossroom_room_0DL_5:
   type: GFX
   offset: 0x003888
-  symbol: moribossroom_room_0DL_003888
+  symbol: moribossroom_room_0DL_5

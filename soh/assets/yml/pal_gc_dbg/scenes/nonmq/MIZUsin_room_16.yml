@@ -12,57 +12,57 @@ MIZUsin_room_16:
   offset: 0x0
   symbol: MIZUsin_room_16
 
-MIZUsin_room_16Tex_001330:
+MIZUsin_room_16Tex_0:
   type: TEXTURE
   offset: 0x12D0
-  symbol: MIZUsin_room_16Tex_001330
+  symbol: MIZUsin_room_16Tex_0
   format: RGBA16
   width: 32
   height: 32
 
-MIZUsin_room_16Tex_001B30:
+MIZUsin_room_16Tex_1:
   type: TEXTURE
   offset: 0x1AD0
-  symbol: MIZUsin_room_16Tex_001B30
+  symbol: MIZUsin_room_16Tex_1
   format: RGBA16
   width: 32
   height: 32
 
-MIZUsin_room_16Tex_002330:
+MIZUsin_room_16Tex_2:
   type: TEXTURE
   offset: 0x22D0
-  symbol: MIZUsin_room_16Tex_002330
+  symbol: MIZUsin_room_16Tex_2
   format: RGBA16
   width: 32
   height: 32
 
-MIZUsin_room_16Tex_002B30:
+MIZUsin_room_16Tex_3:
   type: TEXTURE
   offset: 0x2AD0
-  symbol: MIZUsin_room_16Tex_002B30
+  symbol: MIZUsin_room_16Tex_3
   format: RGBA16
   width: 32
   height: 32
 
-MIZUsin_room_16Tex_003330:
+MIZUsin_room_16Tex_4:
   type: TEXTURE
   offset: 0x32D0
-  symbol: MIZUsin_room_16Tex_003330
+  symbol: MIZUsin_room_16Tex_4
   format: RGBA16
   width: 32
   height: 32
 
 
-MIZUsin_room_16Vtx_0000B0:
+MIZUsin_room_16Vtx_0:
   type: OOT:ARRAY
   offset: 0x0000B0
-  symbol: MIZUsin_room_16Vtx_0000B0
+  symbol: MIZUsin_room_16Vtx_0
   count: 196
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-MIZUsin_room_16DL_000CF0:
+MIZUsin_room_16DL_0:
   type: GFX
   offset: 0x000CF0
-  symbol: MIZUsin_room_16DL_000CF0
+  symbol: MIZUsin_room_16DL_0

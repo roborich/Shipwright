@@ -3,15 +3,15 @@
     - [ 2, 0x02B54000 ]
 
   external_files:
-    - pal_gc_dbg/scenes/shared/link_home_sceneSet_000E80.yml
-    - pal_gc_dbg/scenes/shared/link_home_sceneSet_000F60.yml
+    - pal_gc_dbg/scenes/shared/link_home_sceneSet_0.yml
+    - pal_gc_dbg/scenes/shared/link_home_sceneSet_1.yml
 link_home_scene:
   type: OOT:SCENE
   offset: 0x0
   symbol: link_home_scene
 
 
-link_home_sceneCollisionHeader_000E4C:
+link_home_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x000E4C
-  symbol: link_home_sceneCollisionHeader_000E4C
+  symbol: link_home_sceneCollisionHeader_0

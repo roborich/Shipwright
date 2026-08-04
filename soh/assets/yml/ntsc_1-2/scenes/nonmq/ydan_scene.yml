@@ -12,32 +12,32 @@ gDekuTreeIntroCs:
   offset: 0xB640
   symbol: gDekuTreeIntroCs
 
-gYdanTex_00BA18:
+gYdanTex_0:
   type: TEXTURE
   offset: 0xBA08
-  symbol: gYdanTex_00BA18
+  symbol: gYdanTex_0
   format: RGBA16
   width: 32
   height: 64
 
-gYdanTex_00CA18:
+gYdanTex_1:
   type: TEXTURE
   offset: 0xCA08
-  symbol: gYdanTex_00CA18
+  symbol: gYdanTex_1
   format: RGBA16
   width: 32
   height: 64
 
-ydan_sceneTLUT_00B810:
+ydan_sceneTLUT_0:
   type: TEXTURE
   offset: 0xB800
-  symbol: ydan_sceneTLUT_00B810
+  symbol: ydan_sceneTLUT_0
   format: RGBA16
   width: 16
   height: 16
 
 
-ydan_sceneCollisionHeader_00B610:
+ydan_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x00B610
-  symbol: ydan_sceneCollisionHeader_00B610
+  symbol: ydan_sceneCollisionHeader_0

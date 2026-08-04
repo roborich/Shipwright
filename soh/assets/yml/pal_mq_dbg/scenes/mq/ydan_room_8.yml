@@ -12,10 +12,10 @@ ydan_room_8:
   offset: 0x0
   symbol: ydan_room_8
 
-ydan_room_8Tex_000988:
+ydan_room_8Tex_1:
   type: TEXTURE
   offset: 0x988
-  symbol: ydan_room_8Tex_000988
+  symbol: ydan_room_8Tex_1
   format: CI8
   width: 32
   height: 32
@@ -23,16 +23,16 @@ ydan_room_8Tex_000988:
   external_tlut_offset: 0xB810
 
 
-ydan_room_8Vtx_000130:
+ydan_room_8Vtx_0:
   type: OOT:ARRAY
   offset: 0x000130
-  symbol: ydan_room_8Vtx_000130
+  symbol: ydan_room_8Vtx_0
   count: 99
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ydan_room_8DL_000760:
+ydan_room_8DL_1:
   type: GFX
   offset: 0x000760
-  symbol: ydan_room_8DL_000760
+  symbol: ydan_room_8DL_1

@@ -6,9 +6,9 @@
   external_files:
     - pal_gc/scenes/shared/daiyousei_izumi_scene.yml
     - pal_gc/code/sys_matrix.yml
-    - pal_gc/scenes/shared/daiyousei_izumi_room_0Set_000160.yml
-    - pal_gc/scenes/shared/daiyousei_izumi_room_0Set_0001E0.yml
-    - pal_gc/scenes/shared/daiyousei_izumi_room_0Set_000260.yml
+    - pal_gc/scenes/shared/daiyousei_izumi_room_0Set_0.yml
+    - pal_gc/scenes/shared/daiyousei_izumi_room_0Set_1.yml
+    - pal_gc/scenes/shared/daiyousei_izumi_room_0Set_2.yml
 
 daiyousei_izumi_room_0:
   type: OOT:ROOM
@@ -16,40 +16,40 @@ daiyousei_izumi_room_0:
   symbol: daiyousei_izumi_room_0
 
 
-daiyousei_izumi_room_0Vtx_0002E0:
+daiyousei_izumi_room_0Vtx_0:
   type: OOT:ARRAY
   offset: 0x0002E0
-  symbol: daiyousei_izumi_room_0Vtx_0002E0
+  symbol: daiyousei_izumi_room_0Vtx_0
   count: 506
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-daiyousei_izumi_room_0DL_002280:
+daiyousei_izumi_room_0DL_0:
   type: GFX
   offset: 0x002280
-  symbol: daiyousei_izumi_room_0DL_002280
+  symbol: daiyousei_izumi_room_0DL_0
 
-daiyousei_izumi_room_0DL_002BB8:
+daiyousei_izumi_room_0DL_1:
   type: GFX
   offset: 0x002BB8
-  symbol: daiyousei_izumi_room_0DL_002BB8
+  symbol: daiyousei_izumi_room_0DL_1
 
-daiyousei_izumi_room_0Vtx_002BD0:
+daiyousei_izumi_room_0Vtx_1:
   type: OOT:ARRAY
   offset: 0x002BD0
-  symbol: daiyousei_izumi_room_0Vtx_002BD0
+  symbol: daiyousei_izumi_room_0Vtx_1
   count: 141
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-daiyousei_izumi_room_0DL_0034A0:
+daiyousei_izumi_room_0DL_2:
   type: GFX
   offset: 0x0034A0
-  symbol: daiyousei_izumi_room_0DL_0034A0
+  symbol: daiyousei_izumi_room_0DL_2
 
-daiyousei_izumi_room_0DL_0038F8:
+daiyousei_izumi_room_0DL_3:
   type: GFX
   offset: 0x0038F8
-  symbol: daiyousei_izumi_room_0DL_0038F8
+  symbol: daiyousei_izumi_room_0DL_3

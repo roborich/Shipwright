@@ -8,7 +8,7 @@ face_shop_scene:
   symbol: face_shop_scene
 
 
-face_shop_sceneCollisionHeader_000338:
+face_shop_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x000338
-  symbol: face_shop_sceneCollisionHeader_000338
+  symbol: face_shop_sceneCollisionHeader_0

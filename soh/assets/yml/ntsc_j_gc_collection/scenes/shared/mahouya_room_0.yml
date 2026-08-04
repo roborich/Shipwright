@@ -13,222 +13,222 @@ mahouya_room_0:
   symbol: mahouya_room_0
 
 
-mahouya_room_0Vtx_0000A0:
+mahouya_room_0Vtx_0:
   type: OOT:ARRAY
   offset: 0x0000A0
-  symbol: mahouya_room_0Vtx_0000A0
+  symbol: mahouya_room_0Vtx_0
   count: 74
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-mahouya_room_0DL_000540:
+mahouya_room_0DL_0:
   type: GFX
   offset: 0x000540
-  symbol: mahouya_room_0DL_000540
+  symbol: mahouya_room_0DL_0
 
-mahouya_room_0Vtx_0006E8:
+mahouya_room_0Vtx_1:
   type: OOT:ARRAY
   offset: 0x0006E8
-  symbol: mahouya_room_0Vtx_0006E8
+  symbol: mahouya_room_0Vtx_1
   count: 21
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-mahouya_room_0DL_000838:
+mahouya_room_0DL_1:
   type: GFX
   offset: 0x000838
-  symbol: mahouya_room_0DL_000838
+  symbol: mahouya_room_0DL_1
 
-mahouya_room_0Vtx_000918:
+mahouya_room_0Vtx_2:
   type: OOT:ARRAY
   offset: 0x000918
-  symbol: mahouya_room_0Vtx_000918
+  symbol: mahouya_room_0Vtx_2
   count: 52
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-mahouya_room_0DL_000C58:
+mahouya_room_0DL_2:
   type: GFX
   offset: 0x000C58
-  symbol: mahouya_room_0DL_000C58
+  symbol: mahouya_room_0DL_2
 
-mahouya_room_0Vtx_000E40:
+mahouya_room_0Vtx_3:
   type: OOT:ARRAY
   offset: 0x000E40
-  symbol: mahouya_room_0Vtx_000E40
+  symbol: mahouya_room_0Vtx_3
   count: 102
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-mahouya_room_0DL_0014A0:
+mahouya_room_0DL_3:
   type: GFX
   offset: 0x0014A0
-  symbol: mahouya_room_0DL_0014A0
+  symbol: mahouya_room_0DL_3
 
-mahouya_room_0Vtx_001698:
+mahouya_room_0Vtx_4:
   type: OOT:ARRAY
   offset: 0x001698
-  symbol: mahouya_room_0Vtx_001698
+  symbol: mahouya_room_0Vtx_4
   count: 86
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-mahouya_room_0DL_001BF8:
+mahouya_room_0DL_4:
   type: GFX
   offset: 0x001BF8
-  symbol: mahouya_room_0DL_001BF8
+  symbol: mahouya_room_0DL_4
 
-mahouya_room_0Vtx_001D68:
+mahouya_room_0Vtx_5:
   type: OOT:ARRAY
   offset: 0x001D68
-  symbol: mahouya_room_0Vtx_001D68
+  symbol: mahouya_room_0Vtx_5
   count: 12
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-mahouya_room_0DL_001E28:
+mahouya_room_0DL_5:
   type: GFX
   offset: 0x001E28
-  symbol: mahouya_room_0DL_001E28
+  symbol: mahouya_room_0DL_5
 
-mahouya_room_0Vtx_001EE0:
+mahouya_room_0Vtx_6:
   type: OOT:ARRAY
   offset: 0x001EE0
-  symbol: mahouya_room_0Vtx_001EE0
+  symbol: mahouya_room_0Vtx_6
   count: 177
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-mahouya_room_0DL_0029F0:
+mahouya_room_0DL_6:
   type: GFX
   offset: 0x0029F0
-  symbol: mahouya_room_0DL_0029F0
+  symbol: mahouya_room_0DL_6
 
-mahouya_room_0Vtx_002D10:
+mahouya_room_0Vtx_7:
   type: OOT:ARRAY
   offset: 0x002D10
-  symbol: mahouya_room_0Vtx_002D10
+  symbol: mahouya_room_0Vtx_7
   count: 63
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-mahouya_room_0DL_003100:
+mahouya_room_0DL_7:
   type: GFX
   offset: 0x003100
-  symbol: mahouya_room_0DL_003100
+  symbol: mahouya_room_0DL_7
 
-mahouya_room_0Vtx_003280:
+mahouya_room_0Vtx_8:
   type: OOT:ARRAY
   offset: 0x003280
-  symbol: mahouya_room_0Vtx_003280
+  symbol: mahouya_room_0Vtx_8
   count: 130
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-mahouya_room_0DL_003AA0:
+mahouya_room_0DL_8:
   type: GFX
   offset: 0x003AA0
-  symbol: mahouya_room_0DL_003AA0
+  symbol: mahouya_room_0DL_8
 
-mahouya_room_0Vtx_003CC0:
+mahouya_room_0Vtx_9:
   type: OOT:ARRAY
   offset: 0x003CC0
-  symbol: mahouya_room_0Vtx_003CC0
+  symbol: mahouya_room_0Vtx_9
   count: 267
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-mahouya_room_0DL_004D70:
+mahouya_room_0DL_9:
   type: GFX
   offset: 0x004D70
-  symbol: mahouya_room_0DL_004D70
+  symbol: mahouya_room_0DL_9
 
-mahouya_room_0Vtx_005188:
+mahouya_room_0Vtx_10:
   type: OOT:ARRAY
   offset: 0x005188
-  symbol: mahouya_room_0Vtx_005188
+  symbol: mahouya_room_0Vtx_10
   count: 63
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-mahouya_room_0DL_005578:
+mahouya_room_0DL_10:
   type: GFX
   offset: 0x005578
-  symbol: mahouya_room_0DL_005578
+  symbol: mahouya_room_0DL_10
 
-mahouya_room_0Vtx_0056F0:
+mahouya_room_0Vtx_11:
   type: OOT:ARRAY
   offset: 0x0056F0
-  symbol: mahouya_room_0Vtx_0056F0
+  symbol: mahouya_room_0Vtx_11
   count: 15
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-mahouya_room_0DL_0057E0:
+mahouya_room_0DL_11:
   type: GFX
   offset: 0x0057E0
-  symbol: mahouya_room_0DL_0057E0
+  symbol: mahouya_room_0DL_11
 
-mahouya_room_0Vtx_0058A0:
+mahouya_room_0Vtx_12:
   type: OOT:ARRAY
   offset: 0x0058A0
-  symbol: mahouya_room_0Vtx_0058A0
+  symbol: mahouya_room_0Vtx_12
   count: 74
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-mahouya_room_0DL_005D40:
+mahouya_room_0DL_12:
   type: GFX
   offset: 0x005D40
-  symbol: mahouya_room_0DL_005D40
+  symbol: mahouya_room_0DL_12
 
-mahouya_room_0Vtx_005EE8:
+mahouya_room_0Vtx_13:
   type: OOT:ARRAY
   offset: 0x005EE8
-  symbol: mahouya_room_0Vtx_005EE8
+  symbol: mahouya_room_0Vtx_13
   count: 78
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-mahouya_room_0DL_0063C8:
+mahouya_room_0DL_13:
   type: GFX
   offset: 0x0063C8
-  symbol: mahouya_room_0DL_0063C8
+  symbol: mahouya_room_0DL_13
 
-mahouya_room_0DL_006548:
+mahouya_room_0DL_14:
   type: GFX
   offset: 0x006548
-  symbol: mahouya_room_0DL_006548
+  symbol: mahouya_room_0DL_14
 
-mahouya_room_0Vtx_0065C0:
+mahouya_room_0Vtx_14:
   type: OOT:ARRAY
   offset: 0x0065C0
-  symbol: mahouya_room_0Vtx_0065C0
+  symbol: mahouya_room_0Vtx_14
   count: 56
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-mahouya_room_0DL_006940:
+mahouya_room_0DL_15:
   type: GFX
   offset: 0x006940
-  symbol: mahouya_room_0DL_006940
+  symbol: mahouya_room_0DL_15
 
-mahouya_room_0DL_006A78:
+mahouya_room_0DL_16:
   type: GFX
   offset: 0x006A78
-  symbol: mahouya_room_0DL_006A78
+  symbol: mahouya_room_0DL_16

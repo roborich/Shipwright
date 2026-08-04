@@ -78,59 +78,59 @@ gWaterTrialSageCs:
   offset: 0x1A8D0
   symbol: gWaterTrialSageCs
 
-ganontika_sceneTLUT_01F380:
+ganontika_sceneTLUT_0:
   type: TEXTURE
   offset: 0x1F370
-  symbol: ganontika_sceneTLUT_01F380
+  symbol: ganontika_sceneTLUT_0
   format: RGBA16
   width: 16
   height: 16
 
-ganontika_sceneTex_01F580:
+ganontika_sceneTex_0:
   type: TEXTURE
   offset: 0x1F570
-  symbol: ganontika_sceneTex_01F580
+  symbol: ganontika_sceneTex_0
   format: RGBA16
   width: 16
   height: 16
 
-ganontika_sceneTex_01F780:
+ganontika_sceneTex_1:
   type: TEXTURE
   offset: 0x1F770
-  symbol: ganontika_sceneTex_01F780
+  symbol: ganontika_sceneTex_1
   format: CI8
   width: 32
   height: 64
   tlut: 0x1F370
 
-ganontika_sceneTex_01FF80:
+ganontika_sceneTex_2:
   type: TEXTURE
   offset: 0x1FF70
-  symbol: ganontika_sceneTex_01FF80
+  symbol: ganontika_sceneTex_2
   format: CI8
   width: 32
   height: 32
   tlut: 0x1F370
 
-ganontika_sceneTex_020380:
+ganontika_sceneTex_3:
   type: TEXTURE
   offset: 0x20370
-  symbol: ganontika_sceneTex_020380
+  symbol: ganontika_sceneTex_3
   format: CI8
   width: 64
   height: 32
   tlut: 0x1F370
 
-ganontika_sceneTex_020B80:
+ganontika_sceneTex_4:
   type: TEXTURE
   offset: 0x20B70
-  symbol: ganontika_sceneTex_020B80
+  symbol: ganontika_sceneTex_4
   format: RGBA16
   width: 32
   height: 32
 
 
-ganontika_sceneCollisionHeader_019E9C:
+ganontika_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x019E9C
-  symbol: ganontika_sceneCollisionHeader_019E9C
+  symbol: ganontika_sceneCollisionHeader_0

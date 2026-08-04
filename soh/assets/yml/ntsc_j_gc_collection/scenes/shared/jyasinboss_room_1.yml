@@ -6,194 +6,194 @@
   external_files:
     - ntsc_j_gc_collection/scenes/shared/jyasinboss_scene.yml
     - ntsc_j_gc_collection/code/sys_matrix.yml
-    - ntsc_j_gc_collection/scenes/shared/jyasinboss_room_1Set_0001B0.yml
-    - ntsc_j_gc_collection/scenes/shared/jyasinboss_room_1Set_000320.yml
-    - ntsc_j_gc_collection/scenes/shared/jyasinboss_room_1Set_000490.yml
+    - ntsc_j_gc_collection/scenes/shared/jyasinboss_room_1Set_0.yml
+    - ntsc_j_gc_collection/scenes/shared/jyasinboss_room_1Set_1.yml
+    - ntsc_j_gc_collection/scenes/shared/jyasinboss_room_1Set_2.yml
 
 jyasinboss_room_1:
   type: OOT:ROOM
   offset: 0x0
   symbol: jyasinboss_room_1
 
-jyasinboss_room_1TLUT_002E18:
+jyasinboss_room_1TLUT_0:
   type: TEXTURE
   offset: 0x2E18
-  symbol: jyasinboss_room_1TLUT_002E18
+  symbol: jyasinboss_room_1TLUT_0
   format: RGBA16
   width: 4
   height: 4
 
-jyasinboss_room_1Tex_002E38:
+jyasinboss_room_1Tex_0:
   type: TEXTURE
   offset: 0x2E38
-  symbol: jyasinboss_room_1Tex_002E38
+  symbol: jyasinboss_room_1Tex_0
   format: RGBA16
   width: 64
   height: 32
 
-jyasinboss_room_1Tex_003E38:
+jyasinboss_room_1Tex_1:
   type: TEXTURE
   offset: 0x3E38
-  symbol: jyasinboss_room_1Tex_003E38
+  symbol: jyasinboss_room_1Tex_1
   format: RGBA16
   width: 64
   height: 32
 
-jyasinboss_room_1Tex_004E38:
+jyasinboss_room_1Tex_2:
   type: TEXTURE
   offset: 0x4E38
-  symbol: jyasinboss_room_1Tex_004E38
+  symbol: jyasinboss_room_1Tex_2
   format: RGBA16
   width: 32
   height: 32
 
-jyasinboss_room_1Tex_005638:
+jyasinboss_room_1Tex_3:
   type: TEXTURE
   offset: 0x5638
-  symbol: jyasinboss_room_1Tex_005638
+  symbol: jyasinboss_room_1Tex_3
   format: RGBA16
   width: 64
   height: 32
 
-jyasinboss_room_1Tex_006638:
+jyasinboss_room_1Tex_4:
   type: TEXTURE
   offset: 0x6638
-  symbol: jyasinboss_room_1Tex_006638
+  symbol: jyasinboss_room_1Tex_4
   format: RGBA16
   width: 64
   height: 16
 
-jyasinboss_room_1Tex_006E38:
+jyasinboss_room_1Tex_5:
   type: TEXTURE
   offset: 0x6E38
-  symbol: jyasinboss_room_1Tex_006E38
+  symbol: jyasinboss_room_1Tex_5
   format: CI4
   width: 64
   height: 64
   tlut: 0x2E18
 
-jyasinboss_room_1Tex_007638:
+jyasinboss_room_1Tex_6:
   type: TEXTURE
   offset: 0x7638
-  symbol: jyasinboss_room_1Tex_007638
+  symbol: jyasinboss_room_1Tex_6
   format: RGBA16
   width: 32
   height: 32
 
 
-jyasinboss_room_1Vtx_000580:
+jyasinboss_room_1Vtx_0:
   type: OOT:ARRAY
   offset: 0x000580
-  symbol: jyasinboss_room_1Vtx_000580
+  symbol: jyasinboss_room_1Vtx_0
   count: 39
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-jyasinboss_room_1DL_0007F0:
+jyasinboss_room_1DL_0:
   type: GFX
   offset: 0x0007F0
-  symbol: jyasinboss_room_1DL_0007F0
+  symbol: jyasinboss_room_1DL_0
 
-jyasinboss_room_1Vtx_000930:
+jyasinboss_room_1Vtx_1:
   type: OOT:ARRAY
   offset: 0x000930
-  symbol: jyasinboss_room_1Vtx_000930
+  symbol: jyasinboss_room_1Vtx_1
   count: 45
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-jyasinboss_room_1DL_000C00:
+jyasinboss_room_1DL_1:
   type: GFX
   offset: 0x000C00
-  symbol: jyasinboss_room_1DL_000C00
+  symbol: jyasinboss_room_1DL_1
 
-jyasinboss_room_1Vtx_000DE8:
+jyasinboss_room_1Vtx_2:
   type: OOT:ARRAY
   offset: 0x000DE8
-  symbol: jyasinboss_room_1Vtx_000DE8
+  symbol: jyasinboss_room_1Vtx_2
   count: 109
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-jyasinboss_room_1DL_0014B8:
+jyasinboss_room_1DL_2:
   type: GFX
   offset: 0x0014B8
-  symbol: jyasinboss_room_1DL_0014B8
+  symbol: jyasinboss_room_1DL_2
 
-jyasinboss_room_1Vtx_0017B0:
+jyasinboss_room_1Vtx_3:
   type: OOT:ARRAY
   offset: 0x0017B0
-  symbol: jyasinboss_room_1Vtx_0017B0
+  symbol: jyasinboss_room_1Vtx_3
   count: 16
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-jyasinboss_room_1DL_0018B0:
+jyasinboss_room_1DL_3:
   type: GFX
   offset: 0x0018B0
-  symbol: jyasinboss_room_1DL_0018B0
+  symbol: jyasinboss_room_1DL_3
 
-jyasinboss_room_1Vtx_001970:
+jyasinboss_room_1Vtx_4:
   type: OOT:ARRAY
   offset: 0x001970
-  symbol: jyasinboss_room_1Vtx_001970
+  symbol: jyasinboss_room_1Vtx_4
   count: 16
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-jyasinboss_room_1DL_001A70:
+jyasinboss_room_1DL_4:
   type: GFX
   offset: 0x001A70
-  symbol: jyasinboss_room_1DL_001A70
+  symbol: jyasinboss_room_1DL_4
 
-jyasinboss_room_1Vtx_001B30:
+jyasinboss_room_1Vtx_5:
   type: OOT:ARRAY
   offset: 0x001B30
-  symbol: jyasinboss_room_1Vtx_001B30
+  symbol: jyasinboss_room_1Vtx_5
   count: 127
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-jyasinboss_room_1DL_002320:
+jyasinboss_room_1DL_5:
   type: GFX
   offset: 0x002320
-  symbol: jyasinboss_room_1DL_002320
+  symbol: jyasinboss_room_1DL_5
 
-jyasinboss_room_1Vtx_002600:
+jyasinboss_room_1Vtx_6:
   type: OOT:ARRAY
   offset: 0x002600
-  symbol: jyasinboss_room_1Vtx_002600
+  symbol: jyasinboss_room_1Vtx_6
   count: 32
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-jyasinboss_room_1DL_002800:
+jyasinboss_room_1DL_6:
   type: GFX
   offset: 0x002800
-  symbol: jyasinboss_room_1DL_002800
+  symbol: jyasinboss_room_1DL_6
 
-jyasinboss_room_1Vtx_0029C8:
+jyasinboss_room_1Vtx_7:
   type: OOT:ARRAY
   offset: 0x0029C8
-  symbol: jyasinboss_room_1Vtx_0029C8
+  symbol: jyasinboss_room_1Vtx_7
   count: 36
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-jyasinboss_room_1DL_002C08:
+jyasinboss_room_1DL_7:
   type: GFX
   offset: 0x002C08
-  symbol: jyasinboss_room_1DL_002C08
+  symbol: jyasinboss_room_1DL_7
 
-jyasinboss_room_1DL_002DD0:
+jyasinboss_room_1DL_8:
   type: GFX
   offset: 0x002DD0
-  symbol: jyasinboss_room_1DL_002DD0
+  symbol: jyasinboss_room_1DL_8

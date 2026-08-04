@@ -29,34 +29,34 @@ gGTGPath_002F0:
   symbol: gGTGPath_002F0
   num_paths: 2
 
-men_sceneTLUT_00F6C0:
+men_sceneTLUT_0:
   type: TEXTURE
   offset: 0xF730
-  symbol: men_sceneTLUT_00F6C0
+  symbol: men_sceneTLUT_0
   format: RGBA16
   width: 16
   height: 16
 
-men_sceneTex_0108C0:
+men_sceneTex_0:
   type: TEXTURE
   offset: 0x10930
-  symbol: men_sceneTex_0108C0
+  symbol: men_sceneTex_0
   format: CI8
   width: 32
   height: 32
   tlut: 0xF730
 
-men_sceneTex_010CC0:
+men_sceneTex_1:
   type: TEXTURE
   offset: 0x10D30
-  symbol: men_sceneTex_010CC0
+  symbol: men_sceneTex_1
   format: CI8
   width: 64
   height: 32
   tlut: 0xF730
 
 
-men_sceneCollisionHeader_00F700:
+men_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x00F700
-  symbol: men_sceneCollisionHeader_00F700
+  symbol: men_sceneCollisionHeader_0

@@ -6,9 +6,9 @@
   external_files:
     - pal_1-1/scenes/shared/yousei_izumi_yoko_scene.yml
     - pal_1-1/code/sys_matrix.yml
-    - pal_1-1/scenes/shared/yousei_izumi_yoko_room_0Set_0000D0.yml
-    - pal_1-1/scenes/shared/yousei_izumi_yoko_room_0Set_000170.yml
-    - pal_1-1/scenes/shared/yousei_izumi_yoko_room_0Set_000210.yml
+    - pal_1-1/scenes/shared/yousei_izumi_yoko_room_0Set_0.yml
+    - pal_1-1/scenes/shared/yousei_izumi_yoko_room_0Set_1.yml
+    - pal_1-1/scenes/shared/yousei_izumi_yoko_room_0Set_2.yml
 
 yousei_izumi_yoko_room_0:
   type: OOT:ROOM
@@ -16,40 +16,40 @@ yousei_izumi_yoko_room_0:
   symbol: yousei_izumi_yoko_room_0
 
 
-yousei_izumi_yoko_room_0Vtx_0002B0:
+yousei_izumi_yoko_room_0Vtx_0:
   type: OOT:ARRAY
   offset: 0x0002B0
-  symbol: yousei_izumi_yoko_room_0Vtx_0002B0
+  symbol: yousei_izumi_yoko_room_0Vtx_0
   count: 506
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-yousei_izumi_yoko_room_0DL_002250:
+yousei_izumi_yoko_room_0DL_0:
   type: GFX
   offset: 0x002250
-  symbol: yousei_izumi_yoko_room_0DL_002250
+  symbol: yousei_izumi_yoko_room_0DL_0
 
-yousei_izumi_yoko_room_0DL_002B88:
+yousei_izumi_yoko_room_0DL_1:
   type: GFX
   offset: 0x002B88
-  symbol: yousei_izumi_yoko_room_0DL_002B88
+  symbol: yousei_izumi_yoko_room_0DL_1
 
-yousei_izumi_yoko_room_0Vtx_002BA0:
+yousei_izumi_yoko_room_0Vtx_1:
   type: OOT:ARRAY
   offset: 0x002BA0
-  symbol: yousei_izumi_yoko_room_0Vtx_002BA0
+  symbol: yousei_izumi_yoko_room_0Vtx_1
   count: 243
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-yousei_izumi_yoko_room_0DL_003AD0:
+yousei_izumi_yoko_room_0DL_2:
   type: GFX
   offset: 0x003AD0
-  symbol: yousei_izumi_yoko_room_0DL_003AD0
+  symbol: yousei_izumi_yoko_room_0DL_2
 
-yousei_izumi_yoko_room_0DL_003FF8:
+yousei_izumi_yoko_room_0DL_3:
   type: GFX
   offset: 0x003FF8
-  symbol: yousei_izumi_yoko_room_0DL_003FF8
+  symbol: yousei_izumi_yoko_room_0DL_3

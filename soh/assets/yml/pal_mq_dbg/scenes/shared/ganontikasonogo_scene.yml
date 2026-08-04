@@ -7,30 +7,30 @@ ganontikasonogo_scene:
   offset: 0x0
   symbol: ganontikasonogo_scene
 
-ganontikasonogo_scenePathList_000184:
+ganontikasonogo_scenePathList_0:
   type: OOT:PATH
   offset: 0x0184
-  symbol: ganontikasonogo_scenePathList_000184
+  symbol: ganontikasonogo_scenePathList_0
   num_paths: 2
 
-ganontikasonogo_sceneTex_002B00:
+ganontikasonogo_sceneTex_0:
   type: TEXTURE
   offset: 0x2B00
-  symbol: ganontikasonogo_sceneTex_002B00
+  symbol: ganontikasonogo_sceneTex_0
   format: RGBA16
   width: 32
   height: 64
 
-ganontikasonogo_sceneTex_003B00:
+ganontikasonogo_sceneTex_1:
   type: TEXTURE
   offset: 0x3B00
-  symbol: ganontikasonogo_sceneTex_003B00
+  symbol: ganontikasonogo_sceneTex_1
   format: RGBA16
   width: 64
   height: 32
 
 
-ganontikasonogo_sceneCollisionHeader_002ACC:
+ganontikasonogo_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x002ACC
-  symbol: ganontikasonogo_sceneCollisionHeader_002ACC
+  symbol: ganontikasonogo_sceneCollisionHeader_0

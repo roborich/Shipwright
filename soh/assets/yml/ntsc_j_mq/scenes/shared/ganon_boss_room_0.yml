@@ -13,63 +13,63 @@ ganon_boss_room_0:
   symbol: ganon_boss_room_0
 
 
-ganon_boss_room_0Vtx_000490:
+ganon_boss_room_0Vtx_0:
   type: OOT:ARRAY
   offset: 0x000490
-  symbol: ganon_boss_room_0Vtx_000490
+  symbol: ganon_boss_room_0Vtx_0
   count: 499
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ganon_boss_room_0DL_0023C0:
+ganon_boss_room_0DL_0:
   type: GFX
   offset: 0x0023C0
-  symbol: ganon_boss_room_0DL_0023C0
+  symbol: ganon_boss_room_0DL_0
 
-ganon_boss_room_0Vtx_004378:
+ganon_boss_room_0Vtx_1:
   type: OOT:ARRAY
   offset: 0x004378
-  symbol: ganon_boss_room_0Vtx_004378
+  symbol: ganon_boss_room_0Vtx_1
   count: 140
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ganon_boss_room_0DL_004C38:
+ganon_boss_room_0DL_1:
   type: GFX
   offset: 0x004C38
-  symbol: ganon_boss_room_0DL_004C38
+  symbol: ganon_boss_room_0DL_1
 
-ganon_boss_room_0Vtx_0055D0:
+ganon_boss_room_0Vtx_2:
   type: OOT:ARRAY
   offset: 0x0055D0
-  symbol: ganon_boss_room_0Vtx_0055D0
+  symbol: ganon_boss_room_0Vtx_2
   count: 38
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ganon_boss_room_0DL_005830:
+ganon_boss_room_0DL_2:
   type: GFX
   offset: 0x005830
-  symbol: ganon_boss_room_0DL_005830
+  symbol: ganon_boss_room_0DL_2
 
-ganon_boss_room_0Vtx_005960:
+ganon_boss_room_0Vtx_3:
   type: OOT:ARRAY
   offset: 0x005960
-  symbol: ganon_boss_room_0Vtx_005960
+  symbol: ganon_boss_room_0Vtx_3
   count: 58
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-ganon_boss_room_0DL_005D00:
+ganon_boss_room_0DL_3:
   type: GFX
   offset: 0x005D00
-  symbol: ganon_boss_room_0DL_005D00
+  symbol: ganon_boss_room_0DL_3
 
-ganon_boss_room_0DL_005E50:
+ganon_boss_room_0DL_4:
   type: GFX
   offset: 0x005E50
-  symbol: ganon_boss_room_0DL_005E50
+  symbol: ganon_boss_room_0DL_4

@@ -12,131 +12,131 @@ hakasitarelay_room_6:
   offset: 0x0
   symbol: hakasitarelay_room_6
 
-hakasitarelay_room_6TLUT_004188:
+hakasitarelay_room_6TLUT_0:
   type: TEXTURE
   offset: 0x4188
-  symbol: hakasitarelay_room_6TLUT_004188
+  symbol: hakasitarelay_room_6TLUT_0
   format: RGBA16
   width: 4
   height: 4
 
-hakasitarelay_room_6Tex_0041A8:
+hakasitarelay_room_6Tex_0:
   type: TEXTURE
   offset: 0x41A8
-  symbol: hakasitarelay_room_6Tex_0041A8
+  symbol: hakasitarelay_room_6Tex_0
   format: RGBA16
   width: 16
   height: 8
 
-hakasitarelay_room_6Tex_0042A8:
+hakasitarelay_room_6Tex_1:
   type: TEXTURE
   offset: 0x42A8
-  symbol: hakasitarelay_room_6Tex_0042A8
+  symbol: hakasitarelay_room_6Tex_1
   format: RGBA16
   width: 32
   height: 32
 
-hakasitarelay_room_6Tex_004AA8:
+hakasitarelay_room_6Tex_2:
   type: TEXTURE
   offset: 0x4AA8
-  symbol: hakasitarelay_room_6Tex_004AA8
+  symbol: hakasitarelay_room_6Tex_2
   format: RGBA16
   width: 32
   height: 16
 
-hakasitarelay_room_6Tex_004EA8:
+hakasitarelay_room_6Tex_3:
   type: TEXTURE
   offset: 0x4EA8
-  symbol: hakasitarelay_room_6Tex_004EA8
+  symbol: hakasitarelay_room_6Tex_3
   format: CI4
   width: 64
   height: 64
   tlut: 0x4188
 
-hakasitarelay_room_6Tex_0056A8:
+hakasitarelay_room_6Tex_4:
   type: TEXTURE
   offset: 0x56A8
-  symbol: hakasitarelay_room_6Tex_0056A8
+  symbol: hakasitarelay_room_6Tex_4
   format: I8
   width: 64
   height: 32
 
-hakasitarelay_room_6Tex_005EA8:
+hakasitarelay_room_6Tex_5:
   type: TEXTURE
   offset: 0x5EA8
-  symbol: hakasitarelay_room_6Tex_005EA8
+  symbol: hakasitarelay_room_6Tex_5
   format: I4
   width: 64
   height: 64
 
-hakasitarelay_room_6Tex_0066A8:
+hakasitarelay_room_6Tex_6:
   type: TEXTURE
   offset: 0x66A8
-  symbol: hakasitarelay_room_6Tex_0066A8
+  symbol: hakasitarelay_room_6Tex_6
   format: I8
   width: 32
   height: 32
 
-hakasitarelay_room_6Tex_006AA8:
+hakasitarelay_room_6Tex_7:
   type: TEXTURE
   offset: 0x6AA8
-  symbol: hakasitarelay_room_6Tex_006AA8
+  symbol: hakasitarelay_room_6Tex_7
   format: I8
   width: 64
   height: 32
 
-hakasitarelay_room_6Tex_0072A8:
+hakasitarelay_room_6Tex_8:
   type: TEXTURE
   offset: 0x72A8
-  symbol: hakasitarelay_room_6Tex_0072A8
+  symbol: hakasitarelay_room_6Tex_8
   format: I4
   width: 64
   height: 64
 
 
-hakasitarelay_room_6Vtx_0000F0:
+hakasitarelay_room_6Vtx_0:
   type: OOT:ARRAY
   offset: 0x0000F0
-  symbol: hakasitarelay_room_6Vtx_0000F0
+  symbol: hakasitarelay_room_6Vtx_0
   count: 391
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hakasitarelay_room_6DL_001960:
+hakasitarelay_room_6DL_0:
   type: GFX
   offset: 0x001960
-  symbol: hakasitarelay_room_6DL_001960
+  symbol: hakasitarelay_room_6DL_0
 
-hakasitarelay_room_6Vtx_002558:
+hakasitarelay_room_6Vtx_1:
   type: OOT:ARRAY
   offset: 0x002558
-  symbol: hakasitarelay_room_6Vtx_002558
+  symbol: hakasitarelay_room_6Vtx_1
   count: 282
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hakasitarelay_room_6DL_0036F8:
+hakasitarelay_room_6DL_1:
   type: GFX
   offset: 0x0036F8
-  symbol: hakasitarelay_room_6DL_0036F8
+  symbol: hakasitarelay_room_6DL_1
 
-hakasitarelay_room_6Vtx_003D50:
+hakasitarelay_room_6Vtx_2:
   type: OOT:ARRAY
   offset: 0x003D50
-  symbol: hakasitarelay_room_6Vtx_003D50
+  symbol: hakasitarelay_room_6Vtx_2
   count: 48
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-hakasitarelay_room_6DL_004050:
+hakasitarelay_room_6DL_2:
   type: GFX
   offset: 0x004050
-  symbol: hakasitarelay_room_6DL_004050
+  symbol: hakasitarelay_room_6DL_2
 
-hakasitarelay_room_6DL_004168:
+hakasitarelay_room_6DL_3:
   type: GFX
   offset: 0x004168
-  symbol: hakasitarelay_room_6DL_004168
+  symbol: hakasitarelay_room_6DL_3

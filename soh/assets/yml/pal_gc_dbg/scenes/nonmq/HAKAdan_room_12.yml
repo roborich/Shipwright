@@ -12,120 +12,120 @@ HAKAdan_room_12:
   offset: 0x0
   symbol: HAKAdan_room_12
 
-HAKAdan_room_12Tex_003348:
+HAKAdan_room_12Tex_0:
   type: TEXTURE
   offset: 0x3318
-  symbol: HAKAdan_room_12Tex_003348
+  symbol: HAKAdan_room_12Tex_0
   format: I4
   width: 32
   height: 32
 
-HAKAdan_room_12Tex_003548:
+HAKAdan_room_12Tex_1:
   type: TEXTURE
   offset: 0x3518
-  symbol: HAKAdan_room_12Tex_003548
+  symbol: HAKAdan_room_12Tex_1
   format: I4
   width: 32
   height: 32
 
-HAKAdan_room_12Tex_003748:
+HAKAdan_room_12Tex_2:
   type: TEXTURE
   offset: 0x3718
-  symbol: HAKAdan_room_12Tex_003748
+  symbol: HAKAdan_room_12Tex_2
   format: RGBA16
   width: 32
   height: 16
 
-HAKAdan_room_12Tex_003B48:
+HAKAdan_room_12Tex_3:
   type: TEXTURE
   offset: 0x3B18
-  symbol: HAKAdan_room_12Tex_003B48
+  symbol: HAKAdan_room_12Tex_3
   format: RGBA16
   width: 32
   height: 8
 
-HAKAdan_room_12Tex_003D48:
+HAKAdan_room_12Tex_4:
   type: TEXTURE
   offset: 0x3D18
-  symbol: HAKAdan_room_12Tex_003D48
+  symbol: HAKAdan_room_12Tex_4
   format: RGBA16
   width: 32
   height: 64
 
-HAKAdan_room_12Tex_004D48:
+HAKAdan_room_12Tex_5:
   type: TEXTURE
   offset: 0x4D18
-  symbol: HAKAdan_room_12Tex_004D48
+  symbol: HAKAdan_room_12Tex_5
   format: RGBA16
   width: 32
   height: 32
 
-HAKAdan_room_12Tex_005548:
+HAKAdan_room_12Tex_6:
   type: TEXTURE
   offset: 0x5518
-  symbol: HAKAdan_room_12Tex_005548
+  symbol: HAKAdan_room_12Tex_6
   format: I4
   width: 32
   height: 32
 
 
-HAKAdan_room_12Vtx_000140:
+HAKAdan_room_12Vtx_0:
   type: OOT:ARRAY
   offset: 0x000140
-  symbol: HAKAdan_room_12Vtx_000140
+  symbol: HAKAdan_room_12Vtx_0
   count: 184
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HAKAdan_room_12DL_000CC0:
+HAKAdan_room_12DL_0:
   type: GFX
   offset: 0x000CC0
-  symbol: HAKAdan_room_12DL_000CC0
+  symbol: HAKAdan_room_12DL_0
 
-HAKAdan_room_12Vtx_001180:
+HAKAdan_room_12Vtx_1:
   type: OOT:ARRAY
   offset: 0x001180
-  symbol: HAKAdan_room_12Vtx_001180
+  symbol: HAKAdan_room_12Vtx_1
   count: 52
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HAKAdan_room_12DL_0014C0:
+HAKAdan_room_12DL_1:
   type: GFX
   offset: 0x0014C0
-  symbol: HAKAdan_room_12DL_0014C0
+  symbol: HAKAdan_room_12DL_1
 
-HAKAdan_room_12Vtx_001630:
+HAKAdan_room_12Vtx_2:
   type: OOT:ARRAY
   offset: 0x001630
-  symbol: HAKAdan_room_12Vtx_001630
+  symbol: HAKAdan_room_12Vtx_2
   count: 96
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HAKAdan_room_12DL_001C30:
+HAKAdan_room_12DL_2:
   type: GFX
   offset: 0x001C30
-  symbol: HAKAdan_room_12DL_001C30
+  symbol: HAKAdan_room_12DL_2
 
-HAKAdan_room_12Vtx_001E18:
+HAKAdan_room_12Vtx_3:
   type: OOT:ARRAY
   offset: 0x001E18
-  symbol: HAKAdan_room_12Vtx_001E18
+  symbol: HAKAdan_room_12Vtx_3
   count: 196
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-HAKAdan_room_12DL_002A58:
+HAKAdan_room_12DL_3:
   type: GFX
   offset: 0x002A58
-  symbol: HAKAdan_room_12DL_002A58
+  symbol: HAKAdan_room_12DL_3
 
-HAKAdan_room_12DL_0032F0:
+HAKAdan_room_12DL_4:
   type: GFX
   offset: 0x0032F0
-  symbol: HAKAdan_room_12DL_0032F0
+  symbol: HAKAdan_room_12DL_4

@@ -13,16 +13,16 @@ Bmori1_room_19:
   symbol: Bmori1_room_19
 
 
-Bmori1_room_19Vtx_0000D0:
+Bmori1_room_19Vtx_0:
   type: OOT:ARRAY
   offset: 0x0000D0
-  symbol: Bmori1_room_19Vtx_0000D0
+  symbol: Bmori1_room_19Vtx_0
   count: 47
   array_type: VTX
   zero_flag: true
   null_cross_file: true
 
-Bmori1_room_19DL_0003C0:
+Bmori1_room_19DL_0:
   type: GFX
   offset: 0x0003C0
-  symbol: Bmori1_room_19DL_0003C0
+  symbol: Bmori1_room_19DL_0

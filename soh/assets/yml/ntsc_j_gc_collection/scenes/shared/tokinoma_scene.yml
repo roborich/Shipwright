@@ -3,17 +3,17 @@
     - [ 2, 0x01C41A00 ]
 
   external_files:
-    - ntsc_j_gc_collection/scenes/shared/tokinoma_sceneSet_00C1A0.yml
-    - ntsc_j_gc_collection/scenes/shared/tokinoma_sceneSet_00C350.yml
-    - ntsc_j_gc_collection/scenes/shared/tokinoma_sceneSet_00C450.yml
-    - ntsc_j_gc_collection/scenes/shared/tokinoma_sceneSet_00C580.yml
-    - ntsc_j_gc_collection/scenes/shared/tokinoma_sceneSet_00C730.yml
-    - ntsc_j_gc_collection/scenes/shared/tokinoma_sceneSet_00C830.yml
-    - ntsc_j_gc_collection/scenes/shared/tokinoma_sceneSet_00C930.yml
-    - ntsc_j_gc_collection/scenes/shared/tokinoma_sceneSet_00CA30.yml
-    - ntsc_j_gc_collection/scenes/shared/tokinoma_sceneSet_00CB30.yml
-    - ntsc_j_gc_collection/scenes/shared/tokinoma_sceneSet_00CC40.yml
-    - ntsc_j_gc_collection/scenes/shared/tokinoma_sceneSet_00CD10.yml
+    - ntsc_j_gc_collection/scenes/shared/tokinoma_sceneSet_0.yml
+    - ntsc_j_gc_collection/scenes/shared/tokinoma_sceneSet_1.yml
+    - ntsc_j_gc_collection/scenes/shared/tokinoma_sceneSet_2.yml
+    - ntsc_j_gc_collection/scenes/shared/tokinoma_sceneSet_3.yml
+    - ntsc_j_gc_collection/scenes/shared/tokinoma_sceneSet_4.yml
+    - ntsc_j_gc_collection/scenes/shared/tokinoma_sceneSet_5.yml
+    - ntsc_j_gc_collection/scenes/shared/tokinoma_sceneSet_6.yml
+    - ntsc_j_gc_collection/scenes/shared/tokinoma_sceneSet_7.yml
+    - ntsc_j_gc_collection/scenes/shared/tokinoma_sceneSet_8.yml
+    - ntsc_j_gc_collection/scenes/shared/tokinoma_sceneSet_9.yml
+    - ntsc_j_gc_collection/scenes/shared/tokinoma_sceneSet_10.yml
 tokinoma_scene:
   type: OOT:SCENE
   offset: 0x0
@@ -34,80 +34,80 @@ gTempleOfTimePreludeCs:
   offset: 0x6D20
   symbol: gTempleOfTimePreludeCs
 
-tokinoma_sceneTex_00CFA0:
+tokinoma_sceneTex_0:
   type: TEXTURE
   offset: 0xCFA0
-  symbol: tokinoma_sceneTex_00CFA0
+  symbol: tokinoma_sceneTex_0
   format: RGBA16
   width: 32
   height: 32
 
-tokinoma_sceneTex_00D7A0:
+tokinoma_sceneTex_1:
   type: TEXTURE
   offset: 0xD7A0
-  symbol: tokinoma_sceneTex_00D7A0
+  symbol: tokinoma_sceneTex_1
   format: RGBA16
   width: 32
   height: 32
 
-tokinoma_sceneTex_00DFA0:
+tokinoma_sceneTex_2:
   type: TEXTURE
   offset: 0xDFA0
-  symbol: tokinoma_sceneTex_00DFA0
+  symbol: tokinoma_sceneTex_2
   format: RGBA16
   width: 32
   height: 64
 
-tokinoma_sceneTex_00EFA0:
+tokinoma_sceneTex_3:
   type: TEXTURE
   offset: 0xEFA0
-  symbol: tokinoma_sceneTex_00EFA0
+  symbol: tokinoma_sceneTex_3
   format: RGBA16
   width: 32
   height: 64
 
-tokinoma_sceneTex_00FFA0:
+tokinoma_sceneTex_4:
   type: TEXTURE
   offset: 0xFFA0
-  symbol: tokinoma_sceneTex_00FFA0
+  symbol: tokinoma_sceneTex_4
   format: RGBA16
   width: 32
   height: 32
 
-tokinoma_sceneTex_0107A0:
+tokinoma_sceneTex_5:
   type: TEXTURE
   offset: 0x107A0
-  symbol: tokinoma_sceneTex_0107A0
+  symbol: tokinoma_sceneTex_5
   format: RGBA16
   width: 32
   height: 32
 
-tokinoma_sceneTex_010FA0:
+tokinoma_sceneTex_6:
   type: TEXTURE
   offset: 0x10FA0
-  symbol: tokinoma_sceneTex_010FA0
+  symbol: tokinoma_sceneTex_6
   format: RGBA16
   width: 32
   height: 32
 
-tokinoma_sceneTex_0117A0:
+tokinoma_sceneTex_7:
   type: TEXTURE
   offset: 0x117A0
-  symbol: tokinoma_sceneTex_0117A0
+  symbol: tokinoma_sceneTex_7
   format: RGBA16
   width: 32
   height: 32
 
-tokinoma_sceneTex_011FA0:
+tokinoma_sceneTex_8:
   type: TEXTURE
   offset: 0x11FA0
-  symbol: tokinoma_sceneTex_011FA0
+  symbol: tokinoma_sceneTex_8
   format: RGBA16
   width: 32
   height: 32
 
 
-tokinoma_sceneCollisionHeader_0032F8:
+tokinoma_sceneCollisionHeader_0:
   type: OOT:COLLISION
   offset: 0x0032F8
-  symbol: tokinoma_sceneCollisionHeader_0032F8
+  symbol: tokinoma_sceneCollisionHeader_0
