@@ -1,0 +1,118 @@
+# Unbound: collision geometry
+
+Removes every fixed cap on scene (static) collision and relaxes the actor (dyna) collision
+caps, so a Prelude-built scene can carry arbitrarily large collision. Overview and rationale
+in [`README.md`](./README.md).
+
+## The caps, and why they exist
+
+All in `soh/include/z64bgcheck.h` and `soh/src/code/z_bgcheck.c`:
+
+| Cap | Cause |
+|---|---|
+| 8 191 vertices | `CollisionPoly` packs a 13-bit vertex index and 3 xpFlags bits into each `u16` (`COLPOLY_VTX_INDEX`, `COLPOLY_VIA_FLAG_TEST`); bit 13 of `flags_vIB` is the conveyor flag. |
+| 32 767 polys | The spatial lookup is a linked list of `SSNode { s16 polyId; u16 next; }`; `SS_NULL = 0xFFFF` also caps the node table at 65 534 entries. `CollisionHeader.numVertices/numPolygons` are `u16`. |
+| Node table | `BgCheck_Allocate` derives the node count from an N64 byte budget (`0x1CC00`, or one of eight hardcoded per-scene values, or `0xF000` for "spot" scenes), doubled by an existing SoH workaround. Overflow is `LOG_HUNGUP_THREAD` / `assert`. |
+| Arena | Everything is carved from the play-state bump arena (`THA_AllocEndAlign`, ~3.8 MB total for the whole gamestate, `z_play.c` `GameState_Realloc`). |
+| Dyna | `polyListMax`/`vtxListMax` 512 (×2 SoH), `polyNodesMax` 1 000; exceeding them is a fatal assert. |
+
+## What changes
+
+### Structs (`z64bgcheck.h`, mirrored in `soh/soh/resource/type/CollisionHeader.h`)
+
+`CollisionPoly` keeps its field names so the ~130 uses in `z_bgcheck.c` stay readable, but
+widens the packed words:
+
+```c
+typedef struct {
+    u16 type;
+    union {
+        u32 vtxData[3];
+        struct {
+            u32 flags_vIA; // bits 29-31 xpFlags, bits 0-28 vertex index
+            u32 flags_vIB; // bit 29 conveyor,   bits 0-28 vertex index
+            u32 vIC;
+        };
+    };
+    Vec3s normal;
+    s16 dist;
+} CollisionPoly;
+
+#define COLPOLY_VTX_INDEX(vI)            ((vI) & 0x1FFFFFFF)
+#define COLPOLY_VIA_FLAG_TEST(vIA, f)    ((vIA) & (((f) & 7) << 29))
+#define COLPOLY_VIA_FLAGS_MASK           0xE0000000
+#define COLPOLY_VIB_CONVEYOR             (1u << 29)
+```
+
+`SSNode` becomes `{ s32 polyId; u32 next; }`, `SS_NULL` becomes `0xFFFFFFFF`, and every
+`SSList.head`, `SSNodeList.max/count`, `DynaLookup.polyStartIndex`, `BgActor.vtxStartIndex`,
+`CollisionHeader.numVertices/numPolygons` and the corresponding locals/params in `z_bgcheck.c`
+widen to 32 bits. `StaticLookup` grows from 6 to 12 bytes; the lookup table is tiny either way.
+
+The in-memory struct is the **only** contract: the vanilla struct layout was never exposed to
+mods because every collision header is materialised by the SoH importer.
+
+### Loader (`CollisionHeaderFactory.cpp`)
+
+- Binary v0 (today's `oot.o2r`): reads the `u16` packed words and **unpacks** them —
+  `index = v & 0x1FFF`, xpFlags `(v >> 13) << 29`, conveyor bit 13 → bit 29. Vanilla data and
+  every existing mod keep loading.
+- XML: `VertexA/B/C` are plain indices. If the element carries an `XpFlags` attribute (0-7)
+  and/or `Conveyor` (0/1) they are applied; if it carries neither, the attribute values are
+  treated as legacy packed `u16` words and unpacked as above. This is the Unbound authoring
+  form for Prelude until the `collision.json` + `collision.bin` split lands.
+
+### Allocation (`BgCheck_Allocate`)
+
+The N64 byte budget goes away:
+
+- Static node table: **growable**. Allocated at `max(2 × numPolygons, 4096)` nodes and doubled
+  on demand (`SSNodeList_Grow`). Nodes are addressed by index, so `realloc` is safe as long as
+  no caller holds an `SSNode*` across an insert — `StaticLookup_AddPolyToSSList` was rewritten
+  to re-derive its cursor from an index for exactly that reason. No guessing, no
+  `LOG_HUNGUP_THREAD`.
+- `polyCheckTbl` (one byte per static poly), the node table, the static lookup grid, and the
+  dyna poly/vertex/node lists are `malloc`'d and released by a new `BgCheck_Free`, called from
+  `Play_Destroy`. They no longer touch the play-state arena, so a 2 M-poly scene does not
+  starve actors of memory.
+- Subdivision: vanilla amounts (`16×4×16`, or the per-scene overrides) are kept for parity
+  when the header has ≤ 16 384 polys; above that the grid scales with the cube root of the
+  poly count (capped at 64 per axis) so lookup cost stays bounded on huge scenes.
+- Dyna: `polyListMax`/`vtxListMax` become 16 384 each (fixed, because actors hold raw
+  pointers into these lists so they cannot be reallocated live); the dyna node list is
+  allocated at 16 384 and grows by doubling when a frame needs more (nodes are addressed by
+  index, so growth is safe).
+
+Memory impact on vanilla scenes: negligible (a few hundred KB moved from the arena to the heap).
+
+## Not changed
+
+- `BG_ACTOR_MAX` (50 simultaneous dyna actors). Not a Prelude pain point; touches actor
+  spawning semantics. Revisit if requested.
+- Surface types (`u16 type` → 65 535 per header), water boxes (`u16`), camera data — already
+  ample.
+- Coordinates remain `s16` (±32 767 units, `BGCHECK_XYZ_ABSMAX` 32 760). Widening to float
+  is a much larger change across actors; out of scope for this pass.
+
+## Consumers touched
+
+- `soh/src/code/z_bgcheck.c` — all of the above.
+- `soh/src/code/z_play.c` — `BgCheck_Free` in `Play_Destroy`.
+- `soh/soh/resource/type/CollisionHeader.h`, `importer/CollisionHeaderFactory.cpp` — struct
+  mirror + unpacking.
+- `soh/soh/Enhancements/debugger/colViewer.cpp` — reads `numPolygons` / vertex indices via the
+  macros; no logic change.
+
+## Status
+
+Implemented on the `unbound` branch; builds clean (RelWithDebInfo). In-game verification below
+has not been run yet.
+
+## Verification
+
+1. Build (RelWithDebInfo in `build-cmake`).
+2. Vanilla parity: load Hyrule Field, Kakariko, Forest Temple, Shadow Temple, Ganon's Tower
+   collapse — walk, hookshot, ladder, conveyor (Jabu-Jabu / Water Temple), water surfaces,
+   dyna platforms. Collision viewer overlay should match pre-change.
+3. Stress: a Prelude-exported scene with > 8 191 vertices and > 32 767 polys loads and is
+   walkable; scene transition back and forth shows no heap growth (`BgCheck_Free` works).

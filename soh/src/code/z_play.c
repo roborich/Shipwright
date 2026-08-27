@@ -235,6 +235,7 @@ void Play_Destroy(GameState* thisx) {
     }
 
     func_80031C3C(&play->actorCtx, play);
+    BgCheck_Free(&play->colCtx); // SOH [Unbound] collision tables live on the heap; after actor cleanup (dyna)
     func_80110990(play);
     KaleidoScopeCall_Destroy(play);
     KaleidoManager_Destroy();

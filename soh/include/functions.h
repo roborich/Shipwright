@@ -575,7 +575,7 @@ s32 func_80037D98(PlayState* play, Actor* actor, s16 arg2, s32* arg3);
 s32 func_80038290(PlayState* play, Actor* actor, Vec3s* arg2, Vec3s* arg3, Vec3f arg4);
 
 // ? func_80038600(?);
-u16 DynaSSNodeList_GetNextNodeIdx(DynaSSNodeList*);
+u32 DynaSSNodeList_GetNextNodeIdx(DynaSSNodeList*);
 void func_80038A28(CollisionPoly* poly, f32 tx, f32 ty, f32 tz, MtxF* dest);
 f32 CollisionPoly_GetPointDistanceFromPlane(CollisionPoly* poly, Vec3f* point);
 CollisionHeader* BgCheck_GetCollisionHeader(CollisionContext* colCtx, s32 bgId);
@@ -587,6 +587,7 @@ s32 BgCheck_CheckLineAgainstSSList(SSList* headNodeId, CollisionContext* colCtx,
                                    f32 chkDist, s32 bccFlags);
 void BgCheck_GetStaticLookupIndicesFromPos(CollisionContext* colCtx, Vec3f* pos, Vec3i* arg2);
 void BgCheck_Allocate(CollisionContext* colCtx, PlayState* play, CollisionHeader* colHeader);
+void BgCheck_Free(CollisionContext* colCtx); // SOH [Unbound]
 s32 BgCheck_PosInStaticBoundingBox(CollisionContext* colCtx, Vec3f* pos);
 f32 BgCheck_EntityRaycastFloor1(CollisionContext* colCtx, CollisionPoly** outPoly, Vec3f* pos);
 f32 BgCheck_EntityRaycastFloor2(PlayState* play, CollisionContext* colCtx, CollisionPoly** outPoly,
@@ -644,7 +645,7 @@ s32 BgCheck_AnyLineTest3(CollisionContext* colCtx, Vec3f* posA, Vec3f* posB, Vec
 s32 BgCheck_SphVsFirstPoly(CollisionContext* colCtx, Vec3f* center, f32 radius);
 void SSNodeList_Initialize(SSNodeList*);
 void SSNodeList_Alloc(PlayState* play, SSNodeList* this, s32 tblMax, s32 numPolys);
-u16 SSNodeList_GetNextNodeIdx(SSNodeList* this);
+u32 SSNodeList_GetNextNodeIdx(SSNodeList* this);
 s32 DynaPoly_IsBgIdBgActor(s32 bgId);
 void DynaPoly_Init(PlayState* play, DynaCollisionContext* dyna);
 void DynaPoly_Alloc(PlayState* play, DynaCollisionContext* dyna);

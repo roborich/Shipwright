@@ -8,22 +8,22 @@
 
 namespace SOH {
 
+// SOH [Unbound] Must mirror CollisionPoly in soh/include/z64bgcheck.h (u32 vertex words, flags in bits 29-31)
 typedef struct {
-    /* 0x00 */ u16 type;
+    u16 type;
     union {
-        u16 vtxData[3];
+        u32 vtxData[3];
         struct {
-            /* 0x02 */ u16 flags_vIA; // 0xE000 is poly exclusion flags (xpFlags), 0x1FFF is vtxId
-            /* 0x04 */ u16 flags_vIB; // 0xE000 is flags, 0x1FFF is vtxId
-                                      // 0x2000 = poly IsConveyor surface
-            /* 0x06 */ u16 vIC;
+            u32 flags_vIA; // bits 29-31 poly exclusion flags (xpFlags), bits 0-28 vtxId
+            u32 flags_vIB; // bit 29 = poly IsConveyor surface, bits 0-28 vtxId
+            u32 vIC;
         };
     };
-    /* 0x08 */ Vec3s normal; // Unit normal vector
-                             // Value ranges from -0x7FFF to 0x7FFF, representing -1.0 to 1.0; 0x8000 is invalid
+    Vec3s normal; // Unit normal vector
+                  // Value ranges from -0x7FFF to 0x7FFF, representing -1.0 to 1.0; 0x8000 is invalid
 
-    /* 0x0E */ s16 dist; // Plane distance from origin along the normal
-} CollisionPoly;         // size = 0x10
+    s16 dist; // Plane distance from origin along the normal
+} CollisionPoly;
 
 typedef struct {
     /* 0x00 */ s16 xMin;
@@ -55,9 +55,9 @@ typedef struct {
 typedef struct {
     /* 0x00 */ Vec3s minBounds; // minimum coordinates of poly bounding box
     /* 0x06 */ Vec3s maxBounds; // maximum coordinates of poly bounding box
-    /* 0x0C */ u16 numVertices;
+    /* 0x0C */ u32 numVertices; // SOH [Unbound] widened from u16
     /* 0x10 */ Vec3s* vtxList;
-    /* 0x14 */ u16 numPolygons;
+    /* 0x14 */ u32 numPolygons; // SOH [Unbound] widened from u16
     /* 0x18 */ CollisionPoly* polyList;
     /* 0x1C */ SurfaceType* surfaceTypeList;
     /* 0x20 */ CamData* cameraDataList;

@@ -8,8 +8,14 @@ struct DynaPolyActor;
 #define COLPOLY_NORMAL_FRAC (1.0f / SHT_MAX)
 #define COLPOLY_SNORMAL(x) ((s16)((x) * SHT_MAX))
 #define COLPOLY_GET_NORMAL(n) ((n)*COLPOLY_NORMAL_FRAC)
-#define COLPOLY_VIA_FLAG_TEST(vIA, flags) ((vIA) & (((flags)&7) << 13))
-#define COLPOLY_VTX_INDEX(vI) ((vI)&0x1FFF)
+// SOH [Unbound] Vertex indices are 32-bit words: bits 0-28 hold the index, bits 29-31 hold the
+// poly exclusion flags (vIA) / conveyor flag (vIB). The N64 packed a 13-bit index into a u16.
+#define COLPOLY_VTX_INDEX_MASK 0x1FFFFFFFu
+#define COLPOLY_VIA_FLAGS_SHIFT 29
+#define COLPOLY_VIA_FLAGS_MASK 0xE0000000u
+#define COLPOLY_VIB_CONVEYOR (1u << 29)
+#define COLPOLY_VIA_FLAG_TEST(vIA, flags) ((vIA) & (((flags)&7) << COLPOLY_VIA_FLAGS_SHIFT))
+#define COLPOLY_VTX_INDEX(vI) ((vI)&COLPOLY_VTX_INDEX_MASK)
 
 #define DYNAPOLY_INVALIDATE_LOOKUP (1 << 0)
 
@@ -34,22 +40,22 @@ typedef struct {
     Vec3f pos;
 } ScaleRotPos;
 
+// SOH [Unbound] Widened from the N64 0x10-byte layout; see unbound-docs/collision.md
 typedef struct {
-    /* 0x00 */ u16 type;
+    u16 type;
     union {
-        u16 vtxData[3];
+        u32 vtxData[3];
         struct {
-            /* 0x02 */ u16 flags_vIA; // 0xE000 is poly exclusion flags (xpFlags), 0x1FFF is vtxId
-            /* 0x04 */ u16 flags_vIB; // 0xE000 is flags, 0x1FFF is vtxId
-                                      // 0x2000 = poly IsConveyor surface
-            /* 0x06 */ u16 vIC;
+            u32 flags_vIA; // COLPOLY_VIA_FLAGS_MASK is poly exclusion flags (xpFlags), COLPOLY_VTX_INDEX_MASK is vtxId
+            u32 flags_vIB; // COLPOLY_VIB_CONVEYOR = poly IsConveyor surface, COLPOLY_VTX_INDEX_MASK is vtxId
+            u32 vIC;
         };
     };
-    /* 0x08 */ Vec3s normal; // Unit normal vector
-                             // Value ranges from -0x7FFF to 0x7FFF, representing -1.0 to 1.0; 0x8000 is invalid
+    Vec3s normal; // Unit normal vector
+                  // Value ranges from -0x7FFF to 0x7FFF, representing -1.0 to 1.0; 0x8000 is invalid
 
-    /* 0x0E */ s16 dist; // Plane distance from origin along the normal
-} CollisionPoly; // size = 0x10
+    s16 dist; // Plane distance from origin along the normal
+} CollisionPoly;
 
 typedef struct {
     /* 0x00 */ u16 cameraSType;
@@ -81,9 +87,9 @@ typedef struct {
 typedef struct {
     /* 0x00 */ Vec3s minBounds; // minimum coordinates of poly bounding box
     /* 0x06 */ Vec3s maxBounds; // maximum coordinates of poly bounding box
-    /* 0x0C */ u16 numVertices;
+    /* 0x0C */ u32 numVertices; // SOH [Unbound] widened from u16
     /* 0x10 */ Vec3s* vtxList;
-    /* 0x14 */ u16 numPolygons;
+    /* 0x14 */ u32 numPolygons; // SOH [Unbound] widened from u16
     /* 0x18 */ CollisionPoly* polyList;
     /* 0x1C */ SurfaceType* surfaceTypeList;
     /* 0x20 */ CamData* cameraDataList;
@@ -92,18 +98,19 @@ typedef struct {
     size_t cameraDataListLen; // OTRTODO: Added to allow for bounds checking the cameraDataList.
 } CollisionHeader; // original name: BGDataInfo
 
+// SOH [Unbound] SSNode/SSList indices widened from 16 to 32 bits (SS_NULL is 0xFFFFFFFF)
 typedef struct {
-    s16 polyId;
-    u16 next; // next SSNode index
+    s32 polyId;
+    u32 next; // next SSNode index
 } SSNode;
 
 typedef struct {
-    u16 head; // first SSNode index
+    u32 head; // first SSNode index
 } SSList;
 
 typedef struct {
-    /* 0x00 */ u16 max;          // original name: short_slist_node_size
-    /* 0x02 */ u16 count;        // original name: short_slist_node_last_index
+    /* 0x00 */ u32 max;          // original name: short_slist_node_size
+    /* 0x02 */ u32 count;        // original name: short_slist_node_last_index
     /* 0x04 */ SSNode* tbl;      // original name: short_slist_node_tbl
     /* 0x08 */ u8* polyCheckTbl; // points to an array of bytes, one per static poly. Zero initialized when starting a
                                  // bg check, and set to 1 if that poly has already been tested.
@@ -122,7 +129,7 @@ typedef struct {
 } StaticLookup;
 
 typedef struct {
-    u16 polyStartIndex;
+    u32 polyStartIndex; // SOH [Unbound] widened from u16
     SSList ceiling;
     SSList wall;
     SSList floor;
@@ -132,7 +139,7 @@ typedef struct {
     /* 0x00 */ struct Actor* actor;
     /* 0x04 */ CollisionHeader* colHeader;
     /* 0x08 */ DynaLookup dynaLookup;
-    /* 0x10 */ u16 vtxStartIndex;
+    /* 0x10 */ u32 vtxStartIndex; // SOH [Unbound] widened from u16
     /* 0x14 */ ScaleRotPos prevTransform;
     /* 0x34 */ ScaleRotPos curTransform;
     /* 0x54 */ Sphere16 boundingSphere;
