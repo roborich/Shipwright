@@ -72,8 +72,10 @@ class SceneDB {
     // Full o2r path of a scene's resource, applying the vanilla MQ policy for vanilla dungeons.
     std::string GetScenePath(int32_t id) const;
 
-    // Scans every loaded archive for unbound/scenes/*.json and registers what it finds.
+    // Scans every loaded archive for unbound/scenes/*.json and registers what it finds, and notes whether an
+    // Unbound-format base archive (unbound.json) is mounted so vanilla scenes resolve to scene.json.
     void LoadCustomScenes();
+    bool HasUnboundBase() const;
 
   private:
     void SeedVanillaScenes();
@@ -85,6 +87,7 @@ class SceneDB {
     std::vector<Entry> db;
     std::unordered_map<std::string, int32_t> nameTable;
     int32_t nextSceneId = CUSTOM_SCENE_ID_BASE;
+    bool unboundBase = false;
 
     std::vector<EntranceInfo> entranceTable;
     std::unordered_map<std::string, int32_t> entranceNameTable;

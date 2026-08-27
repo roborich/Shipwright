@@ -230,8 +230,11 @@ Applied per path, lowest mounted archive first, when a structured resource is lo
 4. **`"$replace": true`** on any object means "ignore lower layers for this subtree"; the key
    itself is dropped after merging.
 5. **Bulk files** (`.bin`, DLs, vertices, textures, cutscenes) keep last-archive-wins.
-6. A layer may omit any key; the merged document must satisfy the schema, or the scene
-   falls back to the lowest complete layer with an error in the log.
+6. A layer may omit any key — including `$schema`: the loader takes the resource type from the
+   topmost layer that declares one. The merged document must satisfy the schema, or the
+   resource fails to load with an error in the log (a missing room is skipped, not fatal).
+
+A worked example lives in [`examples/hyrule-field-actor-delta/`](./examples/hyrule-field-actor-delta/).
 
 Consequences: a Prelude "move one actor" mod is `rooms/2.json` containing
 `{"setups":{"0":{"actors":{"12":{"pos":[…]}}}}}`; "change one exit" is
@@ -282,5 +285,17 @@ and by Prelude's fflate-based reader. Compression can be added later without a f
 
 ## Status
 
-Converter (§5 items 1–3) implemented; legacy-mod conversion (§5.4) and the merging loader (§4)
-are not written yet, so SoH cannot boot from the converted archive until §4 lands.
+Converter (§5 items 1–3) and the merging loader (§4) are implemented:
+
+- libultraship: first byte `{` → `RESOURCE_FORMAT_JSON`; type name and version come from
+  `"$schema": "<type>/<version>"`; `ArchiveManager::LoadFileFromAllLayers` returns every mounted
+  archive's copy of a path; `ResourceFactoryJson` is the factory base.
+- SoH (`soh/soh/resource/unbound/`): `UnboundJson` (merge rules, key ordering),
+  `ResourceFactoryJsonSceneV1` (`unbound/scene`, `unbound/room`), `…CollisionHeaderV1`,
+  `…PathV1`. They build the same `SOH::Scene` / `CollisionHeader` / `Path` objects the binary
+  factories build, so `z_scene_otr.cpp` is unchanged. Alternate setups become child scenes under a
+  leading `SetAlternateHeaders`; every setup gets the top-level room list / collision injected.
+- `oot-unbound.o2r` beside `oot.o2r` is mounted above it; `SceneDB` resolves vanilla scenes to
+  `scenes/<name>[_mq]/scene.json` whenever an `unbound.json` is mounted.
+
+Not yet: legacy-mod conversion (§5.4).

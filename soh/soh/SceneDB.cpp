@@ -243,6 +243,18 @@ std::string SceneDB::GetScenePath(int32_t id) const {
     // Vanilla dungeons with a Master Quest variant live under mq/ or nonmq/; everything else is shared.
     bool hasMqVariant = (id >= SCENE_DEKU_TREE && id <= SCENE_ICE_CAVERN) || id == SCENE_GERUDO_TRAINING_GROUND ||
                         id == SCENE_INSIDE_GANONS_CASTLE;
+    if (unboundBase) {
+        // scenes/<leaf minus _scene>[_mq]/scene.json (unbound-docs/scene-format.md §1)
+        std::string dir = entry.sceneFileName;
+        const std::string suffix = "_scene";
+        if (dir.size() > suffix.size() && dir.compare(dir.size() - suffix.size(), suffix.size(), suffix) == 0) {
+            dir.resize(dir.size() - suffix.size());
+        }
+        if (hasMqVariant && ResourceMgr_IsGameMasterQuest()) {
+            dir += "_mq";
+        }
+        return "scenes/" + dir + "/scene.json";
+    }
     const char* sceneVersion = "shared";
     if (hasMqVariant) {
         sceneVersion = ResourceMgr_IsGameMasterQuest() ? "mq" : "nonmq";
@@ -253,8 +265,16 @@ std::string SceneDB::GetScenePath(int32_t id) const {
 
 // ---- custom scene files ---------------------------------------------------------------------------
 
+bool SceneDB::HasUnboundBase() const {
+    return unboundBase;
+}
+
 void SceneDB::LoadCustomScenes() {
     auto archiveManager = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager();
+    unboundBase = archiveManager->HasFile("unbound.json");
+    if (unboundBase) {
+        SPDLOG_INFO("[Unbound] Unbound-format archive mounted; vanilla scenes load from scene.json");
+    }
     auto files = archiveManager->ListFiles(kCustomSceneGlob);
     if (files == nullptr) {
         return;

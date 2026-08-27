@@ -12,6 +12,11 @@ enum class ResourceType {
     SOH_Path = 0x4F505448,            // OPTH
     SOH_Cutscene = 0x4F435654,        // OCUT
     SOH_Text = 0x4F545854,            // OTXT
+    // SOH [Unbound] JSON scene format (unbound-docs/scene-format.md); the resources built are Scene/CollisionHeader/Path
+    SOH_UnboundScene = 0x55425343,     // UBSC
+    SOH_UnboundRoom = 0x5542524D,      // UBRM
+    SOH_UnboundCollision = 0x5542434C, // UBCL
+    SOH_UnboundPath = 0x55425054,      // UBPT
     SOH_Audio = 0x4F415544,           // OAUD
     SOH_AudioSample = 0x4F534D50,     // OSMP
     SOH_AudioSoundFont = 0x4F534654,  // OSFT

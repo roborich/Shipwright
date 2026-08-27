@@ -474,7 +474,12 @@ extern "C" s32 OTRfunc_800973FC(PlayState* play, RoomContext* roomCtx) {
             roomCtx->curRoom.segment = roomCtx->unk_34;
             gSegments[3] = VIRTUAL_TO_PHYSICAL(roomCtx->unk_34);
 
-            OTRScene_ExecuteCommands(play, (SOH::Scene*)roomCtx->roomToLoad);
+            if (roomCtx->roomToLoad == nullptr) { // SOH [Unbound] a room that failed to load must not crash the scene
+                SPDLOG_ERROR("Room {} of scene {:#x} did not load; skipping its commands", roomCtx->curRoom.num,
+                             play->sceneNum);
+            } else {
+                OTRScene_ExecuteCommands(play, (SOH::Scene*)roomCtx->roomToLoad);
+            }
 
             Player_SetBootData(play, GET_PLAYER(play));
             Actor_SpawnTransitionActors(play, &play->actorCtx);

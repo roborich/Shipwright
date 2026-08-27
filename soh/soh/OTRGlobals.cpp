@@ -1,6 +1,7 @@
 #include "OTRGlobals.h"
 #include <cstdlib>
 #include "soh/Enhancements/unbound/UnboundExporter.h"
+#include "soh/resource/unbound/UnboundFactories.h"
 #include "OTRAudio.h"
 #include <algorithm>
 #include <atomic>
@@ -774,6 +775,11 @@ void OTRGlobals::Initialize() {
     if (std::filesystem::exists(ootPath)) {
         context->GetResourceManager()->GetArchiveManager()->AddArchive(ootPath);
     }
+    // SOH [Unbound] a converted archive mounts above oot.o2r; SceneDB switches to its scene.json paths
+    std::string unboundPath = Ship::Context::LocateFileAcrossAppDirs("oot-unbound.o2r", appShortName);
+    if (std::filesystem::exists(unboundPath)) {
+        context->GetResourceManager()->GetArchiveManager()->AddArchive(unboundPath);
+    }
 
     std::unordered_set<uint32_t> ValidHashes = {
         OOT_PAL_MQ,     OOT_NTSC_JP_MQ, OOT_NTSC_US_MQ, OOT_PAL_GC_MQ_DBG, OOT_NTSC_US_10,
@@ -841,6 +847,16 @@ void OTRGlobals::Initialize() {
                                     0); // Is room scene? maybe?
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryXMLSceneV0>(), RESOURCE_FORMAT_XML, "Room",
                                     static_cast<uint32_t>(SOH::ResourceType::SOH_Room), 0); // Is room scene? maybe?
+    // SOH [Unbound] JSON scene format factories, keyed by the "$schema" type names
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryJsonSceneV1>(), RESOURCE_FORMAT_JSON,
+                                    "unbound/scene", static_cast<uint32_t>(SOH::ResourceType::SOH_UnboundScene), 1);
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryJsonSceneV1>(), RESOURCE_FORMAT_JSON,
+                                    "unbound/room", static_cast<uint32_t>(SOH::ResourceType::SOH_UnboundRoom), 1);
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryJsonCollisionHeaderV1>(),
+                                    RESOURCE_FORMAT_JSON, "unbound/collision",
+                                    static_cast<uint32_t>(SOH::ResourceType::SOH_UnboundCollision), 1);
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryJsonPathV1>(), RESOURCE_FORMAT_JSON,
+                                    "unbound/paths", static_cast<uint32_t>(SOH::ResourceType::SOH_UnboundPath), 1);
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryCollisionHeaderV0>(),
                                     RESOURCE_FORMAT_BINARY, "CollisionHeader",
                                     static_cast<uint32_t>(SOH::ResourceType::SOH_CollisionHeader), 0);
