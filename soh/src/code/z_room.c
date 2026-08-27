@@ -84,7 +84,7 @@ void func_80095AB4(PlayState* play, Room* room, u32 flags) {
     CLOSE_DISPS(play->state.gfxCtx);
 }
 
-#define SHAPE_SORT_MAX 64
+#define SHAPE_SORT_MAX 1024 // SOH [Unbound] was 64
 
 typedef struct struct_80095D04 {
     /* 0x00 */ PolygonDlist2* unk_00;

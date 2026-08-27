@@ -352,7 +352,7 @@ typedef struct {
     /* 0x0002 */ u8     unk_02;
     /* 0x0003 */ u8     lensActive;
     /* 0x0004 */ char   unk_04[0x04];
-    /* 0x0008 */ u8     total; // total number of actors loaded
+    /* 0x0008 */ u16    total; // total number of actors loaded -- SOH [Unbound] widened from u8 (it wrapped at 256)
     /* 0x000C */ ActorListEntry actorLists[ACTORCAT_MAX];
     /* 0x006C */ TargetContext targetCtx;
     struct {
@@ -961,10 +961,10 @@ typedef struct {
 typedef struct {
     /* 0x0000 */ void*  spaceStart;
     /* 0x0004 */ void*  spaceEnd; // original name: "endSegment"
-    /* 0x0008 */ u8     num; // number of objects in bank
-    /* 0x0009 */ u8     unk_09;
-    /* 0x000A */ u8     mainKeepIndex; // "gameplay_keep" index in bank
-    /* 0x000B */ u8     subKeepIndex; // "gameplay_field_keep" or "gameplay_dangeon_keep" index in bank
+    /* 0x0008 */ u16    num; // number of objects in bank -- SOH [Unbound] widened from u8
+    /* 0x0009 */ u16    unk_09;
+    /* 0x000A */ u16    mainKeepIndex; // "gameplay_keep" index in bank
+    /* 0x000B */ u16    subKeepIndex; // "gameplay_field_keep" or "gameplay_dangeon_keep" index in bank
     /* 0x000C */ ObjectStatus status[OBJECT_EXCHANGE_BANK_MAX];
 } ObjectContext; // size = 0x518
 
@@ -984,10 +984,10 @@ typedef struct {
 
 typedef struct {
     /* 0x00 */ PolygonBase base;
-    /* 0x01 */ u8    num; // number of dlist entries
+    /* 0x01 */ u32   num; // number of dlist entries -- SOH [Unbound] widened from u8
     /* 0x04 */ void* start;
     /* 0x08 */ void* end;
-} PolygonType0; // size = 0xC
+} PolygonType0;
 
 typedef struct {
     /* 0x00 */ u16   unk_00;
@@ -1035,10 +1035,10 @@ typedef struct {
 
 typedef struct {
     /* 0x00 */ PolygonBase base;
-    /* 0x01 */ u8    num; // number of dlist entries
+    /* 0x01 */ u32   num; // number of dlist entries -- SOH [Unbound] widened from u8
     /* 0x04 */ void* start;
     /* 0x08 */ void* end;
-} PolygonType2; // size = 0xC
+} PolygonType2;
 
 typedef union {
     PolygonBase  base;
@@ -1466,8 +1466,8 @@ typedef struct PlayState {
     /* 0x11DE8 */ u8 linkAgeOnLoad;
     /* 0x11DE9 */ u8 unk_11DE9;
     /* 0x11DEA */ u8 curSpawn;
-    /* 0x11DEB */ u8 numSetupActors;
-    /* 0x11DEC */ u8 numRooms;
+    /* 0x11DEB */ u16 numSetupActors; // SOH [Unbound] widened from u8
+    /* 0x11DEC */ u16 numRooms;       // SOH [Unbound] widened from u8
     /* 0x11DF0 */ RomFile* roomList;
     /* 0x11DF4 */ ActorEntry* linkActorEntry;
     /* 0x11DF8 */ ActorEntry* setupActorList;

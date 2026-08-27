@@ -15,7 +15,7 @@ typedef struct {
 
 typedef struct {
     /* 0x00 */ PolygonBase base;
-    /* 0x01 */ u8 num; // number of dlist entries
+    /* 0x01 */ u32 num; // number of dlist entries -- SOH [Unbound] mirrors z64.h
     /* 0x04 */ void* start;
     /* 0x08 */ void* end;
 } PolygonType0; // size = 0xC
@@ -59,7 +59,7 @@ typedef struct {
 
 typedef struct {
     /* 0x00 */ PolygonBase base;
-    /* 0x01 */ u8 num; // number of dlist entries
+    /* 0x01 */ u32 num; // number of dlist entries -- SOH [Unbound] mirrors z64.h
     /* 0x04 */ void* start;
     /* 0x08 */ void* end;
 } PolygonType2; // size = 0xC

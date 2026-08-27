@@ -174,6 +174,9 @@ bool Scene_CommandObjectList(PlayState* play, SOH::ISceneCommand* cmd) {
     for (; k < cmdObj->objects.size(); k++, i++) {
         if (i < OBJECT_EXCHANGE_BANK_MAX - 1) {
             OTRfunc_800982FC(&play->objectCtx, i, cmdObj->objects[k]);
+        } else {
+            SPDLOG_ERROR("[Unbound] object list exceeds the bank ({} slots); dropping object {:#x}",
+                         OBJECT_EXCHANGE_BANK_MAX - 1, cmdObj->objects[k]); // SOH [Unbound] was a silent drop
         }
     }
 
