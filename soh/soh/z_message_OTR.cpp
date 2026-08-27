@@ -114,7 +114,17 @@ std::shared_ptr<SOH::Text> LoadTextResource(const std::string& path) {
         Ship::Context::GetInstance()->GetResourceManager()->LoadResource(path));
 }
 
+bool LoadJsonMessageFile(const std::string& path);
+
 bool LoadBase(MessageTable& table, const LanguageSpec& spec) {
+    // Unbound archives carry the base table as JSON (unbound-docs/text.md)
+    std::string jsonBase = std::string("text/") + spec.jsonName + "/messages.json";
+    if (Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->HasFile(jsonBase)) {
+        if (LoadJsonMessageFile(jsonBase)) {
+            return !table.entries.empty();
+        }
+    }
+
     auto file = LoadTextResource(spec.baseFile);
     if (file == nullptr && spec.altBaseFile != nullptr) {
         file = LoadTextResource(spec.altBaseFile);

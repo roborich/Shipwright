@@ -15,7 +15,7 @@ This document is the overview. Each area has a detail doc:
 | Doc | Status |
 |-----|--------|
 | [`collision.md`](./collision.md) — uncapped collision geometry | **built; boots to title (Hyrule Field attract scene) with Prelude mods mounted; gameplay verification pending** |
-| `scene-format.md` — the Unbound scene/room layout + merge semantics | planned |
+| [`scene-format.md`](./scene-format.md) — the Unbound archive layout, JSON schema, merge rules, loader + converter | **spec written; no code yet** |
 | [`text.md`](./text.md) — growable hash-indexed message tables, JSON merge files, additive mods | **built; boots to title (Hyrule Field attract scene) with Prelude mods mounted; gameplay verification pending** |
 | [`registries.md`](./registries.md) — scene / entrance registry (`SceneDB`), JSON scene files, name-keyed save flags | **built; boots to title (Hyrule Field attract scene) with Prelude mods mounted; gameplay verification pending** |
 | [`counts.md`](./counts.md) — object bank, actor/room header counts, live actor cap, mesh entry / sort / texture cache caps | **built; boots to title (Hyrule Field attract scene) with Prelude mods mounted; gameplay verification pending** |

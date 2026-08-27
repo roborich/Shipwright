@@ -1,3 +1,4 @@
+#include "soh/Enhancements/unbound/UnboundExporter.h"
 #include "soh/SceneDB.h"
 #include "debugconsole.h"
 #include <ship/utils/Utils.h>
@@ -401,6 +402,18 @@ static bool GiveItemHandler(std::shared_ptr<Ship::Console> Console, const std::v
 
     GiveItemEntryWithoutActor(gPlayState, getItemEntry);
 
+    return 0;
+}
+
+// SOH [Unbound]
+static bool UnboundExportHandler(std::shared_ptr<Ship::Console> Console, const std::vector<std::string>& args,
+                                 std::string* output) {
+    std::string out = args.size() >= 2 ? args[1] : "oot-unbound.o2r";
+    if (Unbound_Export(out.c_str()) != 0) {
+        ERROR_MESSAGE("[Unbound] export failed; see the log");
+        return 1;
+    }
+    INFO_MESSAGE("[Unbound] wrote %s", out.c_str());
     return 0;
 }
 
@@ -1538,6 +1551,12 @@ void DebugConsole_Init(void) {
                          {
                              { "clear|warp|backup", Ship::ArgumentType::TEXT },
                          } });
+    CMD_REGISTER("unbound-export", { UnboundExportHandler,
+                                     "Writes the mounted vanilla archive in the Unbound layout (SOH: Unbound)",
+                                     {
+                                         { "out.o2r", Ship::ArgumentType::TEXT },
+                                     } });
+
     CMD_REGISTER("entrance", { EntranceHandler,
                                "Sends player to the entered entrance (hex)",
                                {

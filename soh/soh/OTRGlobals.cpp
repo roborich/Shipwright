@@ -1,4 +1,6 @@
 #include "OTRGlobals.h"
+#include <cstdlib>
+#include "soh/Enhancements/unbound/UnboundExporter.h"
 #include "OTRAudio.h"
 #include <algorithm>
 #include <atomic>
@@ -1496,6 +1498,15 @@ extern "C" void InitOTR(int argc, char* argv[]) {
     OTRExtScanner();
     VanillaItemTable_Init();
     DebugConsole_Init();
+
+    // SOH [Unbound] headless conversion: `soh --export-unbound <out.o2r>` writes the archive and exits.
+    for (int i = 1; i + 1 < argc; i++) {
+        if (std::string(argv[i]) == "--export-unbound") {
+            int rc = Unbound_Export(argv[i + 1]);
+            spdlog::default_logger()->flush();
+            std::_Exit(rc); // skip static destructors: the engine is only half-initialised here
+        }
+    }
 
     InitMods();
     ActorDB::AddBuiltInCustomActors();
