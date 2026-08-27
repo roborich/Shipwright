@@ -4244,6 +4244,9 @@ void Font_LoadOrderedFontNTSC(Font* font) {
     }
 
     size = msgEntry->msgSize;
+    if (size > sizeof(font->msgBuf)) { // SOH [Unbound]
+        size = sizeof(font->msgBuf);
+    }
     len = (u32)size / 2;
     memcpy(font->msgBuf, msgEntry->segment, size);
 

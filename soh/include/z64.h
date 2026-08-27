@@ -629,6 +629,9 @@ typedef enum {
 
 // Increased char buffer because texture paths could be bigger than (16 * 16 / 2)
 #define FONT_CHAR_MULTIPLIER 256
+// SOH [Unbound] raw and decoded message buffer sizes (bytes)
+#define MESSAGE_BUF_SIZE 8192
+#define MESSAGE_DECODED_BUF_SIZE 1024
 
 typedef struct {
     /* 0x0000 */ uintptr_t    msgOffset;
@@ -637,8 +640,8 @@ typedef struct {
     /* 0x3C08 */ u8           iconBuf[FONT_CHAR_TEX_SIZE * FONT_CHAR_MULTIPLIER];
     /* 0x3C88 */ u8           fontBuf[FONT_CHAR_TEX_SIZE * FONT_CHAR_MULTIPLIER];
     union {
-         /* 0xDC88 */ char   msgBuf[1280];
-         /* 0xDC88 */ u16    msgBufWide[640];
+         /* 0xDC88 */ char   msgBuf[MESSAGE_BUF_SIZE];      // SOH [Unbound] widened from 1280
+         /* 0xDC88 */ u16    msgBufWide[MESSAGE_BUF_SIZE / 2];
     };
 } Font; // size = 0xE188
 
@@ -666,8 +669,8 @@ typedef struct {
     /* 0xE304 */ u8     msgMode; // original name: "msg_mode"
     /* 0xE305 */ char   unk_E305[0x1];
     /* 0xE306 */ union {
-                    u8  msgBufDecoded[200];
-                    u16 msgBufDecodedWide[100];
+                    u8  msgBufDecoded[MESSAGE_DECODED_BUF_SIZE]; // SOH [Unbound] widened from 200
+                    u16 msgBufDecodedWide[MESSAGE_DECODED_BUF_SIZE / 2];
                  }; // decoded message buffer, may be smaller than this
     /* 0xE3CE */ u16    msgBufPos; // original name : "rdp"
     /* 0xE3D0 */ u16    unk_E3D0; // unused, only ever set to 0

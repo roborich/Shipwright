@@ -53,6 +53,9 @@ MessageTableEntry* sStaffMessageEntryTablePtr = NULL;
 
 char* _message_0xFFFC_nes;
 
+// SOH [Unbound] hash lookup into a published message table (soh/z_message_OTR.cpp)
+MessageTableEntry* OTRMessage_Find(MessageTableEntry* table, u16 textId);
+
 s16 sTextboxBackgroundForePrimColors[][3] = {
     { 255, 255, 255 }, { 50, 20, 0 },     { 255, 60, 0 },    { 255, 255, 255 },
     { 255, 255, 255 }, { 255, 255, 255 }, { 255, 255, 255 }, { 255, 255, 255 },
@@ -307,20 +310,21 @@ void Message_FindMessageJPN(PlayState* play, u16 textId) {
 
     seg = messageTableEntry->segment;
 
-    while (messageTableEntry->textId != 0xFFFF) {
-        if (messageTableEntry->textId == textId) {
-            foundSeg = messageTableEntry->segment;
-            font->charTexBuf[0] = messageTableEntry->typePos;
-            nextSeg = messageTableEntry->segment;
-            font->msgOffset = messageTableEntry->segment;
-            font->msgLength = messageTableEntry->msgSize;
+    // SOH [Unbound] hash lookup instead of a linear scan
+    {
+        MessageTableEntry* found = OTRMessage_Find(messageTableEntry, textId);
+        if (found != NULL) {
+            foundSeg = found->segment;
+            font->charTexBuf[0] = found->typePos;
+            nextSeg = found->segment;
+            font->msgOffset = found->segment;
+            font->msgLength = found->msgSize;
             // "Message found!!!"
             osSyncPrintf(" メッセージが,見つかった！！！ = %x  "
                          "(data=%x) (data0=%x) (data1=%x) (data2=%x) (data3=%x)\n",
                          textId, font->msgOffset, font->msgLength, foundSeg, seg, nextSeg);
             return;
         }
-        messageTableEntry++;
     }
 
     // "Message not found!!!"
@@ -355,16 +359,18 @@ void Message_FindMessage(PlayState* play, u16 textId) {
 
     seg = messageTableEntry->segment;
 
-    while (messageTableEntry->textId != 0xFFFF) {
+    // SOH [Unbound] hash lookup instead of a linear scan
+    {
+        MessageTableEntry* found = OTRMessage_Find(messageTableEntry, textId);
         font = &play->msgCtx.font;
 
-        if (messageTableEntry->textId == textId) {
-            foundSeg = messageTableEntry->segment;
-            font->charTexBuf[0] = messageTableEntry->typePos;
+        if (found != NULL) {
+            foundSeg = found->segment;
+            font->charTexBuf[0] = found->typePos;
 
-            nextSeg = messageTableEntry->segment;
-            font->msgOffset = messageTableEntry->segment;
-            font->msgLength = messageTableEntry->msgSize;
+            nextSeg = found->segment;
+            font->msgOffset = found->segment;
+            font->msgLength = found->msgSize;
 
             // "Message found!!!"
             osSyncPrintf(" メッセージが,見つかった！！！ = %x  "
@@ -372,7 +378,6 @@ void Message_FindMessage(PlayState* play, u16 textId) {
                          textId, font->msgOffset, font->msgLength, foundSeg, seg, nextSeg);
             return;
         }
-        messageTableEntry++;
     }
 
     // "Message not found!!!"
@@ -396,21 +401,22 @@ void Message_FindCreditsMessage(PlayState* play, u16 textId) {
     Font* font;
 
     seg = messageTableEntry->segment;
-    while (messageTableEntry->textId != 0xFFFF) {
+    // SOH [Unbound] hash lookup instead of a linear scan
+    {
+        MessageTableEntry* found = OTRMessage_Find(messageTableEntry, textId);
         font = &play->msgCtx.font;
 
-        if (messageTableEntry->textId == textId) {
-            foundSeg = messageTableEntry->segment;
-            font->charTexBuf[0] = messageTableEntry->typePos;
-            nextSeg = messageTableEntry->segment;
-            font->msgOffset = messageTableEntry->segment;
-            font->msgLength = messageTableEntry->msgSize;
+        if (found != NULL) {
+            foundSeg = found->segment;
+            font->charTexBuf[0] = found->typePos;
+            nextSeg = found->segment;
+            font->msgOffset = found->segment;
+            font->msgLength = found->msgSize;
             // "Message found!!!"
             osSyncPrintf(" メッセージが,見つかった！！！ = %x  (data=%x) (data0=%x) (data1=%x) (data2=%x) (data3=%x)\n",
                          textId, font->msgOffset, font->msgLength, foundSeg, seg, nextSeg);
             return;
         }
-        messageTableEntry++;
     }
 }
 
@@ -2807,6 +2813,11 @@ void Message_OpenText(PlayState* play, u16 textId) {
         Message_FindCreditsMessage(play, textId);
         msgCtx->msgLength = font->msgLength;
         char* src = (uintptr_t)font->msgOffset;
+        if (font->msgLength > sizeof(font->msgBuf)) { // SOH [Unbound] never overrun the font buffer
+            osSyncPrintf("[Unbound] message %x is %d bytes; truncating to %d\n", textId, font->msgLength,
+                         (int)sizeof(font->msgBuf));
+            msgCtx->msgLength = font->msgLength = sizeof(font->msgBuf);
+        }
         memcpy(font->msgBuf, src, font->msgLength);
 
         // OTRTODO
@@ -2841,6 +2852,11 @@ void Message_OpenText(PlayState* play, u16 textId) {
         }
         msgCtx->msgLength = font->msgLength;
         char* src = (uintptr_t)font->msgOffset;
+        if (font->msgLength > sizeof(font->msgBuf)) { // SOH [Unbound] never overrun the font buffer
+            osSyncPrintf("[Unbound] message %x is %d bytes; truncating to %d\n", textId, font->msgLength,
+                         (int)sizeof(font->msgBuf));
+            msgCtx->msgLength = font->msgLength = sizeof(font->msgBuf);
+        }
         memcpy(font->msgBuf, src, font->msgLength);
     }
 
