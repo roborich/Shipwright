@@ -1,4 +1,5 @@
 #include "ResourceManagerHelpers.h"
+#include "soh/SceneDB.h"
 #include <libultraship/libultraship.h>
 #include "soh/resource/type/Scene.h"
 #include <ship/utils/StringHelper.h>
@@ -19,37 +20,29 @@ Ship::IResource* OTRPlay_LoadFile(PlayState* play, const char* fileName) {
 }
 
 extern "C" void OTRPlay_SpawnScene(PlayState* play, s32 sceneId, s32 spawn) {
-    SceneTableEntry* scene = &gSceneTable[sceneId];
+    // SOH [Unbound] scene identity comes from SceneDB; the legacy SceneTableEntry pointer is unused on PC.
+    SceneDB::Entry& scene = SceneDB::Instance->RetrieveEntry(sceneId);
 
-    scene->unk_13 = 0;
-    play->loadedScene = scene;
-    play->sceneNum = sceneId;
-    play->sceneConfig = scene->config;
-
-    // osSyncPrintf("\nSCENE SIZE %fK\n", (scene->sceneFile.vromEnd - scene->sceneFile.vromStart) / 1024.0f);
-
-    // Scenes considered "dungeon" with a MQ variant
-    int16_t inNonSharedScene = (sceneId >= SCENE_DEKU_TREE && sceneId <= SCENE_ICE_CAVERN) ||
-                               sceneId == SCENE_GERUDO_TRAINING_GROUND || sceneId == SCENE_INSIDE_GANONS_CASTLE;
-
-    std::string sceneVersion = "shared";
-    if (inNonSharedScene) {
-        sceneVersion = ResourceMgr_IsGameMasterQuest() ? "mq" : "nonmq";
+    if (!scene.valid) {
+        SPDLOG_ERROR("[Unbound] spawn requested for unknown scene id {:#x}; defaulting to Dodongo's Cavern", sceneId);
+        OTRPlay_SpawnScene(play, SCENE_DODONGOS_CAVERN, 0);
+        return;
     }
-    std::string scenePath = StringHelper::Sprintf("scenes/%s/%s/%s", sceneVersion.c_str(), scene->sceneFile.fileName,
-                                                  scene->sceneFile.fileName);
 
+    play->loadedScene = nullptr;
+    play->sceneNum = sceneId;
+    play->sceneConfig = scene.drawConfig < SDC_MAX ? scene.drawConfig : SDC_DEFAULT;
+
+    std::string scenePath = SceneDB::Instance->GetScenePath(sceneId);
     play->sceneSegment = OTRPlay_LoadFile(play, scenePath.c_str());
 
     // Failed to load scene... default to doodongs cavern
     if (play->sceneSegment == nullptr) {
         lusprintf(__FILE__, __LINE__, 2, "Unable to load scene %s... Defaulting to Doodong's Cavern!\n",
                   scenePath.c_str());
-        OTRPlay_SpawnScene(play, 0x01, 0);
+        OTRPlay_SpawnScene(play, SCENE_DODONGOS_CAVERN, 0);
         return;
     }
-
-    scene->unk_13 = 0;
 
     // gSegments[2] = VIRTUAL_TO_PHYSICAL(play->sceneSegment);
 

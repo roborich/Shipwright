@@ -1,3 +1,4 @@
+#include "soh/SceneDB.h"
 #include "GameInteractor.h"
 #include <libultraship/bridge.h>
 #include "soh/Enhancements/randomizer/3drando/random.hpp"
@@ -139,18 +140,18 @@ void GameInteractor::RawAction::SetSceneFlag(int16_t sceneNum, int16_t flagType,
                 }
             }
             if (flag < 0x20) {
-                gSaveContext.sceneFlags[sceneNum].swch |= (1 << flag);
+                SceneFlags_Get(sceneNum)->swch |= (1 << flag);
             }
             break;
         case FlagType::FLAG_SCENE_CLEAR:
             if (sceneNum == gPlayState->sceneNum)
                 gPlayState->actorCtx.flags.clear |= (1 << flag);
-            gSaveContext.sceneFlags[sceneNum].clear |= (1 << flag);
+            SceneFlags_Get(sceneNum)->clear |= (1 << flag);
             break;
         case FlagType::FLAG_SCENE_TREASURE:
             if (sceneNum == gPlayState->sceneNum)
                 gPlayState->actorCtx.flags.chest |= (1 << flag);
-            gSaveContext.sceneFlags[sceneNum].chest |= (1 << flag);
+            SceneFlags_Get(sceneNum)->chest |= (1 << flag);
             break;
         case FlagType::FLAG_SCENE_COLLECTIBLE:
             if (sceneNum == gPlayState->sceneNum) {
@@ -163,7 +164,7 @@ void GameInteractor::RawAction::SetSceneFlag(int16_t sceneNum, int16_t flagType,
                 }
             }
             if (flag != 0 && flag < 0x20) {
-                gSaveContext.sceneFlags[sceneNum].collect |= (1 << flag);
+                SceneFlags_Get(sceneNum)->collect |= (1 << flag);
             }
             break;
     }
@@ -180,18 +181,18 @@ void GameInteractor::RawAction::UnsetSceneFlag(int16_t sceneNum, int16_t flagTyp
                 }
             }
             if (flag < 0x20) {
-                gSaveContext.sceneFlags[sceneNum].swch &= ~(1 << flag);
+                SceneFlags_Get(sceneNum)->swch &= ~(1 << flag);
             }
             break;
         case FlagType::FLAG_SCENE_CLEAR:
             if (sceneNum == gPlayState->sceneNum)
                 gPlayState->actorCtx.flags.clear &= ~(1 << flag);
-            gSaveContext.sceneFlags[sceneNum].clear &= ~(1 << flag);
+            SceneFlags_Get(sceneNum)->clear &= ~(1 << flag);
             break;
         case FlagType::FLAG_SCENE_TREASURE:
             if (sceneNum == gPlayState->sceneNum)
                 gPlayState->actorCtx.flags.chest &= ~(1 << flag);
-            gSaveContext.sceneFlags[sceneNum].chest &= ~(1 << flag);
+            SceneFlags_Get(sceneNum)->chest &= ~(1 << flag);
             break;
         case FlagType::FLAG_SCENE_COLLECTIBLE:
             if (sceneNum == gPlayState->sceneNum) {
@@ -204,7 +205,7 @@ void GameInteractor::RawAction::UnsetSceneFlag(int16_t sceneNum, int16_t flagTyp
                 }
             }
             if (flag != 0 && flag < 0x20) {
-                gSaveContext.sceneFlags[sceneNum].collect &= ~(1 << flag);
+                SceneFlags_Get(sceneNum)->collect &= ~(1 << flag);
             }
             break;
     }

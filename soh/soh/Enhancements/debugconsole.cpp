@@ -1,3 +1,4 @@
+#include "soh/SceneDB.h"
 #include "debugconsole.h"
 #include <ship/utils/Utils.h>
 #include "savestates.h"
@@ -415,8 +416,13 @@ static bool EntranceHandler(std::shared_ptr<Ship::Console> Console, const std::v
     try {
         entrance = std::stoi(args[1], nullptr, 16);
     } catch (std::invalid_argument const& ex) {
-        ERROR_MESSAGE("[SOH] Entrance value must be a Hex number.");
-        return 1;
+        // SOH [Unbound] also accept a registered entrance name (vanilla ENTR_* or "<scene id>/<entrance id>")
+        int32_t named = EntranceDB_RetrieveIndex(args[1].c_str());
+        if (named < 0) {
+            ERROR_MESSAGE("[SOH] Entrance value must be a Hex number or a registered entrance name.");
+            return 1;
+        }
+        entrance = named;
     }
 
     gPlayState->nextEntranceIndex = entrance;

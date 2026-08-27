@@ -1,3 +1,4 @@
+#include "soh/SceneDB.h"
 #include "CrashHandlerExt.h"
 #include "variables.h"
 #include "z64.h"
@@ -74,7 +75,9 @@ extern "C" void CrashHandler_PrintSohData(char* buffer, size_t* pos) {
     WRITE_VAR_LINE(buffer, pos, "  Build Date: ", (const char*)gBuildDate);
 
     if (gPlayState != nullptr) {
-        WRITE_VAR_LINE(buffer, pos, "Scene: ", sSceneIdToStrArray[gPlayState->sceneNum]);
+        WRITE_VAR_LINE(buffer, pos, "Scene: ",
+                       gPlayState->sceneNum < SCENE_ID_MAX ? sSceneIdToStrArray[gPlayState->sceneNum]
+                                                          : SceneDB_GetDisplayName(gPlayState->sceneNum)); // SOH [Unbound]
 
         snprintf(intCharBuffer, sizeof(intCharBuffer), "%i", gPlayState->roomCtx.curRoom.num);
         WRITE_VAR_LINE(buffer, pos, "Room: ", intCharBuffer);

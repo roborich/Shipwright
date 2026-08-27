@@ -28,50 +28,8 @@
 #include "soh/ResourceManagerHelpers.h"
 #include "soh/Enhancements/game-interactor/GameInteractor_Hooks.h"
 
-// Entrance Table definition
-#define DEFINE_ENTRANCE(_0, sceneId, spawn, continueBgm, displayTitleCard, endTransType, startTransType) \
-    { sceneId, spawn,                                                                                    \
-      (((continueBgm) ? ENTRANCE_INFO_CONTINUE_BGM_FLAG : 0) |                                           \
-       ((displayTitleCard) ? ENTRANCE_INFO_DISPLAY_TITLE_CARD_FLAG : 0) |                                \
-       (((endTransType) << ENTRANCE_INFO_END_TRANS_TYPE_SHIFT) & ENTRANCE_INFO_END_TRANS_TYPE_MASK) |    \
-       (((startTransType) << ENTRANCE_INFO_START_TRANS_TYPE_SHIFT) & ENTRANCE_INFO_START_TRANS_TYPE_MASK)) },
-
-EntranceInfo gEntranceTable[] = {
-#include "tables/entrance_table.h"
-};
-
-#undef DEFINE_ENTRANCE
-
-//#define TITLED_SCENE(name, title, unk_10, config, unk_12)                                            \
-//    {                                                                                                \
-//        (u32) _##name##SegmentRomStart, (u32)_##name##SegmentRomEnd, (u32)_##title##SegmentRomStart, \
-//            (u32)_##title##SegmentRomEnd, unk_10, config, unk_12, 0                                  \
-//    }
-
-//#define TITLED_SCENE(name, title, unk_10, config, unk_12)                                            \
-//    {                                                                                                \
-//        {0, 0, #name}, {0, 0, #title}, unk_10, config, unk_12, 0                                     \
-//    }
-
-//#define UNTITLED_SCENE(name, unk_10, config, unk_12) \
-    //{ (u32) _##name##SegmentRomStart, (u32)_##name##SegmentRomEnd, 0, 0, unk_10, config, unk_12, 0 }
-
-//#define UNTITLED_SCENE(name, unk_10, config, unk_12) \
-//    { { 0, 0, #name }, (u32)0, 0, 0, unk_10, config, unk_12, 0 }
-
-#define DEFINE_SCENE(name, title, _2, config, unk_10, unk_12) \
-    { { 0, 0, #name }, { 0, 0, #title }, unk_10, config, unk_12, 0 },
-
-// Handle `none` as a special case for scenes without a title card
-#define none ""
-
-SceneTableEntry gSceneTable[] = {
-#include "tables/scene_table.h"
-};
-
-#undef none
-
-#undef DEFINE_SCENE
+// SOH [Unbound] gEntranceTable and the scene table are owned by SceneDB (soh/soh/SceneDB.cpp),
+// seeded from tables/entrance_table.h and tables/scene_table.h and extended by mods at runtime.
 
 Gfx sDefaultDisplayList[] = {
     gsSPSegment(0x08, gEmptyDL),

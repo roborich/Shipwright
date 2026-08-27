@@ -1,4 +1,5 @@
 #include "global.h"
+#include "soh/SceneDB.h"
 #include "vt.h"
 
 #include "overlays/actors/ovl_Arms_Hook/z_arms_hook.h"
@@ -1083,6 +1084,14 @@ void TitleCard_InitPlaceName(PlayState* play, TitleCardContext* titleCtx, void* 
             newName[length - 4] = 'N';
         }
         texture = newName;
+    }
+
+    // SOH [Unbound] custom scenes may register their own title card texture
+    {
+        const char* customTexture = SceneDB_GetTitleCardTexture(play->sceneNum);
+        if (customTexture != NULL) {
+            texture = (void*)customTexture;
+        }
     }
 
     titleCtx->texture = texture;
@@ -2533,7 +2542,7 @@ void func_800304DC(PlayState* play, ActorContext* actorCtx, ActorEntry* actorEnt
     SavedSceneFlags* savedSceneFlags;
     s32 i;
 
-    savedSceneFlags = &gSaveContext.sceneFlags[play->sceneNum];
+    savedSceneFlags = SceneFlags_Get(play->sceneNum); // SOH [Unbound]
 
     memset(actorCtx, 0, sizeof(*actorCtx));
 

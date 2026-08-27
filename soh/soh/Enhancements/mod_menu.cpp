@@ -1,3 +1,4 @@
+#include "soh/SceneDB.h"
 #include <map>
 #include <vector>
 
@@ -176,6 +177,9 @@ void UpdateModFiles(bool init = false, bool reset = false) {
         if (changed) {
             SetEnabledModsCVarValue();
         }
+    }
+    if (init) {
+        SceneDB::Instance->LoadCustomScenes(); // SOH [Unbound] archives are all mounted now
     }
 }
 

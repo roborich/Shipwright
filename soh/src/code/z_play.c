@@ -1,4 +1,5 @@
 #include "global.h"
+#include "soh/SceneDB.h"
 #include "vt.h"
 
 #include <string.h>
@@ -489,6 +490,15 @@ void Play_Init(GameState* thisx) {
     } else if ((gEntranceTable[((void)0, gSaveContext.entranceIndex)].scene == SCENE_KOKIRI_FOREST) && LINK_IS_ADULT &&
                !IS_CUTSCENE_LAYER) {
         gSaveContext.sceneSetupIndex = (Flags_GetEventChkInf(EVENTCHKINF_USED_FOREST_TEMPLE_BLUE_WARP)) ? 3 : 2;
+    }
+
+    // SOH [Unbound] a save or mod can reference an entrance no loaded archive registers; fail to a known place
+    if (gSaveContext.entranceIndex < 0 ||
+        gSaveContext.entranceIndex + gSaveContext.sceneSetupIndex >= EntranceDB_GetEntryCount()) {
+        osSyncPrintf("[Unbound] entrance %d + layer %d is out of range (%d entries); using Hyrule Field\n",
+                     gSaveContext.entranceIndex, gSaveContext.sceneSetupIndex, EntranceDB_GetEntryCount());
+        gSaveContext.entranceIndex = ENTR_HYRULE_FIELD_PAST_BRIDGE_SPAWN;
+        gSaveContext.sceneSetupIndex = baseSceneLayer = 0;
     }
 
     Play_SpawnScene(
@@ -2096,7 +2106,7 @@ s16 func_800C09D8(PlayState* play, s16 camId, s16 arg2) {
 }
 
 void Play_SaveSceneFlags(PlayState* play) {
-    SavedSceneFlags* savedSceneFlags = &gSaveContext.sceneFlags[play->sceneNum];
+    SavedSceneFlags* savedSceneFlags = SceneFlags_Get(play->sceneNum); // SOH [Unbound]
 
     savedSceneFlags->chest = play->actorCtx.flags.chest;
     savedSceneFlags->swch = play->actorCtx.flags.swch;
