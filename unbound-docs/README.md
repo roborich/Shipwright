@@ -1,143 +1,78 @@
-# SoH: Unbound — design
+# SoH: Unbound
 
-**Unbound** is an experimental build of Ship of Harkinian whose only purpose is to remove the
-limits that Ocarina of Time inherited from N64 hardware, so that modding tools (primarily
-[Prelude of Light](https://preludeoflight.com)) can produce content the vanilla game shape
-cannot hold: bigger collision, more rooms/actors/objects, new scenes and entrances, added text,
-and — critically — **mods that ship deltas instead of whole resources**.
+**SoH: Unbound** is an experimental fork of Ship of Harkinian (branch `unbound`, based on tag
+`9.2.3`) with one purpose: **remove the limits Ocarina of Time inherited from N64 hardware so
+modders can build things the vanilla game shape cannot hold.** Its primary consumer is
+[Prelude of Light](https://preludeoflight.com), a browser-based o2r editor; Prelude gains an
+"Unbound" mode that targets this build (`UNBOUND.md` in the Prelude repo).
 
-It is a fork of SoH `9.2.3` on the `unbound` branch. It is not a randomizer build; randomizer
-and other enhancements that depend on the static vanilla tables are out of scope and may break.
-Players who want those use vanilla SoH.
+It is not a randomizer build and does not try to stay diff-minimal against upstream. Randomizer
+and other enhancements that assume the vanilla tables may break; that is accepted.
 
-This document is the overview. Each area has a detail doc:
+## Goals
 
-| Doc | Status |
-|-----|--------|
-| [`collision.md`](./collision.md) — uncapped collision geometry | **built; boots to title (Hyrule Field attract scene) with Prelude mods mounted; gameplay verification pending** |
-| [`scene-format.md`](./scene-format.md) — the Unbound archive layout, JSON schema, merge rules, loader + converter | **converter + merging loader built; boots from oot-unbound.o2r, delta mod verified merging** |
-| [`text.md`](./text.md) — growable hash-indexed message tables, JSON merge files, additive mods | **built; boots to title (Hyrule Field attract scene) with Prelude mods mounted; gameplay verification pending** |
-| [`registries.md`](./registries.md) — scene / entrance registry (`SceneDB`), JSON scene files, name-keyed save flags | **built; boots to title (Hyrule Field attract scene) with Prelude mods mounted; gameplay verification pending** |
-| [`counts.md`](./counts.md) — object bank, actor/room header counts, live actor cap, mesh entry / sort / texture cache caps | **built; boots to title (Hyrule Field attract scene) with Prelude mods mounted; gameplay verification pending** |
+1. **Uncap.** Collision size, scene and entrance count, objects per scene, actors, rooms, mesh
+   entries, message ids, world extent — any fixed N64-era number a modder can hit.
+2. **Patch, don't replace.** Structured game data (scene/room headers, collision metadata, text)
+   is JSON that **merges across archive layers**, so a mod ships only what it changed. No more
+   bundling a whole scene because one exit moved.
+3. **Portable mods.** No ROM-version-specific names in anything a mod references.
+4. **Keep the container.** Everything is still an `.o2r` (zip) loaded by libultraship; only what is
+   *inside* the OoT archive was redesigned.
 
-## Guiding principles
+## How it works, in one paragraph
 
-1. **Keep the `.o2r` container.** It is a zip of named entries; libultraship already loads
-   binary, XML, and `.meta`-described resources from it and layers archives. Everything
-   *inside* the OoT archive is up for redesign; the container and the loader machinery are not.
-2. **No obligation to the vanilla shape.** The current resource structures mirror N64 memory
-   layouts (13-bit vertex indices, `u8` room counts, static ROM tables). Unbound resources are
-   shaped by what a PC build wants to consume, not by what the N64 needed.
-3. **Stable, human names.** Resource names never encode ROM byte offsets. This is done at
-   extraction time (Torch, branch `stable-names-poc`) and is what makes a mod portable across
-   ROM revisions.
-4. **A mod file *is* a patch.** Structured resources (scene/room headers, collision metadata,
-   text, registries) are text (JSON/XML) and **merge by key across archive layers**. Bulk data
-   (vertex/poly arrays, display lists, textures) replaces whole. A Prelude user who changes one
-   exit ships a few hundred bytes, not a scene.
-5. **Lift limits in the game code, not just the format.** A wider file format is useless while
-   `z_bgcheck.c` still allocates N64-sized arenas. Every limit lift is a game-code change first;
-   the format follows.
-6. **Compile-time, not CVar.** Most lifts change struct layouts. Unbound is a build
-   (`SOH_UNBOUND`), not a toggle. Unbound archives carry a marker so a vanilla SoH refuses them
-   cleanly rather than crashing.
-7. **Vanilla `oot.o2r` is the source, never the target.** A converter (Torch, or SoH on first
-   launch — the same shape as today's extractor) produces `oot-unbound.o2r`. The same converter
-   reads legacy mods. Upstream adoption is a possible outcome, never a design constraint.
+`oot.o2r` is converted once (`soh --export-unbound oot-unbound.o2r`) into the Unbound layout: every
+scene/room header becomes `scenes/<name>/scene.json` + `rooms/<n>.json`, collision becomes
+`collision.json` + `collision.bin`, message tables become `text/<lang>/messages.json`, and every
+other resource is copied verbatim. Placed beside `oot.o2r`, the converted archive is mounted above
+it and SoH loads scenes from the JSON, merging every mounted mod's fragment of the same path. Mods
+add new scenes and entrances by declaring them in `unbound/scenes/*.json`. The C game code was
+widened wherever a struct field or arena enforced a cap.
 
-## Where the limits actually are
+## What has been changed
 
-The survey that motivated this design (SoH 9.2.3, `unbound` branch):
+Everything below is tagged `// SOH [Unbound]` in the code. Each area has a detail doc.
 
-| Limit | Where | Value today | Lift |
-|---|---|---|---|
-| Collision vertices per header | `COLPOLY_VTX_INDEX` 13-bit, `z64bgcheck.h` | 8 191 | widen indices to u32 |
-| Collision polys per header | `SSNode.polyId` s16 | 32 767 | widen node table to u32 |
-| Collision arena | `BgCheck_Allocate`, hardcoded per-scene byte budgets from the N64 | ~0x1CC00 ×2 | size from actual counts, heap-allocated |
-| Dyna (actor) collision polys/verts | `polyListMax`/`vtxListMax` 512 ×2 | 1 024 | generous fixed cap, growable node list |
-| Rooms per scene | `PlayState.numRooms` u8 | 255 | u16 |
-| Actors per room header | `numSetupActors` u8 (importer already reads u32, then truncates) | 255 | u16/u32 |
-| Object bank | `OBJECT_EXCHANGE_BANK_MAX` (SoH already raised 19→128), `ObjectContext.num` u8 | 128 | dynamic |
-| Object space | fixed ~1 MB arena in `z_scene.c` | 1 024 000 B | per-object heap allocation |
-| Actor IDs | `ActorDB` | **already dynamic** | reuse as the registry model |
-| Live actors | `ACTOR_NUMBER_MAX` | 2 000 | raise |
-| Scenes | `gSceneTable` static macro table, `SCENE_ID_MAX` 110; save flags indexed by scene | 110 | JSON registry + keyed save flags |
-| Entrances | `gEntranceTable` static, `ENTR_MAX` 1 556 | 1 556 | JSON registry |
-| Text | one binary blob per language; `override/text/` merge can replace but not add | — | map-based table, additive merge |
-| Mesh entries / sorted entries | `u8` count, `SHAPE_SORT_MAX` 64 | 255 / 64 | widen |
-| Texture cache | 1 024 | 1 024 | raise |
+| Area | Change | Doc |
+|---|---|---|
+| **Collision** | Vertex indices and poly ids are 32-bit; the N64 byte budget is gone — node tables are heap-allocated and grow on demand, freed in `Play_Destroy`. Legacy 13-bit packed data is unpacked on load. | [`collision.md`](./collision.md) |
+| **Scenes & entrances** | `gSceneTable`/`gEntranceTable` replaced by a runtime registry (`SceneDB`). Mods declare scenes + entrances in `unbound/scenes/*.json`; `EntranceInfo.scene` is 16-bit; custom-scene save flags are stored by scene name. Console: `entrance <name>`. | [`registries.md`](./registries.md) |
+| **Text** | Message tables are growable and hash-indexed; `override/text/` and `unbound/text/*.json` can **add** ids; message buffers 8 KB. | [`text.md`](./text.md) |
+| **Counts** | Object bank 1024 (was 128, silently dropping); actors per room and rooms per scene 16-bit; live-actor cap real (was a wrapping u8) and 8192; mesh entries 32-bit, sorted entries 1024; texture cache 8192. Object ids past the vanilla table are usable — object "space" is vestigial on PC. | [`counts.md`](./counts.md) |
+| **Scene format** | The JSON layout, entity keys (Prelude's index scheme), and merge rules (`null` deletes, arrays replace, `$replace`, `$order`). | [`scene-format.md`](./scene-format.md) |
+| **Converter** | `soh --export-unbound <out.o2r>` / console `unbound-export`: vanilla → Unbound archive in ~1 s. `soh/soh/Enhancements/unbound/UnboundExporter.cpp`. | `scene-format.md` §5 |
+| **Loader** | libultraship gained a JSON resource format (`{` sniff, type from `$schema`, found in any layer) and `LoadFileFromAllLayers`; SoH's JSON factories (`soh/soh/resource/unbound/`) build the same command objects the binary loaders build, so scene execution code is untouched. | `scene-format.md` §4 |
 
-What is **not** a limit: the archive format. SoH already registers XML factories for scene
-commands, collision, text, paths, skeletons, DLs, vertices and audio; scene headers already
-reference sub-resources by name string. The pain is naming (offsets), override granularity
-(whole file), and the C-side caps above.
+Verified in game: a Prelude-generated mod adding a **new scene with high-poly collision** loads and
+plays; a two-line delta mod merges over the converted base (`examples/hyrule-field-actor-delta/`).
 
-## The Unbound archive layout
+## Known remaining limits
 
-Final names are settled per detail doc; this is the shape.
+Likely next targets, roughly by how often a modder will hit them:
 
-```
-unbound.json                       # manifest: format version, game, source ROM family, features used
-scenes/<scene>/scene.json          # scene setups (all alternate headers as an array), exits,
-                                   # entrances, lighting, objects, room list, collision ref
-scenes/<scene>/rooms/<n>.json      # room header: mesh refs, actors, objects, flags
-scenes/<scene>/collision.json      # bounds, surface types, water boxes, camera data
-scenes/<scene>/collision.bin       # vertex + poly arrays, u32 indices, counts from the header
-scenes/<scene>/rooms/<n>/…         # DLs, vertices, textures — stable Torch names
-text/<lang>/messages.json          # id → { box, ypos, text }
-tables/scenes.json                 # scene registry (replaces gSceneTable)
-tables/entrances.json              # entrance registry (replaces gEntranceTable)
-tables/objects.json                # object registry (replaces gObjectTable)
-objects/<name>/…
-```
+| Limit | Where | Notes |
+|---|---|---|
+| **World extent ±32 767 units** | `s16` positions everywhere: `Vec3s` in collision vertices, `ActorEntry.pos`, `BGCHECK_XYZ_ABSMAX` 32 760 in `z_bgcheck.c`, `Actor.world.pos` clamps | The one a large scene hits first. Collision vertices could go 32-bit in `collision.bin`/`CollisionPoly` cheaply; actor positions are floats at runtime but spawn entries and many actor behaviours assume s16. Camera/culling code also assumes the range. |
+| Rooms addressable ≤ 127 | `Room.num`, `Actor.room`, `TransitionActorEntry.sides[].room` are `s8` | `numRooms` is already u16; the s8 → s16 sweep across actors is mechanical. |
+| Dyna (moving) collision actors ≤ 50 | `BG_ACTOR_MAX` | Dyna polys/verts are capped at 16 384 each (fixed, actors hold raw pointers). |
+| Mesh entries in **binary** headers ≤ 255 | binary `SetMesh` stores a u8 count | JSON headers have no such cap. Only matters for legacy archives. |
+| Decoded textbox 1 024 bytes | `MESSAGE_DECODED_BUF_SIZE` | Page long text with box-break control codes. |
+| Entrance layer groups of 4 | `entranceIndex + sceneSetupIndex` arithmetic in `Play_Init` | Custom entrances register 4 identical layers. |
+| No minimap / pause map for custom scenes | `Map_Init` keyed by vanilla scene ranges | Needs a registry field for map data. |
+| Alternate setups | The JSON stores each in full; up to setup index 13 seen in vanilla | Not a cap, but `SetAlternateHeaders` arrays grow with the highest index. |
+| Save data | `sceneFlags[124]` positional for vanilla scenes; custom scenes keyed by name; save states don't capture custom flags | |
+| MQ | Converter emits `_mq` scenes only when `oot-mq.o2r` is mounted at export time | |
 
-### Merge semantics
+## Working on the fork
 
-Today the archive manager keeps a flat `CRC64(path) → archive` map and the last archive added
-wins per path (`libultraship/src/ship/resource/archive/ArchiveManager.cpp`, `AddArchive`).
-Unbound keeps that for bulk resources and adds a **merging loader** for structured ones:
-
-- `*.json` structured resources are loaded from **every** archive that has the path, lowest
-  layer first, and deep-merged: objects merge by key, arrays of entities merge by `id`, a
-  `null` value deletes, later layers win.
-- Bulk resources (`*.bin`, DLs, textures, vertices) keep last-wins whole-file replacement.
-- Scenes/rooms/registries/text are all structured, so a mod is by construction a patch.
-
-This subsumes the `override/text/` mechanism and means Prelude never has to bundle a whole
-scene because a header pointed at a ROM-specific name.
-
-### Identity
-
-Scenes, entrances and objects get **string IDs** (`kokiri_forest`, `mymod/lava_temple`).
-Numeric IDs are assigned at load time, as `ActorDB` already does for actors. Save data keys
-per-scene flags by string ID in the JSON save.
-
-## Build
-
-`SOH_UNBOUND` is a CMake option that defines the macro for `soh/` and `libultraship/`. It is
-**on** for Unbound builds. Code that changes struct layout or allocation lives inside
-`#ifdef SOH_UNBOUND` where a vanilla path must be preserved, otherwise it is simply changed
-with a `// SOH [Unbound]` marker — the fork is not trying to stay diff-minimal against upstream.
-
-## Order of work
-
-1. **Collision** — the most-reported Prelude limit; self-contained; no format decision
-   required to land it (the loader accepts today's binary/XML with widened in-memory types).
-2. **Text** — trivial lift, immediate modding win.
-3. **Scene/room** — new layout + merging loader; widen room/actor/object counts.
-4. **Registries** — scenes, entrances, objects; save-flag keying.
-5. **Mesh/texture caps.**
-6. **Converter** — vanilla `oot.o2r` → `oot-unbound.o2r`, legacy mod → Unbound mod.
-
-## Known risks
-
-- Enhancements that use `ENTR_*`/`SCENE_*` enums as array indices (mostly randomizer) break at
-  step 4. Accepted.
-- `ResourceMgr_PatchGfxByName` refuses `IsCustom` resources and XML resources are always
-  custom (`ResourceManagerHelpers.cpp`). Gfx-patch-based enhancements silently stop applying to
-  text-format DLs. Decide at step 3.
-- MQ scene selection is a `/nonmq/`→`/mq/` path string replace
-  (`ResourceManagerHelpers.cpp`, `ResourceMgr_GetResourceByNameHandlingMQ`). The new layout
-  must keep an equivalent.
-- Sail/Anchor sync actor and scene IDs numerically; custom scenes need the string IDs on the
-  wire.
+- Build: `cmake --build build-cmake --target soh -j8`. A change to `z64.h` rebuilds nearly
+  everything (10+ min on a busy machine); run long builds in the background with a log.
+- Smoke test: put `oot-unbound.o2r` beside `oot.o2r` in `build-cmake/soh`, launch, and grep the
+  log for `[Unbound]` — the title screen loads Hyrule Field through `scene.json`.
+- Regenerate `soh.o2r` (`--target GenerateSohOtr`) if switching from a branch with different
+  shaders; a stale one crashes at boot.
+- Prefer widening a field over adding a registry; prefer a registry over a static table; prefer
+  JSON that merges over binary that replaces. Keep the `SOH [Unbound]` marker on every edit.
+- libultraship is a submodule on the fork branch `unbound`; commit there first, then update the
+  pointer here.
