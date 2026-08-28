@@ -1,7 +1,9 @@
 #include "OTRGlobals.h"
 #include <cstdlib>
 #include "soh/Enhancements/unbound/UnboundExporter.h"
+#include "soh/z_message_OTR.h"
 #include "soh/resource/unbound/UnboundFactories.h"
+#include "soh/resource/unbound/UnboundSchema.h"
 #include "OTRAudio.h"
 #include <algorithm>
 #include <atomic>
@@ -123,6 +125,9 @@
 
 #include "soh/config/ConfigUpdaters.h"
 #include "soh/ShipInit.hpp"
+
+// SOH [Unbound] `--export-unbound <out.o2r>`: convert the mounted vanilla archive and exit (see InitOTR)
+static constexpr const char* kUnboundExportFlag = "--export-unbound";
 
 bool SoH_HandleConfigDrop(char* filePath);
 
@@ -406,8 +411,7 @@ void OTRGlobals::RunExtract(int argc, char* argv[]) {
     std::vector<std::string> args;
     if (argc > 1) {
         for (int i = 1; i < argc; i++) {
-            // SOH [Unbound] `--export-unbound <out>` is handled after boot (InitOTR); it is not a ROM to extract.
-            if (std::string(argv[i]) == "--export-unbound") {
+            if (std::string(argv[i]) == kUnboundExportFlag) { // SOH [Unbound] consumed by InitOTR, not a ROM
                 i++;
                 continue;
             }
@@ -852,20 +856,21 @@ void OTRGlobals::Initialize() {
                                     0); // Is room scene? maybe?
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryXMLSceneV0>(), RESOURCE_FORMAT_XML, "Room",
                                     static_cast<uint32_t>(SOH::ResourceType::SOH_Room), 0); // Is room scene? maybe?
-    // SOH [Unbound] JSON scene format factories, keyed by the "$schema" type names
-    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryJsonSceneV1>(), RESOURCE_FORMAT_JSON,
-                                    "unbound/scene", static_cast<uint32_t>(SOH::ResourceType::SOH_UnboundScene), 1);
-    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryJsonSceneV1>(), RESOURCE_FORMAT_JSON,
-                                    "unbound/room", static_cast<uint32_t>(SOH::ResourceType::SOH_UnboundRoom), 1);
-    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryJsonCollisionHeaderV1>(),
-                                    RESOURCE_FORMAT_JSON, "unbound/collision",
-                                    static_cast<uint32_t>(SOH::ResourceType::SOH_UnboundCollision), 1);
-    // Schema 2 = f32 collision.bin (extent.md); the same factory reads both layouts by version.
-    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryJsonCollisionHeaderV1>(),
-                                    RESOURCE_FORMAT_JSON, "unbound/collision",
-                                    static_cast<uint32_t>(SOH::ResourceType::SOH_UnboundCollision), 2);
+    // SOH [Unbound] JSON scene format: existing resource types, RESOURCE_FORMAT_JSON + the "$schema" version.
+    // Scene and room share one factory instance registered under both type names (LUS aliases same-instance
+    // re-registrations); the collision factory reads both bin layouts and registers under versions 1 and 2.
+    auto jsonScene = std::make_shared<SOH::ResourceFactoryJsonSceneV1>();
+    loader->RegisterResourceFactory(jsonScene, RESOURCE_FORMAT_JSON, Unbound::Schema::kSceneType,
+                                    static_cast<uint32_t>(SOH::ResourceType::SOH_Room), 1);
+    loader->RegisterResourceFactory(jsonScene, RESOURCE_FORMAT_JSON, Unbound::Schema::kRoomType,
+                                    static_cast<uint32_t>(SOH::ResourceType::SOH_Room), 1);
+    auto jsonCollision = std::make_shared<SOH::ResourceFactoryJsonCollisionHeaderV1>();
+    loader->RegisterResourceFactory(jsonCollision, RESOURCE_FORMAT_JSON, Unbound::Schema::kCollisionType,
+                                    static_cast<uint32_t>(SOH::ResourceType::SOH_CollisionHeader), 1);
+    loader->RegisterResourceFactory(jsonCollision, RESOURCE_FORMAT_JSON, Unbound::Schema::kCollisionType,
+                                    static_cast<uint32_t>(SOH::ResourceType::SOH_CollisionHeader), 2);
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryJsonPathV1>(), RESOURCE_FORMAT_JSON,
-                                    "unbound/paths", static_cast<uint32_t>(SOH::ResourceType::SOH_UnboundPath), 1);
+                                    Unbound::Schema::kPathsType, static_cast<uint32_t>(SOH::ResourceType::SOH_Path), 1);
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryCollisionHeaderV0>(),
                                     RESOURCE_FORMAT_BINARY, "CollisionHeader",
                                     static_cast<uint32_t>(SOH::ResourceType::SOH_CollisionHeader), 0);
@@ -1025,7 +1030,6 @@ uint32_t OTRGlobals::GetInterpolationFPS() {
     return CVarGetInteger(CVAR_SETTING("InterpolationFPS"), 20);
 }
 
-extern "C" void OTRMessage_Init();
 extern "C" void AudioMgr_CreateNextAudioBuffer(s16* samples, u32 num_samples);
 extern "C" void AudioPlayer_Play(const uint8_t* buf, uint32_t len);
 extern "C" int AudioPlayer_Buffered(void);
@@ -1479,6 +1483,16 @@ bool VerifyArchiveVersion(OTRVersion version) {
     return version.major != INT16_MAX && version.major != gBuildVersionMajor;
 }
 
+static void Unbound_ExportFromCommandLine(int argc, char* argv[]) {
+    for (int i = 1; i + 1 < argc; i++) {
+        if (std::string(argv[i]) == kUnboundExportFlag) {
+            int rc = Unbound_Export(argv[i + 1]);
+            spdlog::default_logger()->flush();
+            std::_Exit(rc); // skip static destructors: the engine is only half-initialised here
+        }
+    }
+}
+
 extern "C" void InitOTR(int argc, char* argv[]) {
     OTRGlobals::Instance = new OTRGlobals();
     OTRGlobals::Instance->RunExtract(argc, argv);
@@ -1524,14 +1538,7 @@ extern "C" void InitOTR(int argc, char* argv[]) {
     VanillaItemTable_Init();
     DebugConsole_Init();
 
-    // SOH [Unbound] headless conversion: `soh --export-unbound <out.o2r>` writes the archive and exits.
-    for (int i = 1; i + 1 < argc; i++) {
-        if (std::string(argv[i]) == "--export-unbound") {
-            int rc = Unbound_Export(argv[i + 1]);
-            spdlog::default_logger()->flush();
-            std::_Exit(rc); // skip static destructors: the engine is only half-initialised here
-        }
-    }
+    Unbound_ExportFromCommandLine(argc, argv); // SOH [Unbound] exits the process when the flag is present
 
     InitMods();
     ActorDB::AddBuiltInCustomActors();

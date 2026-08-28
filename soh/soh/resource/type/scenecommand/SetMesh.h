@@ -72,7 +72,7 @@ typedef union {
 } MeshHeader; // "Ground Shape"
 
 typedef struct {
-    /* 0x00 */ Vec3f pos; // SOH [Unbound] s16 -> f32 (world extent)
+    /* 0x00 */ Vec3f pos;  // SOH [Unbound] s16 -> f32 (world extent)
     /* 0x06 */ f32 unk_06; // SOH [Unbound] cull radius, s16 -> f32
     /* 0x08 */ Gfx* opa;
     /* 0x0C */ Gfx* xlu;
@@ -102,5 +102,31 @@ class SetMesh : public SceneCommand<MeshHeader> {
     std::vector<BgImage> images;
     MeshHeader meshHeader;
     Vec3f origin{ 0.0f, 0.0f, 0.0f }; // SOH [Unbound] room mesh origin (see Room.origin)
+
+    // SOH [Unbound] Shared by the loaders. The game treats the returned pointer as the display list / image; the
+    // interpreter resolves "__OTR__<path>" when the room is drawn, so the string must outlive the command: it is
+    // kept in `store` (opaPaths / xluPaths / imagePaths), which the caller must `reserve()` before the first call
+    // so the c_str() pointers stay valid. Returns nullptr for an empty path.
+    static Gfx* KeepDlistPath(std::vector<std::string>& store, const std::string& path) {
+        if (path.empty()) {
+            return nullptr;
+        }
+        store.push_back("__OTR__" + path);
+        return (Gfx*)store.back().c_str();
+    }
+
+    // PolygonType1.single mirrors BgImage minus the id / unk_00 pair.
+    void SetSingleImage(const BgImage& image) {
+        auto& single = meshHeader.polygon1.single;
+        single.source = image.source;
+        single.unk_0C = image.unk_0C;
+        single.tlut = (void*)(uintptr_t)image.tlut; // OTRTODO: type of bgimage.tlut should be uintptr_t
+        single.width = image.width;
+        single.height = image.height;
+        single.fmt = image.fmt;
+        single.siz = image.siz;
+        single.mode0 = image.mode0;
+        single.tlutCount = image.tlutCount;
+    }
 };
 }; // namespace SOH

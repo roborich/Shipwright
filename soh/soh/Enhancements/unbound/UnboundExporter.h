@@ -19,11 +19,5 @@ ExportReport ExportArchive(const std::string& outPath);
 
 } // namespace Unbound
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 // Console / CLI entry: returns 0 on success, logs progress through spdlog.
-int Unbound_Export(const char* outPath);
-#ifdef __cplusplus
-}
-#endif
+extern "C" int Unbound_Export(const char* outPath);

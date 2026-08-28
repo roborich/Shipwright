@@ -20,7 +20,9 @@
 #include <set>
 #include <unordered_map>
 
+#include "variables.h" // gBuildVersion
 #include "soh/SceneDB.h"
+#include "soh/resource/unbound/UnboundSchema.h"
 #include "soh/resource/type/CollisionHeader.h"
 #include "soh/resource/type/Path.h"
 #include "soh/resource/type/Scene.h"
@@ -50,13 +52,14 @@
 #include "soh/resource/type/scenecommand/SetWindSettings.h"
 
 using json = nlohmann::ordered_json;
+namespace K = Unbound::Schema;
 
 namespace Unbound {
 namespace {
 
 // ---------------------------------------------------------------------------------------------
-// Stored-entry zip writer. Deterministic (fixed 1980-01-01 timestamps), no compression, no ZIP64
-// (the vanilla archive is ~38k entries / ~51 MB raw, well inside the classic limits).
+// Stored-entry zip writer. Deterministic (fixed 1980-01-01 timestamps), no compression, no ZIP64:
+// an archive past 65 535 entries or 4 GB is refused (Error()) rather than written corrupt.
 // ---------------------------------------------------------------------------------------------
 class ZipWriter {
   public:
@@ -65,12 +68,20 @@ class ZipWriter {
         return mOut.good();
     }
 
-    void Add(const std::string& name, const uint8_t* data, size_t size) {
+    bool Add(const std::string& name, const uint8_t* data, size_t size) {
+        if (!mError.empty()) {
+            return false;
+        }
+        uint64_t offset = (uint64_t)mOut.tellp();
+        if (mEntries.size() >= 0xFFFF || offset + size + name.size() + 30 > 0xFFFFFFFFull || name.size() > 0xFFFF) {
+            mError = "zip limit exceeded at entry " + name + " (no ZIP64 support)";
+            return false;
+        }
         Entry e;
         e.name = name;
         e.size = (uint32_t)size;
         e.crc = Crc32(data, size);
-        e.offset = (uint32_t)mOut.tellp();
+        e.offset = (uint32_t)offset;
 
         Put32(0x04034b50);
         Put16(20);     // version needed
@@ -86,13 +97,18 @@ class ZipWriter {
         mOut.write(name.data(), name.size());
         mOut.write((const char*)data, size);
         mEntries.push_back(std::move(e));
+        return true;
     }
 
-    void Add(const std::string& name, const std::string& text) {
-        Add(name, (const uint8_t*)text.data(), text.size());
+    bool Add(const std::string& name, const std::string& text) {
+        return Add(name, (const uint8_t*)text.data(), text.size());
     }
 
     bool Close() {
+        if (!mError.empty()) {
+            mOut.close();
+            return false;
+        }
         uint32_t cdOffset = (uint32_t)mOut.tellp();
         for (const auto& e : mEntries) {
             Put32(0x02014b50);
@@ -124,7 +140,14 @@ class ZipWriter {
         Put32(cdOffset);
         Put16(0);
         mOut.close();
-        return mOut.good() || mOut.eof();
+        if (mOut.fail()) {
+            mError = "write failed";
+        }
+        return mError.empty();
+    }
+
+    const std::string& Error() const {
+        return mError;
     }
 
     size_t Count() const {
@@ -170,6 +193,7 @@ class ZipWriter {
 
     std::ofstream mOut;
     std::vector<Entry> mEntries;
+    std::string mError; // first failure; every later Add() is a no-op
 };
 
 // ---------------------------------------------------------------------------------------------
@@ -292,45 +316,47 @@ std::vector<uint8_t> BuildCollisionBin(const SOH::CollisionHeader& col) {
 json BuildCollisionJson(const SOH::CollisionHeader& col, const std::string& binPath) {
     const auto& d = col.collisionHeaderData;
     json doc;
-    doc["$schema"] = "unbound/collision/2";
-    doc["bounds"] = { { "min", Vec(d.minBounds) }, { "max", Vec(d.maxBounds) } };
-    doc["bulk"] = { { "file", binPath }, { "vertices", d.numVertices }, { "polys", d.numPolygons } };
+    doc[K::kSchema] = K::kCollisionV2;
+    doc[K::kBounds] = { { K::kMin, Vec(d.minBounds) }, { K::kMax, Vec(d.maxBounds) } };
+    doc[K::kBulk] = { { K::kFile, binPath }, { K::kVertices, d.numVertices }, { K::kPolys, d.numPolygons } };
 
     json surfaces = json::object();
     for (size_t i = 0; i < col.surfaceTypes.size(); i++) {
-        surfaces[Key(i)] = { { "data0", Hex(col.surfaceTypes[i].data[0]) },
-                             { "data1", Hex(col.surfaceTypes[i].data[1]) } };
+        surfaces[Key(i)] = { { K::kData0, col.surfaceTypes[i].data[0] }, { K::kData1, col.surfaceTypes[i].data[1] } };
     }
-    doc["surfaceTypes"] = surfaces;
+    doc[K::kSurfaceTypes] = surfaces;
 
     json cameras = json::object();
     for (size_t i = 0; i < col.camData.size(); i++) {
-        json cam = { { "sType", col.camData[i].cameraSType }, { "count", col.camData[i].numCameras } };
+        json cam = { { K::kSType, col.camData[i].cameraSType }, { K::kCount, col.camData[i].numCameras } };
         int32_t idx = i < col.camPosDataIndices.size() ? col.camPosDataIndices[i] : -1;
         if (col.camPosCount > 0 && idx >= 0) {
-            cam["positionIndex"] = idx;
+            cam[K::kPositionIndex] = idx;
         } else {
-            cam["positionIndex"] = nullptr;
+            cam[K::kPositionIndex] = nullptr;
         }
         cameras[Key(i)] = cam;
     }
-    doc["cameras"] = cameras;
+    doc[K::kCameras] = cameras;
 
     json positions = json::object();
     for (size_t i = 0; i < col.camPosData.size(); i++) {
         positions[Key(i)] = Vec(col.camPosData[i]);
     }
-    doc["cameraPositions"] = positions;
+    doc[K::kCameraPositions] = positions;
 
     json water = json::object();
     for (size_t i = 0; i < col.waterBoxes.size(); i++) {
         const auto& w = col.waterBoxes[i];
-        water[Key(i)] = { { "xMin", Num(w.xMin) },       { "ySurface", Num(w.ySurface) },
-                          { "zMin", Num(w.zMin) },       { "xLength", Num(w.xLength) },
-                          { "zLength", Num(w.zLength) }, { "properties", Hex(w.properties) },
-                          { "room", w.room } };
+        water[Key(i)] = { { K::kXMin, Num(w.xMin) },
+                          { K::kYSurface, Num(w.ySurface) },
+                          { K::kZMin, Num(w.zMin) },
+                          { K::kXLength, Num(w.xLength) },
+                          { K::kZLength, Num(w.zLength) },
+                          { K::kProperties, w.properties },
+                          { K::kRoom, w.room } };
     }
-    doc["waterBoxes"] = water;
+    doc[K::kWaterBoxes] = water;
     return doc;
 }
 
@@ -368,16 +394,16 @@ std::string ConvertPaths(ExportContext& ctx, const std::string& basePath, const 
         return "";
     }
     json doc;
-    doc["$schema"] = "unbound/paths/1";
+    doc[K::kSchema] = K::kPathsV1;
     json paths = json::object();
     for (size_t i = 0; i < res->paths.size(); i++) {
         json points = json::array();
         for (const auto& p : res->paths[i]) {
             points.push_back(Vec(p));
         }
-        paths[Key(i)] = { { "points", points } };
+        paths[Key(i)] = { { K::kPoints, points } };
     }
-    doc["paths"] = paths;
+    doc[K::kPaths] = paths;
     ctx.zip.Add(outPath, doc.dump(2));
     ctx.written.insert(outPath);
     ctx.consumed.insert(basePath);
@@ -388,48 +414,53 @@ std::string ConvertPaths(ExportContext& ctx, const std::string& basePath, const 
 // Scene commands -> one setup object
 // ---------------------------------------------------------------------------------------------
 json ActorJson(const SOH::ActorEntry& a) {
-    return { { "id", a.id }, { "pos", Vec(a.pos) }, { "rot", Vec(a.rot) }, { "params", a.params } };
+    return { { K::kId, a.id }, { K::kPos, Vec(a.pos) }, { K::kRot, Vec(a.rot) }, { K::kParams, a.params } };
 }
 
 json MeshJson(const SOH::SetMesh& mesh) {
     json m;
     uint8_t type = mesh.meshHeader.base.type;
-    m["type"] = type;
+    m[K::kType] = type;
     if (type == 0) {
         json entries = json::object();
         for (size_t i = 0; i < mesh.dlists.size(); i++) {
             std::string opa = StripOtrPrefix((const char*)mesh.dlists[i].opa);
             std::string xlu = StripOtrPrefix((const char*)mesh.dlists[i].xlu);
-            entries[Key(i)] = { { "opa", opa.empty() ? json(nullptr) : json(opa) },
-                                { "xlu", xlu.empty() ? json(nullptr) : json(xlu) } };
+            entries[Key(i)] = { { K::kOpa, opa.empty() ? json(nullptr) : json(opa) },
+                                { K::kXlu, xlu.empty() ? json(nullptr) : json(xlu) } };
         }
-        m["entries"] = entries;
+        m[K::kEntries] = entries;
     } else if (type == 2) {
         json entries = json::object();
         for (size_t i = 0; i < mesh.dlists2.size(); i++) {
             const auto& d = mesh.dlists2[i];
             std::string opa = StripOtrPrefix((const char*)d.opa);
             std::string xlu = StripOtrPrefix((const char*)d.xlu);
-            entries[Key(i)] = { { "pos", Vec(d.pos) },
-                                { "radius", Num(d.unk_06) },
-                                { "opa", opa.empty() ? json(nullptr) : json(opa) },
-                                { "xlu", xlu.empty() ? json(nullptr) : json(xlu) } };
+            entries[Key(i)] = { { K::kPos, Vec(d.pos) },
+                                { K::kRadius, Num(d.unk_06) },
+                                { K::kOpa, opa.empty() ? json(nullptr) : json(opa) },
+                                { K::kXlu, xlu.empty() ? json(nullptr) : json(xlu) } };
         }
-        m["entries"] = entries;
+        m[K::kEntries] = entries;
     } else if (type == 1) {
         const auto& p1 = mesh.meshHeader.polygon1;
-        m["format"] = p1.format;
+        m[K::kFormat] = p1.format;
         std::string opa = mesh.dlists.empty() ? "" : StripOtrPrefix((const char*)mesh.dlists[0].opa);
         std::string xlu = mesh.dlists.empty() ? "" : StripOtrPrefix((const char*)mesh.dlists[0].xlu);
-        m["opa"] = opa.empty() ? json(nullptr) : json(opa);
-        m["xlu"] = xlu.empty() ? json(nullptr) : json(xlu);
+        m[K::kOpa] = opa.empty() ? json(nullptr) : json(opa);
+        m[K::kXlu] = xlu.empty() ? json(nullptr) : json(xlu);
         auto imageJson = [](const SOH::BgImage& img) {
-            return json{ { "unk00", img.unk_00 },   { "id", img.id },
-                         { "source", StripOtrPrefix((const char*)img.source) },
-                         { "unk0C", img.unk_0C },   { "tlut", img.tlut },
-                         { "width", img.width },   { "height", img.height },
-                         { "fmt", img.fmt },       { "siz", img.siz },
-                         { "mode0", img.mode0 },   { "tlutCount", img.tlutCount } };
+            return json{ { K::kUnk00, img.unk_00 },
+                         { K::kId, img.id },
+                         { K::kSource, StripOtrPrefix((const char*)img.source) },
+                         { K::kUnk0C, img.unk_0C },
+                         { K::kTlut, img.tlut },
+                         { K::kWidth, img.width },
+                         { K::kHeight, img.height },
+                         { K::kFmt, img.fmt },
+                         { K::kSiz, img.siz },
+                         { K::kMode0, img.mode0 },
+                         { K::kTlutCount, img.tlutCount } };
         };
         if (p1.format == 1) {
             SOH::BgImage single{};
@@ -442,13 +473,13 @@ json MeshJson(const SOH::SetMesh& mesh) {
             single.siz = p1.single.siz;
             single.mode0 = p1.single.mode0;
             single.tlutCount = p1.single.tlutCount;
-            m["image"] = imageJson(single);
+            m[K::kImage] = imageJson(single);
         } else {
             json images = json::object();
             for (size_t i = 0; i < mesh.images.size(); i++) {
                 images[Key(i)] = imageJson(mesh.images[i]);
             }
-            m["images"] = images;
+            m[K::kImages] = images;
         }
     }
     return m;
@@ -456,15 +487,15 @@ json MeshJson(const SOH::SetMesh& mesh) {
 
 json LightJson(const SOH::LightInfo& l) {
     json j;
-    j["type"] = l.type;
+    j[K::kType] = l.type;
     if (l.type == 1) { // LIGHT_DIRECTIONAL
-        j["dir"] = json::array({ l.params.dir.x, l.params.dir.y, l.params.dir.z });
-        j["color"] = Rgb(l.params.dir.color);
+        j[K::kDir] = json::array({ l.params.dir.x, l.params.dir.y, l.params.dir.z });
+        j[K::kColor] = Rgb(l.params.dir.color);
     } else {
-        j["pos"] = json::array({ Num(l.params.point.x), Num(l.params.point.y), Num(l.params.point.z) });
-        j["color"] = Rgb(l.params.point.color);
-        j["glow"] = l.params.point.drawGlow;
-        j["radius"] = l.params.point.radius;
+        j[K::kPos] = json::array({ Num(l.params.point.x), Num(l.params.point.y), Num(l.params.point.z) });
+        j[K::kColor] = Rgb(l.params.point.color);
+        j[K::kGlow] = l.params.point.drawGlow;
+        j[K::kRadius] = l.params.point.radius;
     }
     return j;
 }
@@ -486,7 +517,7 @@ std::vector<std::shared_ptr<SOH::Scene>> BuildSetup(ExportContext& ctx, json& se
                 for (size_t i = 0; i < c->startPositions.size(); i++) {
                     list[Key(i)] = ActorJson(c->startPositions[i]);
                 }
-                setup["spawns"] = list;
+                setup[K::kSpawns] = list;
                 break;
             }
             case SOH::SceneCommandID::SetActorList: {
@@ -495,7 +526,7 @@ std::vector<std::shared_ptr<SOH::Scene>> BuildSetup(ExportContext& ctx, json& se
                 for (size_t i = 0; i < c->actorList.size(); i++) {
                     list[Key(i)] = ActorJson(c->actorList[i]);
                 }
-                setup["actors"] = list;
+                setup[K::kActors] = list;
                 break;
             }
             case SOH::SceneCommandID::SetCollisionHeader: {
@@ -510,35 +541,35 @@ std::vector<std::shared_ptr<SOH::Scene>> BuildSetup(ExportContext& ctx, json& se
             }
             case SOH::SceneCommandID::SetWind: {
                 auto* c = (SOH::SetWindSettings*)cmd.get();
-                setup["wind"] = { { "west", c->settings.windWest },
-                                  { "vertical", c->settings.windVertical },
-                                  { "south", c->settings.windSouth },
-                                  { "speed", c->settings.windSpeed } };
+                setup[K::kWind] = { { K::kWest, c->settings.windWest },
+                                    { K::kVertical, c->settings.windVertical },
+                                    { K::kSouth, c->settings.windSouth },
+                                    { K::kSpeed, c->settings.windSpeed } };
                 break;
             }
             case SOH::SceneCommandID::SetEntranceList: {
                 auto* c = (SOH::SetEntranceList*)cmd.get();
                 json list = json::object();
                 for (size_t i = 0; i < c->entrances.size(); i++) {
-                    list[Key(i)] = { { "spawn", c->entrances[i].spawn }, { "room", c->entrances[i].room } };
+                    list[Key(i)] = { { K::kSpawn, c->entrances[i].spawn }, { K::kRoom, c->entrances[i].room } };
                 }
-                setup["entrances"] = list;
+                setup[K::kEntrances] = list;
                 break;
             }
             case SOH::SceneCommandID::SetSpecialObjects: {
                 auto* c = (SOH::SetSpecialObjects*)cmd.get();
-                setup["specialObjects"] = { { "elfMessage", c->specialObjects.elfMessage },
-                                            { "globalObject", c->specialObjects.globalObject } };
+                setup[K::kSpecialObjects] = { { K::kElfMessage, c->specialObjects.elfMessage },
+                                              { K::kGlobalObject, c->specialObjects.globalObject } };
                 break;
             }
             case SOH::SceneCommandID::SetRoomBehavior: {
                 auto* c = (SOH::SetRoomBehavior*)cmd.get();
-                setup["behavior"] = { { "gameplayFlags", c->roomBehavior.gameplayFlags },
-                                      { "gameplayFlags2", c->roomBehavior.gameplayFlags2 } };
+                setup[K::kBehavior] = { { K::kGameplayFlags, c->roomBehavior.gameplayFlags },
+                                        { K::kGameplayFlags2, c->roomBehavior.gameplayFlags2 } };
                 break;
             }
             case SOH::SceneCommandID::SetMesh: {
-                setup["mesh"] = MeshJson(*(SOH::SetMesh*)cmd.get());
+                setup[K::kMesh] = MeshJson(*(SOH::SetMesh*)cmd.get());
                 break;
             }
             case SOH::SceneCommandID::SetObjectList: {
@@ -547,7 +578,7 @@ std::vector<std::shared_ptr<SOH::Scene>> BuildSetup(ExportContext& ctx, json& se
                 for (size_t i = 0; i < c->objects.size(); i++) {
                     list[Key(i)] = c->objects[i];
                 }
-                setup["objects"] = list;
+                setup[K::kObjects] = list;
                 break;
             }
             case SOH::SceneCommandID::SetLightList: {
@@ -556,7 +587,7 @@ std::vector<std::shared_ptr<SOH::Scene>> BuildSetup(ExportContext& ctx, json& se
                 for (size_t i = 0; i < c->lightList.size(); i++) {
                     list[Key(i)] = LightJson(c->lightList[i]);
                 }
-                setup["lights"] = list;
+                setup[K::kLights] = list;
                 break;
             }
             case SOH::SceneCommandID::SetPathways: {
@@ -568,7 +599,7 @@ std::vector<std::shared_ptr<SOH::Scene>> BuildSetup(ExportContext& ctx, json& se
                         files.push_back(out);
                     }
                 }
-                setup["paths"] = files;
+                setup[K::kPaths] = files;
                 break;
             }
             case SOH::SceneCommandID::SetTransitionActorList: {
@@ -576,14 +607,12 @@ std::vector<std::shared_ptr<SOH::Scene>> BuildSetup(ExportContext& ctx, json& se
                 json list = json::object();
                 for (size_t i = 0; i < c->transitionActorList.size(); i++) {
                     const auto& t = c->transitionActorList[i];
-                    list[Key(i)] = { { "id", t.id },
-                                     { "pos", Vec(t.pos) },
-                                     { "rotY", t.rotY },
-                                     { "params", t.params },
-                                     { "front", { { "room", t.sides[0].room }, { "effects", t.sides[0].effects } } },
-                                     { "back", { { "room", t.sides[1].room }, { "effects", t.sides[1].effects } } } };
+                    json front = { { K::kRoom, t.sides[0].room }, { K::kEffects, t.sides[0].effects } };
+                    json back = { { K::kRoom, t.sides[1].room }, { K::kEffects, t.sides[1].effects } };
+                    list[Key(i)] = { { K::kId, t.id },         { K::kPos, Vec(t.pos) }, { K::kRotY, t.rotY },
+                                     { K::kParams, t.params }, { K::kFront, front },    { K::kBack, back } };
                 }
-                setup["transitionActors"] = list;
+                setup[K::kTransitionActors] = list;
                 break;
             }
             case SOH::SceneCommandID::SetLightingSettings: {
@@ -591,33 +620,37 @@ std::vector<std::shared_ptr<SOH::Scene>> BuildSetup(ExportContext& ctx, json& se
                 json list = json::object();
                 for (size_t i = 0; i < c->settings.size(); i++) {
                     const auto& s = c->settings[i];
-                    list[Key(i)] = { { "ambient", Rgb(s.ambientColor) },     { "light1Dir", Rgb(s.light1Dir) },
-                                     { "light1Color", Rgb(s.light1Color) }, { "light2Dir", Rgb(s.light2Dir) },
-                                     { "light2Color", Rgb(s.light2Color) }, { "fogColor", Rgb(s.fogColor) },
-                                     { "fogNear", s.fogNear },              { "fogFar", s.fogFar } };
+                    list[Key(i)] = { { K::kAmbient, Rgb(s.ambientColor) },
+                                     { K::kLight1Dir, Rgb(s.light1Dir) },
+                                     { K::kLight1Color, Rgb(s.light1Color) },
+                                     { K::kLight2Dir, Rgb(s.light2Dir) },
+                                     { K::kLight2Color, Rgb(s.light2Color) },
+                                     { K::kFogColor, Rgb(s.fogColor) },
+                                     { K::kFogNear, s.fogNear },
+                                     { K::kFogFar, s.fogFar } };
                 }
-                setup["lighting"] = list;
+                setup[K::kLighting] = list;
                 break;
             }
             case SOH::SceneCommandID::SetTimeSettings: {
                 auto* c = (SOH::SetTimeSettings*)cmd.get();
-                setup["time"] = { { "hour", c->settings.hour },
-                                  { "minute", c->settings.minute },
-                                  { "increment", c->settings.timeIncrement } };
+                setup[K::kTime] = { { K::kHour, c->settings.hour },
+                                    { K::kMinute, c->settings.minute },
+                                    { K::kIncrement, c->settings.timeIncrement } };
                 break;
             }
             case SOH::SceneCommandID::SetSkyboxSettings: {
                 auto* c = (SOH::SetSkyboxSettings*)cmd.get();
-                setup["skybox"] = { { "id", c->settings.skyboxId },
-                                    { "weather", c->settings.weather },
-                                    { "indoors", c->settings.indoors },
-                                    { "unk", c->settings.unk } };
+                setup[K::kSkybox] = { { K::kId, c->settings.skyboxId },
+                                      { K::kWeather, c->settings.weather },
+                                      { K::kIndoors, c->settings.indoors },
+                                      { K::kUnk, c->settings.unk } };
                 break;
             }
             case SOH::SceneCommandID::SetSkyboxModifier: {
                 auto* c = (SOH::SetSkyboxModifier*)cmd.get();
-                setup["skyboxModifier"] = { { "skyboxDisabled", c->modifier.skyboxDisabled },
-                                            { "sunMoonDisabled", c->modifier.sunMoonDisabled } };
+                setup[K::kSkyboxModifier] = { { K::kSkyboxDisabled, c->modifier.skyboxDisabled },
+                                              { K::kSunMoonDisabled, c->modifier.sunMoonDisabled } };
                 break;
             }
             case SOH::SceneCommandID::SetExitList: {
@@ -626,24 +659,24 @@ std::vector<std::shared_ptr<SOH::Scene>> BuildSetup(ExportContext& ctx, json& se
                 for (size_t i = 0; i < c->exits.size(); i++) {
                     list[Key(i)] = c->exits[i];
                 }
-                setup["exits"] = list;
+                setup[K::kExits] = list;
                 break;
             }
             case SOH::SceneCommandID::SetSoundSettings: {
                 auto* c = (SOH::SetSoundSettings*)cmd.get();
-                setup["sound"] = { { "seq", c->settings.seqId },
-                                   { "natureAmbience", c->settings.natureAmbienceId },
-                                   { "reverb", c->settings.reverb } };
+                setup[K::kSound] = { { K::kSeq, c->settings.seqId },
+                                     { K::kNatureAmbience, c->settings.natureAmbienceId },
+                                     { K::kReverb, c->settings.reverb } };
                 break;
             }
             case SOH::SceneCommandID::SetEchoSettings: {
                 auto* c = (SOH::SetEchoSettings*)cmd.get();
-                setup["echo"] = c->settings.echo;
+                setup[K::kEcho] = c->settings.echo;
                 break;
             }
             case SOH::SceneCommandID::SetCutscenes: {
                 auto* c = (SOH::SetCutscenes*)cmd.get();
-                setup["cutscene"] = c->fileName; // copied verbatim under its original path
+                setup[K::kCutscene] = c->fileName; // copied verbatim under its original path
                 break;
             }
             case SOH::SceneCommandID::SetAlternateHeaders: {
@@ -656,8 +689,8 @@ std::vector<std::shared_ptr<SOH::Scene>> BuildSetup(ExportContext& ctx, json& se
             }
             case SOH::SceneCommandID::SetCameraSettings: {
                 auto* c = (SOH::SetCameraSettings*)cmd.get();
-                setup["cameraSettings"] = { { "cameraMovement", c->settings.cameraMovement },
-                                            { "worldMapArea", c->settings.worldMapArea } };
+                setup[K::kCameraSettings] = { { K::kCameraMovement, c->settings.cameraMovement },
+                                              { K::kWorldMapArea, c->settings.worldMapArea } };
                 break;
             }
             default:
@@ -667,7 +700,7 @@ std::vector<std::shared_ptr<SOH::Scene>> BuildSetup(ExportContext& ctx, json& se
     return alternates;
 }
 
-// Builds "setups": primary header + each alternate, recursing into alternates' own commands.
+// Builds K::kSetups: primary header + each alternate, recursing into alternates' own commands.
 json BuildSetups(ExportContext& ctx, SOH::Scene& primary, const std::string& sceneDir, SceneRefs& refs) {
     json setups = json::object();
     json first = json::object();
@@ -681,8 +714,8 @@ json BuildSetups(ExportContext& ctx, SOH::Scene& primary, const std::string& sce
         SceneRefs altRefs;
         BuildSetup(ctx, alt, *alternates[i], sceneDir, altRefs);
         if (!altRefs.collisionPath.empty() && altRefs.collisionPath != refs.collisionPath) {
-            SPDLOG_WARN("[Unbound export] {} setup {} uses a different collision header; not representable",
-                        sceneDir, i + 1);
+            SPDLOG_WARN("[Unbound export] {} setup {} uses a different collision header; not representable", sceneDir,
+                        i + 1);
         }
         setups[Key(i + 1)] = alt;
     }
@@ -696,9 +729,9 @@ bool ConvertRoom(ExportContext& ctx, const std::string& basePath, const std::str
         return false;
     }
     json doc;
-    doc["$schema"] = "unbound/room/1";
+    doc[K::kSchema] = K::kRoomV1;
     SceneRefs unused;
-    doc["setups"] = BuildSetups(ctx, *room, sceneDir, unused);
+    doc[K::kSetups] = BuildSetups(ctx, *room, sceneDir, unused);
     ctx.zip.Add(sceneDir + "/rooms/" + Key(roomIndex) + ".json", doc.dump(2));
     ctx.consumed.insert(basePath);
     ctx.report.rooms++;
@@ -712,12 +745,12 @@ bool ConvertScene(ExportContext& ctx, const std::string& basePath, const std::st
         return false;
     }
     json doc;
-    doc["$schema"] = "unbound/scene/1";
+    doc[K::kSchema] = K::kSceneV1;
     SceneRefs refs;
     json setups = BuildSetups(ctx, *scene, sceneDir, refs);
 
     if (!refs.collisionPath.empty()) {
-        doc["collision"] = ConvertCollision(ctx, refs.collisionPath, sceneDir);
+        doc[K::kCollision] = ConvertCollision(ctx, refs.collisionPath, sceneDir);
     }
     json rooms = json::object();
     for (size_t i = 0; i < refs.roomFiles.size(); i++) {
@@ -725,8 +758,8 @@ bool ConvertScene(ExportContext& ctx, const std::string& basePath, const std::st
             rooms[Key(i)] = sceneDir + "/rooms/" + Key(i) + ".json";
         }
     }
-    doc["rooms"] = rooms;
-    doc["setups"] = setups;
+    doc[K::kRooms] = rooms;
+    doc[K::kSetups] = setups;
 
     ctx.zip.Add(sceneDir + "/scene.json", doc.dump(2));
     ctx.consumed.insert(basePath);
@@ -754,9 +787,11 @@ void ConvertAllScenes(ExportContext& ctx) {
         std::string nonmq = "scenes/nonmq/" + f + "/" + f;
         std::string mq = "scenes/mq/" + f + "/" + f;
         if (archives->HasFile(shared)) {
+            if (archives->HasFile(nonmq)) {
+                SPDLOG_WARN("[Unbound export] {} exists as both shared and nonmq; converting shared", f);
+            }
             ConvertScene(ctx, shared, SceneDirName(f, false));
-        }
-        if (archives->HasFile(nonmq)) {
+        } else if (archives->HasFile(nonmq)) {
             ConvertScene(ctx, nonmq, SceneDirName(f, false));
         }
         if (archives->HasFile(mq)) {
@@ -807,18 +842,19 @@ void ConvertMessages(ExportContext& ctx) {
                 continue;
             }
             json doc;
-            doc["$schema"] = "unbound/text/1";
-            doc["language"] = lang.name;
+            doc[K::kSchema] = K::kTextV1;
+            doc[K::kLanguage] = lang.name;
             json messages = json::object();
             for (const auto& m : text->messages) {
                 if (m.id == 0xFFFF) {
                     continue;
                 }
-                messages[Hex(m.id)] = { { "box", m.textboxType }, { "ypos", m.textboxYPos },
-                                        { "text", BytesToJsonText(m.msg) } };
+                messages[Hex(m.id)] = { { K::kBox, m.textboxType },
+                                        { K::kYPos, m.textboxYPos },
+                                        { K::kText, BytesToJsonText(m.msg) } };
                 ctx.report.messages++;
             }
-            doc["messages"] = messages;
+            doc[K::kMessages] = messages;
             ctx.zip.Add(std::string("text/") + lang.name + "/messages.json", doc.dump(2));
             ctx.consumed.insert(base);
             break; // first available base wins for this language
@@ -868,18 +904,18 @@ void CopyUntouchedFiles(ExportContext& ctx, std::shared_ptr<Ship::Archive> base)
 void WriteManifest(ExportContext& ctx) {
     auto archives = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager();
     json doc;
-    doc["format"] = "unbound";
-    doc["formatVersion"] = 1;
-    doc["game"] = "oot";
+    doc[K::kFormatName] = "unbound";
+    doc[K::kFormatVersion] = K::kCurrentFormatVersion;
+    doc[K::kGame] = "oot";
     json source = json::object();
     auto versions = archives->GetGameVersions();
     if (!versions.empty()) {
-        source["romHash"] = Hex(versions.front());
+        source[K::kRomHash] = Hex(versions.front());
     }
-    source["converter"] = "soh-unbound";
-    doc["source"] = source;
-    doc["features"] = json::array({ "scenes", "collision", "text", "paths" });
-    ctx.zip.Add("unbound.json", doc.dump(2));
+    source[K::kConverter] = std::string("soh ") + gBuildVersion;
+    doc[K::kSourceInfo] = source;
+    doc[K::kFeatures] = json::array({ "scenes", K::kCollision, K::kText, K::kPaths });
+    ctx.zip.Add(K::kManifestPath, doc.dump(2));
 }
 
 } // namespace
@@ -903,7 +939,7 @@ ExportReport ExportArchive(const std::string& outPath) {
     WriteManifest(ctx);
 
     if (!ctx.zip.Close()) {
-        ctx.report.error = "failed to finish writing " + outPath;
+        ctx.report.error = "failed to finish writing " + outPath + ": " + ctx.zip.Error();
         return ctx.report;
     }
     ctx.report.ok = true;

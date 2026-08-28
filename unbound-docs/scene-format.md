@@ -14,7 +14,7 @@ Decisions this spec is built on (settled 2026-08-27):
 - Files: `scene.json` + `rooms/<n>.json` + `collision.json`/`collision.bin`; bulk assets stay
   as today's resources under Torch's stable names.
 - Merge: key-wise, later layer wins, `null` deletes, `"$replace"` escape hatch.
-- Loader walks every mounted archive; JSON bypasses `ResourceLoader`.
+- Loader walks every mounted archive; a JSON file is a first-class `ResourceLoader` format.
 - The converter lives in SoH (an export command), and the schema is a shared spec.
 
 ## 1. Archive layout
@@ -57,19 +57,24 @@ are portable either way; only bulk references inherit the source's naming.
   "format": "unbound",
   "formatVersion": 1,
   "game": "oot",
-  "source": { "romHash": "0x...", "label": "NTSC 1.2", "converter": "soh 9.2.3-unbound" },
+  "source": { "romHash": "0x...", "converter": "soh 9.2.3" },
   "features": ["scenes", "text", "collision"]
 }
 ```
 
-`format`/`formatVersion` are the only required keys. A *mod* archive that only patches may
-carry a manifest with just those two, plus `"requires": { "formatVersion": 1 }`.
+`format`/`formatVersion` are the only required keys; the converter writes `source.romHash` (the
+mounted ROM's hash) and `source.converter` (`"soh <build version>"`). A *mod* archive that only
+patches may carry a manifest with just the two required keys, plus
+`"requires": { "formatVersion": 1 }`. Nothing validates `formatVersion` yet: an archive of a later
+version is loaded as version 1 (a v2 will have to change this).
 
 ## 2. Structured resource schema
 
 Conventions used throughout:
 
-- Integers are JSON numbers; hex allowed as strings (`"0x0F12"`) wherever an id is expected.
+- Integers are JSON numbers. Documents the converter writes use numbers everywhere (message ids,
+  which are object keys, are the one exception: `"0x0F12"`). A reader accepts a hex or decimal
+  string (`"0x0F12"`, `"3858"`) wherever a number is expected, so hand-written patches may use hex.
 - Vectors are 3-element arrays `[x, y, z]`; colours are `[r, g, b]`.
 - **Keyed lists** are JSON objects whose keys are entity ids (strings). They carry an optional
   `"$order"` array listing keys in engine order; keys absent from `$order` follow after it in
@@ -150,7 +155,8 @@ Field ↔ SoH command mapping:
       "skyboxModifier": { "skyboxDisabled": 0, "sunMoonDisabled": 0 },
       "wind": { "west": 0, "vertical": 0, "south": 0, "speed": 0 },
       "objects": { "0": 0x0002, "1": 0x0160 },
-      "lights":  { "0": { "type": 1, "pos": [0,0,0], "color": [255,255,255], "glow": 0, "radius": 200 } },
+      "lights":  { "0": { "type": 0, "pos": [0,0,0], "color": [255,255,255], "glow": 0, "radius": 200 },
+                   "1": { "type": 1, "dir": [49,49,49], "color": [255,255,255] } },
       "actors": {
         "$order": ["0", "1", "2", "1000"],
         "0":    { "id": 0x0015, "pos": [100, 0, -40], "rot": [0, 0x4000, 0], "params": 0x0002 },
@@ -175,7 +181,7 @@ Field ↔ SoH command mapping:
 | `skyboxModifier` | `SetSkyboxModifier` | scalar |
 | `wind` | `SetWindSettings` | scalar (optional) |
 | `objects` | `SetObjectList` | positional (bank slot order; SoH tolerates any order) |
-| `lights` | `SetLightList` | positional (optional) |
+| `lights` | `SetLightList` | positional (optional). `type` 0/2 = point light (`pos`, `color`, `glow`, `radius`); `type` 1 = directional (`dir` as three `s8`, `color`) |
 | `actors` | `SetActorList` | **keyed** (spawn order only; `$order` preserves it) |
 | `mesh` | `SetMesh` | see below |
 
@@ -186,9 +192,10 @@ additions (`"prelude-8f3a"`) as long as they are unique within the list.
 
 `mesh.type`:
 - `0` — `entries` positional `{ opa, xlu }` paths (either may be `null`).
-- `1` — `{ "type": 1, "format": 1|2, "dlist": path, "image": {…} | "images": {…} }` with the
-  `BgImage` fields (`source`, `tlut`, `width`, `height`, `fmt`, `siz`, `mode0`, `tlutCount`,
-  and `id`/`unk00` for multi).
+- `1` — `{ "type": 1, "format": 1|2, "opa": path, "xlu": path, "image": {…} | "images": {…} }`:
+  one display list pair plus a pre-rendered background, `image` (format 1) or positional `images`
+  (format 2). Each image carries the `BgImage` fields (`source`, `tlut`, `width`, `height`, `fmt`,
+  `siz`, `mode0`, `tlutCount`, `unk0C`, and `id`/`unk00`, which only format 2 uses).
 - `2` — `entries` positional `{ "pos": [x,y,z], "radius": n, "opa": path, "xlu": path }`.
 
 ### 2.3 `collision.json` + `collision.bin`
@@ -198,10 +205,10 @@ additions (`"prelude-8f3a"`) as long as they are unique within the list.
   "$schema": "unbound/collision/1",
   "bounds": { "min": [-2000, -300, -2000], "max": [2000, 900, 2000] },
   "bulk": { "file": "scenes/kokiri_forest/collision.bin", "vertices": 1832, "polys": 2410 },
-  "surfaceTypes": { "0": { "data0": "0x00000000", "data1": "0x00000000" } },
+  "surfaceTypes": { "0": { "data0": 0, "data1": 0 } },
   "cameras":  { "0": { "sType": 1, "count": 0, "positionIndex": null } },
   "cameraPositions": { "0": [0,0,0], "1": [0,0,0] },
-  "waterBoxes": { "0": { "xMin": 0, "ySurface": 0, "zMin": 0, "xLength": 0, "zLength": 0, "properties": "0x0", "room": -1 } }
+  "waterBoxes": { "0": { "xMin": 0, "ySurface": 0, "zMin": 0, "xLength": 0, "zLength": 0, "properties": 0, "room": -1 } }
 }
 ```
 
@@ -214,8 +221,11 @@ additions (`"prelude-8f3a"`) as long as they are unique within the list.
   `polys × { u16 type, u32 vA, u32 vB, u32 vC, s16 nx, ny, nz, s16 dist, s16 pad }` (24 bytes).
 
 Vertex words use the in-memory packing from `collision.md` (index bits 0–28, xpFlags/conveyor
-bits 29–31). Bulk replaces whole; `collision.json` merges key-wise. `bounds`, water-box extents,
-and every `pos` in scene/room documents accept fractional numbers.
+bits 29–31). `surfaceTypes` `data0`/`data1` and water-box `properties` are the vanilla packed
+words (the exit index inside `data0` is 5 bits and the camera index 8 bits, so 31 exits / 255
+cameras per scene remain caps of this version). A water box's `room` overrides the room bits packed
+in `properties` (`-1` = every room). Bulk replaces whole; `collision.json` merges key-wise.
+`bounds`, water-box extents, and every `pos` in scene/room documents accept fractional numbers.
 
 ### 2.4 `paths/<name>.json`
 
@@ -224,7 +234,8 @@ and every `pos` in scene/room documents accept fractional numbers.
   "paths": { "0": { "points": [ [0,0,0], [10,0,0] ] } } }
 ```
 One document per source pathway resource; `paths` is positional. A setup's `paths` array lists
-the documents its `SetPathways` command referenced.
+the documents its `SetPathways` command referenced. A path holds at most **255 points** (the
+vanilla `PathData.count` is a byte); the loader cuts a longer one and logs it.
 
 ## 3. Merge rules
 
@@ -233,15 +244,18 @@ Applied per path, lowest mounted archive first, when a structured resource is lo
 1. **Objects** merge key-wise; a later layer's value for a key replaces the earlier one,
    recursively for object values.
 2. **`null`** deletes the key. For positional lists this is only legal at the tail (the engine
-   cannot skip an index); the loader logs and refuses a hole.
+   cannot skip an index); the loader logs an error at a hole and keeps only the entries before it.
 3. **Arrays** (`pos`, `rot`, colours, `$order`) replace whole. `$order` from the highest layer
    that provides it wins; keys it omits are appended in key order.
 4. **`"$replace": true`** on any object means "ignore lower layers for this subtree"; the key
    itself is dropped after merging.
 5. **Bulk files** (`.bin`, DLs, vertices, textures, cutscenes) keep last-archive-wins.
 6. A layer may omit any key — including `$schema`: the loader takes the resource type from the
-   topmost layer that declares one. The merged document must satisfy the schema, or the
-   resource fails to load with an error in the log (a missing room is skipped, not fatal).
+   topmost layer that declares one (a top-level string; a `$schema` nested elsewhere is ignored).
+   The loader is lenient: a missing or mistyped field takes the zero/empty default and a bad
+   sub-resource path (collision, cutscene, pathway, room) logs an error and is skipped, not
+   fatal. Only a document with no setup `"0"` or no parsable layer fails to load. Validation
+   belongs in the tool that writes the document.
 
 A worked example lives in [`examples/hyrule-field-actor-delta/`](./examples/hyrule-field-actor-delta/).
 
@@ -252,17 +266,23 @@ unnecessary because every reference is to a stable name that exists in every con
 
 ## 4. Runtime (SoH side)
 
-- `ArchiveManager::LoadFileFromAllLayers(path)` (new, libultraship fork): walks `mArchives`
-  in mount order and returns every layer's bytes for that path.
-- `UnboundSceneLoader` (`soh/soh/resource/unbound/`): merges the JSON documents per §3,
-  validates, and builds the **same `SOH::Scene` + `SetXxx` command objects** the binary/XML
-  factories build — `z_scene_otr.cpp` and everything downstream are untouched. Alternate
-  setups become child `Scene` objects exactly as `SetAlternateHeaders` produces today.
+- libultraship: a file whose first byte is `{` is `RESOURCE_FORMAT_JSON`; its resource type
+  name and version come from the top-level `"$schema": "<type>/<version>"`, searched through
+  every mounted layer (topmost first) because a patch layer may omit it.
+  `ArchiveManager::LoadFileFromAllLayers(path)` returns every layer's bytes for a path, in mount
+  order. `ResourceFactoryJson` is the factory base. Both are game-agnostic.
+- SoH (`soh/soh/resource/unbound/`): `UnboundJson` (merge rules and the shared field readers),
+  `UnboundSchema.h` (every key name and `$schema` id, shared with the exporter), and one factory per
+  document kind — `ResourceFactoryJsonSceneV1` (`unbound/scene`, `unbound/room`),
+  `…CollisionHeaderV1` (`unbound/collision` 1 and 2), `…PathV1` (`unbound/paths`). They register
+  under the existing SoH resource types (`Room`, `CollisionHeader`, `Path`) with the JSON format and
+  schema version as the discriminator, and build the **same `SOH::Scene` + `SetXxx` command
+  objects** the binary/XML factories build — `z_scene_otr.cpp` and everything downstream are
+  untouched. Alternate setups become child `Scene` objects under a leading `SetAlternateHeaders`,
+  exactly as the binary command produces; every setup gets the top-level room list / collision
+  injected.
 - `SceneDB::GetScenePath` returns the `scene.json` path for scenes in an Unbound archive
   (the manifest at mount time flips a per-archive flag); legacy `oot.o2r` keeps the old path.
-- Collision: `CollisionHeader` gets a JSON+bin constructor alongside the binary/XML ones.
-- JSON bypasses `ResourceLoader` (first-byte sniff would misread `{` as binary), the same way
-  `SceneDB`/`OTRMessage_Init` already read `unbound/**.json`.
 
 ## 5. Converter (SoH side)
 
@@ -292,19 +312,25 @@ and by Prelude's fflate-based reader. Compression can be added later without a f
    identically stacked on the converted base.
 4. Two delta mods touching the same room but different actors both apply.
 
+Per-limit checks (from the lifts in `counts.md`, `collision.md`, `extent.md`):
+
+- **Rooms.** Vanilla: Forest Temple (shutters, clear flags), Water Temple (waterbox rooms),
+  Kakariko (Ruto in Jabu-Jabu), Ganon's Castle (En_Holl planes), minimap in Deku Tree. Custom: a
+  Prelude scene with 40 rooms, a chest in room 35 whose clear flag survives save/load, water in
+  room 35.
+- **Dyna collision.** Vanilla: Fire Temple (many Bg_Hidan dyna), Ganon's Tower collapse, Water
+  Temple, Zora's Domain, Gerudo Fortress (Bg_Spot15_Rrbox boxes). Custom: a Prelude scene with
+  200 dyna platforms; collision viewer shows all; frame time flat vs the same scene with 30.
+- **World extent.** Vanilla parity after the float `Mtx` change (Hyrule Field, Kakariko, Forest
+  Temple, Jabu conveyor, Water Temple, Ganon collapse, Epona save/load, cutscene cameras in
+  Kokiri). Custom: a Prelude scene with rooms at x = 200 000 and a walkable floor at y = −60 000;
+  spawn, doors, water, Deku Baba on a moving platform, Epona ride + save; minimap dot; camera data
+  in a far room.
+
 ## Status
 
-Converter (§5 items 1–3) and the merging loader (§4) are implemented:
+Converter (§5 items 1–3) and the merging loader (§4) are implemented. `oot-unbound.o2r` beside
+`oot.o2r` is mounted above it; `SceneDB` resolves vanilla scenes to `scenes/<name>[_mq]/scene.json`
+whenever an `unbound.json` is mounted.
 
-- libultraship: first byte `{` → `RESOURCE_FORMAT_JSON`; type name and version come from
-  `"$schema": "<type>/<version>"`; `ArchiveManager::LoadFileFromAllLayers` returns every mounted
-  archive's copy of a path; `ResourceFactoryJson` is the factory base.
-- SoH (`soh/soh/resource/unbound/`): `UnboundJson` (merge rules, key ordering),
-  `ResourceFactoryJsonSceneV1` (`unbound/scene`, `unbound/room`), `…CollisionHeaderV1`,
-  `…PathV1`. They build the same `SOH::Scene` / `CollisionHeader` / `Path` objects the binary
-  factories build, so `z_scene_otr.cpp` is unchanged. Alternate setups become child scenes under a
-  leading `SetAlternateHeaders`; every setup gets the top-level room list / collision injected.
-- `oot-unbound.o2r` beside `oot.o2r` is mounted above it; `SceneDB` resolves vanilla scenes to
-  `scenes/<name>[_mq]/scene.json` whenever an `unbound.json` is mounted.
-
-Not yet: legacy-mod conversion (§5.4).
+Not yet: legacy-mod conversion (§5.4); `formatVersion` validation (§1).

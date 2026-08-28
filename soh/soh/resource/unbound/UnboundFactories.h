@@ -1,7 +1,9 @@
 #pragma once
 // SOH [Unbound] Resource factories for the JSON scene format (unbound-docs/scene-format.md §4).
 // Each reads its document merged across every mounted archive and builds the same in-memory
-// resource the binary/XML factories build, so nothing downstream changes.
+// resource the binary/XML factories build, so nothing downstream changes. They register under the
+// existing SOH resource types (Room, CollisionHeader, Path) with RESOURCE_FORMAT_JSON and the
+// "$schema" version as the discriminator; the "$schema" type names are in UnboundSchema.h.
 #include <ship/resource/ResourceFactoryJson.h>
 
 namespace SOH {
@@ -13,7 +15,7 @@ class ResourceFactoryJsonSceneV1 final : public Ship::ResourceFactoryJson {
                                                   std::shared_ptr<Ship::ResourceInitData> initData) override;
 };
 
-// "unbound/collision/1" (+ collision.bin) -> SOH::CollisionHeader
+// "unbound/collision/1" and "unbound/collision/2" (+ collision.bin) -> SOH::CollisionHeader
 class ResourceFactoryJsonCollisionHeaderV1 final : public Ship::ResourceFactoryJson {
   public:
     std::shared_ptr<Ship::IResource> ReadResource(std::shared_ptr<Ship::File> file,
