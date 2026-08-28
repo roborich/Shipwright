@@ -27,7 +27,7 @@ scene/room header becomes `scenes/<name>/scene.json` + `rooms/<n>.json`, collisi
 `collision.json` + `collision.bin`, message tables become `text/<lang>/messages.json`, and every
 other resource is copied verbatim. Placed beside `oot.o2r`, the converted archive is mounted above
 it and SoH loads scenes from the JSON, merging every mounted mod's fragment of the same path. Mods
-add new scenes and entrances by declaring them in `unbound/scenes/*.json`. The C game code was
+add new scenes and entrances by declaring them in `unbound/scenes.json`. The C game code was
 widened wherever a struct field or arena enforced a cap.
 
 ## What has been changed
@@ -37,13 +37,13 @@ Everything below is tagged `// SOH [Unbound]` in the code. Each area has a detai
 | Area | Change | Doc |
 |---|---|---|
 | **Collision** | Vertex indices and poly ids are 32-bit; the N64 byte budget is gone — node tables are heap-allocated and grow on demand, freed in `Play_Destroy`. Legacy 13-bit packed data is unpacked on load. Dyna actor table and dyna poly/vertex lists grow on demand (no `BG_ACTOR_MAX`). | [`collision.md`](./collision.md) |
-| **Scenes & entrances** | `gSceneTable`/`gEntranceTable` replaced by a runtime registry (`SceneDB`). Mods declare scenes + entrances in `unbound/scenes/*.json`; `EntranceInfo.scene` is 16-bit; custom-scene save flags are stored by scene name. Console: `entrance <name>`. | [`registries.md`](./registries.md) |
-| **Text** | Message tables are growable and hash-indexed; `override/text/` and `unbound/text/*.json` can **add** ids; message buffers 8 KB. | [`text.md`](./text.md) |
+| **Scenes & entrances** | `gSceneTable`/`gEntranceTable` replaced by a runtime registry (`SceneDB`). Mods declare scenes + entrances in `unbound/scenes.json`; exit lists reference entrances by name; `EntranceInfo.scene` is 16-bit; custom-scene save flags are stored by scene name. Console: `entrance <name>`. | [`registries.md`](./registries.md) |
+| **Text** | Message tables are growable and hash-indexed; `text/<lang>/messages.json` merges across layers and can **add** or delete ids; message buffers 8 KB. | [`text.md`](./text.md) |
 | **Counts** | Object bank 1024 (was 128, silently dropping); actors per room and rooms per scene 16-bit; live-actor cap real (was a wrapping u8) and 8192; mesh entries 32-bit, sorted entries 1024; texture cache 8192. Room numbers 16-bit with unbounded clear flags, waterbox rooms and transition actors. Object ids past the vanilla table are usable — object "space" is vestigial on PC. | [`counts.md`](./counts.md) |
 | **Scene format** | The JSON layout, entity keys (Prelude's index scheme), and merge rules (`null` deletes, arrays replace, `$replace`, `$order`). | [`scene-format.md`](./scene-format.md) |
 | **World extent** | Positions are `f32` end to end: float `Mtx` (libultraship fork `GBI_FLOAT_MTX`), per-room mesh `origin`, f32 collision vertices/`dist`/bounds/water boxes (`collision.bin` v2), spawn entries, paths, point lights, colliders. `BGCHECK_XYZ_ABSMAX` is 2²⁰. Fog and draw distance are per-scene world units (`fogStart`/`fogEnd`/`drawDistance`/`nearPlane`; fog could not start past 2 500 units and `zFar` was 12 800). | [`extent.md`](./extent.md) |
-| **Converter** | `soh --export-unbound <out.o2r>` / console `unbound-export`: vanilla → Unbound archive in ~1 s. `soh/soh/Enhancements/unbound/UnboundExporter.cpp`. | `scene-format.md` §5 |
-| **Loader** | libultraship gained a JSON resource format (`{` sniff, type from `$schema`, found in any layer) and `LoadFileFromAllLayers`; SoH's JSON factories (`soh/soh/resource/unbound/`) build the same command objects the binary loaders build, so scene execution code is untouched. | `scene-format.md` §4 |
+| **Converter** | `soh --export-unbound <out.o2r>` / console `unbound-export`: vanilla → Unbound archive in ~1 s. `soh/soh/unbound/UnboundExporter.cpp`. | `scene-format.md` §5 |
+| **Loader** | libultraship gained a JSON resource format (`{` sniff, type from `$schema`, found in any layer) and `LoadFileFromAllLayers`; SoH's JSON factories (`soh/soh/unbound/`) build the same command objects the binary loaders build, so scene execution code is untouched. | `scene-format.md` §4 |
 
 Verified in game: a Prelude-generated mod adding a **new scene with high-poly collision** loads and
 plays; a two-line delta mod merges over the converted base (`examples/hyrule-field-actor-delta/`).

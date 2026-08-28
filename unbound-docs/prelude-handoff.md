@@ -18,8 +18,10 @@ summary and an area doc disagree, the area doc wins. Everything in the code is t
 | **Lighting entries accept `"fogStart"`, `"fogEnd"`, `"drawDistance"`, `"nearPlane"`** (world units). Any of the first three switches that entry to world-unit fog; the others default sensibly (`drawDistance` ← `fogFar` or 12 800, `fogEnd` ← `drawDistance`, `fogStart` ← vanilla `fogNear` converted, `nearPlane` ← 0 = keep 10). | Expose them in the lighting inspector. Keep emitting `fogNear`/`fogFar` too (blend rate lives in `fogNear`'s high bits). Suggest `nearPlane` ≥ 50 when `drawDistance` > ~100 000 (24-bit depth). | Absent = vanilla fog (fog cannot start past 2 500 units, far plane ≤ 12 800). |
 | Mesh-type-2 `"radius"` may be fractional / > 32 767. | float path | ints fine |
 
-Nothing changed in `scene.json` keys, entity keys, `$order`, merge rules, `unbound/scenes/*.json`
-or `unbound/text/*.json`.
+Since then the format pass (2026-08-28) changed the registry (`unbound/scenes.json`, layer-merged),
+text (`text/<lang>/messages.json`, layer-merged; `unbound/text/*.json` is gone), named exits,
+unpacked `surfaceTypes` / water boxes, and `fogNear` + `fogBlendRate` — see `scene-format.md`,
+`registries.md` and `text.md`.
 
 ## 2. Limits Prelude may now let the user exceed
 
@@ -42,7 +44,7 @@ or `unbound/text/*.json`.
 Earlier sessions (already in Prelude's `UNBOUND.md`, listed for completeness): unlimited scenes and
 entrances via `SceneDB`, 29-bit collision vertex ids / 32-bit poly ids, growable node tables,
 objects per scene 1 024, actors per room 65 535, live actors 8 192, mesh entries 32-bit, sorted
-entries 1 024, growable message tables (`unbound/text`), message buffer 8 KB.
+entries 1 024, growable message tables, message buffer 8 KB.
 
 ## 3. Still capped — Prelude should keep validating these
 

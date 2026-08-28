@@ -18,7 +18,7 @@ table (`prelude-of-light/SCENE-IMPORT.md`, "The spare-slot mechanism") because:
 
 ## What changes
 
-### `SceneDB` (`soh/soh/SceneDB.{h,cpp}`)
+### `SceneDB` (`soh/soh/unbound/SceneDB.{h,cpp}`)
 
 Mirrors the existing `ActorDB` pattern: the X-macro tables are kept **only as seed data** for a
 `std::vector`, and mods extend the vector at runtime.
@@ -45,43 +45,47 @@ Mirrors the existing `ActorDB` pattern: the X-macro tables are kept **only as se
 use the registry. `PlayState.loadedScene` and `SceneTableEntry` are gone; their only readers computed
 an unused title-file size.
 
-### Custom scene files
+### Custom scene registry: `unbound/scenes.json`
 
-Any loaded archive may contain `unbound/scenes/<anything>.json`, one scene per file, parsed after
-all mod archives are mounted (`UpdateModFiles(init)` in `mod_menu.cpp`):
+One layer-merged document (§3 of `scene-format.md`: `null` deletes, `$replace`, later archive wins)
+keyed by scene id, parsed after all mod archives are mounted (`UpdateModFiles(init)` in
+`mod_menu.cpp`). A mod can therefore add a scene, patch another mod's entrance, or delete one, with
+the same rules as every other document.
 
 ```json
 {
-  "id": "mymod/lava_temple",
-  "name": "Lava Temple",
-  "scene": "scenes/custom/lava_temple/lava_temple",
-  "sceneId": 200,
-  "drawConfig": 0,
-  "titleCard": "textures/mymod/lava_temple_title",
-  "entrances": [
-    { "id": "main", "index": 1560, "spawn": 0, "titleCard": true,
-      "continueBgm": false, "endTransition": 2, "startTransition": 2 }
-  ]
+  "mymod/lava_temple": {
+    "name": "Lava Temple",
+    "scene": "scenes/mymod/lava_temple/scene.json",
+    "sceneId": 200,
+    "drawConfig": 0,
+    "titleCardTexture": "textures/mymod/lava_temple_title",
+    "entrances": {
+      "main": { "index": 1560, "spawn": 0, "showTitleCard": true, "continueBgm": false,
+                "endTransition": 2, "startTransition": 2 }
+    }
+  }
 }
 ```
 
 | Field | Required | Notes |
 |---|---|---|
-| `id` | yes | Stable string id. Also the key under which the scene's saved flags are stored. |
-| `name` | no | Display name (menus, crash log). Defaults to `id`. |
-| `scene` | yes | Full o2r path of the scene resource (a `Room`/scene resource, binary or XML). Rooms are referenced by the scene's own room list, as today. |
+| key | yes | Stable string id of the scene. Also the key under which the scene's saved flags are stored. |
+| `name` | no | Display name (menus, crash log). Defaults to the key. |
+| `scene` | yes | Full o2r path of the scene resource: a `scene.json`, or a binary/XML scene. Rooms come from the scene's own room list. |
 | `sceneId` | no | Explicit numeric id `>= 0x80`. Omit to take the next free one. Only needed when something outside the archive hard-codes the number. |
 | `drawConfig` | no | `SDC_*` index (0 = default). Out-of-range values are rejected. |
-| `titleCard` | no | o2r path of a title card texture; shown when an entrance sets `titleCard: true`. |
-| `entrances[].id` | yes | Entrance name, scoped as `<scene id>/<id>`. |
-| `entrances[].index` | no | Explicit first index of the 4-entry group, `>= 1556` and a multiple of 4. **Set it explicitly** when other scenes' exit lists point at this entrance — an auto-assigned index depends on mod load order. |
-| `entrances[].spawn` | no | Spawn index into the scene's start-position list. |
-| `entrances[].titleCard` / `continueBgm` | no | `EntranceInfo` field flags. |
-| `entrances[].endTransition` / `startTransition` | no | `TRANS_TYPE_*` values; default 2 (fade to black). |
+| `titleCardTexture` | no | o2r path of a title card texture; shown when an entrance sets `showTitleCard`. |
+| `entrances` | no | Keyed list; the key is the entrance id, addressable as `<scene id>/<entrance id>`. |
+| `entrances.*.index` | no | Explicit first index of the 4-entry group, `>= 1556` and a multiple of 4. Only needed when a **binary** scene's exit list points at this entrance by number; JSON exit lists reference entrances by name and never need it. |
+| `entrances.*.spawn` | no | Spawn index into the scene's start-position list. |
+| `entrances.*.showTitleCard` / `continueBgm` | no | `EntranceInfo` field flags. |
+| `entrances.*.endTransition` / `startTransition` | no | `TRANS_TYPE_*` values; default 2 (fade to black). |
+| `entrances.*.layers` | reserved | Per-layer (child/adult × day/night) overrides, not read yet; a custom entrance registers four identical layers today. |
 
-A vanilla scene's exit list is just a list of entrance indices, so an edited vanilla scene can
-exit into a custom scene by naming its (explicit) index — exactly what Prelude already does for
-the debug slots, minus the slot.
+A JSON scene's exit list names entrances (`"exits": { "3": "mymod/lava_temple/main" }`, or a vanilla
+`ENTR_*` name); the loader resolves names through the registry when the scene loads, so no mod
+carries a table index. Numbers are still accepted (the converter emits them for vanilla scenes).
 
 ### Saved scene flags
 
@@ -127,7 +131,7 @@ Implemented on the `unbound` branch. See the README status table for build/verif
 
 1. Vanilla parity: boot, file select, several scene transitions incl. MQ dungeon, title cards,
    scene flags persisting across a save/load (chests stay opened).
-2. Custom: an archive with `unbound/scenes/test.json` pointing at a copied vanilla scene
+2. Custom: an archive whose `unbound/scenes.json` points at a copied vanilla scene
    (`scenes/shared/…`) with one entrance; `entrance <name>` in the console lands in it; a chest
    opened there is still open after save + reload; the crash-handler / warp UI show the display
    name.

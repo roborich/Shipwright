@@ -29,9 +29,8 @@ scenes/<scene>/collision.bin          collision bulk (vertices + polys, u32 indi
 scenes/<scene>/paths/<name>.json      pathway lists (one per SetPathways target resource)
 <original path>                       cutscenes, DLs, vertices, textures, objects, audio: copied
                                       verbatim under their source names (see §1.1)
-text/<lang>/messages.json             message table (see text.md; same schema as unbound/text)
-unbound/scenes/*.json                 custom scene + entrance declarations (see registries.md)
-unbound/text/*.json                   message merge files (see text.md)
+text/<lang>/messages.json             message table, layer-merged (see text.md)
+unbound/scenes.json                   custom scene + entrance registry, layer-merged (see registries.md)
 objects/<name>/…                      unchanged
 ```
 
@@ -65,8 +64,8 @@ are portable either way; only bulk references inherit the source's naming.
 `format`/`formatVersion` are the only required keys; the converter writes `source.romHash` (the
 mounted ROM's hash) and `source.converter` (`"soh <build version>"`). A *mod* archive that only
 patches may carry a manifest with just the two required keys, plus
-`"requires": { "formatVersion": 1 }`. Nothing validates `formatVersion` yet: an archive of a later
-version is loaded as version 1 (a v2 will have to change this).
+`"requires": { "formatVersion": 1 }`. An archive whose `formatVersion` or `requires.formatVersion`
+is newer than the build understands is logged and not treated as an Unbound archive.
 
 ## 2. Structured resource schema
 
@@ -103,12 +102,12 @@ Conventions used throughout:
       "lighting": {
         "0": { "ambient": [80,80,80], "light1Dir": [49,49,49], "light1Color": [180,180,180],
                "light2Dir": [-49,-49,-49], "light2Color": [60,60,60],
-               "fogColor": [120,140,170], "fogNear": 990, "fogFar": 3200,
+               "fogColor": [120,140,170], "fogNear": 990, "fogBlendRate": 0, "fogFar": 3200,
                "fogStart": 20000, "fogEnd": 180000, "drawDistance": 200000, "nearPlane": 50 }
       },
       "entrances": { "0": { "spawn": 0, "room": 0 } },
       "spawns":    { "0": { "id": 0, "pos": [0,0,0], "rot": [0,0,0], "params": 0x0FFF } },
-      "exits":     { "0": 0x00CD },
+      "exits":     { "0": 0x00CD, "1": "ENTR_KOKIRI_FOREST_1", "2": "mymod/lava_temple/main" },
       "transitionActors": {
         "0": { "id": 0x0009, "pos": [0,0,0], "rotY": 0, "params": 0,
                "front": { "room": 0, "effects": 0 }, "back": { "room": 1, "effects": 0 } }
@@ -129,10 +128,10 @@ Field ↔ SoH command mapping:
 | `cameraSettings` | `SetCameraSettings` | scalar (optional) |
 | `cutscene` | `SetCutscenes` | path string (optional) |
 | `paths` | `SetPathways` | array of `paths/*.json` paths (optional) |
-| `lighting` | `SetLightingSettings` | **positional** (surfaces reference the index). `fogStart` / `fogEnd` / `drawDistance` / `nearPlane` are optional world-unit numbers (see `extent.md` "Fog and draw distance"); `fogNear`/`fogFar` are the vanilla packed values. |
+| `lighting` | `SetLightingSettings` | **positional** (surfaces reference the index). `fogStart` / `fogEnd` / `drawDistance` / `nearPlane` are optional world-unit numbers (see `extent.md` "Fog and draw distance"); `fogNear` (0–1000) and `fogBlendRate` (0–63) are the two halves of the vanilla packed `fogNear` word; `fogFar` is the vanilla value. |
 | `entrances` | `SetEntranceList` | **positional** (entrance table `spawn` is an index) |
 | `spawns` | `SetStartPositionList` | **positional** (entrances reference it) |
-| `exits` | `SetExitList` | **positional** (surface exit index) |
+| `exits` | `SetExitList` | **positional** (surface exit index). Each value is an entrance: a number (table index) **or a name** — a vanilla `ENTR_*` enum name or a custom `<scene id>/<entrance id>` from `unbound/scenes.json` — resolved when the scene loads. Names are the portable form; the converter emits numbers for vanilla scenes. |
 | `transitionActors` | `SetTransitionActorList` | **positional** (door params reference it) |
 | `rooms` (top level) | `SetRoomList` | positional; identical across setups |
 | `collision` (top level) | `SetCollisionHeader` | path; identical across setups |
@@ -202,13 +201,20 @@ additions (`"prelude-8f3a"`) as long as they are unique within the list.
 
 ```json
 {
-  "$schema": "unbound/collision/1",
+  "$schema": "unbound/collision/2",
   "bounds": { "min": [-2000, -300, -2000], "max": [2000, 900, 2000] },
   "bulk": { "file": "scenes/kokiri_forest/collision.bin", "vertices": 1832, "polys": 2410 },
-  "surfaceTypes": { "0": { "data0": 0, "data1": 0 } },
+  "surfaceTypes": {
+    "0": { "camera": 0, "exit": 0, "floorType": 0, "wallFlags": 0, "wallType": 0, "floorProperty": 0,
+           "isSoft": 0, "isHorseBlocked": 0, "material": 0, "floorEffect": 0, "lightSetting": 0, "echo": 0,
+           "canHookshot": 0, "conveyorSpeed": 0, "conveyorDirection": 0, "isWallDamage": 0 }
+  },
   "cameras":  { "0": { "sType": 1, "count": 0, "positionIndex": null } },
   "cameraPositions": { "0": [0,0,0], "1": [0,0,0] },
-  "waterBoxes": { "0": { "xMin": 0, "ySurface": 0, "zMin": 0, "xLength": 0, "zLength": 0, "properties": 0, "room": -1 } }
+  "waterBoxes": {
+    "0": { "xMin": 0, "ySurface": 0, "zMin": 0, "xLength": 0, "zLength": 0,
+           "camera": 0, "lightSetting": 0, "room": -1, "flag19": 0 }
+  }
 }
 ```
 
@@ -221,11 +227,23 @@ additions (`"prelude-8f3a"`) as long as they are unique within the list.
   `polys × { u16 type, u32 vA, u32 vB, u32 vC, s16 nx, ny, nz, s16 dist, s16 pad }` (24 bytes).
 
 Vertex words use the in-memory packing from `collision.md` (index bits 0–28, xpFlags/conveyor
-bits 29–31). `surfaceTypes` `data0`/`data1` and water-box `properties` are the vanilla packed
-words (the exit index inside `data0` is 5 bits and the camera index 8 bits, so 31 exits / 255
-cameras per scene remain caps of this version). A water box's `room` overrides the room bits packed
-in `properties` (`-1` = every room). Bulk replaces whole; `collision.json` merges key-wise.
-`bounds`, water-box extents, and every `pos` in scene/room documents accept fractional numbers.
+bits 29–31).
+
+**Surface types are unpacked.** The vanilla `data0`/`data1` words are two packed bit fields; the
+document spells every field out by name (the decomp's `SurfaceType_Get*` accessors, camelCased).
+`camera`, `exit` and `lightSetting` are unbounded indices into `cameras`, the scene's `exits` and
+the setup's `lighting` (packed they were 8, 5 and 5 bits: 255 cameras, 31 exits, 31 light settings
+per scene). The remaining fields keep their vanilla ranges (`floorType` 0–31, `wallFlags` 0–7,
+`wallType` 0–31, `floorProperty` 0–15, `material` 0–15, `floorEffect` 0–3, `echo` 0–63,
+`conveyorSpeed` 0–7, `conveyorDirection` 0–63, booleans 0/1). A surface entry that carries
+`data0`/`data1` instead is a legacy form: the loader unpacks it and warns.
+
+**Water boxes are unpacked** the same way: `camera`, `lightSetting`, `room` (`-1` = every room)
+and `flag19` (the vanilla bit 19) replace the packed `properties` word; `properties` is accepted
+as the legacy form and unpacked with a warning.
+
+Bulk replaces whole; `collision.json` merges key-wise. `bounds`, water-box extents, and every
+`pos` in scene/room documents accept fractional numbers.
 
 ### 2.4 `paths/<name>.json`
 
@@ -244,7 +262,7 @@ Applied per path, lowest mounted archive first, when a structured resource is lo
 1. **Objects** merge key-wise; a later layer's value for a key replaces the earlier one,
    recursively for object values.
 2. **`null`** deletes the key. For positional lists this is only legal at the tail (the engine
-   cannot skip an index); the loader logs an error at a hole and keeps only the entries before it.
+   cannot skip an index); a hole is an error and the document fails to load.
 3. **Arrays** (`pos`, `rot`, colours, `$order`) replace whole. `$order` from the highest layer
    that provides it wins; keys it omits are appended in key order.
 4. **`"$replace": true`** on any object means "ignore lower layers for this subtree"; the key
@@ -254,14 +272,15 @@ Applied per path, lowest mounted archive first, when a structured resource is lo
    topmost layer that declares one (a top-level string; a `$schema` nested elsewhere is ignored).
    The loader is lenient: a missing or mistyped field takes the zero/empty default and a bad
    sub-resource path (collision, cutscene, pathway, room) logs an error and is skipped, not
-   fatal. Only a document with no setup `"0"` or no parsable layer fails to load. Validation
-   belongs in the tool that writes the document.
+   fatal. A document fails to load when it has no setup `"0"`, no parsable layer, a hole in a
+   positional list, or an exit name that no registry resolves. Validation of value ranges belongs
+   in the tool that writes the document.
 
 A worked example lives in [`examples/hyrule-field-actor-delta/`](./examples/hyrule-field-actor-delta/).
 
 Consequences: a Prelude "move one actor" mod is `rooms/2.json` containing
 `{"setups":{"0":{"actors":{"12":{"pos":[…]}}}}}`; "change one exit" is
-`scene.json` with `{"setups":{"0":{"exits":{"3":"0x0211"}}}}`; a self-contained scene is
+`scene.json` with `{"setups":{"0":{"exits":{"3":"mymod/lava_temple/main"}}}}`; a self-contained scene is
 unnecessary because every reference is to a stable name that exists in every conversion.
 
 ## 4. Runtime (SoH side)
@@ -271,7 +290,7 @@ unnecessary because every reference is to a stable name that exists in every con
   every mounted layer (topmost first) because a patch layer may omit it.
   `ArchiveManager::LoadFileFromAllLayers(path)` returns every layer's bytes for a path, in mount
   order. `ResourceFactoryJson` is the factory base. Both are game-agnostic.
-- SoH (`soh/soh/resource/unbound/`): `UnboundJson` (merge rules and the shared field readers),
+- SoH (`soh/soh/unbound/`): `UnboundJson` (merge rules and the shared field readers),
   `UnboundSchema.h` (every key name and `$schema` id, shared with the exporter), and one factory per
   document kind — `ResourceFactoryJsonSceneV1` (`unbound/scene`, `unbound/room`),
   `…CollisionHeaderV1` (`unbound/collision` 1 and 2), `…PathV1` (`unbound/paths`). They register
@@ -297,7 +316,7 @@ unnecessary because every reference is to a stable name that exists in every con
    resulting command objects against the base scene's, emit only the differing keys. Whole
    replaced scenes (Prelude "self-contained" exports) shrink to their real delta.
 
-Implementation: `soh/soh/Enhancements/unbound/UnboundExporter.cpp`. Invoked headlessly with
+Implementation: `soh/soh/unbound/UnboundExporter.cpp`. Invoked headlessly with
 `soh --export-unbound <out.o2r>` (runs after the base archive is mounted, before mods, then
 exits) or from the debug console with `unbound-export <out.o2r>`. The output is a **stored**
 (uncompressed) zip with fixed timestamps: deterministic, ~51 MB for vanilla, readable by libzip

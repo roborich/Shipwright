@@ -23,44 +23,44 @@ One `MessageTable` per language (`eng`/`nes`, `ger`, `fra`, `jpn`, `staff`):
 - Owns its bytes (`std::deque<std::string>` so `c_str()` stays stable), keeps the C-visible
   `std::vector<MessageTableEntry>` in base order with new ids appended before the terminator, and
   a `textId → index` hash.
-- Load order per language: base (`text/<lang>/messages.json` when an Unbound archive provides it,
-  otherwise the binary/XML `Text` resource) → `override/<folder>/*` (**add or replace**) →
-  `unbound/text/*.json` (add or replace, any language per file) → finalize. Initialisation runs once
-  per process.
+- Load order per language: base (the layer-merged `text/<lang>/messages.json` when any mounted
+  archive provides it, otherwise the binary/XML `Text` resource) → `override/<folder>/*` (legacy
+  binary overrides, **add or replace**) → finalize. Initialisation runs once per process.
 - Publishes the same `sNes/Ger/Fra/Jpn/StaffMessageEntryTablePtr` globals, so the ~15 existing
   consumers (message viewer, settings menu, save editor, kanji font, custom message manager)
   compile unchanged and still see a `0xFFFF`-terminated array.
 - `OTRMessage_Find(table, id)` — hash lookup for any published table pointer; used by the three
   find functions in `z_message_PAL.c`, which keep their vanilla not-found fallbacks.
 
-### JSON message files
+### `text/<lang>/messages.json`
 
-The same document shape serves the converted base table (`text/<lang>/messages.json`, written by the
-exporter) and mod merge files (`unbound/text/<anything>.json` in any loaded archive):
+One layer-merged document per language (§3 of `scene-format.md`). The converter writes the full
+vanilla table; a mod ships the same path with only the ids it adds or changes, and `null` deletes
+an id. There is no separate merge-file mechanism.
 
 ```json
 {
-  "language": "eng",
+  "$schema": "unbound/text/1",
   "messages": {
-    "0x0F12": { "box": 0, "ypos": 0, "text": "Hello, modded world." },
-    "3859":   { "box": 2, "ypos": 1, "text": "Second message" }
+    "0x0F12": { "box": 0, "ypos": 0, "text": "Hello, modded world." },
+    "3859":   { "box": 2, "ypos": 1, "text": "Second message" },
+    "0x0071": null
   }
 }
 ```
 
-- `language`: `eng` (or `nes`), `ger`, `fra`, `jpn`, `staff`. A base file must declare the language of
-  the folder it sits in.
-- `messages`: an object keyed by id (what the exporter writes). An array of entries carrying their own
-  `"id"` is also accepted.
-- ids: integer or a string parsed with base auto-detect (`"0x0F12"`, `"3858"`).
+- `<lang>`: `eng`, `ger`, `fra`, `jpn`, `staff`. The folder is the language; the document carries no
+  `language` key.
+- `messages`: an object keyed by id — integer or a string parsed with base auto-detect (`"0x0F12"`,
+  `"3858"`).
 - `box` / `ypos`: textbox type and y-position (the `typePos` nibbles).
 - `text`: the raw message bytes as a JSON string where each code point `0–255` is one byte —
-  control codes (`` newline, `A` colour, `` end, …) are written as escapes.
-  A missing `` terminator is appended. Code points above `U+00FF` have no byte form; each becomes
+  control codes (`\u0001` newline, `\u0005A` colour, `\u0002` end, …) are written as escapes.
+  A missing `\u0002` terminator is appended. Code points above `U+00FF` have no byte form; each becomes
   `?` and the file logs a warning.
 
-Mods no longer bundle a language's whole table: a Prelude message edit becomes a JSON file with
-the changed ids. Adding an id used by a custom actor or scene is a one-line entry.
+Mods no longer bundle a language's whole table: a Prelude message edit becomes a `messages.json`
+with the changed ids. Adding an id used by a custom actor or scene is a one-line entry.
 
 ### Buffers (`z64.h`)
 
@@ -86,7 +86,7 @@ Implemented on the `unbound` branch. See the README status table for build/verif
 
 1. Vanilla parity: talk to an NPC in each language (the settings menu language switch), open the
    credits text, check the Message Viewer dev window lists the tables.
-2. Add: an archive with `unbound/text/test.json` adding id `0x0F12`; `Message_StartTextbox` it via
+2. Add: an archive with `text/eng/messages.json` adding id `0x0F12`; `Message_StartTextbox` it via
    the Message Viewer / a modded actor — it displays.
 3. Replace: the same file overriding an existing id (e.g. `0x0001`) — the new text shows.
 4. Long: a message > 1280 bytes with box breaks pages correctly; one > 8192 bytes logs a truncation
