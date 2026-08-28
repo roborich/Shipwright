@@ -62,6 +62,42 @@ stay **absolute** — only the mesh vertices are relative.
 s16 nx, ny, nz, s16 pad, f32 dist }` (28 B). The loader still reads v1 (`s16` vertices, 24-byte
 polys) when the schema says `/1`; the converter emits v2.
 
+## Fog and draw distance
+
+A big world is pointless if it fades out at 2 500 units. Vanilla had three coupled caps:
+
+| Cap | Why |
+|---|---|
+| Fog could not **start** past ~2 500 units | `fogNear` is not a distance. The N64 fog factor is `alpha = 256·(u − fogNear)/(1000 − fogNear)` with `u = 1000·f/(f−n)·(1 − n/d)`, so with `zNear = 10` fog starts at `10·1000/(1000 − fogNear)`; the engine clamps `fogNear ≤ 996` because the packed `s16` multiplier `128000/(1000−fogNear)` overflows above it. Raising `zFar` changes this by a factor `f/(f−n)` ≈ 1 — nothing. |
+| Far plane ≤ 12 800 | `Environment_Update` clamps `fogFar` to 12 800 and `Play_Draw` uses `lightCtx.fogFar` as `zFar`. Room chunks (`mesh.type` 2) are culled at the same value. |
+| Actors vanish at ~1 350 units | `uncullZoneForward` defaults (1000 + 350) were tuned so the fog hides the pop-in. |
+
+### Lift
+
+- **Format.** A `lighting` entry may carry `"fogStart"`, `"fogEnd"`, `"drawDistance"` and
+  `"nearPlane"` (world units, numbers). Any of the first three switches the entry to *world fog*;
+  the rest default: `drawDistance` ← `fogFar` (or 12 800), `fogEnd` ← `drawDistance`, `fogStart` ←
+  the vanilla `fogNear` converted to a distance, `nearPlane` ← 0 (keep the view's 10). `fogNear` /
+  `fogFar` stay for vanilla and for the blend-rate bits packed in `fogNear`.
+- **Engine.** `EnvLightSettings` (both mirrors) and `LightContext` gained the world fields;
+  `Environment_Update` blends them through the same day/night and indoor cross-fades
+  (`Environment_LerpWorldFog`), then sets `lightCtx.zNear/zFar`, which `Play_Draw` now feeds to the
+  projection and `z_room.c` uses to cull chunks. Vanilla entries take `zNear 10 / zFar = fogFar`
+  exactly as before. `adjFogNear` (Nayru's Love, fairies, game over) is honoured in world mode by
+  converting the start distance to the 0..1000 scale and back.
+- **GPU.** The fog factor is computed on the CPU in the interpreter (`fog = ndcZ·mul + offset`) and
+  only mixed in the shader, so the fix is the two numbers: a new extended op **`G_FOGF`**
+  (`OTR_G_FOGF`, libultraship fork) carries them as floats; `Play_SetFog` emits it in world mode
+  with `mul = 128000/(u₁−u₀)`, `offset = (500−u₀)·256/(u₁−u₀)` from `u(fogStart)`, `u(fogEnd)`.
+  `fog_mul/fog_offset` in the interpreter are floats. Vanilla scenes still go through
+  `gSPFogPosition`, bit-identical.
+- **Culling.** Room-chunk cull uses `zFar`; the chunk radius (`PolygonDlist2.unk_06`, JSON
+  `"radius"`) is `f32`. Actor uncull zones are scaled by `zFar / 12800` in world-fog scenes (on top
+  of the "Increase Actor Draw Distance" enhancement), so a scene with `drawDistance: 200000`
+  keeps its actors visible ~15× further.
+- Depth precision: `zNear 10` against `zFar 10⁶` is a 10⁵ ratio; the OpenGL backend uses a 24-bit
+  depth buffer, so far geometry may z-fight. Set `"nearPlane": 50` (or more) in such scenes.
+
 ## Not changed (documented limits)
 
 - **Scene camera data** (`CamData.camPosData`, `BGCAM_*` packing in `z_camera.c`) is still

@@ -168,7 +168,7 @@ std::shared_ptr<ISceneCommand> BuildMesh(CommandBuilder& b, const Json& m) {
                 const Json& e = entries[k];
                 PolygonDlist2 d{};
                 d.pos = ReadVecF(e.value("pos", Json::array()));
-                d.unk_06 = (s16)Field(e, "radius");
+                d.unk_06 = (f32)Unbound::ToNumber(e.value("radius", Json(0)));
                 d.opa = keepPath(cmd->opaPaths, PathField(e, "opa"));
                 d.xlu = keepPath(cmd->xluPaths, PathField(e, "xlu"));
                 cmd->dlists2.push_back(d);
@@ -272,6 +272,18 @@ std::shared_ptr<ISceneCommand> BuildLighting(CommandBuilder& b, const Json& list
         ReadRgb(s.value("fogColor", Json::array()), e.fogColor);
         e.fogNear = (s16)Field(s, "fogNear");
         e.fogFar = (s16)Field(s, "fogFar");
+        // SOH [Unbound] world-unit fog / draw distance (extent.md). Any of the three keys switches the entry to
+        // world mode; the others take sensible defaults so a mod can set just "drawDistance".
+        if (s.contains("fogStart") || s.contains("fogEnd") || s.contains("drawDistance")) {
+            e.worldFog = 1;
+            e.drawDistance = (f32)Unbound::ToNumber(s.value("drawDistance", Json(e.fogFar > 0 ? e.fogFar : 12800)));
+            e.fogEnd = (f32)Unbound::ToNumber(s.value("fogEnd", Json(e.drawDistance)));
+            // default start: the vanilla fogNear converted to a distance (zNear 10): 10 * 1000 / (1000 - fogNear)
+            int legacyNear = (int)(e.fogNear & 0x3FF);
+            f32 legacyStart = legacyNear >= 997 ? e.fogEnd : 10000.0f / (f32)(1000 - legacyNear);
+            e.fogStart = (f32)Unbound::ToNumber(s.value("fogStart", Json(legacyStart)));
+            e.nearPlane = (f32)Unbound::ToNumber(s.value("nearPlane", Json(0)));
+        }
         cmd->settings.push_back(e);
     }
     return cmd;

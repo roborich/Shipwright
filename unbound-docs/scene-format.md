@@ -98,7 +98,8 @@ Conventions used throughout:
       "lighting": {
         "0": { "ambient": [80,80,80], "light1Dir": [49,49,49], "light1Color": [180,180,180],
                "light2Dir": [-49,-49,-49], "light2Color": [60,60,60],
-               "fogColor": [120,140,170], "fogNear": 990, "fogFar": 3200 }
+               "fogColor": [120,140,170], "fogNear": 990, "fogFar": 3200,
+               "fogStart": 20000, "fogEnd": 180000, "drawDistance": 200000, "nearPlane": 50 }
       },
       "entrances": { "0": { "spawn": 0, "room": 0 } },
       "spawns":    { "0": { "id": 0, "pos": [0,0,0], "rot": [0,0,0], "params": 0x0FFF } },
@@ -123,7 +124,7 @@ Field ↔ SoH command mapping:
 | `cameraSettings` | `SetCameraSettings` | scalar (optional) |
 | `cutscene` | `SetCutscenes` | path string (optional) |
 | `paths` | `SetPathways` | array of `paths/*.json` paths (optional) |
-| `lighting` | `SetLightingSettings` | **positional** (surfaces reference the index) |
+| `lighting` | `SetLightingSettings` | **positional** (surfaces reference the index). `fogStart` / `fogEnd` / `drawDistance` / `nearPlane` are optional world-unit numbers (see `extent.md` "Fog and draw distance"); `fogNear`/`fogFar` are the vanilla packed values. |
 | `entrances` | `SetEntranceList` | **positional** (entrance table `spawn` is an index) |
 | `spawns` | `SetStartPositionList` | **positional** (entrances reference it) |
 | `exits` | `SetExitList` | **positional** (surface exit index) |

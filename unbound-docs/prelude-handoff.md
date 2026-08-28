@@ -15,6 +15,9 @@ Authoritative detail: `counts.md` (rooms), `collision.md` (dyna), `extent.md` (w
 | **Water boxes accept an explicit `"room"`** (`-1` = all rooms). It overrides the 6-bit room field packed in `properties`. | Emit `room` always; keep `properties` as before. The converter now emits it. | Missing key → unpacked from `properties` (old cap 63 applies only then). |
 | **`"rot"` stays `Vec3s`; `"pos"` is float.** No change to keys, only to the allowed value range/type. | — | — |
 
+| **Lighting entries accept `"fogStart"`, `"fogEnd"`, `"drawDistance"`, `"nearPlane"`** (world units). Any of the first three switches that entry to world-unit fog; the others default sensibly (`drawDistance` ← `fogFar` or 12 800, `fogEnd` ← `drawDistance`, `fogStart` ← vanilla `fogNear` converted, `nearPlane` ← 0 = keep 10). | Expose them in the lighting inspector. Keep emitting `fogNear`/`fogFar` too (blend rate lives in `fogNear`'s high bits). Suggest `nearPlane` ≥ 50 when `drawDistance` > ~100 000 (24-bit depth). | Absent = vanilla fog (fog cannot start past 2 500 units, far plane ≤ 12 800). |
+| Mesh-type-2 `"radius"` may be fractional / > 32 767. | float path | ints fine |
+
 Nothing changed in `scene.json` keys, entity keys, `$order`, merge rules, `unbound/scenes/*.json`
 or `unbound/text/*.json`.
 

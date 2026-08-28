@@ -411,7 +411,7 @@ json MeshJson(const SOH::SetMesh& mesh) {
             std::string opa = StripOtrPrefix((const char*)d.opa);
             std::string xlu = StripOtrPrefix((const char*)d.xlu);
             entries[Key(i)] = { { "pos", Vec(d.pos) },
-                                { "radius", d.unk_06 },
+                                { "radius", Num(d.unk_06) },
                                 { "opa", opa.empty() ? json(nullptr) : json(opa) },
                                 { "xlu", xlu.empty() ? json(nullptr) : json(xlu) } };
         }

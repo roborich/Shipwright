@@ -1028,7 +1028,7 @@ typedef struct {
 
 typedef struct {
     /* 0x00 */ Vec3f pos; // SOH [Unbound] s16 -> f32 (world extent)
-    /* 0x06 */ s16   unk_06;
+    /* 0x06 */ f32   unk_06; // SOH [Unbound] cull radius, s16 -> f32
     /* 0x08 */ Gfx*  opa;
     /* 0x0C */ Gfx*  xlu;
 } PolygonDlist2; // size = 0x8

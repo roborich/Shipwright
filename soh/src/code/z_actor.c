@@ -3014,8 +3014,14 @@ s32 Ship_CalcShouldDrawAndUpdate(PlayState* play, Actor* actor, Vec3f* projected
         return false;
     }
 
-    s32 multiplier = CVarGetInteger(CVAR_ENHANCEMENT("DisableDrawDistance"), 1);
+    f32 multiplier = CVarGetInteger(CVAR_ENHANCEMENT("DisableDrawDistance"), 1);
     multiplier = MAX(multiplier, 1);
+
+    // SOH [Unbound] Scenes that raise their draw distance past the vanilla 12800 get actor culling scaled to match,
+    // otherwise a far horizon shows empty terrain (vanilla uncull zones were tuned to the 12800 far plane).
+    if (play->lightCtx.worldFog && play->lightCtx.zFar > 12800.0f) {
+        multiplier *= play->lightCtx.zFar / 12800.0f;
+    }
 
     // Some actors have a really short forward value, so we need to add to it before the multiplier to increase the
     // final strength of the forward culling

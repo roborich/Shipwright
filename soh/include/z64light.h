@@ -48,8 +48,15 @@ typedef struct {
     /* 0x4 */ u8 ambientColor[3];
     /* 0x7 */ u8 fogColor[3];
     /* 0xA */ s16 fogNear; // how close until fog starts taking effect. range 0 - 1000
-    /* 0xC */ s16 fogFar; // how far until fog starts to saturate. range 0 - 1000
-} LightContext; // size = 0x10
+    /* 0xC */ s16 fogFar; // far plane / room cull distance (vanilla max 12800); clamped to s16 when worldFog is set
+    // SOH [Unbound] world-unit fog + draw distance; see EnvLightSettings. zNear/zFar drive the projection and
+    // room culling in every scene (vanilla: 10 / fogFar).
+    u8 worldFog;
+    f32 fogStart;
+    f32 fogEnd;
+    f32 zNear;
+    f32 zFar;
+} LightContext;
 
 typedef enum {
     /* 0x00 */ LIGHT_POINT_NOGLOW,

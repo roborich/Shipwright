@@ -206,6 +206,12 @@ void LightContext_Init(PlayState* play, LightContext* lightCtx) {
     LightContext_InitList(play, lightCtx);
     LightContext_SetAmbientColor(lightCtx, 80, 80, 80);
     LightContext_SetFog(lightCtx, 0, 0, 0, 996, 12800);
+    // SOH [Unbound]
+    lightCtx->worldFog = 0;
+    lightCtx->fogStart = 0.0f;
+    lightCtx->fogEnd = 0.0f;
+    lightCtx->zNear = 10.0f;
+    lightCtx->zFar = 12800.0f;
     memset(&sLightsBuffer, 0, sizeof(sLightsBuffer));
 }
 

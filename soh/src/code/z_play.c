@@ -193,9 +193,36 @@ void func_800BC88C(PlayState* play) {
     play->transitionCtx.transitionType = -1;
 }
 
+// SOH [Unbound] N64 fog "u" coordinate of an eye-space distance under guPerspective: u = 1000 * f/(f-n) * (1 - n/d).
+// The vanilla fogNear is a point on this scale, which is why fog could never start past zNear*1000/4 = 2500 units.
+static f32 Play_FogU(f32 d, f32 n, f32 f) {
+    if (d < n) {
+        d = n;
+    }
+    return 1000.0f * (f / (f - n)) * (1.0f - n / d);
+}
+
 Gfx* Play_SetFog(PlayState* play, Gfx* gfx) {
-    return Gfx_SetFog2(gfx, play->lightCtx.fogColor[0], play->lightCtx.fogColor[1], play->lightCtx.fogColor[2], 0,
-                       play->lightCtx.fogNear, 1000);
+    LightContext* lightCtx = &play->lightCtx;
+
+    if (lightCtx->worldFog) {
+        // Fog factor in the interpreter is fog = ndcZ * mul + offset with u = 500 * (ndcZ + 1), so a ramp from u0 to
+        // u1 is mul = 128000 / (u1 - u0), offset = (500 - u0) * 256 / (u1 - u0) — the gSPFogPosition formula in float.
+        f32* factor = Graph_Alloc(play->state.gfxCtx, 2 * sizeof(f32));
+        f32 u0 = Play_FogU(lightCtx->fogStart, lightCtx->zNear, lightCtx->zFar);
+        f32 u1 = Play_FogU(lightCtx->fogEnd, lightCtx->zNear, lightCtx->zFar);
+
+        if (u1 - u0 < 0.0001f) {
+            u1 = u0 + 0.0001f;
+        }
+        factor[0] = 128000.0f / (u1 - u0);
+        factor[1] = (500.0f - u0) * 256.0f / (u1 - u0);
+        gDPSetFogColor(gfx++, lightCtx->fogColor[0], lightCtx->fogColor[1], lightCtx->fogColor[2], 0);
+        gSPFogFactorF(gfx++, factor);
+        return gfx;
+    }
+    return Gfx_SetFog2(gfx, lightCtx->fogColor[0], lightCtx->fogColor[1], lightCtx->fogColor[2], 0, lightCtx->fogNear,
+                       1000);
 }
 
 void Play_Destroy(GameState* thisx) {
@@ -1414,7 +1441,8 @@ void Play_Draw(PlayState* play) {
         POLY_OPA_DISP = Play_SetFog(play, POLY_OPA_DISP);
         POLY_XLU_DISP = Play_SetFog(play, POLY_XLU_DISP);
 
-        func_800AA460(&play->view, play->view.fovy, play->view.zNear, play->lightCtx.fogFar);
+        // SOH [Unbound] near/far planes come from lightCtx (vanilla: 10 / fogFar; world-fog scenes set their own)
+        func_800AA460(&play->view, play->view.fovy, play->lightCtx.zNear, play->lightCtx.zFar);
         func_800AAA50(&play->view, 15);
 
         // Flip the projections and invert culling for the OPA and XLU display buffers
