@@ -55,6 +55,7 @@ using SOH::Unbound::ReadRgb;
 using SOH::Unbound::ReadVec3f;
 using SOH::Unbound::ReadVec3s;
 using SOH::Unbound::Sub;
+using SOH::Unbound::SubArray;
 using SOH::Unbound::ToInt;
 namespace K = SOH::Unbound::Schema;
 
@@ -88,8 +89,8 @@ std::shared_ptr<Ship::IResource> LoadSub(const std::string& path) {
 ActorEntry ReadActor(const Json& a) {
     ActorEntry e{};
     e.id = (s16)Field(a, K::kId);
-    e.pos = ReadVec3f(Sub(a, K::kPos));
-    e.rot = ReadVec3s(Sub(a, K::kRot));
+    e.pos = ReadVec3f(SubArray(a, K::kPos));
+    e.rot = ReadVec3s(SubArray(a, K::kRot));
     e.params = (s16)Field(a, K::kParams);
     return e;
 }
@@ -285,7 +286,7 @@ Command BuildTransitionActors(CommandBuilder& b, const Json& list) {
         const Json& t = list[k];
         TransitionActorEntry e{};
         e.id = (s16)Field(t, K::kId);
-        e.pos = ReadVec3f(Sub(t, K::kPos));
+        e.pos = ReadVec3f(SubArray(t, K::kPos));
         e.rotY = (s16)Field(t, K::kRotY);
         e.params = (s16)Field(t, K::kParams);
         e.sides[0].room = (s16)Field(Sub(t, K::kFront), K::kRoom);
@@ -315,17 +316,17 @@ LightInfo ReadLight(const CommandBuilder& b, const Json& l) {
     }
     info.type = (u8)type;
     if (info.type == 1) { // LIGHT_DIRECTIONAL
-        Vec3s dir = ReadVec3s(Sub(l, K::kDir));
+        Vec3s dir = ReadVec3s(SubArray(l, K::kDir));
         info.params.dir.x = (s8)dir.x;
         info.params.dir.y = (s8)dir.y;
         info.params.dir.z = (s8)dir.z;
-        ReadRgb(Sub(l, K::kColor), info.params.dir.color);
+        ReadRgb(SubArray(l, K::kColor), info.params.dir.color);
     } else {
-        Vec3f pos = ReadVec3f(Sub(l, K::kPos));
+        Vec3f pos = ReadVec3f(SubArray(l, K::kPos));
         info.params.point.x = pos.x;
         info.params.point.y = pos.y;
         info.params.point.z = pos.z;
-        ReadRgb(Sub(l, K::kColor), info.params.point.color);
+        ReadRgb(SubArray(l, K::kColor), info.params.point.color);
         info.params.point.drawGlow = (u8)Field(l, K::kGlow);
         info.params.point.radius = (s16)Field(l, K::kRadius);
     }
@@ -372,12 +373,12 @@ s16 PackFogNear(int64_t fogNear, int64_t blendRate) {
 
 EnvLightSettings ReadLighting(const Json& s) {
     EnvLightSettings e{};
-    ReadRgb(Sub(s, K::kAmbient), e.ambientColor);
-    ReadRgb(Sub(s, K::kLight1Dir), e.light1Dir);
-    ReadRgb(Sub(s, K::kLight1Color), e.light1Color);
-    ReadRgb(Sub(s, K::kLight2Dir), e.light2Dir);
-    ReadRgb(Sub(s, K::kLight2Color), e.light2Color);
-    ReadRgb(Sub(s, K::kFogColor), e.fogColor);
+    ReadRgb(SubArray(s, K::kAmbient), e.ambientColor);
+    ReadRgb(SubArray(s, K::kLight1Dir), e.light1Dir);
+    ReadRgb(SubArray(s, K::kLight1Color), e.light1Color);
+    ReadRgb(SubArray(s, K::kLight2Dir), e.light2Dir);
+    ReadRgb(SubArray(s, K::kLight2Color), e.light2Color);
+    ReadRgb(SubArray(s, K::kFogColor), e.fogColor);
     e.fogNear = PackFogNear(Field(s, K::kFogNear), Field(s, K::kFogBlendRate));
     e.fogFar = (s16)Field(s, K::kFogFar);
     ReadWorldFog(s, e);
@@ -427,7 +428,7 @@ void ReadMeshDlists(CommandBuilder& b, SetMesh& cmd, const Json& entries, uint8_
     cmd.dlists2.reserve(keys.size());
     for (const auto& k : keys) {
         PolygonDlist2 d{};
-        d.pos = ReadVec3f(Sub(entries[k], K::kPos));
+        d.pos = ReadVec3f(SubArray(entries[k], K::kPos));
         d.unk_06 = (f32)NumberField(entries[k], K::kRadius);
         d.opa = SetMesh::KeepDlistPath(cmd.opaPaths, PathField(entries[k], K::kOpa));
         d.xlu = SetMesh::KeepDlistPath(cmd.xluPaths, PathField(entries[k], K::kXlu));
@@ -579,7 +580,7 @@ std::shared_ptr<Scene> BuildScene(std::shared_ptr<Ship::ResourceInitData> initDa
     SharedRefs shared;
     shared.rooms = Sub(doc, K::kRooms);
     shared.collision = PathField(doc, K::kCollision);
-    shared.origin = ReadVec3f(Sub(doc, K::kOrigin));
+    shared.origin = ReadVec3f(SubArray(doc, K::kOrigin));
 
     const Json& setups = Sub(doc, K::kSetups);
     if (!setups.contains("0")) {
