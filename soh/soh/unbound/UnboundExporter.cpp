@@ -374,7 +374,7 @@ json BuildCollisionJson(const SOH::CollisionHeader& col, const std::string& binP
                           { K::kCamera, w.camera },
                           { K::kLightSetting, w.lightSetting },
                           { K::kRoom, w.room },
-                          { K::kFlag19, w.flag19 } };
+                          { K::kNotSwimmable, w.notSwimmable } };
     }
     doc[K::kWaterBoxes] = water;
     return doc;

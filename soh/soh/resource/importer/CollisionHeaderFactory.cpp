@@ -2,6 +2,7 @@
 #include "soh/resource/type/CollisionHeader.h"
 #include "spdlog/spdlog.h"
 #include <tinyxml2.h>
+#include <cstddef>
 #include <cstring>
 #include "z64bgcheck.h"
 
@@ -9,6 +10,11 @@ namespace SOH {
 // SOH [Unbound] The mirrors are cast to the game structs by z_scene_otr.cpp; the game helpers own the bit layout.
 static_assert(sizeof(SurfaceType) == sizeof(::SurfaceType), "SOH::SurfaceType must mirror ::SurfaceType");
 static_assert(sizeof(WaterBox) == sizeof(::WaterBox), "SOH::WaterBox must mirror ::WaterBox");
+static_assert(offsetof(SurfaceType, lightSetting) == offsetof(::SurfaceType, lightSetting) &&
+                  offsetof(SurfaceType, isWallDamage) == offsetof(::SurfaceType, isWallDamage),
+              "SOH::SurfaceType field order must mirror ::SurfaceType");
+static_assert(offsetof(WaterBox, room) == offsetof(::WaterBox, room),
+              "SOH::WaterBox field order must mirror ::WaterBox");
 
 SurfaceType UnpackSurfaceType(uint32_t data0, uint32_t data1) {
     ::SurfaceType game = SurfaceType_Unpack(data0, data1);

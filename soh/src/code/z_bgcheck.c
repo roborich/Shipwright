@@ -3930,7 +3930,7 @@ void WaterBox_UnpackProperties(WaterBox* waterBox, u32 properties) {
     waterBox->camera = properties & 0xFF;
     waterBox->lightSetting = (properties >> 8) & 0x1F;
     waterBox->room = room == 0x3F ? -1 : (s32)room;
-    waterBox->flag19 = (properties >> 19) & 1;
+    waterBox->notSwimmable = (properties >> 19) & 1;
 }
 
 /**
@@ -4326,7 +4326,7 @@ s32 WaterBox_GetSurfaceImpl(PlayState* play, CollisionContext* colCtx, f32 x, f3
          curWaterBox++) {
         room = curWaterBox->room; // SOH [Unbound] unpacked, -1 = all rooms
         if (room == play->roomCtx.curRoom.num || room == -1) {
-            if (!curWaterBox->flag19) {
+            if (!curWaterBox->notSwimmable) {
                 if (curWaterBox->xMin < x && x < curWaterBox->xMin + curWaterBox->xLength) {
                     if (curWaterBox->zMin < z && z < curWaterBox->zMin + curWaterBox->zLength) {
                         *outWaterBox = curWaterBox;
@@ -4341,7 +4341,7 @@ s32 WaterBox_GetSurfaceImpl(PlayState* play, CollisionContext* colCtx, f32 x, f3
 }
 
 /**
- * Gets the first active WaterBox at `pos` where WaterBox.flag19 is clear
+ * Gets the first active WaterBox at `pos` where WaterBox.notSwimmable is clear
  * `surfaceChkDist` is the absolute y distance from the water surface to check
  * returns the index of the waterbox found, or -1 if no waterbox is found
  * `outWaterBox` returns the pointer to the waterbox found, or NULL if none is found
@@ -4366,7 +4366,7 @@ s32 WaterBox_GetSurface2(PlayState* play, CollisionContext* colCtx, Vec3f* pos, 
         if (!(room == play->roomCtx.curRoom.num || room == -1)) {
             continue;
         }
-        if (waterBox->flag19) {
+        if (waterBox->notSwimmable) {
             continue;
         }
         if (!(waterBox->xMin < pos->x && pos->x < waterBox->xMin + waterBox->xLength)) {
@@ -4415,7 +4415,7 @@ u32 WaterBox_GetLightSettingIndex(CollisionContext* colCtx, WaterBox* waterBox) 
 
 /**
  * Get the water surface at point (`x`, `ySurface`, `z`). `ySurface` doubles as position y input
- * same as WaterBox_GetSurfaceImpl, but tests if WaterBox.flag19 is set
+ * same as WaterBox_GetSurfaceImpl, but tests if WaterBox.notSwimmable is set
  * returns true if point is within the xz boundaries of an active water box, else false
  * `ySurface` returns the water box's surface, while `outWaterBox` returns a pointer to the WaterBox
  */
@@ -4432,7 +4432,7 @@ s32 func_800425B0(PlayState* play, CollisionContext* colCtx, f32 x, f32 z, f32* 
          curWaterBox++) {
         room = curWaterBox->room; // SOH [Unbound] unpacked, -1 = all rooms
         if (room == play->roomCtx.curRoom.num || room == -1) {
-            if (curWaterBox->flag19) {
+            if (curWaterBox->notSwimmable) {
                 if (curWaterBox->xMin < x && x < (curWaterBox->xMin + curWaterBox->xLength)) {
                     if (curWaterBox->zMin < z && z < (curWaterBox->zMin + curWaterBox->zLength)) {
                         *outWaterBox = curWaterBox;

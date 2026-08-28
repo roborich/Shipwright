@@ -9,7 +9,7 @@
 #include "soh/resource/type/CollisionHeader.h"
 
 using SOH::Unbound::Json;
-using SOH::Unbound::ListKeys;
+using SOH::Unbound::PositionalKeys;
 using SOH::Unbound::ToInt;
 namespace K = SOH::Unbound::Schema;
 
@@ -121,7 +121,7 @@ SurfaceType ReadSurfaceType(const Json& e) {
 
 void ReadSurfaceTypes(CollisionHeader& col, const Json& list, const std::string& docPath) {
     bool legacy = false;
-    for (const auto& k : ListKeys(list)) {
+    for (const auto& k : PositionalKeys(list, docPath + " " + K::kSurfaceTypes)) {
         const Json& e = list[k];
         if (e.contains(K::kData0) || e.contains(K::kData1)) {
             legacy = true;
@@ -138,15 +138,15 @@ void ReadSurfaceTypes(CollisionHeader& col, const Json& list, const std::string&
     col.collisionHeaderData.surfaceTypeList = col.surfaceTypes.data();
 }
 
-void ReadCameras(CollisionHeader& col, const Json& cameras, const Json& positions) {
+void ReadCameras(CollisionHeader& col, const Json& cameras, const Json& positions, const std::string& docPath) {
     // Camera positions stay s16: CamData packs them into Vec3s (README, "Known remaining limits").
-    for (const auto& k : ListKeys(positions)) {
+    for (const auto& k : PositionalKeys(positions, docPath + " " + K::kCameraPositions)) {
         col.camPosData.push_back(Unbound::ReadVec3s(positions[k]));
     }
     col.camPosCount = (int32_t)col.camPosData.size();
     col.camPosDataZero = Vec3s{ 0, 0, 0 };
 
-    for (const auto& k : ListKeys(cameras)) {
+    for (const auto& k : PositionalKeys(cameras, docPath + " " + K::kCameras)) {
         const Json& c = cameras[k];
         CamData cam{};
         cam.cameraSType = (u16)ToInt(c.value(K::kSType, Json(0)));
@@ -169,7 +169,7 @@ void ReadCameras(CollisionHeader& col, const Json& cameras, const Json& position
 
 void ReadWaterBoxes(CollisionHeader& col, const Json& list, const std::string& docPath) {
     bool legacy = false;
-    for (const auto& k : ListKeys(list)) {
+    for (const auto& k : PositionalKeys(list, docPath + " " + K::kWaterBoxes)) {
         const Json& w = list[k];
         WaterBox box{};
         box.xMin = (f32)Unbound::NumberField(w, K::kXMin);
@@ -184,7 +184,7 @@ void ReadWaterBoxes(CollisionHeader& col, const Json& list, const std::string& d
             box.camera = (s32)Unbound::Field(w, K::kCamera);
             box.lightSetting = (s32)Unbound::Field(w, K::kLightSetting);
             box.room = -1;
-            box.flag19 = (u8)Unbound::Field(w, K::kFlag19);
+            box.notSwimmable = (u8)Unbound::Field(w, K::kNotSwimmable);
         }
         if (w.contains(K::kRoom)) {
             box.room = (s32)ToInt(w[K::kRoom]);
@@ -228,9 +228,15 @@ ResourceFactoryJsonCollisionHeaderV1::ReadResource(std::shared_ptr<Ship::File> f
     if (!ReadBulk(*col, doc.value(K::kBulk, Json::object()), version, initData->Path)) {
         return nullptr;
     }
-    ReadSurfaceTypes(*col, doc.value(K::kSurfaceTypes, Json::object()), initData->Path);
-    ReadCameras(*col, doc.value(K::kCameras, Json::object()), doc.value(K::kCameraPositions, Json::object()));
-    ReadWaterBoxes(*col, doc.value(K::kWaterBoxes, Json::object()), initData->Path);
+    try {
+        ReadSurfaceTypes(*col, doc.value(K::kSurfaceTypes, Json::object()), initData->Path);
+        ReadCameras(*col, doc.value(K::kCameras, Json::object()), doc.value(K::kCameraPositions, Json::object()),
+                    initData->Path);
+        ReadWaterBoxes(*col, doc.value(K::kWaterBoxes, Json::object()), initData->Path);
+    } catch (const Unbound::DocumentError& e) { // a hole in an indexed list (scene-format.md §3)
+        SPDLOG_ERROR("[Unbound] {}", e.what());
+        return nullptr;
+    }
     return col;
 }
 

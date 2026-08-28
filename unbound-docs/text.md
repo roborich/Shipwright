@@ -50,7 +50,8 @@ an id. There is no separate merge-file mechanism.
 ```
 
 - `<lang>`: `eng`, `ger`, `fra`, `jpn`, `staff`. The folder is the language; the document carries no
-  `language` key.
+  `language` key. `$schema` is self-description for tools only — the table is read directly, not as a
+  libultraship resource.
 - `messages`: an object keyed by id — integer or a string parsed with base auto-detect (`"0x0F12"`,
   `"3858"`).
 - `box` / `ypos`: textbox type and y-position (the `typePos` nibbles).

@@ -65,7 +65,9 @@ are portable either way; only bulk references inherit the source's naming.
 mounted ROM's hash) and `source.converter` (`"soh <build version>"`). A *mod* archive that only
 patches may carry a manifest with just the two required keys, plus
 `"requires": { "formatVersion": 1 }`. An archive whose `formatVersion` or `requires.formatVersion`
-is newer than the build understands is logged and not treated as an Unbound archive.
+is newer than the build understands is logged as an error and does not count as an Unbound base
+(vanilla scenes keep loading from the binary archive). Its files are **not** filtered out of the
+layer merge — libultraship mounts whole archives — so the check exists to fail loudly, not to isolate.
 
 ## 2. Structured resource schema
 
@@ -213,7 +215,7 @@ additions (`"prelude-8f3a"`) as long as they are unique within the list.
   "cameraPositions": { "0": [0,0,0], "1": [0,0,0] },
   "waterBoxes": {
     "0": { "xMin": 0, "ySurface": 0, "zMin": 0, "xLength": 0, "zLength": 0,
-           "camera": 0, "lightSetting": 0, "room": -1, "flag19": 0 }
+           "camera": 0, "lightSetting": 0, "room": -1, "notSwimmable": 0 }
   }
 }
 ```
@@ -231,16 +233,17 @@ bits 29–31).
 
 **Surface types are unpacked.** The vanilla `data0`/`data1` words are two packed bit fields; the
 document spells every field out by name (the decomp's `SurfaceType_Get*` accessors, camelCased).
-`camera`, `exit` and `lightSetting` are unbounded indices into `cameras`, the scene's `exits` and
-the setup's `lighting` (packed they were 8, 5 and 5 bits: 255 cameras, 31 exits, 31 light settings
-per scene). The remaining fields keep their vanilla ranges (`floorType` 0–31, `wallFlags` 0–7,
+`camera` and `exit` are unbounded indices into `cameras` and the scene's `exits` (packed they were
+8 and 5 bits: 255 cameras, 31 exits per scene). `lightSetting` indexes the setup's `lighting` and is
+capped at 255 by `EnvironmentContext.numLightSettings` (`u8`); packed it was 5 bits (31). The remaining fields keep their vanilla ranges (`floorType` 0–31, `wallFlags` 0–7,
 `wallType` 0–31, `floorProperty` 0–15, `material` 0–15, `floorEffect` 0–3, `echo` 0–63,
 `conveyorSpeed` 0–7, `conveyorDirection` 0–63, booleans 0/1). A surface entry that carries
 `data0`/`data1` instead is a legacy form: the loader unpacks it and warns.
 
-**Water boxes are unpacked** the same way: `camera`, `lightSetting`, `room` (`-1` = every room)
-and `flag19` (the vanilla bit 19) replace the packed `properties` word; `properties` is accepted
-as the legacy form and unpacked with a warning.
+**Water boxes are unpacked** the same way: `camera`, `lightSetting`, `room` (`-1` = every room,
+the default when the key is absent) and `notSwimmable` (vanilla bit 19: the box is skipped by the
+swim-surface query and found only by the ripple-effect query) replace the packed `properties`
+word; `properties` is accepted as the legacy form and unpacked with a warning.
 
 Bulk replaces whole; `collision.json` merges key-wise. `bounds`, water-box extents, and every
 `pos` in scene/room documents accept fractional numbers.

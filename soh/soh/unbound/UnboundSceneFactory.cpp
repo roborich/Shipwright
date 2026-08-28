@@ -265,10 +265,13 @@ uint16_t ResolveExit(CommandBuilder& b, const std::string& key, const Json& valu
         return (uint16_t)index;
     }
     try {
-        return (uint16_t)std::stoi(name, nullptr, 0); // "0x0211" is still an index, not a name
-    } catch (...) {
-        throw Unbound::DocumentError(b.docPath + " " + K::kExits + "/" + key + ": unknown entrance '" + name + "'");
-    }
+        size_t consumed = 0;
+        int index = std::stoi(name, &consumed, 0); // "0x0211" is still an index, not a name
+        if (consumed == name.size() && index >= 0) {
+            return (uint16_t)index;
+        }
+    } catch (...) {}
+    throw Unbound::DocumentError(b.docPath + " " + K::kExits + "/" + key + ": unknown entrance '" + name + "'");
 }
 
 Command BuildExitList(CommandBuilder& b, const Json& list) {

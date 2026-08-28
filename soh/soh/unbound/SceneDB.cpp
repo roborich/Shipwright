@@ -318,6 +318,7 @@ bool SceneDB::HasUnboundBase() const {
 namespace {
 
 namespace K = SOH::Unbound::Schema;
+using SOH::Unbound::Field;
 using SOH::Unbound::Json;
 
 // unbound.json (scene-format.md §1): every mounted layer's manifest must be a version this build reads.
@@ -360,8 +361,12 @@ void SceneDB::LoadCustomScenes() {
     }
     size_t loaded = 0;
     for (const auto& id : SOH::Unbound::ListKeys(registry)) {
-        if (registry[id].is_object() && RegisterScene(id, registry[id])) {
-            loaded++;
+        try {
+            if (registry[id].is_object() && RegisterScene(id, registry[id])) {
+                loaded++;
+            }
+        } catch (const nlohmann::json::exception& e) {
+            SPDLOG_ERROR("[Unbound] {}: scene '{}': {}", K::kRegistryPath, id, e.what());
         }
     }
     SPDLOG_INFO("[Unbound] {}: registered {} custom scene(s), {} custom entrance(s)", K::kRegistryPath, loaded,
@@ -370,10 +375,9 @@ void SceneDB::LoadCustomScenes() {
 
 // One entry of unbound/scenes.json (registries.md), keyed by the scene id.
 bool SceneDB::RegisterScene(const std::string& id, const nlohmann::json& def) {
-    using SOH::Unbound::Field;
     CustomSceneInit scene;
     scene.name = id;
-    scene.displayName = def.value(K::kName, id);
+    scene.displayName = def.contains(K::kName) && def[K::kName].is_string() ? def[K::kName].get<std::string>() : id;
     scene.scenePath = SOH::Unbound::PathField(def, K::kScene);
     scene.titleCardTexture = SOH::Unbound::PathField(def, K::kTitleCardTexture);
     scene.sceneId = (int32_t)Field(def, K::kSceneId, -1);
@@ -398,7 +402,6 @@ bool SceneDB::RegisterScene(const std::string& id, const nlohmann::json& def) {
 }
 
 void SceneDB::RegisterEntrance(const Entry& scene, const std::string& key, const nlohmann::json& def) {
-    using SOH::Unbound::Field;
     if (def.contains(K::kLayers)) {
         SPDLOG_WARN("[Unbound] {}/{}: \"{}\" is reserved and not read yet; all four layers are identical", scene.name,
                     key, K::kLayers);

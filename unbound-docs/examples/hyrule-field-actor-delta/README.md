@@ -8,5 +8,5 @@ Package with any zip tool, keeping the paths, and drop the result in SoH's `mods
 
     cd hyrule-field-actor-delta && zip -r ../hyrule-field-actor-delta.o2r unbound.json scenes
 
-With `oot-unbound.o2r` beside `oot.o2r`, the log shows
+With `oot-unbound.o2r` beside `oot.o2r`, the log (at debug level) shows
 `scenes/spot00/rooms/0.json: merging 2 archive layers` when the field loads.

@@ -60,6 +60,7 @@ Likely next targets, roughly by how often a modder will hit them:
 | Mesh entries in **binary** headers ≤ 255 | binary `SetMesh` stores a u8 count | JSON headers have no such cap. Only matters for legacy archives. |
 | Decoded textbox 1 024 bytes | `MESSAGE_DECODED_BUF_SIZE` | Page long text with box-break control codes. |
 | Path points ≤ 255 | `PathData.count` is `u8` | The JSON loader logs and cuts a longer path. |
+| Light settings per setup ≤ 255 | `EnvironmentContext.numLightSettings` is `u8` | Surface/water-box `lightSetting` is unbounded in the format; the engine caps it. |
 | Entrance layer groups of 4 | `entranceIndex + sceneSetupIndex` arithmetic in `Play_Init` | Custom entrances register 4 identical layers. |
 | No minimap / pause map for custom scenes | `Map_Init` keyed by vanilla scene ranges | Needs a registry field for map data. |
 | Alternate setups | The JSON stores each in full; up to setup index 13 seen in vanilla | Not a cap, but `SetAlternateHeaders` arrays grow with the highest index. |

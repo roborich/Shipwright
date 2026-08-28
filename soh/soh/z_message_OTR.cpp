@@ -30,6 +30,8 @@ extern "C" char* _message_0xFFFC_nes;
 
 namespace {
 
+namespace K = SOH::Unbound::Schema;
+
 constexpr uint16_t kTerminatorId = 0xFFFF;
 constexpr char kMessageEnd = '\x02';
 
@@ -187,10 +189,10 @@ uint16_t ParseMessageId(const nlohmann::json& value) {
 }
 
 void ApplyJsonMessage(MessageTable& table, const nlohmann::json& entry, uint16_t id, const std::string& path) {
-    uint8_t box = (uint8_t)SOH::Unbound::ToInt(entry.value("box", nlohmann::json(0)));
-    uint8_t ypos = (uint8_t)SOH::Unbound::ToInt(entry.value("ypos", nlohmann::json(0)));
+    uint8_t box = (uint8_t)SOH::Unbound::ToInt(entry.value(K::kBox, nlohmann::json(0)));
+    uint8_t ypos = (uint8_t)SOH::Unbound::ToInt(entry.value(K::kYPos, nlohmann::json(0)));
     size_t replaced = 0;
-    std::string bytes = JsonTextToBytes(entry.at("text").get<std::string>(), replaced);
+    std::string bytes = JsonTextToBytes(entry.at(K::kText).get<std::string>(), replaced);
     if (replaced > 0) {
         SPDLOG_WARN("[Unbound] {}: message {:#06x} has {} character(s) outside U+0000-U+00FF, written as '?'", path, id,
                     replaced);
@@ -213,7 +215,6 @@ size_t ApplyJsonMessages(MessageTable& table, const nlohmann::json& messages, co
 // text/<lang>/messages.json, layer-merged across every mounted archive: the converted base table plus each
 // mod's additions, replacements and deletions (unbound-docs/text.md).
 bool LoadJsonBase(MessageTable& table, const LanguageSpec& spec) {
-    namespace K = SOH::Unbound::Schema;
     std::string path = std::string(K::kMessagesPathPrefix) + spec.jsonName + K::kMessagesPathSuffix;
     nlohmann::json doc = SOH::Unbound::LoadMergedJson(path);
     if (!doc.is_object()) {

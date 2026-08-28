@@ -51,7 +51,7 @@ Vertices, bounds, `dist` and water-box extents are `f32` (`BGCHECK_XYZ_ABSMAX` =
 fields (`camera`, `exit`, `lightSetting` as `s32`; `floorType`, `wallFlags`, `wallType`,
 `floorProperty`, `isSoft`, `isHorseBlocked`, `material`, `floorEffect`, `echo`, `canHookshot`,
 `conveyorSpeed`, `conveyorDirection`, `isWallDamage` as `u8`), and the water-box `properties` word
-becomes `camera`, `lightSetting`, `room` (`-1` = all rooms) and `flag19`. The `SurfaceType_Get*`
+becomes `camera`, `lightSetting`, `room` (`-1` = all rooms) and `notSwimmable`. The `SurfaceType_Get*`
 accessors in `z_bgcheck.c` read fields through one `SurfaceType_Get()` (which hands back an all-zero
 entry when a poly has none), so their ~200 callers are unchanged. This lifts the per-scene caps the
 packing imposed — 255 cameras, 31 exits, 31 light settings, 63 water-box rooms. Legacy data is

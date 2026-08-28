@@ -77,7 +77,7 @@ the same rules as every other document.
 | `drawConfig` | no | `SDC_*` index (0 = default). Out-of-range values are rejected. |
 | `titleCardTexture` | no | o2r path of a title card texture; shown when an entrance sets `showTitleCard`. |
 | `entrances` | no | Keyed list; the key is the entrance id, addressable as `<scene id>/<entrance id>`. |
-| `entrances.*.index` | no | Explicit first index of the 4-entry group, `>= 1556` and a multiple of 4. Only needed when a **binary** scene's exit list points at this entrance by number; JSON exit lists reference entrances by name and never need it. |
+| `entrances.*.index` | no | Explicit first index of the 4-entry group, `>= 1556` and a multiple of 4. Only needed when a **binary** scene's exit list points at this entrance by number; JSON exit lists reference entrances by name and never need it. Deprecated: a later format version may drop it. |
 | `entrances.*.spawn` | no | Spawn index into the scene's start-position list. |
 | `entrances.*.showTitleCard` / `continueBgm` | no | `EntranceInfo` field flags. |
 | `entrances.*.endTransition` / `startTransition` | no | `TRANS_TYPE_*` values; default 2 (fade to black). |

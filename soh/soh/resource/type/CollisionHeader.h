@@ -35,7 +35,7 @@ typedef struct {
     s32 camera;
     s32 lightSetting;
     s32 room;
-    u8 flag19;
+    u8 notSwimmable;
 } WaterBox;
 
 typedef struct {

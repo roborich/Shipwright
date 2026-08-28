@@ -84,7 +84,7 @@ typedef struct {
     s32 camera;       // CamData index (was 8 bits)
     s32 lightSetting; // lighting settings index (was 5 bits)
     s32 room;         // -1 = all rooms (was 6 bits, 0x3F)
-    u8 flag19;        // vanilla bit 19: box is only found by func_800425B0, not WaterBox_GetSurface*
+    u8 notSwimmable;        // vanilla bit 19: box is only found by func_800425B0, not WaterBox_GetSurface*
 } WaterBox;
 
 // SOH [Unbound] The two packed vanilla words are unpacked into named fields (SurfaceType_Unpack for legacy
