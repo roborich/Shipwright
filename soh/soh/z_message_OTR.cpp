@@ -1,5 +1,5 @@
 // SOH [Unbound] Message tables are owned, growable and hash-indexed; mods can add message ids.
-// See unbound-docs/text.md.
+// Format: unbound-docs/SPEC.md §5 (how/why: unbound-docs/text.md).
 #include "z_message_OTR.h"
 #include <libultraship/libultraship.h>
 #include "soh/resource/type/Scene.h"
@@ -39,7 +39,7 @@ enum MessageLanguage { MSG_NES, MSG_GER, MSG_FRA, MSG_JPN, MSG_STAFF, MSG_LANGUA
 
 struct LanguageSpec {
     MessageLanguage language;
-    const char* jsonName;    // text/<jsonName>/messages.json (unbound-docs/text.md)
+    const char* jsonName;    // text/<jsonName>/messages.json (SPEC.md §5)
     const char* folder;      // archive folder, also the override/ subfolder
     const char* baseFile;    // primary base resource
     const char* altBaseFile; // fallback base resource (NTSC english), may be null
@@ -160,32 +160,62 @@ void LoadOverrides(MessageTable& table, const LanguageSpec& spec) {
     }
 }
 
-// JSON strings carry message bytes as code points 0-255 (Latin-1 mapping); control codes included.
-// Code points above U+00FF have no byte representation; each becomes '?' and is counted in `replaced`.
+// JSON strings carry message bytes as code points 0-255 (Latin-1 mapping); control codes included (SPEC.md §5).
+// Code points above U+00FF have no byte representation; each becomes '?' and is counted in `replaced`, as does
+// every malformed UTF-8 sequence.
+struct DecodedCodePoint {
+    uint32_t value;
+    size_t length; // bytes consumed; 0 = malformed
+};
+
+DecodedCodePoint DecodeUtf8(const std::string& utf8, size_t i) {
+    unsigned char c = utf8[i];
+    size_t length = c < 0x80 ? 1 : (c & 0xE0) == 0xC0 ? 2 : (c & 0xF0) == 0xE0 ? 3 : (c & 0xF8) == 0xF0 ? 4 : 0;
+    if (length == 0 || i + length > utf8.size()) {
+        return { 0, 0 };
+    }
+    uint32_t cp = length == 1 ? c : c & (0x7F >> length);
+    for (size_t k = 1; k < length; k++) {
+        unsigned char cont = utf8[i + k];
+        if ((cont & 0xC0) != 0x80) {
+            return { 0, 0 };
+        }
+        cp = (cp << 6) | (cont & 0x3F);
+    }
+    return { cp, length };
+}
+
 std::string JsonTextToBytes(const std::string& utf8, size_t& replaced) {
     constexpr char kReplacement = '?';
     std::string bytes;
     bytes.reserve(utf8.size());
     for (size_t i = 0; i < utf8.size();) {
-        unsigned char c = utf8[i];
-        if (c < 0x80) {
-            bytes.push_back((char)c);
-            i += 1;
-        } else if ((c & 0xE0) == 0xC0 && i + 1 < utf8.size()) {
-            uint32_t cp = ((c & 0x1F) << 6) | (utf8[i + 1] & 0x3F);
-            bytes.push_back((char)(cp & 0xFF));
-            i += 2;
-        } else {
+        DecodedCodePoint cp = DecodeUtf8(utf8, i);
+        if (cp.length == 0) {
             bytes.push_back(kReplacement);
             replaced++;
-            i += (c & 0xF0) == 0xE0 ? 3 : 4;
+            i += 1;
+        } else if (cp.value > 0xFF) {
+            bytes.push_back(kReplacement);
+            replaced++;
+            i += cp.length;
+        } else {
+            bytes.push_back((char)cp.value);
+            i += cp.length;
         }
     }
     return bytes;
 }
 
-uint16_t ParseMessageId(const nlohmann::json& value) {
-    return (uint16_t)SOH::Unbound::ToInt(value, kTerminatorId);
+// A message key is the id as a decimal or 0x hex string, 0-65534 (SPEC.md §5). Returns false for anything else,
+// including the 0xFFFF terminator. Keys beginning with '$' are reserved and skipped silently.
+bool ParseMessageId(const std::string& key, uint16_t& id) {
+    int64_t parsed = 0;
+    if (!SOH::Unbound::ParseIntString(key, parsed) || parsed < 0 || parsed >= kTerminatorId) {
+        return false;
+    }
+    id = (uint16_t)parsed;
+    return true;
 }
 
 void ApplyJsonMessage(MessageTable& table, const nlohmann::json& entry, uint16_t id, const std::string& path) {
@@ -200,7 +230,7 @@ void ApplyJsonMessage(MessageTable& table, const nlohmann::json& entry, uint16_t
     table.Set(id, (uint8_t)((box << 4) | ypos), std::move(bytes));
 }
 
-// "messages": { "<id>": { box, ypos, text } }. A null entry is a deletion left by a single-layer document.
+// "messages": { "<id>": { box, ypos, text } }. Deletions (null) were already applied by the layer merge.
 size_t ApplyJsonMessages(MessageTable& table, const nlohmann::json& messages, const std::string& path) {
     size_t count = 0;
     if (!messages.is_object()) {
@@ -208,20 +238,26 @@ size_t ApplyJsonMessages(MessageTable& table, const nlohmann::json& messages, co
         return 0;
     }
     for (const auto& [key, entry] : messages.items()) {
-        if (entry.is_object()) {
-            if (!entry.contains(K::kText) || !entry[K::kText].is_string()) {
-                SPDLOG_ERROR("[Unbound] {}: message {} has no \"text\"; skipped", path, key);
-                continue;
-            }
-            ApplyJsonMessage(table, entry, ParseMessageId(nlohmann::json(key)), path);
-            count++;
+        if (!entry.is_object() || (!key.empty() && key[0] == '$')) {
+            continue;
         }
+        uint16_t id = 0;
+        if (!ParseMessageId(key, id)) {
+            SPDLOG_ERROR("[Unbound] {}: message key \"{}\" is not an id in 0-65534; skipped", path, key);
+            continue;
+        }
+        if (!entry.contains(K::kText) || !entry[K::kText].is_string()) {
+            SPDLOG_ERROR("[Unbound] {}: message {} has no \"text\"; skipped", path, key);
+            continue;
+        }
+        ApplyJsonMessage(table, entry, id, path);
+        count++;
     }
     return count;
 }
 
 // text/<lang>/messages.json, layer-merged across every mounted archive: the converted base table plus each
-// mod's additions, replacements and deletions (unbound-docs/text.md).
+// mod's additions, replacements and deletions (SPEC.md §3, §5).
 bool LoadJsonBase(MessageTable& table, const LanguageSpec& spec) {
     std::string path = std::string(K::kMessagesPathPrefix) + spec.jsonName + K::kMessagesPathSuffix;
     nlohmann::json doc = SOH::Unbound::LoadMergedJson(path);

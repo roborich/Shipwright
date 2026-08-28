@@ -1,4 +1,4 @@
-// SOH [Unbound] Converts the mounted vanilla archive into the Unbound layout (unbound-docs/scene-format.md).
+// SOH [Unbound] Converts the mounted vanilla archive into the Unbound layout (unbound-docs/SPEC.md).
 //
 // Orchestration: ExportArchive
 //   -> for every registry scene (and its MQ variant): ConvertScene
@@ -206,6 +206,12 @@ struct ExportContext {
     ExportReport report;
 };
 
+// Every conversion failure is logged and counted; the export finishes so the log is complete, but reports !ok.
+void Fail(ExportContext& ctx, const std::string& message) {
+    SPDLOG_ERROR("[Unbound export] {}", message);
+    ctx.report.failures++;
+}
+
 struct SceneRefs {
     std::string collisionPath; // base-archive path of the SetCollisionHeader target
     std::vector<std::string> roomFiles;
@@ -236,6 +242,13 @@ std::string Leaf(const std::string& path) {
 std::string Hex(uint32_t v) {
     char buf[16];
     snprintf(buf, sizeof(buf), "0x%X", v);
+    return buf;
+}
+
+// Message ids as SPEC.md §5 writes them: "0x0F12".
+std::string MessageKey(uint16_t id) {
+    char buf[8];
+    snprintf(buf, sizeof(buf), "0x%04X", id);
     return buf;
 }
 
@@ -287,7 +300,7 @@ void PutF32(std::vector<uint8_t>& out, float v) {
     PutU32(out, bits);
 }
 
-// collision.bin v2 (scene-format.md §2.3): f32 vertices, 28-byte polys with f32 dist. v1 stays readable.
+// collision.bin v2 (SPEC.md §4.4.1): f32 vertices, 28-byte polys with f32 dist. v1 stays readable.
 std::vector<uint8_t> BuildCollisionBin(const SOH::CollisionHeader& col) {
     std::vector<uint8_t> bin;
     const auto& d = col.collisionHeaderData;
@@ -388,7 +401,7 @@ std::string ConvertCollision(ExportContext& ctx, const std::string& basePath, co
     }
     auto col = LoadAs<SOH::CollisionHeader>(basePath);
     if (col == nullptr) {
-        SPDLOG_ERROR("[Unbound export] collision {} failed to load", basePath);
+        Fail(ctx, "collision " + basePath + " failed to load");
         return "";
     }
     std::string binPath = sceneDir + "/collision.bin";
@@ -410,7 +423,7 @@ std::string ConvertPaths(ExportContext& ctx, const std::string& basePath, const 
     }
     auto res = LoadAs<SOH::Path>(basePath);
     if (res == nullptr) {
-        SPDLOG_ERROR("[Unbound export] path {} failed to load", basePath);
+        Fail(ctx, "path " + basePath + " failed to load");
         return "";
     }
     json doc;
@@ -520,7 +533,7 @@ json LightJson(const SOH::LightInfo& l) {
     return j;
 }
 
-// Positional list (scene-format.md §2): "0", "1", ... in engine order.
+// Positional list (SPEC.md §2): "0", "1", ... in engine order.
 template <typename T, typename F> json PositionalList(const std::vector<T>& items, F toJson) {
     json list = json::object();
     for (size_t i = 0; i < items.size(); i++) {
@@ -759,7 +772,7 @@ json BuildSetups(ExportContext& ctx, SOH::Scene& primary, const std::string& sce
 bool ConvertRoom(ExportContext& ctx, const std::string& basePath, const std::string& sceneDir, size_t roomIndex) {
     auto room = LoadAs<SOH::Scene>(basePath);
     if (room == nullptr) {
-        SPDLOG_ERROR("[Unbound export] room {} failed to load", basePath);
+        Fail(ctx, "room " + basePath + " failed to load");
         return false;
     }
     json doc;
@@ -775,7 +788,7 @@ bool ConvertRoom(ExportContext& ctx, const std::string& basePath, const std::str
 bool ConvertScene(ExportContext& ctx, const std::string& basePath, const std::string& sceneDir) {
     auto scene = LoadAs<SOH::Scene>(basePath);
     if (scene == nullptr) {
-        SPDLOG_ERROR("[Unbound export] scene {} failed to load", basePath);
+        Fail(ctx, "scene " + basePath + " failed to load");
         return false;
     }
     json doc;
@@ -784,13 +797,19 @@ bool ConvertScene(ExportContext& ctx, const std::string& basePath, const std::st
     json setups = BuildSetups(ctx, *scene, sceneDir, refs);
 
     if (!refs.collisionPath.empty()) {
-        doc[K::kCollision] = ConvertCollision(ctx, refs.collisionPath, sceneDir);
+        std::string collision = ConvertCollision(ctx, refs.collisionPath, sceneDir);
+        if (!collision.empty()) {
+            doc[K::kCollision] = collision; // absent = no collision (SPEC.md §4.2), never ""
+        }
     }
+    // rooms is positional (SPEC.md §2): one failed room would leave a hole, so the scene is not written at all.
     json rooms = json::object();
     for (size_t i = 0; i < refs.roomFiles.size(); i++) {
-        if (ConvertRoom(ctx, refs.roomFiles[i], sceneDir, i)) {
-            rooms[Key(i)] = sceneDir + "/rooms/" + Key(i) + ".json";
+        if (!ConvertRoom(ctx, refs.roomFiles[i], sceneDir, i)) {
+            Fail(ctx, "scene " + basePath + " not written: room " + std::to_string(i) + " failed");
+            return false;
         }
+        rooms[Key(i)] = sceneDir + "/rooms/" + Key(i) + ".json";
     }
     doc[K::kRooms] = rooms;
     doc[K::kSetups] = setups;
@@ -882,9 +901,9 @@ void ConvertMessages(ExportContext& ctx) {
                 if (m.id == 0xFFFF) {
                     continue;
                 }
-                messages[Hex(m.id)] = { { K::kBox, m.textboxType },
-                                        { K::kYPos, m.textboxYPos },
-                                        { K::kText, BytesToJsonText(m.msg) } };
+                messages[MessageKey(m.id)] = { { K::kBox, m.textboxType },
+                                               { K::kYPos, m.textboxYPos },
+                                               { K::kText, BytesToJsonText(m.msg) } };
                 ctx.report.messages++;
             }
             doc[K::kMessages] = messages;
@@ -948,6 +967,7 @@ void WriteManifest(ExportContext& ctx) {
     source[K::kConverter] = std::string("soh ") + gBuildVersion;
     doc[K::kSourceInfo] = source;
     doc[K::kFeatures] = json::array({ "scenes", K::kCollision, K::kText, K::kPaths });
+    doc[K::kRequires] = json::object({ { K::kFormatVersion, K::kCurrentFormatVersion } });
     ctx.zip.Add(K::kManifestPath, doc.dump(2));
 }
 
@@ -975,9 +995,14 @@ ExportReport ExportArchive(const std::string& outPath) {
         ctx.report.error = "failed to finish writing " + outPath + ": " + ctx.zip.Error();
         return ctx.report;
     }
+    SPDLOG_INFO("[Unbound export] done: {} scenes, {} rooms, {} messages, {} files copied, {} entries, {} failure(s)",
+                ctx.report.scenes, ctx.report.rooms, ctx.report.messages, ctx.report.copied, ctx.zip.Count(),
+                ctx.report.failures);
+    if (ctx.report.failures > 0) {
+        ctx.report.error = std::to_string(ctx.report.failures) + " resource(s) failed to convert; see the log";
+        return ctx.report;
+    }
     ctx.report.ok = true;
-    SPDLOG_INFO("[Unbound export] done: {} scenes, {} rooms, {} messages, {} files copied, {} entries",
-                ctx.report.scenes, ctx.report.rooms, ctx.report.messages, ctx.report.copied, ctx.zip.Count());
     return ctx.report;
 }
 

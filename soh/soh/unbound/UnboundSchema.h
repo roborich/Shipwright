@@ -1,7 +1,7 @@
 #pragma once
 // SOH [Unbound] Key names and "$schema" ids of the JSON scene format, spelled out once for the loader factories
-// (soh/soh/unbound/) and the exporter (soh/soh/unbound/). The spec is
-// unbound-docs/scene-format.md; a key that is not listed here is not part of the format.
+// and the exporter (both in soh/soh/unbound/). The spec is unbound-docs/SPEC.md; a key that is not listed
+// here is not part of the format. Section numbers below refer to it.
 
 namespace SOH::Unbound::Schema {
 
@@ -22,13 +22,13 @@ inline constexpr const char* kSchema = "$schema";
 inline constexpr const char* kOrder = "$order";
 inline constexpr const char* kReplace = "$replace";
 
-// Document top level (§2.1, §2.2)
+// Document top level (§4.2, §4.3)
 inline constexpr const char* kSetups = "setups";
 inline constexpr const char* kRooms = "rooms";
 inline constexpr const char* kCollision = "collision";
 inline constexpr const char* kOrigin = "origin";
 
-// Setup keys, one per scene command (§2.1, §2.2)
+// Setup keys, one per scene command (§4.2, §4.3)
 inline constexpr const char* kSpecialObjects = "specialObjects";
 inline constexpr const char* kSkybox = "skybox";
 inline constexpr const char* kSound = "sound";
@@ -88,7 +88,7 @@ inline constexpr const char* kVertical = "vertical";
 inline constexpr const char* kSouth = "south";
 inline constexpr const char* kSpeed = "speed";
 
-// Lighting entry (§2.1; world-unit fog in extent.md)
+// Lighting entry (§4.2)
 inline constexpr const char* kAmbient = "ambient";
 inline constexpr const char* kLight1Dir = "light1Dir";
 inline constexpr const char* kLight1Color = "light1Color";
@@ -103,7 +103,7 @@ inline constexpr const char* kDrawDistance = "drawDistance";
 inline constexpr const char* kNearPlane = "nearPlane";
 inline constexpr const char* kFogBlendRate = "fogBlendRate";
 
-// Mesh (§2.2)
+// Mesh (§4.3)
 inline constexpr const char* kEntries = "entries";
 inline constexpr const char* kOpa = "opa";
 inline constexpr const char* kXlu = "xlu";
@@ -121,7 +121,7 @@ inline constexpr const char* kTlutCount = "tlutCount";
 inline constexpr const char* kUnk00 = "unk00";
 inline constexpr const char* kUnk0C = "unk0C";
 
-// Collision (§2.3)
+// Collision (§4.4)
 inline constexpr const char* kBounds = "bounds";
 inline constexpr const char* kMin = "min";
 inline constexpr const char* kMax = "max";
@@ -161,10 +161,10 @@ inline constexpr const char* kXLength = "xLength";
 inline constexpr const char* kZLength = "zLength";
 inline constexpr const char* kProperties = "properties"; // legacy packed form
 
-// Paths (§2.4)
+// Paths (§4.5)
 inline constexpr const char* kPoints = "points";
 
-// Text (text.md): text/<lang>/messages.json
+// Text (§5): text/<lang>/messages.json
 inline constexpr const char* kMessagesPathPrefix = "text/";
 inline constexpr const char* kMessagesPathSuffix = "/messages.json";
 inline constexpr const char* kMessages = "messages";
@@ -172,7 +172,7 @@ inline constexpr const char* kBox = "box";
 inline constexpr const char* kYPos = "ypos";
 inline constexpr const char* kText = "text";
 
-// Scene registry (registries.md): unbound/scenes.json
+// Scene registry (§7): unbound/scenes.json
 inline constexpr const char* kRegistryPath = "unbound/scenes.json";
 inline constexpr const char* kName = "name";
 inline constexpr const char* kScene = "scene";
@@ -186,7 +186,7 @@ inline constexpr const char* kEndTransition = "endTransition";
 inline constexpr const char* kStartTransition = "startTransition";
 inline constexpr const char* kLayers = "layers";
 
-// Manifest (§1)
+// Manifest (§6)
 inline constexpr const char* kManifestPath = "unbound.json";
 inline constexpr const char* kFormatName = "format";
 inline constexpr const char* kFormatVersion = "formatVersion";

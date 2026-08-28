@@ -1,10 +1,11 @@
-// SOH [Unbound] collision.json + collision.bin -> SOH::CollisionHeader. See unbound-docs/scene-format.md §2.3.
+// SOH [Unbound] collision.json + collision.bin -> SOH::CollisionHeader. See unbound-docs/SPEC.md §4.4.
 #include "UnboundFactories.h"
 #include "UnboundJson.h"
 #include "UnboundSchema.h"
 
 #include <spdlog/spdlog.h>
 #include <ship/utils/binarytools/BinaryReader.h>
+#include <cstdint>
 
 #include "soh/resource/type/CollisionHeader.h"
 
@@ -16,7 +17,7 @@ namespace K = SOH::Unbound::Schema;
 namespace SOH {
 namespace {
 
-// collision.bin layouts (scene-format.md §2.3): little-endian, vertices then polys, no header.
+// collision.bin layouts (SPEC.md §4.4.1): little-endian, vertices then polys, no header.
 //   v1: vertex { s16 x, y, z } (6 B), block padded to 4;
 //       poly { u16 type, u32 vA, vB, vC, s16 nx, ny, nz, s16 dist, s16 pad } (24 B)
 //   v2: vertex { f32 x, y, z } (12 B);
@@ -67,14 +68,14 @@ CollisionPoly ReadPoly(Ship::BinaryReader& r, int version) {
 }
 
 bool ReadBulk(CollisionHeader& col, const Json& bulk, int version, const std::string& docPath) {
-    std::string binPath = bulk.value(K::kFile, "");
+    std::string binPath = Unbound::PathField(bulk, K::kFile);
     std::vector<char> bytes = Unbound::LoadBulk(binPath);
     if (bytes.empty()) {
         SPDLOG_ERROR("[Unbound] {}: bulk file {} missing", docPath, binPath);
         return false;
     }
-    uint32_t numVertices = (uint32_t)ToInt(bulk.value(K::kVertices, 0));
-    uint32_t numPolys = (uint32_t)ToInt(bulk.value(K::kPolys, 0));
+    uint32_t numVertices = (uint32_t)Unbound::Field(bulk, K::kVertices);
+    uint32_t numPolys = (uint32_t)Unbound::Field(bulk, K::kPolys);
     if (bytes.size() < BulkSize(version, numVertices, numPolys)) {
         SPDLOG_ERROR("[Unbound] {}: bulk file {} is shorter than its declared counts", docPath, binPath);
         return false;
@@ -139,7 +140,7 @@ void ReadSurfaceTypes(CollisionHeader& col, const Json& list, const std::string&
 }
 
 void ReadCameras(CollisionHeader& col, const Json& cameras, const Json& positions, const std::string& docPath) {
-    // Camera positions stay s16: CamData packs them into Vec3s (README, "Known remaining limits").
+    // Camera positions stay s16: CamData packs them into Vec3s (SPEC.md §9).
     for (const auto& k : PositionalKeys(positions, docPath + " " + K::kCameraPositions)) {
         col.camPosData.push_back(Unbound::ReadVec3s(positions[k]));
     }
@@ -149,8 +150,8 @@ void ReadCameras(CollisionHeader& col, const Json& cameras, const Json& position
     for (const auto& k : PositionalKeys(cameras, docPath + " " + K::kCameras)) {
         const Json& c = cameras[k];
         CamData cam{};
-        cam.cameraSType = (u16)ToInt(c.value(K::kSType, Json(0)));
-        cam.numCameras = (s16)ToInt(c.value(K::kCount, Json(0)));
+        cam.cameraSType = (u16)Unbound::Field(c, K::kSType);
+        cam.numCameras = (s16)Unbound::Field(c, K::kCount);
         int32_t idx = c.contains(K::kPositionIndex) && !c[K::kPositionIndex].is_null()
                           ? (int32_t)ToInt(c[K::kPositionIndex])
                           : -1;
@@ -194,8 +195,45 @@ void ReadWaterBoxes(CollisionHeader& col, const Json& list, const std::string& d
     if (legacy) {
         SPDLOG_WARN("[Unbound] {}: legacy packed water box properties; re-export the archive", docPath);
     }
+    if (col.waterBoxes.size() > UINT16_MAX) { // CollisionHeader.numWaterBoxes is a u16 (SPEC.md §9)
+        throw Unbound::DocumentError(docPath + ": " + std::to_string(col.waterBoxes.size()) + " water boxes; at most " +
+                                     std::to_string(UINT16_MAX));
+    }
     col.collisionHeaderData.numWaterBoxes = (u16)col.waterBoxes.size();
     col.collisionHeaderData.waterBoxes = col.waterBoxes.data();
+}
+
+// "$schema" selects the collision.bin layout: unbound/collision/1 or /2; missing = 1 (SPEC.md §4.4.1).
+bool ReadCollisionVersion(const Json& doc, const std::string& docPath, int& version) {
+    std::string schema = Unbound::SchemaOf(doc);
+    std::string type;
+    bool parsed = Unbound::ParseSchema(schema, type, version);
+    bool known = parsed && (type.empty() || type == K::kCollisionType) && (version == 1 || version == 2);
+    if (!known) {
+        SPDLOG_ERROR("[Unbound] {}: unsupported $schema '{}' (this build reads {}/1 and /2)", docPath, schema,
+                     K::kCollisionType);
+    }
+    return known;
+}
+
+std::shared_ptr<CollisionHeader> ReadCollisionDocument(const Json& doc,
+                                                       std::shared_ptr<Ship::ResourceInitData> initData) {
+    auto col = std::make_shared<CollisionHeader>(initData);
+    const Json& bounds = Unbound::Sub(doc, K::kBounds);
+    col->collisionHeaderData.minBounds = Unbound::ReadVec3f(Unbound::SubArray(bounds, K::kMin));
+    col->collisionHeaderData.maxBounds = Unbound::ReadVec3f(Unbound::SubArray(bounds, K::kMax));
+
+    int version = 1;
+    if (!ReadCollisionVersion(doc, initData->Path, version)) {
+        return nullptr;
+    }
+    if (!ReadBulk(*col, Unbound::Sub(doc, K::kBulk), version, initData->Path)) {
+        return nullptr;
+    }
+    ReadSurfaceTypes(*col, Unbound::Sub(doc, K::kSurfaceTypes), initData->Path);
+    ReadCameras(*col, Unbound::Sub(doc, K::kCameras), Unbound::Sub(doc, K::kCameraPositions), initData->Path);
+    ReadWaterBoxes(*col, Unbound::Sub(doc, K::kWaterBoxes), initData->Path);
+    return col;
 }
 
 } // namespace
@@ -212,37 +250,12 @@ ResourceFactoryJsonCollisionHeaderV1::ReadResource(std::shared_ptr<Ship::File> f
         return nullptr;
     }
 
-    auto col = std::make_shared<CollisionHeader>(initData);
-    const Json& bounds = doc.value(K::kBounds, Json::object());
-    col->collisionHeaderData.minBounds = Unbound::ReadVec3f(bounds.value(K::kMin, Json::array()));
-    col->collisionHeaderData.maxBounds = Unbound::ReadVec3f(bounds.value(K::kMax, Json::array()));
-
-    // K::kSchema: "unbound/collision/<n>" selects the collision.bin layout; missing = v1.
-    int version = 1;
-    std::string schema = doc.value(K::kSchema, "");
-    if (auto slash = schema.rfind('/'); slash != std::string::npos) {
-        try {
-            version = std::stoi(schema.substr(slash + 1));
-        } catch (...) { version = 1; }
-    }
-    if (version != 1 && version != 2) {
-        SPDLOG_ERROR("[Unbound] {}: unsupported $schema '{}' (this build reads unbound/collision/1 and /2)",
-                     initData->Path, schema);
-        return nullptr;
-    }
-    if (!ReadBulk(*col, doc.value(K::kBulk, Json::object()), version, initData->Path)) {
-        return nullptr;
-    }
     try {
-        ReadSurfaceTypes(*col, doc.value(K::kSurfaceTypes, Json::object()), initData->Path);
-        ReadCameras(*col, doc.value(K::kCameras, Json::object()), doc.value(K::kCameraPositions, Json::object()),
-                    initData->Path);
-        ReadWaterBoxes(*col, doc.value(K::kWaterBoxes, Json::object()), initData->Path);
-    } catch (const Unbound::DocumentError& e) { // a hole in an indexed list (scene-format.md §3)
+        return ReadCollisionDocument(doc, initData);
+    } catch (const Unbound::DocumentError& e) { // a hole in an indexed list, a bad count (SPEC.md §3)
         SPDLOG_ERROR("[Unbound] {}", e.what());
-        return nullptr;
-    }
-    return col;
+    } catch (const std::exception& e) { SPDLOG_ERROR("[Unbound] {}: {}", initData->Path, e.what()); }
+    return nullptr;
 }
 
 } // namespace SOH

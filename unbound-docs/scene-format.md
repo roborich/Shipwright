@@ -56,9 +56,11 @@ are portable either way; only bulk references inherit the source's naming.
   are untouched. Alternate setups become child `Scene` objects under a leading
   `SetAlternateHeaders`, exactly as the binary command produces; every setup gets the top-level
   room list / collision injected.
-- Failure policy: `Unbound::DocumentError` is thrown by `PositionalKeys` (hole) and `ResolveExit`
-  (unknown entrance name) and caught in each factory's `ReadResource`, which returns null so the
-  resource fails to load with one logged line. Missing scalar keys default (SPEC §2); a bad
+- Failure policy: `Unbound::DocumentError` is thrown by `PositionalKeys` (hole, or `$order` on a
+  positional list), `ResolveExit` (unknown entrance name) and the mesh/light readers (unknown
+  `type`, mesh `format` not 1 or 2, more than 255 images) and caught in each factory's
+  `ReadResource`, which returns null so the resource fails to load with one logged line. Every
+  other exception is caught there too, so a malformed document can never take the process down. Missing scalar keys default (SPEC §2); a bad
   sub-resource path (collision, cutscene, pathway, room) is logged and skipped.
 - Exit names are resolved through `EntranceDB_RetrieveIndex`, which works because the registry
   (`SceneDB::LoadCustomScenes`, SPEC §7) is populated from `UpdateModFiles(init)` before any scene
@@ -121,6 +123,7 @@ Per-limit checks (from the lifts in `counts.md`, `collision.md`, `extent.md`):
 
 Converter (§3 items 1–3) and the merging loader (§2) are implemented and boot-verified.
 `oot-unbound.o2r` beside `oot.o2r` is mounted above it; `SceneDB` resolves vanilla scenes to
-`scenes/<name>[_mq]/scene.json` whenever an `unbound.json` is mounted.
+`scenes/<name>[_mq]/scene.json` whenever a mounted `unbound.json` lists `"scenes"` in its
+`features` (SPEC §1.3).
 
 Not yet: legacy-mod conversion (§3.4).

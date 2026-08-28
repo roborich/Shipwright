@@ -1,4 +1,4 @@
-// SOH [Unbound] scene.json / rooms/<n>.json -> SOH::Scene. See unbound-docs/scene-format.md §2, §4.
+// SOH [Unbound] scene.json / rooms/<n>.json -> SOH::Scene. Format: unbound-docs/SPEC.md §4.2, §4.3.
 //
 // BuildScene(doc)
 //   -> for each setup: BuildSetupCommands (one SetXxx builder per key, in the vanilla execution order)
@@ -12,6 +12,8 @@
 
 #include <libultraship/libultraship.h>
 #include <spdlog/spdlog.h>
+#include <cmath>
+#include <limits>
 
 #include "z64environment.h"
 #include "soh/resource/type/CollisionHeader.h"
@@ -52,6 +54,7 @@ using SOH::Unbound::PositionalKeys;
 using SOH::Unbound::ReadRgb;
 using SOH::Unbound::ReadVec3f;
 using SOH::Unbound::ReadVec3s;
+using SOH::Unbound::Sub;
 using SOH::Unbound::ToInt;
 namespace K = SOH::Unbound::Schema;
 
@@ -80,12 +83,6 @@ struct CommandBuilder {
 
 std::shared_ptr<Ship::IResource> LoadSub(const std::string& path) {
     return Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(path.c_str());
-}
-
-const Json& Sub(const Json& obj, const char* key) {
-    static const Json empty = Json::object();
-    auto it = obj.find(key);
-    return it == obj.end() ? empty : *it;
 }
 
 ActorEntry ReadActor(const Json& a) {
@@ -224,8 +221,7 @@ Command BuildPathways(CommandBuilder& b, const Json& files) {
             SPDLOG_ERROR("[Unbound] {}: pathway {} failed to load", b.docPath, p.get<std::string>());
             continue;
         }
-        cmd->paths.push_back(path->GetPointer());
-        cmd->pathFileNames.push_back(p.get<std::string>());
+        cmd->AddPathResource(path, p.get<std::string>()); // SPEC.md §4.2: documents concatenate in order
     }
     cmd->numPaths = (uint32_t)cmd->paths.size();
     return cmd;
@@ -311,9 +307,13 @@ Command BuildObjectList(CommandBuilder& b, const Json& list) {
     return cmd;
 }
 
-LightInfo ReadLight(const Json& l) {
+LightInfo ReadLight(const CommandBuilder& b, const Json& l) {
     LightInfo info{};
-    info.type = (u8)Field(l, K::kType);
+    int64_t type = Field(l, K::kType);
+    if (type < 0 || type > 2) { // SPEC.md §4.3: the engine binds by type; anything else is rejected
+        throw Unbound::DocumentError(b.docPath + ": light type " + std::to_string(type) + " is not 0, 1 or 2");
+    }
+    info.type = (u8)type;
     if (info.type == 1) { // LIGHT_DIRECTIONAL
         Vec3s dir = ReadVec3s(Sub(l, K::kDir));
         info.params.dir.x = (s8)dir.x;
@@ -335,16 +335,26 @@ LightInfo ReadLight(const Json& l) {
 Command BuildLightList(CommandBuilder& b, const Json& list) {
     auto cmd = b.Make<SetLightList>(SceneCommandID::SetLightList);
     for (const auto& k : b.Positional(list, K::kLights)) {
-        cmd->lightList.push_back(ReadLight(list[k]));
+        cmd->lightList.push_back(ReadLight(b, list[k]));
     }
     cmd->numLights = (uint32_t)cmd->lightList.size();
     return cmd;
 }
 
-// SOH [Unbound] world-unit fog / draw distance (extent.md). Any of fogStart / fogEnd / drawDistance switches
-// the entry to world mode; the others take sensible defaults so a mod can set just "drawDistance".
+// A key counts as present only when it holds a number (SPEC.md §2: a wrong type is a missing key).
+bool HasNumber(const Json& obj, const char* key) {
+    auto it = obj.find(key);
+    if (it == obj.end()) {
+        return false;
+    }
+    const double sentinel = std::numeric_limits<double>::quiet_NaN();
+    return !std::isnan(SOH::Unbound::ToNumber(*it, sentinel));
+}
+
+// SOH [Unbound] world-unit fog / draw distance (SPEC.md §4.2 lighting entry). Any of fogStart / fogEnd /
+// drawDistance switches the entry to world mode; the others take defaults so a mod can set just "drawDistance".
 void ReadWorldFog(const Json& s, EnvLightSettings& e) {
-    if (!s.contains(K::kFogStart) && !s.contains(K::kFogEnd) && !s.contains(K::kDrawDistance)) {
+    if (!HasNumber(s, K::kFogStart) && !HasNumber(s, K::kFogEnd) && !HasNumber(s, K::kDrawDistance)) {
         return;
     }
     e.worldFog = 1;
@@ -446,13 +456,21 @@ BgImage ReadBgImage(SetMesh& cmd, const Json& img) {
 // type 1: a pre-rendered background ("image" for format 1, positional "images" for format 2) plus one dlist
 void ReadMeshBackground(CommandBuilder& b, SetMesh& cmd, const Json& m) {
     auto& p1 = cmd.meshHeader.polygon1;
-    p1.format = (u8)Field(m, K::kFormat, 1);
+    int64_t format = Field(m, K::kFormat, 1);
+    if (format != 1 && format != 2) { // SPEC.md §4.3: the draw handler knows only these two
+        throw Unbound::DocumentError(b.docPath + ": mesh format " + std::to_string(format) + " is not 1 or 2");
+    }
+    p1.format = (u8)format;
     if (p1.format == 1) {
         cmd.imagePaths.reserve(1);
         cmd.SetSingleImage(ReadBgImage(cmd, Sub(m, K::kImage)));
     } else {
         const Json& images = Sub(m, K::kImages);
         auto keys = b.Positional(images, K::kImages);
+        if (keys.size() > 255) { // SPEC.md §4.3 / §9: the image count is a byte
+            throw Unbound::DocumentError(b.docPath + ": mesh has " + std::to_string(keys.size()) +
+                                         " images (at most 255)");
+        }
         cmd.imagePaths.reserve(keys.size());
         cmd.images.reserve(keys.size());
         for (const auto& k : keys) {
@@ -472,17 +490,17 @@ void ReadMeshBackground(CommandBuilder& b, SetMesh& cmd, const Json& m) {
 
 Command BuildMesh(CommandBuilder& b, const Json& m, const Vec3f& origin) {
     auto cmd = b.Make<SetMesh>(SceneCommandID::SetMesh);
-    uint8_t type = (uint8_t)Field(m, K::kType);
+    int64_t type = Field(m, K::kType);
     cmd->data = 0;
-    cmd->meshHeaderType = type;
-    cmd->meshHeader.base.type = type;
+    cmd->meshHeaderType = (uint8_t)type;
+    cmd->meshHeader.base.type = (uint8_t)type;
     cmd->origin = origin;
     if (type == 0 || type == 2) {
-        ReadMeshDlists(b, *cmd, Sub(m, K::kEntries), type);
+        ReadMeshDlists(b, *cmd, Sub(m, K::kEntries), (uint8_t)type);
     } else if (type == 1) {
         ReadMeshBackground(b, *cmd, m);
-    } else {
-        SPDLOG_ERROR("[Unbound] {}: unknown mesh type {}", b.docPath, type);
+    } else { // SPEC.md §4.3: the draw handler table has three entries
+        throw Unbound::DocumentError(b.docPath + ": mesh type " + std::to_string(type) + " is not 0, 1 or 2");
     }
     return cmd;
 }
@@ -600,6 +618,9 @@ ResourceFactoryJsonSceneV1::ReadResource(std::shared_ptr<Ship::File> file,
         scene = BuildScene(initData, doc);
     } catch (const Unbound::DocumentError& e) {
         SPDLOG_ERROR("[Unbound] {}", e.what());
+        return nullptr;
+    } catch (const std::exception& e) { // a JSON value of an unexpected shape must not take the process down
+        SPDLOG_ERROR("[Unbound] {}: {}", initData->Path, e.what());
         return nullptr;
     }
     if (scene != nullptr) {

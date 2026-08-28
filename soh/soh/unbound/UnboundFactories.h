@@ -1,5 +1,5 @@
 #pragma once
-// SOH [Unbound] Resource factories for the JSON scene format (unbound-docs/scene-format.md §4).
+// SOH [Unbound] Resource factories for the JSON scene format (unbound-docs/SPEC.md §4).
 // Each reads its document merged across every mounted archive and builds the same in-memory
 // resource the binary/XML factories build, so nothing downstream changes. They register under the
 // existing SOH resource types (Room, CollisionHeader, Path) with RESOURCE_FORMAT_JSON and the

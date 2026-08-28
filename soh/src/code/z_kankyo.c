@@ -1841,7 +1841,8 @@ void Environment_DrawRain(PlayState* play, View* view, GraphicsContext* gfxCtx) 
 
 void func_80074CE8(PlayState* play, u32 arg1) {
     if ((play->envCtx.unk_BD != arg1) && (play->envCtx.unk_D8 >= 1.0f) && (play->envCtx.unk_BF == 0xFF)) {
-        if (arg1 > 30) {
+        // SOH [Unbound] The setting list is no longer capped at 31 entries; bound by the scene's count instead.
+        if (arg1 >= play->envCtx.numLightSettings) {
             arg1 = 0;
         }
 

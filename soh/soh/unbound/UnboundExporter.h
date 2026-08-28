@@ -1,12 +1,13 @@
 #pragma once
 // SOH [Unbound] Converts the mounted vanilla archive into the Unbound layout.
-// See unbound-docs/scene-format.md §5.
+// Output format: unbound-docs/SPEC.md; how/why: unbound-docs/scene-format.md §3.
 #include <string>
 
 namespace SOH::Unbound {
 
 struct ExportReport {
     bool ok = false;
+    size_t failures = 0; // resources that failed to convert (the archive is still written)
     size_t scenes = 0;
     size_t rooms = 0;
     size_t copied = 0;

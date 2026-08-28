@@ -46,8 +46,11 @@ Mirrors the existing `ActorDB` pattern: the X-macro tables are kept **only as se
   `Unbound::LoadMergedJson` after all mod archives are mounted (`UpdateModFiles(init)` in
   `mod_menu.cpp`), so a mod can add a scene, patch another mod's entrance, or delete one with the
   same merge rules as every other document. Each entry is registered in its own `try` — one
-  malformed entry is logged and skipped, the rest load. `DetectUnboundBase` parses every layer's
-  `unbound.json` for the version check (SPEC §6).
+  malformed entry is logged and skipped, the rest load; `sceneId`, `drawConfig` and entrance
+  `index` are range-checked before they are narrowed, and a negative explicit id is rejected
+  rather than defaulted. `DetectUnboundBase` parses every layer's `unbound.json` for the version
+  check and treats a layer as a base only when its `features` lists `"scenes"` (SPEC §1.3, §6),
+  so a mod may carry a manifest for `requires.formatVersion` without rerouting vanilla scenes.
 
 `gSceneTable` no longer exists. Its two readers (`OTRPlay_SpawnScene`, randomizer `logic.cpp`)
 use the registry. `PlayState.loadedScene` and `SceneTableEntry` are gone; their only readers

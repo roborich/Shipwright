@@ -3500,10 +3500,11 @@ void Actor_SpawnTransitionActors(PlayState* play, ActorContext* actorCtx) {
                   (transitionActor->sides[1].room == play->roomCtx.prevRoom.num)))) {
                 // SOH [Unbound] The list index travels on Actor.transitionIndex (see TRANSITION_ACTOR_INDEX);
                 // the 6-bit packing into params is kept for the first 64 so untouched readers still work.
+                // Scene data leaves bits 10-15 clear, so masking them is equivalent to vanilla's add.
                 sSpawnTransitionIndex = i;
                 Actor_Spawn(actorCtx, play, (s16)(transitionActor->id & 0x1FFF), transitionActor->pos.x,
                             transitionActor->pos.y, transitionActor->pos.z, 0, transitionActor->rotY, 0,
-                            ((i & 0x3F) << 0xA) + transitionActor->params);
+                            ((i & 0x3F) << 0xA) | (transitionActor->params & 0x3FF));
                 sSpawnTransitionIndex = -1;
 
                 transitionActor->id = -transitionActor->id;

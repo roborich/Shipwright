@@ -32,7 +32,7 @@ namespace SOH {
 
 // SOH [Unbound] The legacy (N64) poly layout packs a 13-bit vertex index and 3 flag bits into
 // each u16. The in-memory CollisionPoly is 32-bit with the flags in bits 29-31; unpack here so
-// every existing archive keeps loading. See unbound-docs/collision.md.
+// every existing archive keeps loading. See unbound-docs/SPEC.md §8 (and collision.md for the why).
 static uint32_t UnpackLegacyVtxWord(uint16_t packed) {
     return (uint32_t)(packed & 0x1FFF) | ((uint32_t)(packed >> 13) << 29);
 }
@@ -79,7 +79,7 @@ ResourceFactoryBinaryCollisionHeaderV0::ReadResource(std::shared_ptr<Ship::File>
 
         polygon.flags_vIA = UnpackLegacyVtxWord(reader->ReadUInt16());
         polygon.flags_vIB = UnpackLegacyVtxWord(reader->ReadUInt16());
-        polygon.vIC = reader->ReadUInt16();
+        polygon.vIC = UnpackLegacyVtxWord(reader->ReadUInt16());
 
         polygon.normal.x = reader->ReadUInt16();
         polygon.normal.y = reader->ReadUInt16();
@@ -210,7 +210,9 @@ ResourceFactoryXMLCollisionHeaderV0::ReadResource(std::shared_ptr<Ship::File> fi
                 polygon.flags_vIA = UnpackLegacyVtxWord((uint16_t)child->UnsignedAttribute("VertexA"));
                 polygon.flags_vIB = UnpackLegacyVtxWord((uint16_t)child->UnsignedAttribute("VertexB"));
             }
-            polygon.vIC = child->UnsignedAttribute("VertexC");
+            polygon.vIC = child->FindAttribute("XpFlags") != nullptr || child->FindAttribute("Conveyor") != nullptr
+                              ? child->UnsignedAttribute("VertexC")
+                              : UnpackLegacyVtxWord((uint16_t)child->UnsignedAttribute("VertexC"));
 
             polygon.normal.x = child->IntAttribute("NormalX");
             polygon.normal.y = child->IntAttribute("NormalY");

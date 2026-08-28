@@ -1,6 +1,6 @@
 #pragma once
 // SOH [Unbound] Layer-merged JSON documents and the shared readers of the Unbound schema.
-// Merge rules: unbound-docs/scene-format.md §3. Key names: UnboundSchema.h.
+// Merge rules: unbound-docs/SPEC.md §3. Key names: UnboundSchema.h.
 #include <nlohmann/json.hpp>
 #include <stdexcept>
 #include <string>
@@ -13,7 +13,7 @@ namespace SOH::Unbound {
 
 using Json = nlohmann::json;
 
-// A document that violates the format (scene-format.md §3): factories catch it and fail the resource.
+// A document that violates the format (SPEC.md §3): factories catch it and fail the resource.
 struct DocumentError : std::runtime_error {
     using std::runtime_error::runtime_error;
 };
@@ -23,17 +23,30 @@ struct DocumentError : std::runtime_error {
 void MergeJson(Json& base, const Json& overlay);
 
 // Loads `path` from every mounted archive (lowest first), merges them and strips the merge
-// directives. Returns a null Json when no archive has the path or nothing parses.
+// directives and every null (a null is a deletion, also in a single layer, §3.2). Returns a null
+// Json when no archive has the path or nothing parses.
 Json LoadMergedJson(const std::string& path);
 
-// Keys of a keyed/positional list in engine order: "$order" first (those that exist), then the
-// remaining keys with integer keys ascending numerically before non-integer keys lexically.
-// "$order" and "$replace" are never returned.
+// Keys of a keyed/positional list in engine order: "$order" first (those that exist, each once),
+// then the remaining keys with integer keys ascending numerically before non-integer keys
+// lexically. Keys beginning with "$" are reserved (§2) and never returned.
 std::vector<std::string> ListKeys(const Json& obj);
 
 // Keys "0", "1", ... of a positional list. The engine addresses these by index, so a gap is a
-// DocumentError naming `what` (§3.2).
+// DocumentError naming `what` (§3.2); so is "$order" on the list (§3.5).
 std::vector<std::string> PositionalKeys(const Json& list, const std::string& what);
+
+// The nested object / array under `key`, or a static empty one when absent or of another type, so
+// callers never index a non-object (nlohmann's value() throws there).
+const Json& Sub(const Json& obj, const char* key);
+const Json& SubArray(const Json& obj, const char* key);
+
+// The top-level "$schema" string, or "" when absent or not a string.
+std::string SchemaOf(const Json& doc);
+
+// Splits "<type>/<n>" into its type half and decimal version; false when the suffix is not a
+// plain decimal integer. A missing "$schema" ("") yields `type` empty and version 1 (§10).
+bool ParseSchema(const std::string& schema, std::string& type, int& version);
 
 // Integer from a JSON number or a hex/decimal string ("0x0F12", "3858").
 // SPEC.md §2 string forms: decimal or 0x hex (ParseIntString), plus fraction/exponent (ParseNumberString);

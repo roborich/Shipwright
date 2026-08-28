@@ -1,5 +1,5 @@
 #pragma once
-// SOH [Unbound] Owned, growable, hash-indexed message tables. See unbound-docs/text.md.
+// SOH [Unbound] Owned, growable, hash-indexed message tables. Format: unbound-docs/SPEC.md §5.
 #include "z64.h"
 #include "message_data_static.h"
 

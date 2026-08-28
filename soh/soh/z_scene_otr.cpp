@@ -25,6 +25,7 @@
 #include "soh/resource/type/scenecommand/SetMesh.h"
 #include "soh/resource/type/scenecommand/SetObjectList.h"
 #include "soh/resource/type/scenecommand/SetLightList.h"
+#include "soh/resource/type/scenecommand/SetLightingSettings.h"
 #include "soh/resource/type/scenecommand/SetPathways.h"
 #include "soh/resource/type/scenecommand/SetTransitionActorList.h"
 #include "soh/resource/type/scenecommand/SetSkyboxSettings.h"
@@ -173,11 +174,11 @@ bool Scene_CommandObjectList(PlayState* play, SOH::ISceneCommand* cmd) {
 
     // Continuing from the last index, add the remaining object ids from the command object list
     for (; k < cmdObj->objects.size(); k++, i++) {
-        if (i < OBJECT_EXCHANGE_BANK_MAX - 1) {
+        if (i < OBJECT_EXCHANGE_BANK_MAX) {
             OTRfunc_800982FC(&play->objectCtx, i, cmdObj->objects[k]);
         } else {
             SPDLOG_ERROR("[Unbound] object list exceeds the bank ({} slots); dropping object {:#x}",
-                         OBJECT_EXCHANGE_BANK_MAX - 1, cmdObj->objects[k]); // SOH [Unbound] was a silent drop
+                         OBJECT_EXCHANGE_BANK_MAX, cmdObj->objects[k]); // SOH [Unbound] was a silent drop
         }
     }
 
@@ -200,7 +201,7 @@ bool Scene_CommandLightList(PlayState* play, SOH::ISceneCommand* cmd) {
 bool Scene_CommandPathList(PlayState* play, SOH::ISceneCommand* cmd) {
     // SOH::SetPathways* cmdPath = static_pointer_cast<SOH::SetPathways>(cmd);
     SOH::SetPathways* cmdPath = (SOH::SetPathways*)cmd;
-    play->setupPathList = (Path*)(cmdPath->GetPointer()[0]);
+    play->setupPathList = (Path*)cmdPath->GetPathList(); // SOH [Unbound] every listed path document, concatenated
 
     return false;
 }
@@ -220,6 +221,9 @@ bool Scene_CommandTransitionActorList(PlayState* play, SOH::ISceneCommand* cmd) 
 //}
 
 bool Scene_CommandLightSettingsList(PlayState* play, SOH::ISceneCommand* cmd) {
+    // SOH [Unbound] Mirror z_scene.c: the count bounds the light-setting index (func_80074CE8).
+    SOH::SetLightingSettings* cmdLight = (SOH::SetLightingSettings*)cmd;
+    play->envCtx.numLightSettings = (u8)cmdLight->settings.size();
     play->envCtx.lightSettingsList = (EnvLightSettings*)cmd->GetRawPointer();
 
     return false;
@@ -344,9 +348,15 @@ bool Scene_CommandAlternateHeaderList(PlayState* play, SOH::ISceneCommand* cmd) 
     // osSyncPrintf("\n[ZU]sceneset time   =[%X]", ((void)0, gSaveContext.cutsceneIndex));
     // osSyncPrintf("\n[ZU]sceneset counter=[%X]", ((void)0, gSaveContext.sceneSetupIndex));
 
+    // SOH [Unbound] A setup index past the last defined header behaves like an empty one (falls back below).
+    auto headerAt = [&](size_t index) -> SOH::Scene* {
+        return index < cmdHeaders->headers.size()
+                   ? std::static_pointer_cast<SOH::Scene>(cmdHeaders->headers[index]).get()
+                   : nullptr;
+    };
+
     if (gSaveContext.sceneSetupIndex != 0) {
-        SOH::Scene* desiredHeader =
-            std::static_pointer_cast<SOH::Scene>(cmdHeaders->headers[gSaveContext.sceneSetupIndex - 1]).get();
+        SOH::Scene* desiredHeader = headerAt(gSaveContext.sceneSetupIndex - 1);
 
         if (desiredHeader != nullptr) {
             OTRScene_ExecuteCommands(play, desiredHeader);
@@ -356,8 +366,7 @@ bool Scene_CommandAlternateHeaderList(PlayState* play, SOH::ISceneCommand* cmd) 
             osSyncPrintf("\nげぼはっ！ 指定されたデータがないでええっす！");
 
             if (gSaveContext.sceneSetupIndex == 3) {
-                SOH::Scene* desiredHeader =
-                    std::static_pointer_cast<SOH::Scene>(cmdHeaders->headers[gSaveContext.sceneSetupIndex - 2]).get();
+                SOH::Scene* desiredHeader = headerAt(gSaveContext.sceneSetupIndex - 2);
 
                 // "Using adult day data there!"
                 osSyncPrintf("\nそこで、大人の昼データを使用するでええっす！！");

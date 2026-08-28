@@ -61,7 +61,9 @@ file explains where each cap came from and what was widened. Overview in
     `Actor.transitionIndex` (set by `Actor_SpawnTransitionActors`) carries it; readers use
     `TRANSITION_ACTOR_INDEX(actor)`, which falls back to the params packing for actors spawned any
     other way (the debugger's actor viewer still packs it that way). `TransitionActorContext.numActors`
-    is u16.
+    is u16, `Actor.transitionIndex` s16 — 32 767 per scene (SPEC §9). The spawn still adds the
+    6-bit packing to `params` for the first 64, so a JSON list must leave bits 10–15 of `params`
+    zero (SPEC §4.2).
   - **Minimap visited bits** (`sceneFlags[].rooms`, `gBitFlags[room]`) are guarded to rooms < 32;
     custom scenes have no minimap yet anyway (SPEC §9).
 

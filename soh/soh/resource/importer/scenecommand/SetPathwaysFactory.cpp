@@ -18,8 +18,7 @@ std::shared_ptr<Ship::IResource> SetPathwaysFactory::ReadResource(std::shared_pt
         std::string pathFileName = reader->ReadString();
         auto path = std::static_pointer_cast<Path>(
             Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(pathFileName.c_str()));
-        setPathways->paths.push_back(path->GetPointer());
-        setPathways->pathFileNames.push_back(pathFileName);
+        setPathways->AddPathResource(path, pathFileName);
     }
 
     if (CVarGetInteger(CVAR_DEVELOPER_TOOLS("ResourceLogging"), 0)) {
@@ -43,8 +42,7 @@ std::shared_ptr<Ship::IResource> SetPathwaysFactoryXML::ReadResource(std::shared
             std::string pathFileName = child->Attribute("FilePath");
             auto path = std::static_pointer_cast<Path>(
                 Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(pathFileName.c_str()));
-            setPathways->paths.push_back(path->GetPointer());
-            setPathways->pathFileNames.push_back(pathFileName);
+            setPathways->AddPathResource(path, pathFileName);
         }
 
         child = child->NextSiblingElement();

@@ -6,6 +6,7 @@
 #include <spdlog/spdlog.h>
 #include <algorithm>
 #include <cerrno>
+#include <cstdint>
 #include <cstdlib>
 
 namespace SOH::Unbound {
@@ -31,14 +32,20 @@ void MergeJson(Json& base, const Json& overlay) {
     }
 }
 
-// "$replace" only steers the merge; the merged document must not carry it (§3.4).
-static void StripReplaceDirectives(Json& doc) {
+// "$replace" only steers the merge (§3.4) and a null is a deletion (§3.2); the merged document
+// carries neither, even when it came from a single layer.
+static void StripDirectives(Json& doc) {
     if (!doc.is_object()) {
         return;
     }
     doc.erase(Schema::kReplace);
-    for (auto& [key, value] : doc.items()) {
-        StripReplaceDirectives(value);
+    for (auto it = doc.begin(); it != doc.end();) {
+        if (it->is_null()) {
+            it = doc.erase(it);
+        } else {
+            StripDirectives(*it);
+            ++it;
+        }
     }
 }
 
@@ -62,7 +69,7 @@ Json LoadMergedJson(const std::string& path) {
             MergeJson(merged, doc);
         }
     }
-    StripReplaceDirectives(merged);
+    StripDirectives(merged);
     return merged;
 }
 
@@ -83,11 +90,18 @@ static std::vector<std::string> OrderedKeys(const Json& obj) {
         return ordered;
     }
     for (const auto& k : *order) {
-        if (k.is_string() && obj.contains(k.get<std::string>())) {
-            ordered.push_back(k.get<std::string>());
+        if (!k.is_string() || !obj.contains(k.get<std::string>())) {
+            continue;
+        }
+        if (std::find(ordered.begin(), ordered.end(), k.get<std::string>()) == ordered.end()) {
+            ordered.push_back(k.get<std::string>()); // a key listed twice counts once
         }
     }
     return ordered;
+}
+
+static bool IsReservedKey(const std::string& key) {
+    return !key.empty() && key[0] == '$';
 }
 
 std::vector<std::string> ListKeys(const Json& obj) {
@@ -97,7 +111,7 @@ std::vector<std::string> ListKeys(const Json& obj) {
     std::vector<std::string> keys = OrderedKeys(obj);
     std::vector<std::pair<bool, std::pair<long long, std::string>>> rest; // (isNotInt, (int, key))
     for (const auto& [key, value] : obj.items()) {
-        if (key == Schema::kOrder || key == Schema::kReplace) {
+        if (IsReservedKey(key)) {
             continue;
         }
         if (std::find(keys.begin(), keys.end(), key) != keys.end()) {
@@ -115,6 +129,9 @@ std::vector<std::string> ListKeys(const Json& obj) {
 }
 
 std::vector<std::string> PositionalKeys(const Json& list, const std::string& what) {
+    if (list.is_object() && list.contains(Schema::kOrder)) {
+        throw DocumentError(what + ": " + Schema::kOrder + " is not allowed on a positional list");
+    }
     std::vector<std::string> keys = ListKeys(list);
     for (size_t i = 0; i < keys.size(); i++) {
         if (keys[i] != std::to_string(i)) {
@@ -125,7 +142,15 @@ std::vector<std::string> PositionalKeys(const Json& list, const std::string& wha
     return keys;
 }
 
-// SPEC.md §2: a numeric string is decimal or "0x" hex, optionally signed, and must be consumed whole.
+// SPEC.md §2: a numeric string is decimal or "0x" hex, optionally signed, and must be consumed whole:
+// one optional sign, an optional 0x prefix, then only digits of the base.
+static bool IsDigitOf(char c, int base) {
+    if (c >= '0' && c <= '9') {
+        return true;
+    }
+    return base == 16 && ((c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'));
+}
+
 bool ParseIntString(const std::string& text, int64_t& out) {
     size_t i = 0;
     bool negative = false;
@@ -141,14 +166,17 @@ bool ParseIntString(const std::string& text, int64_t& out) {
     if (i >= text.size()) {
         return false;
     }
-    size_t consumed = 0;
-    try {
-        out = std::stoll(text.substr(i), &consumed, base);
-    } catch (...) { return false; }
-    if (i + consumed != text.size()) {
+    for (size_t j = i; j < text.size(); j++) {
+        if (!IsDigitOf(text[j], base)) {
+            return false;
+        }
+    }
+    errno = 0;
+    unsigned long long magnitude = std::strtoull(text.c_str() + i, nullptr, base);
+    if (errno == ERANGE || magnitude > (unsigned long long)INT64_MAX) {
         return false;
     }
-    out = negative ? -out : out;
+    out = negative ? -(int64_t)magnitude : (int64_t)magnitude;
     return true;
 }
 
@@ -158,10 +186,14 @@ bool ParseNumberString(const std::string& text, double& out) {
         out = (double)integer;
         return true;
     }
+    // stod tolerates leading whitespace, hex floats, inf and nan; the format allows none of them.
+    if (text.empty() || text.find_first_of(" \t\r\n\f\vxXnNiI") != std::string::npos) {
+        return false;
+    }
     try {
         size_t consumed = 0;
         out = std::stod(text, &consumed); // decimal, fraction, exponent
-        return consumed == text.size() && text.find_first_of("xXnNiI") == std::string::npos;
+        return consumed == text.size();
     } catch (...) { return false; }
 }
 
@@ -206,6 +238,41 @@ double NumberField(const Json& obj, const char* key, double fallback) {
 std::string PathField(const Json& obj, const char* key) {
     auto it = obj.find(key);
     return it != obj.end() && it->is_string() ? it->get<std::string>() : "";
+}
+
+const Json& Sub(const Json& obj, const char* key) {
+    static const Json empty = Json::object();
+    auto it = obj.find(key);
+    return it != obj.end() && it->is_object() ? *it : empty;
+}
+
+const Json& SubArray(const Json& obj, const char* key) {
+    static const Json empty = Json::array();
+    auto it = obj.find(key);
+    return it != obj.end() && it->is_array() ? *it : empty;
+}
+
+std::string SchemaOf(const Json& doc) {
+    return PathField(doc, Schema::kSchema);
+}
+
+bool ParseSchema(const std::string& schema, std::string& type, int& version) {
+    type.clear();
+    version = 1;
+    if (schema.empty()) {
+        return true;
+    }
+    size_t slash = schema.rfind('/');
+    if (slash == std::string::npos) {
+        return false;
+    }
+    type = schema.substr(0, slash);
+    std::string suffix = schema.substr(slash + 1);
+    if (suffix.empty() || suffix.find_first_not_of("0123456789") != std::string::npos || suffix.size() > 9) {
+        return false;
+    }
+    version = std::stoi(suffix);
+    return true;
 }
 
 Vec3s ReadVec3s(const Json& v) {

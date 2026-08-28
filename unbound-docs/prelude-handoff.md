@@ -6,6 +6,25 @@ let the user build. **The contract is [`SPEC.md`](./SPEC.md)**; every entry belo
 section that defines it, and when this page and SPEC disagree, SPEC wins. Everything in the code
 is tagged `SOH [Unbound]`.
 
+## 2026-08-28 — review pass (after the format pass)
+
+Reader behaviour Prelude's writer and validator have to know; every row is normative in SPEC.
+
+| Change | SPEC | Prelude must |
+|---|---|---|
+| The first byte of a `scene.json` / `rooms/<n>.json` / `collision.json` / `paths/*.json` must be `{` — no BOM, whitespace or leading comment. | §2 | Emit `{` first; comments only after it. |
+| Transition-actor `params` bits 10–15 must be 0: the list index is added to `params` at spawn. | §4.2 | Do not pack the vanilla index. |
+| A mod's `unbound.json` must not list `"scenes"` in `features` unless the mod is a base (provides every vanilla scene in JSON form). | §1.3, §6 | Write `features` honestly; a scene mod lists none or its own kinds. |
+| `cameras[].count` is a run length: the camera reads `count` consecutive `cameraPositions` from `positionIndex`. | §4.4 | Keep `positionIndex + count` within the list. |
+| Once a base is mounted, vanilla-format scene resources (`scenes/shared/…`) are never read; a scene edit must be a `scene.json` / room delta. | §1.6 | Emit JSON deltas for scene edits. |
+| Every document in a setup's `paths` array is read; path index = position in the concatenation. | §4.2 | Any number of documents; order matters. |
+| Numeric strings are strict: no whitespace, one sign, one `0x`. | §2 | Emit numbers. |
+| Text keys outside 0–65534 (including `0xFFFF`) are skipped with an error; code points above U+00FF and malformed UTF-8 become `?`. | §5 | Validate ids; keep text Latin-1. |
+| Unknown mesh `type`, light `type` ≥ 3, mesh `format` other than 1 or 2, or more than 255 type-1 images reject the room. | §4.3 | Validate before export. |
+| `$order` on a positional list rejects the document; unknown `$`-prefixed keys are ignored; a `null` deletes in every layer, including a single-layer document. | §3 | — |
+| Floor `lightSetting` is valid up to the setup's `lighting` count (no longer 30); water-box `lightSetting` 31 reads as 0. | §4.4, §9 | Validate against the lighting list. |
+| A `sceneId`, `drawConfig` or entrance `index` that is negative or out of range rejects the entry. | §7 | Validate. |
+
 ## 2026-08-28 — format pass
 
 | Change | SPEC | Prelude must |

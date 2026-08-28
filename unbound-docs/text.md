@@ -20,7 +20,8 @@ is defined in [`SPEC.md`](./SPEC.md) §5; this file covers why and how. Overview
 
 ### `soh/soh/z_message_OTR.cpp` (rewritten)
 
-One `MessageTable` per language (`eng`/`nes`, `ger`, `fra`, `jpn`, `staff`):
+One `MessageTable` per language (`eng`, `ger`, `fra`, `jpn`, `staff` — the JSON folder names; the
+binary base for English stays under `nes_message_data_static`):
 
 - Owns its bytes (`std::deque<std::string>` so `c_str()` stays stable), keeps the C-visible
   `std::vector<MessageTableEntry>` in base order with new ids appended before the terminator, and
@@ -37,8 +38,10 @@ One `MessageTable` per language (`eng`/`nes`, `ger`, `fra`, `jpn`, `staff`):
   compile unchanged and still see a `0xFFFF`-terminated array.
 - `OTRMessage_Find(table, id)` — hash lookup for any published table pointer; used by the three
   find functions in `z_message_PAL.c`, which keep their vanilla not-found fallbacks.
-- `JsonTextToBytes` maps each code point U+0000–U+00FF to one byte; anything higher becomes `?`
-  with one warning per message (SPEC §5).
+- `JsonTextToBytes` decodes UTF-8 and maps each code point U+0000–U+00FF to one byte; anything
+  higher, and any malformed sequence, becomes `?` with one warning per message (SPEC §5).
+- `ParseMessageId` accepts only ids 0–65534 in the SPEC §2 string form; any other key (including
+  `0xFFFF`) is logged and skipped. Keys beginning with `$` are reserved and ignored.
 
 Illustrative merge file (the contract is SPEC §5):
 
@@ -62,7 +65,7 @@ codes remain the way to page long text.
   and the `override/` mechanism still applies on top of either base.
 - `CustomMessageManager` (randomizer / enhancement text generated at runtime) still bypasses the
   tables via `VB`/`OnOpenText`; it neither needed nor gets a change.
-- Message ids stay `u16`; the sentinel ids are reserved (SPEC §5).
+- Message ids stay `u16`; `0xFFFF` is reserved (SPEC §5).
 
 ## Status
 

@@ -4,6 +4,8 @@
 
 #include <libultraship/libultraship.h>
 #include <nlohmann/json.hpp>
+#include <algorithm>
+#include <cstdint>
 #include <spdlog/spdlog.h>
 #include <ship/utils/StringHelper.h>
 
@@ -23,6 +25,8 @@ SceneDB* SceneDB::Instance = new SceneDB();
 // ---- vanilla seeds (the X-macro tables are kept only as seed data) ------------------------------
 
 namespace {
+// Scene ids and entrance indices travel in s16 engine fields (EntranceInfo.scene, exit lists): SPEC.md §9.
+constexpr int64_t kMaxSceneId = INT16_MAX;
 
 struct VanillaScene {
     const char* fileName;
@@ -63,6 +67,7 @@ uint16_t PackEntranceField(bool continueBgm, bool displayTitleCard, uint8_t endT
 }
 
 constexpr int32_t kEntranceLayerCount = 4; // child day/night, adult day/night
+constexpr int64_t kMaxEntranceIndex = INT16_MAX + 1 - kEntranceLayerCount;
 
 // Saved flags for custom scenes; vanilla ids live in gSaveContext.sceneFlags.
 std::unordered_map<int32_t, SavedSceneFlags> sCustomSceneFlags;
@@ -163,9 +168,9 @@ SceneDB::Entry& SceneDB::AddCustomScene(const CustomSceneInit& init) {
     }
 
     int32_t id = init.sceneId >= 0 ? init.sceneId : nextSceneId;
-    if (id < CUSTOM_SCENE_ID_BASE) {
-        SPDLOG_ERROR("[Unbound] scene '{}' requests id {:#x} below the custom base {:#x}", init.name, id,
-                     CUSTOM_SCENE_ID_BASE);
+    if (id < CUSTOM_SCENE_ID_BASE || id > kMaxSceneId) {
+        SPDLOG_ERROR("[Unbound] scene '{}' requests id {:#x}; must be {:#x}-{}", init.name, id, CUSTOM_SCENE_ID_BASE,
+                     kMaxSceneId);
         return invalid;
     }
     if (id < (int32_t)db.size() && db[id].valid) {
@@ -216,9 +221,9 @@ int32_t SceneDB::AddCustomEntrance(const CustomEntranceInit& init) {
     }
 
     int32_t index = init.index >= 0 ? init.index : nextEntranceIndex;
-    if (index < ENTR_MAX || index % kEntranceLayerCount != 0) {
-        SPDLOG_ERROR("[Unbound] entrance '{}' requests index {:#x}; must be >= {:#x} and a multiple of {}", init.name,
-                     index, (int)ENTR_MAX, kEntranceLayerCount);
+    if (index < ENTR_MAX || index > kMaxEntranceIndex || index % kEntranceLayerCount != 0) {
+        SPDLOG_ERROR("[Unbound] entrance '{}' requests index {:#x}; must be {:#x}-{} and a multiple of {}", init.name,
+                     index, (int)ENTR_MAX, kMaxEntranceIndex, kEntranceLayerCount);
         return -1;
     }
     if (index < (int32_t)entranceTable.size() && entranceTable[index].scene != SCENE_ID_MAX) {
@@ -296,7 +301,7 @@ std::string SceneDB::GetScenePath(int32_t id, bool masterQuest) const {
                         id == SCENE_INSIDE_GANONS_CASTLE;
     bool useMq = hasMqVariant && masterQuest;
     if (unboundBase) {
-        // scenes/<leaf minus _scene>[_mq]/scene.json (unbound-docs/scene-format.md §1)
+        // scenes/<leaf minus _scene>[_mq]/scene.json (unbound-docs/SPEC.md §4.1)
         std::string dir = entry.sceneFileName;
         const std::string suffix = "_scene";
         if (dir.ends_with(suffix)) {
@@ -321,11 +326,37 @@ namespace K = SOH::Unbound::Schema;
 using SOH::Unbound::Field;
 using SOH::Unbound::Json;
 
-// unbound.json (scene-format.md §1): every mounted layer's manifest must be a version this build reads.
-// Returns true when at least one mountable Unbound manifest is present.
+// Sentinel for "no explicit value" in the registry; every legal explicit id/index is >= 0.
+constexpr int64_t kNextFree = INT64_MIN;
+// The manifest "features" entry that marks a base layer (SPEC.md §1.3).
+constexpr const char* kFeatureScenes = "scenes";
+
+// unbound.json (SPEC.md §6): every mounted layer's manifest must be a version this build reads. A layer is a
+// base — the one that provides vanilla scenes as scene.json — when its "features" list "scenes" (§1.3).
+bool ManifestVersionIsReadable(const Json& doc) {
+    int64_t version = Field(doc, K::kFormatVersion, K::kCurrentFormatVersion);
+    int64_t required = Field(SOH::Unbound::Sub(doc, K::kRequires), K::kFormatVersion, version);
+    if (version > K::kCurrentFormatVersion || required > K::kCurrentFormatVersion) {
+        SPDLOG_ERROR("[Unbound] {}: format version {} is newer than this build ({}); layer ignored", K::kManifestPath,
+                     std::max(version, required), K::kCurrentFormatVersion);
+        return false;
+    }
+    return true;
+}
+
+bool ManifestProvidesScenes(const Json& doc) {
+    for (const auto& feature : SOH::Unbound::SubArray(doc, K::kFeatures)) {
+        if (feature.is_string() && feature.get<std::string>() == kFeatureScenes) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// Returns true when at least one readable base manifest is present.
 bool DetectUnboundBase() {
     auto archiveManager = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager();
-    bool mountable = false;
+    bool base = false;
     for (const auto& file : archiveManager->LoadFileFromAllLayers(K::kManifestPath)) {
         Json doc;
         try {
@@ -334,16 +365,15 @@ bool DetectUnboundBase() {
             SPDLOG_ERROR("[Unbound] {}: invalid JSON: {}", K::kManifestPath, e.what());
             continue;
         }
-        int64_t version = SOH::Unbound::Field(doc, K::kFormatVersion, K::kCurrentFormatVersion);
-        int64_t required = SOH::Unbound::Field(doc.value(K::kRequires, Json::object()), K::kFormatVersion, version);
-        if (version > K::kCurrentFormatVersion || required > K::kCurrentFormatVersion) {
-            SPDLOG_ERROR("[Unbound] {}: format version {} is newer than this build ({}); layer ignored",
-                         K::kManifestPath, std::max(version, required), K::kCurrentFormatVersion);
+        if (!doc.is_object()) {
+            SPDLOG_ERROR("[Unbound] {}: manifest is not a JSON object", K::kManifestPath);
             continue;
         }
-        mountable = true;
+        if (ManifestVersionIsReadable(doc) && ManifestProvidesScenes(doc)) {
+            base = true;
+        }
     }
-    return mountable;
+    return base;
 }
 
 } // namespace
@@ -373,25 +403,36 @@ void SceneDB::LoadCustomScenes() {
                 customEntrances.size());
 }
 
-// One entry of unbound/scenes.json (registries.md), keyed by the scene id.
+// One entry of unbound/scenes.json (SPEC.md §7), keyed by the scene id.
 bool SceneDB::RegisterScene(const std::string& id, const nlohmann::json& def) {
     CustomSceneInit scene;
     scene.name = id;
     scene.displayName = def.contains(K::kName) && def[K::kName].is_string() ? def[K::kName].get<std::string>() : id;
     scene.scenePath = SOH::Unbound::PathField(def, K::kScene);
     scene.titleCardTexture = SOH::Unbound::PathField(def, K::kTitleCardTexture);
-    scene.sceneId = (int32_t)Field(def, K::kSceneId, -1);
-    scene.drawConfig = (uint8_t)Field(def, K::kDrawConfig);
+    int64_t sceneId = Field(def, K::kSceneId, kNextFree);
+    int64_t drawConfig = Field(def, K::kDrawConfig);
     if (scene.scenePath.empty()) {
         SPDLOG_ERROR("[Unbound] {}: scene '{}' has no \"{}\" path", K::kRegistryPath, id, K::kScene);
         return false;
     }
+    if (sceneId != kNextFree && (sceneId < CUSTOM_SCENE_ID_BASE || sceneId > kMaxSceneId)) {
+        SPDLOG_ERROR("[Unbound] scene '{}' requests id {}; must be {:#x}-{} (SPEC.md §7)", id, sceneId,
+                     CUSTOM_SCENE_ID_BASE, kMaxSceneId);
+        return false;
+    }
+    if (drawConfig < 0 || drawConfig >= SDC_MAX) {
+        SPDLOG_ERROR("[Unbound] scene '{}' requests draw config {} (max {})", id, drawConfig, SDC_MAX - 1);
+        return false;
+    }
+    scene.sceneId = sceneId == kNextFree ? -1 : (int32_t)std::min<int64_t>(sceneId, INT32_MAX);
+    scene.drawConfig = (uint8_t)drawConfig;
 
     Entry& entry = AddCustomScene(scene);
     if (!entry.valid) {
         return false;
     }
-    const Json& entrances = def.value(K::kEntrances, Json::object());
+    const Json& entrances = SOH::Unbound::Sub(def, K::kEntrances);
     for (const auto& key : SOH::Unbound::ListKeys(entrances)) {
         if (entrances[key].is_object()) {
             RegisterEntrance(entry, key, entrances[key]);
@@ -406,9 +447,15 @@ void SceneDB::RegisterEntrance(const Entry& scene, const std::string& key, const
         SPDLOG_WARN("[Unbound] {}/{}: \"{}\" is reserved and not read yet; all four layers are identical", scene.name,
                     key, K::kLayers);
     }
+    int64_t index = Field(def, K::kIndex, kNextFree);
+    if (index != kNextFree && (index < ENTR_MAX || index > kMaxEntranceIndex)) {
+        SPDLOG_ERROR("[Unbound] entrance '{}/{}' requests index {}; must be {:#x}-{} and a multiple of {}", scene.name,
+                     key, index, (int)ENTR_MAX, kMaxEntranceIndex, kEntranceLayerCount);
+        return;
+    }
     CustomEntranceInit entrance;
     entrance.name = scene.name + "/" + key;
-    entrance.index = (int32_t)Field(def, K::kIndex, -1);
+    entrance.index = index == kNextFree ? -1 : (int32_t)std::min<int64_t>(index, INT32_MAX);
     entrance.sceneId = scene.id;
     entrance.spawn = (int8_t)Field(def, K::kSpawn);
     entrance.continueBgm = Field(def, K::kContinueBgm) != 0;

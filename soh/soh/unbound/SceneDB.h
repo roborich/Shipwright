@@ -76,7 +76,7 @@ class SceneDB {
     std::string GetScenePath(int32_t id) const;
     std::string GetScenePath(int32_t id, bool masterQuest) const;
 
-    // Registers every scene in the layer-merged unbound/scenes.json (registries.md), and notes whether an
+    // Registers every scene in the layer-merged unbound/scenes.json (SPEC.md §7), and notes whether an
     // Unbound-format archive (unbound.json of a readable version) is mounted so vanilla scenes resolve to scene.json.
     void LoadCustomScenes();
     bool HasUnboundBase() const;
