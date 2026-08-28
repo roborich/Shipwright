@@ -10,7 +10,7 @@
 #include "soh/OTRGlobals.h"
 #include "soh/ResourceManagerHelpers.h"
 #include "soh/SaveManager.h"
-#include "soh/resource/unbound/UnboundJson.h"
+#include "soh/unbound/UnboundJson.h"
 #include "soh/util.h"
 
 extern "C" {
@@ -363,8 +363,8 @@ bool SceneDB::LoadCustomSceneFile(const std::string& path) {
         scene.displayName = doc.value("name", scene.name);
         scene.scenePath = doc.at("scene").get<std::string>();
         scene.titleCardTexture = doc.value("titleCard", "");
-        scene.sceneId = (int32_t)Unbound::ToInt(doc.value("sceneId", nlohmann::json(-1)), -1);
-        scene.drawConfig = (uint8_t)Unbound::ToInt(doc.value("drawConfig", nlohmann::json(0)));
+        scene.sceneId = (int32_t)SOH::Unbound::ToInt(doc.value("sceneId", nlohmann::json(-1)), -1);
+        scene.drawConfig = (uint8_t)SOH::Unbound::ToInt(doc.value("drawConfig", nlohmann::json(0)));
 
         Entry& entry = AddCustomScene(scene);
         if (!entry.valid) {
@@ -374,7 +374,7 @@ bool SceneDB::LoadCustomSceneFile(const std::string& path) {
         for (const auto& e : doc.value("entrances", nlohmann::json::array())) {
             CustomEntranceInit entrance;
             entrance.name = scene.name + "/" + e.at("id").get<std::string>();
-            entrance.index = (int32_t)Unbound::ToInt(e.value("index", nlohmann::json(-1)), -1);
+            entrance.index = (int32_t)SOH::Unbound::ToInt(e.value("index", nlohmann::json(-1)), -1);
             entrance.sceneId = entry.id;
             entrance.spawn = (int8_t)e.value("spawn", 0);
             entrance.continueBgm = e.value("continueBgm", false);

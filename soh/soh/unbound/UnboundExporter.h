@@ -3,7 +3,7 @@
 // See unbound-docs/scene-format.md §5.
 #include <string>
 
-namespace Unbound {
+namespace SOH::Unbound {
 
 struct ExportReport {
     bool ok = false;
@@ -17,7 +17,7 @@ struct ExportReport {
 // Writes a complete oot-unbound.o2r (stored zip) to outPath from the currently mounted base archive.
 ExportReport ExportArchive(const std::string& outPath);
 
-} // namespace Unbound
+} // namespace SOH::Unbound
 
 // Console / CLI entry: returns 0 on success, logs progress through spdlog.
 extern "C" int Unbound_Export(const char* outPath);

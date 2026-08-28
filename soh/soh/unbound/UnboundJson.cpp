@@ -8,7 +8,7 @@
 #include <cerrno>
 #include <cstdlib>
 
-namespace Unbound {
+namespace SOH::Unbound {
 
 static bool IsReplaceDirective(const Json& obj) {
     auto it = obj.find(Schema::kReplace);
@@ -200,4 +200,4 @@ std::vector<char> LoadBulk(const std::string& path) {
     return *file->Buffer;
 }
 
-} // namespace Unbound
+} // namespace SOH::Unbound

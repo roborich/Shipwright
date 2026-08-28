@@ -1,5 +1,5 @@
-#include "soh/Enhancements/unbound/UnboundExporter.h"
-#include "soh/SceneDB.h"
+#include "soh/unbound/UnboundExporter.h"
+#include "soh/unbound/SceneDB.h"
 #include "debugconsole.h"
 #include <ship/utils/Utils.h>
 #include "savestates.h"

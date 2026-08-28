@@ -1,5 +1,5 @@
 #include "ResourceManagerHelpers.h"
-#include "soh/SceneDB.h"
+#include "soh/unbound/SceneDB.h"
 #include <libultraship/libultraship.h>
 #include "soh/resource/type/Scene.h"
 #include <ship/utils/StringHelper.h>

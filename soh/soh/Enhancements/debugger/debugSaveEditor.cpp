@@ -6,7 +6,7 @@
 #include "soh/SohGui/UIWidgets.hpp"
 #include "soh/SohGui/SohGui.hpp"
 #include "soh/SaveManager.h"
-#include "soh/SceneDB.h"
+#include "soh/unbound/SceneDB.h"
 
 #include <spdlog/fmt/fmt.h>
 #include <array>

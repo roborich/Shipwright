@@ -3,7 +3,7 @@
 #include "z_message_OTR.h"
 #include <libultraship/libultraship.h>
 #include "soh/resource/type/Scene.h"
-#include "soh/resource/unbound/UnboundJson.h"
+#include "soh/unbound/UnboundJson.h"
 #include <ship/utils/StringHelper.h>
 #include "global.h"
 #include "vt.h"
@@ -191,7 +191,7 @@ std::string JsonTextToBytes(const std::string& utf8, size_t& replaced) {
 }
 
 uint16_t ParseMessageId(const nlohmann::json& value) {
-    return (uint16_t)Unbound::ToInt(value, kTerminatorId);
+    return (uint16_t)SOH::Unbound::ToInt(value, kTerminatorId);
 }
 
 MessageTable* TableForJsonLanguage(const std::string& name) {
@@ -204,8 +204,8 @@ MessageTable* TableForJsonLanguage(const std::string& name) {
 }
 
 void ApplyJsonMessage(MessageTable& table, const nlohmann::json& entry, uint16_t id, const std::string& path) {
-    uint8_t box = (uint8_t)Unbound::ToInt(entry.value("box", nlohmann::json(0)));
-    uint8_t ypos = (uint8_t)Unbound::ToInt(entry.value("ypos", nlohmann::json(0)));
+    uint8_t box = (uint8_t)SOH::Unbound::ToInt(entry.value("box", nlohmann::json(0)));
+    uint8_t ypos = (uint8_t)SOH::Unbound::ToInt(entry.value("ypos", nlohmann::json(0)));
     size_t replaced = 0;
     std::string bytes = JsonTextToBytes(entry.at("text").get<std::string>(), replaced);
     if (replaced > 0) {

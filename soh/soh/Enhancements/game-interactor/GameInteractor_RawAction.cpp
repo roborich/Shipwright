@@ -1,4 +1,4 @@
-#include "soh/SceneDB.h"
+#include "soh/unbound/SceneDB.h"
 #include "GameInteractor.h"
 #include <libultraship/bridge.h>
 #include "soh/Enhancements/randomizer/3drando/random.hpp"

@@ -1,9 +1,9 @@
 #pragma once
 // SOH [Unbound] Key names and "$schema" ids of the JSON scene format, spelled out once for the loader factories
-// (soh/soh/resource/unbound/) and the exporter (soh/soh/Enhancements/unbound/). The spec is
+// (soh/soh/unbound/) and the exporter (soh/soh/unbound/). The spec is
 // unbound-docs/scene-format.md; a key that is not listed here is not part of the format.
 
-namespace Unbound::Schema {
+namespace SOH::Unbound::Schema {
 
 // "$schema" is "<type>/<version>"; the type half is the LUS resource type name the factory registers under.
 inline constexpr const char* kSceneType = "unbound/scene";
@@ -101,6 +101,7 @@ inline constexpr const char* kFogStart = "fogStart";
 inline constexpr const char* kFogEnd = "fogEnd";
 inline constexpr const char* kDrawDistance = "drawDistance";
 inline constexpr const char* kNearPlane = "nearPlane";
+inline constexpr const char* kFogBlendRate = "fogBlendRate";
 
 // Mesh (§2.2)
 inline constexpr const char* kEntries = "entries";
@@ -129,8 +130,25 @@ inline constexpr const char* kFile = "file";
 inline constexpr const char* kVertices = "vertices";
 inline constexpr const char* kPolys = "polys";
 inline constexpr const char* kSurfaceTypes = "surfaceTypes";
-inline constexpr const char* kData0 = "data0";
-inline constexpr const char* kData1 = "data1";
+inline constexpr const char* kData0 = "data0"; // legacy packed form
+inline constexpr const char* kData1 = "data1"; // legacy packed form
+inline constexpr const char* kCamera = "camera";
+inline constexpr const char* kExit = "exit";
+inline constexpr const char* kFloorType = "floorType";
+inline constexpr const char* kWallFlags = "wallFlags";
+inline constexpr const char* kWallType = "wallType";
+inline constexpr const char* kFloorProperty = "floorProperty";
+inline constexpr const char* kIsSoft = "isSoft";
+inline constexpr const char* kIsHorseBlocked = "isHorseBlocked";
+inline constexpr const char* kMaterial = "material";
+inline constexpr const char* kFloorEffect = "floorEffect";
+inline constexpr const char* kLightSetting = "lightSetting";
+inline constexpr const char* kEcho = "echo";
+inline constexpr const char* kCanHookshot = "canHookshot";
+inline constexpr const char* kConveyorSpeed = "conveyorSpeed";
+inline constexpr const char* kConveyorDirection = "conveyorDirection";
+inline constexpr const char* kIsWallDamage = "isWallDamage";
+inline constexpr const char* kFlag19 = "flag19";
 inline constexpr const char* kCameras = "cameras";
 inline constexpr const char* kSType = "sType";
 inline constexpr const char* kCount = "count";
@@ -142,17 +160,32 @@ inline constexpr const char* kYSurface = "ySurface";
 inline constexpr const char* kZMin = "zMin";
 inline constexpr const char* kXLength = "xLength";
 inline constexpr const char* kZLength = "zLength";
-inline constexpr const char* kProperties = "properties";
+inline constexpr const char* kProperties = "properties"; // legacy packed form
 
 // Paths (§2.4)
 inline constexpr const char* kPoints = "points";
 
-// Text (text.md)
-inline constexpr const char* kLanguage = "language";
+// Text (text.md): text/<lang>/messages.json
+inline constexpr const char* kMessagesPathPrefix = "text/";
+inline constexpr const char* kMessagesPathSuffix = "/messages.json";
 inline constexpr const char* kMessages = "messages";
 inline constexpr const char* kBox = "box";
 inline constexpr const char* kYPos = "ypos";
 inline constexpr const char* kText = "text";
+
+// Scene registry (registries.md): unbound/scenes.json
+inline constexpr const char* kRegistryPath = "unbound/scenes.json";
+inline constexpr const char* kName = "name";
+inline constexpr const char* kScene = "scene";
+inline constexpr const char* kSceneId = "sceneId";
+inline constexpr const char* kDrawConfig = "drawConfig";
+inline constexpr const char* kTitleCardTexture = "titleCardTexture";
+inline constexpr const char* kIndex = "index";
+inline constexpr const char* kShowTitleCard = "showTitleCard";
+inline constexpr const char* kContinueBgm = "continueBgm";
+inline constexpr const char* kEndTransition = "endTransition";
+inline constexpr const char* kStartTransition = "startTransition";
+inline constexpr const char* kLayers = "layers";
 
 // Manifest (§1)
 inline constexpr const char* kManifestPath = "unbound.json";
@@ -163,6 +196,7 @@ inline constexpr const char* kSourceInfo = "source";
 inline constexpr const char* kRomHash = "romHash";
 inline constexpr const char* kConverter = "converter";
 inline constexpr const char* kFeatures = "features";
+inline constexpr const char* kRequires = "requires";
 inline constexpr int kCurrentFormatVersion = 1;
 
-} // namespace Unbound::Schema
+} // namespace SOH::Unbound::Schema

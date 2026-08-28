@@ -1,4 +1,4 @@
-#include "soh/SceneDB.h"
+#include "soh/unbound/SceneDB.h"
 #include "CrashHandlerExt.h"
 #include "variables.h"
 #include "z64.h"

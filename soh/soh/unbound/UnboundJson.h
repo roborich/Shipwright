@@ -8,7 +8,7 @@
 #include <libultraship/libultra.h>
 #include "z64math.h"
 
-namespace Unbound {
+namespace SOH::Unbound {
 
 using Json = nlohmann::json;
 
@@ -55,4 +55,4 @@ template <typename T> void ReadRgb(const Json& v, T* out) {
 // Raw bytes of `path` from the topmost archive that has it (bulk resources: last-wins).
 std::vector<char> LoadBulk(const std::string& path);
 
-} // namespace Unbound
+} // namespace SOH::Unbound

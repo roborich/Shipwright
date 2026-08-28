@@ -45,18 +45,8 @@ std::shared_ptr<Ship::IResource> SetMeshFactory::ReadResource(std::shared_ptr<Sh
             std::string meshOpa = reader->ReadString();
             std::string meshXlu = reader->ReadString();
 
-            // Enables alt-toggling support by setting maintained c_str references to DList resource after pushing to
-            // vector the first Defers resource loading later in game when the scene is drawn
-            if (meshOpa != "") {
-                meshOpa = "__OTR__" + meshOpa;
-                setMesh->opaPaths.push_back(meshOpa);
-                dlist.opa = (Gfx*)setMesh->opaPaths.back().c_str();
-            }
-            if (meshXlu != "") {
-                meshXlu = "__OTR__" + meshXlu;
-                setMesh->xluPaths.push_back(meshXlu);
-                dlist.xlu = (Gfx*)setMesh->xluPaths.back().c_str();
-            }
+            dlist.opa = SetMesh::KeepDlistPath(setMesh->opaPaths, meshOpa);
+            dlist.xlu = SetMesh::KeepDlistPath(setMesh->xluPaths, meshXlu);
 
             setMesh->dlists.push_back(dlist);
         } else if (setMesh->meshHeader.base.type == 1) {
@@ -91,16 +81,7 @@ std::shared_ptr<Ship::IResource> SetMeshFactory::ReadResource(std::shared_ptr<Sh
                 image.tlutCount = reader->ReadUInt16();
 
                 if (setMesh->meshHeader.polygon1.format == 1) {
-                    setMesh->meshHeader.polygon1.single.source = image.source;
-                    setMesh->meshHeader.polygon1.single.unk_0C = image.unk_0C;
-                    setMesh->meshHeader.polygon1.single.tlut =
-                        (void*)image.tlut; // OTRTODO: type of bgimage.tlut should be uintptr_t
-                    setMesh->meshHeader.polygon1.single.width = image.width;
-                    setMesh->meshHeader.polygon1.single.height = image.height;
-                    setMesh->meshHeader.polygon1.single.fmt = image.fmt;
-                    setMesh->meshHeader.polygon1.single.siz = image.siz;
-                    setMesh->meshHeader.polygon1.single.mode0 = image.mode0;
-                    setMesh->meshHeader.polygon1.single.tlutCount = image.tlutCount;
+                    setMesh->SetSingleImage(image);
                 } else {
                     setMesh->images.push_back(image);
                 }
@@ -115,17 +96,8 @@ std::shared_ptr<Ship::IResource> SetMeshFactory::ReadResource(std::shared_ptr<Sh
             std::string meshOpa = reader->ReadString();
             std::string meshXlu = reader->ReadString();
 
-            // Use long-lived maintained c_str references
-            if (meshOpa != "") {
-                meshOpa = "__OTR__" + meshOpa;
-                setMesh->opaPaths.push_back(meshOpa);
-                pType.opa = (Gfx*)setMesh->opaPaths.back().c_str();
-            }
-            if (meshXlu != "") {
-                meshXlu = "__OTR__" + meshXlu;
-                setMesh->xluPaths.push_back(meshXlu);
-                pType.xlu = (Gfx*)setMesh->xluPaths.back().c_str();
-            }
+            pType.opa = SetMesh::KeepDlistPath(setMesh->opaPaths, meshOpa);
+            pType.xlu = SetMesh::KeepDlistPath(setMesh->xluPaths, meshXlu);
 
             setMesh->dlists.push_back(pType);
         } else if (setMesh->meshHeader.base.type == 2) {
@@ -142,17 +114,8 @@ std::shared_ptr<Ship::IResource> SetMeshFactory::ReadResource(std::shared_ptr<Sh
             std::string meshOpa = reader->ReadString();
             std::string meshXlu = reader->ReadString();
 
-            // Use long-lived maintained c_str references
-            if (meshOpa != "") {
-                meshOpa = "__OTR__" + meshOpa;
-                setMesh->opaPaths.push_back(meshOpa);
-                dlist.opa = (Gfx*)setMesh->opaPaths.back().c_str();
-            }
-            if (meshXlu != "") {
-                meshXlu = "__OTR__" + meshXlu;
-                setMesh->xluPaths.push_back(meshXlu);
-                dlist.xlu = (Gfx*)setMesh->xluPaths.back().c_str();
-            }
+            dlist.opa = SetMesh::KeepDlistPath(setMesh->opaPaths, meshOpa);
+            dlist.xlu = SetMesh::KeepDlistPath(setMesh->xluPaths, meshXlu);
 
             setMesh->dlists2.push_back(dlist);
         } else {
@@ -227,18 +190,8 @@ std::shared_ptr<Ship::IResource> SetMeshFactoryXML::ReadResource(std::shared_ptr
             std::string meshOpa = child->Attribute("MeshOpa");
             std::string meshXlu = child->Attribute("MeshXlu");
 
-            // Enables alt-toggling support by setting maintained c_str references to DList resource after pushing to
-            // vector the first Defers resource loading later in game when the scene is drawn
-            if (meshOpa != "") {
-                meshOpa = "__OTR__" + meshOpa;
-                setMesh->opaPaths.push_back(meshOpa);
-                dlist.opa = (Gfx*)setMesh->opaPaths.back().c_str();
-            }
-            if (meshXlu != "") {
-                meshXlu = "__OTR__" + meshXlu;
-                setMesh->xluPaths.push_back(meshXlu);
-                dlist.xlu = (Gfx*)setMesh->xluPaths.back().c_str();
-            }
+            dlist.opa = SetMesh::KeepDlistPath(setMesh->opaPaths, meshOpa);
+            dlist.xlu = SetMesh::KeepDlistPath(setMesh->xluPaths, meshXlu);
 
             setMesh->dlists.push_back(dlist);
         } else if (setMesh->meshHeader.base.type == 1) {
@@ -275,16 +228,7 @@ std::shared_ptr<Ship::IResource> SetMeshFactoryXML::ReadResource(std::shared_ptr
                 image.tlutCount = grandChild->IntAttribute("TLUTCount");
 
                 if (setMesh->meshHeader.polygon1.format == 1) {
-                    setMesh->meshHeader.polygon1.single.source = image.source;
-                    setMesh->meshHeader.polygon1.single.unk_0C = image.unk_0C;
-                    setMesh->meshHeader.polygon1.single.tlut =
-                        (void*)image.tlut; // OTRTODO: type of bgimage.tlut should be uintptr_t
-                    setMesh->meshHeader.polygon1.single.width = image.width;
-                    setMesh->meshHeader.polygon1.single.height = image.height;
-                    setMesh->meshHeader.polygon1.single.fmt = image.fmt;
-                    setMesh->meshHeader.polygon1.single.siz = image.siz;
-                    setMesh->meshHeader.polygon1.single.mode0 = image.mode0;
-                    setMesh->meshHeader.polygon1.single.tlutCount = image.tlutCount;
+                    setMesh->SetSingleImage(image);
                 } else {
                     setMesh->images.push_back(image);
                 }
@@ -301,17 +245,8 @@ std::shared_ptr<Ship::IResource> SetMeshFactoryXML::ReadResource(std::shared_ptr
             std::string meshOpa = child->Attribute("MeshOpa");
             std::string meshXlu = child->Attribute("MeshXlu");
 
-            // Use long-lived maintained c_str references
-            if (meshOpa != "") {
-                meshOpa = "__OTR__" + meshOpa;
-                setMesh->opaPaths.push_back(meshOpa);
-                pType.opa = (Gfx*)setMesh->opaPaths.back().c_str();
-            }
-            if (meshXlu != "") {
-                meshXlu = "__OTR__" + meshXlu;
-                setMesh->xluPaths.push_back(meshXlu);
-                pType.xlu = (Gfx*)setMesh->xluPaths.back().c_str();
-            }
+            pType.opa = SetMesh::KeepDlistPath(setMesh->opaPaths, meshOpa);
+            pType.xlu = SetMesh::KeepDlistPath(setMesh->xluPaths, meshXlu);
 
             setMesh->dlists.push_back(pType);
         } else if (setMesh->meshHeader.base.type == 2) {
@@ -328,17 +263,8 @@ std::shared_ptr<Ship::IResource> SetMeshFactoryXML::ReadResource(std::shared_ptr
             std::string meshOpa = child->Attribute("MeshOpa");
             std::string meshXlu = child->Attribute("MeshXlu");
 
-            // Use long-lived maintained c_str references
-            if (meshOpa != "") {
-                meshOpa = "__OTR__" + meshOpa;
-                setMesh->opaPaths.push_back(meshOpa);
-                dlist.opa = (Gfx*)setMesh->opaPaths.back().c_str();
-            }
-            if (meshXlu != "") {
-                meshXlu = "__OTR__" + meshXlu;
-                setMesh->xluPaths.push_back(meshXlu);
-                dlist.xlu = (Gfx*)setMesh->xluPaths.back().c_str();
-            }
+            dlist.opa = SetMesh::KeepDlistPath(setMesh->opaPaths, meshOpa);
+            dlist.xlu = SetMesh::KeepDlistPath(setMesh->xluPaths, meshXlu);
 
             setMesh->dlists2.push_back(dlist);
         } else {

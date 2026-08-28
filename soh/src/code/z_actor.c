@@ -1,5 +1,5 @@
 #include "global.h"
-#include "soh/SceneDB.h"
+#include "soh/unbound/SceneDB.h"
 #include "vt.h"
 
 #include "overlays/actors/ovl_Arms_Hook/z_arms_hook.h"

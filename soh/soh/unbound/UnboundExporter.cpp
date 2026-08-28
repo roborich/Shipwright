@@ -21,8 +21,8 @@
 #include <unordered_map>
 
 #include "variables.h" // gBuildVersion
-#include "soh/SceneDB.h"
-#include "soh/resource/unbound/UnboundSchema.h"
+#include "soh/unbound/SceneDB.h"
+#include "soh/unbound/UnboundSchema.h"
 #include "soh/resource/type/CollisionHeader.h"
 #include "soh/resource/type/Path.h"
 #include "soh/resource/type/Scene.h"
@@ -52,9 +52,9 @@
 #include "soh/resource/type/scenecommand/SetWindSettings.h"
 
 using json = nlohmann::ordered_json;
-namespace K = Unbound::Schema;
+namespace K = SOH::Unbound::Schema;
 
-namespace Unbound {
+namespace SOH::Unbound {
 namespace {
 
 // ---------------------------------------------------------------------------------------------
@@ -948,10 +948,10 @@ ExportReport ExportArchive(const std::string& outPath) {
     return ctx.report;
 }
 
-} // namespace Unbound
+} // namespace SOH::Unbound
 
 extern "C" int Unbound_Export(const char* outPath) {
-    auto report = Unbound::ExportArchive(outPath != nullptr ? outPath : "oot-unbound.o2r");
+    auto report = SOH::Unbound::ExportArchive(outPath != nullptr ? outPath : "oot-unbound.o2r");
     if (!report.ok) {
         SPDLOG_ERROR("[Unbound export] failed: {}", report.error);
         return 1;
