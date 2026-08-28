@@ -1,40 +1,44 @@
 # Unbound: world extent
 
-Lifts the ±32 767-unit world limit that `s16` positions imposed everywhere. Overview in
-[`README.md`](./README.md).
+Lifts the ±32 767-unit world limit that `s16` positions imposed everywhere. What a modder may
+write (number-typed positions, room `origin`, `collision.bin` v2, the world-unit fog keys) and
+the resulting limits are in [`SPEC.md`](./SPEC.md) §2, §4.2–4.4 and §9; this file is the engine
+side. Overview in [`README.md`](./README.md).
 
 ## Three caps behind one number
 
 | Cap | Where | Lift |
 |---|---|---|
 | **Rendering: `Mtx` is s16.16** | `guMtxF2L` (`gu_pc.c`) packs every model/view matrix; a translation ≥ 32 768 wraps. This caps *actors and the camera*, not just scenes. | `Mtx` is float (`GBI_FLOAT_MTX`, libultraship fork `fast/types.h`). |
-| **Rendering: room `Vtx` is `short` under the identity matrix** | `z_room.c` draws room meshes with `gMtxClear`, so mesh vertices *are* world coordinates. | Per-room **origin** (`rooms/<n>.json` `"origin"`): vertices are authored relative to it, `Room_Draw` loads a translate matrix. Vanilla rooms keep `[0,0,0]` and the identity. |
+| **Rendering: room `Vtx` is `short` under the identity matrix** | `z_room.c` draws room meshes with `gMtxClear`, so mesh vertices *are* world coordinates. | Per-room **origin** (SPEC §4.3): vertices are authored relative to it, `Room_Draw` loads a translate matrix. Vanilla rooms keep `[0,0,0]` and the identity. |
 | **Data & engine: `s16` positions** | Collision vertices, `CollisionPoly.dist` (plane distance from the *world origin*), bounds, water boxes, spawn entries, transition actors, paths, point lights, mesh-type-2 cull centres, Epona's saved position, `BGCHECK_Y_MIN`/`BGCHECK_XYZ_ABSMAX`, dyna world-space vertex bake, `Sphere16`/`Cylinder16` colliders. | Widened to `f32`/`s32` (below). |
 
 ### Float matrices
 
-- `libultraship/include/fast/types.h`: `GBI_FLOAT_MTX` (on by default on the fork) makes `Mtx` an
-  alias of `MtxF`. `Vtx` stays `short` — that is what `GBI_FLOATS` would also change, and every
-  vertex producer (binary `Vtx` resources, static arrays, OTRExporter) would have to follow.
+- `libultraship/include/fast/types.h`: `GBI_FLOAT_MTX` (a LUS CMake option, off by default; SoH's
+  root `CMakeLists.txt` turns it on and `sys_matrix.c` `#error`s without it) makes `Mtx` an alias
+  of `MtxF`. `Vtx` stays `short` — that is what `GBI_FLOATS` would also change, and every vertex
+  producer (binary `Vtx` resources, static arrays, OTRExporter) would have to follow.
 - `interpreter.cpp` `GfxSpMatrix`: the fixed-point unpack is skipped and the matrix is `memcpy`'d;
   the frame-interpolation replacement path no longer quantises through an `int` (which overflowed
   past ±32 767 too).
-- `MatrixFactory.cpp`: `.o2r` matrix resources are stored s16.16; they are unpacked to float at load.
+- `MatrixFactory.cpp`: `.o2r` matrix resources are stored s16.16; they are unpacked to float at
+  load (SPEC §8).
 - SoH: `guMtxF2L`/`guMtxL2F` are copies; `gMtxClear` is a float identity; the two hand-packed
   writers in `sys_matrix.c` (`Matrix_SetTranslateUniformScaleMtx2`, `Matrix_SetTranslateScaleMtx1`)
-  build an `MtxF` instead. Nothing else that is compiled in `soh/` touched `Mtx.m[]` directly (`ucode_disas.c`
-  still reads `intPart`/`fracPart` but is not built).
+  build an `MtxF` instead. Nothing else that is compiled in `soh/` touched `Mtx.m[]` directly
+  (`ucode_disas.c` still reads `intPart`/`fracPart` but is not built).
 
 Precision: f32 has ~7 significant digits, so at 10⁶ units positions resolve to ~0.06 units. The
 Unbound world is therefore ±2²⁰ (1 048 576) — `BGCHECK_XYZ_ABSMAX`.
 
 ### Room origin
 
-`rooms/<n>.json` (top level, next to `setups`): `"origin": [x, y, z]` (numbers, default 0). Carried
-on `SOH::SetMesh::origin` → `Room.origin` → `Room_OriginMtx` in `z_room.c`, used by all three mesh
-draw paths. The converter emits nothing (vanilla is 0). Prelude rebases a room whose geometry
-would leave the s16 range and writes the origin. Collision, actor entries and everything else
-stay **absolute** — only the mesh vertices are relative.
+The room document's `origin` (SPEC §4.3) is carried on `SOH::SetMesh::origin` → `Room.origin` →
+`Room_OriginMtx` in `z_room.c`, used by all three mesh draw paths. The converter emits nothing
+(vanilla is 0). Prelude rebases a room whose geometry would leave the s16 range and writes the
+origin; collision, actor entries and everything else stay absolute — only the mesh vertices are
+relative.
 
 ## Widened data
 
@@ -43,9 +47,9 @@ stay **absolute** — only the mesh vertices are relative.
 | `ActorEntry.pos`, `TransitionActorEntry.pos` (+ SOH mirrors) | `Vec3s` | `Vec3f` | binary, XML, JSON, exporter |
 | `PolygonDlist2.pos` (mesh-type-2 cull centre) | `Vec3s` | `Vec3f` | same |
 | `Path.points` / `PathData.points` | `Vec3s*` | `Vec3f*` | `PathFactory`, `UnboundPathFactory`, exporter; every overlay reader (`z_path.c`, En_Kz, En_Md, En_Nb, En_Mb, En_Mm, En_Cs, En_Daiku_Kakariko and the `Math_Vec3s_ToVec3f` users) — `SEGMENTED_TO_VIRTUAL` returns `void*`, so a reader left on `Vec3s*` compiles and reads garbage |
-| `LightPoint.x/y/z` + `Lights_Point*SetInfo` | `s16` | `f32` | binary, XML, JSON, exporter |
+| `LightPoint.x/y/z` + `Lights_Point*SetInfo` (and the `SOH::LightPoint` mirror) | `s16` | `f32` | binary, XML, JSON, exporter |
 | `HorseData.pos` | `Vec3s` | `Vec3f` | JSON save (name-keyed) |
-| `CollisionHeader.vtxList`, `dyna.vtxList` | `Vec3s` | `Vec3f` | `collision.bin` **v2**, binary, XML |
+| `CollisionHeader.vtxList`, `dyna.vtxList` | `Vec3s` | `Vec3f` | `collision.bin` v2, binary, XML |
 | `CollisionPoly.dist` | `s16` | `f32` | same |
 | `CollisionHeader.minBounds/maxBounds` | `Vec3s` | `Vec3f` | same |
 | `WaterBox` origin/lengths | `s16` | `f32` | same |
@@ -55,12 +59,8 @@ stay **absolute** — only the mesh vertices are relative.
 | `ColliderCylinder.dim` | `Cylinder16` | `Cylinderf` | `Collider_UpdateCylinder` + direct writers |
 | `ColliderJntSphElement.dim.worldSphere` | `Sphere16` | `Spheref` | per-overlay writers |
 
-### `collision.bin` v2
-
-`"$schema": "unbound/collision/2"`, little-endian, no header:
-`vertices × { f32 x, y, z }` (12 B), then `polys × { u16 type, u16 pad, u32 vA, u32 vB, u32 vC,
-s16 nx, ny, nz, s16 pad, f32 dist }` (28 B). The loader still reads v1 (`s16` vertices, 24-byte
-polys) when the schema says `/1`; the converter emits v2.
+`collision.bin` v2 (SPEC §4.4.1) is the on-disk form of the widened collision arrays; the loader
+still reads v1 when the schema says so, the converter emits v2.
 
 ## Fog and draw distance
 
@@ -74,35 +74,35 @@ A big world is pointless if it fades out at 2 500 units. Vanilla had three coupl
 
 ### Lift
 
-- **Format.** A `lighting` entry may carry `"fogStart"`, `"fogEnd"`, `"drawDistance"` and
-  `"nearPlane"` (world units, numbers). Any of the first three switches the entry to *world fog*;
-  the rest default: `drawDistance` ← `fogFar` (or 12 800), `fogEnd` ← `drawDistance`, `fogStart` ←
-  the vanilla `fogNear` converted to a distance, `nearPlane` ← 0 (keep the view's 10). `fogNear` /
-  `fogFar` stay for vanilla and for the blend-rate bits packed in `fogNear`.
-- **Engine.** `EnvLightSettings` (both mirrors) and `LightContext` gained the world fields;
-  `Environment_Update` blends them through the same day/night and indoor cross-fades
-  (`Environment_LerpWorldFog`), then sets `lightCtx.zNear/zFar`, which `Play_Draw` now feeds to the
-  projection and `z_room.c` uses to cull chunks. Vanilla entries take `zNear 10 / zFar = fogFar`
-  exactly as before. `adjFogNear` (Nayru's Love, fairies, game over) is honoured in world mode by
-  converting the start distance to the 0..1000 scale and back.
+- **Format.** The lighting entry's `fogStart` / `fogEnd` / `drawDistance` / `nearPlane` keys and
+  their defaults are SPEC §4.2. The JSON loader packs `fogNear` + `fogBlendRate` back into the
+  in-memory `EnvLightSettings.fogNear` word (`PackFogNear`), and derives the world-fog defaults
+  through `Environment_LegacyFogStart` (`z64environment.h`), the one shared conversion from the
+  vanilla near value to a distance.
+- **Engine.** `EnvLightSettings` (both mirrors, `static_assert`ed identical) and `LightContext`
+  gained the world fields; `Environment_Update` blends them through the same day/night and indoor
+  cross-fades (`Environment_LerpWorldFog`, which resolves each side into `WorldFogParams` first
+  so a legacy↔world mix never reads unset fields), then sets `lightCtx.zNear/zFar`, which
+  `Play_Draw` now feeds to the projection and `z_room.c` uses to cull chunks. Vanilla entries take
+  `zNear 10 / zFar = fogFar` exactly as before. `adjFogNear` (Nayru's Love, fairies, game over) is
+  honoured in world mode by converting the start distance to the 0..1000 scale and back.
 - **GPU.** The fog factor is computed on the CPU in the interpreter (`fog = ndcZ·mul + offset`) and
   only mixed in the shader, so the fix is the two numbers: a new extended op **`G_FOGF`**
   (`OTR_G_FOGF`, libultraship fork) carries them as floats; `Play_SetFog` emits it in world mode
-  with `mul = 128000/(u₁−u₀)`, `offset = (500−u₀)·256/(u₁−u₀)` from `u(fogStart)`, `u(fogEnd)`.
-  `fog_mul/fog_offset` in the interpreter are floats. Vanilla scenes still go through
-  `gSPFogPosition`, bit-identical.
+  with `mul = 128000/(u₁−u₀)`, `offset = (500−u₀)·256/(u₁−u₀)` from `u(fogStart)`,
+  `u(fogEnd)`. `fog_mul/fog_offset` in the interpreter are floats. Vanilla scenes still go
+  through `gSPFogPosition`, bit-identical.
 - **Culling.** Room-chunk cull uses `zFar`; the chunk radius (`PolygonDlist2.unk_06`, JSON
   `"radius"`) is `f32`. Actor uncull zones are scaled by `zFar / 12800` in world-fog scenes (on top
-  of the "Increase Actor Draw Distance" enhancement), so a scene with `drawDistance: 200000`
-  keeps its actors visible ~15× further.
+  of the "Increase Actor Draw Distance" enhancement) — a stopgap, so a scene with
+  `drawDistance: 200000` keeps its actors visible ~15× further.
 - Depth precision: `zNear 10` against `zFar 10⁶` is a 10⁵ ratio; the OpenGL backend uses a 24-bit
   depth buffer, so far geometry may z-fight. Set `"nearPlane": 50` (or more) in such scenes.
 
-## Not changed (documented limits)
+## Not changed (engine notes behind the SPEC §9 limits)
 
 - **Scene camera data** (`CamData.camPosData`, `BGCAM_*` packing in `z_camera.c`) is still
-  `Vec3s`: fixed-camera zones cannot sit beyond ±32 767. Restructuring the `Vec3s[3]` triple is
-  its own format change.
+  `Vec3s`: restructuring the `Vec3s[3]` triple is its own format change.
 - **Cutscene camera points** (`CutsceneCameraPoint.pos`) are parsed straight out of the cutscene
   command words, so they stay `s16`.
 - Cosmetic `Vec3s` (`ColliderInfo.bumper.hitPos`, `EffectSpark`/`Blure`/`ShieldParticle`) and the
@@ -116,3 +116,5 @@ A big world is pointless if it fades out at 2 500 units. Vanilla had three coupl
    save/load, Kokiri cutscene cameras, pause menu / file select (2D matrices).
 2. A Prelude scene with a room at `origin: [200000, 0, 0]` and a walkable floor at y = −60 000:
    spawn there, walk, doors, water box, a Deku Baba on a moving platform, ride Epona and save.
+3. Path-following NPCs after the `Vec3f` sweep: Kakariko carpenters, King Zora, Mido, Nabooru,
+   Moblins in the Lost Woods.

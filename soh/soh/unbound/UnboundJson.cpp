@@ -125,20 +125,59 @@ std::vector<std::string> PositionalKeys(const Json& list, const std::string& wha
     return keys;
 }
 
+// SPEC.md §2: a numeric string is decimal or "0x" hex, optionally signed, and must be consumed whole.
+bool ParseIntString(const std::string& text, int64_t& out) {
+    size_t i = 0;
+    bool negative = false;
+    if (i < text.size() && (text[i] == '-' || text[i] == '+')) {
+        negative = text[i] == '-';
+        i++;
+    }
+    int base = 10;
+    if (text.compare(i, 2, "0x") == 0 || text.compare(i, 2, "0X") == 0) {
+        base = 16;
+        i += 2;
+    }
+    if (i >= text.size()) {
+        return false;
+    }
+    size_t consumed = 0;
+    try {
+        out = std::stoll(text.substr(i), &consumed, base);
+    } catch (...) { return false; }
+    if (i + consumed != text.size()) {
+        return false;
+    }
+    out = negative ? -out : out;
+    return true;
+}
+
+bool ParseNumberString(const std::string& text, double& out) {
+    int64_t integer = 0;
+    if (ParseIntString(text, integer)) {
+        out = (double)integer;
+        return true;
+    }
+    try {
+        size_t consumed = 0;
+        out = std::stod(text, &consumed); // decimal, fraction, exponent
+        return consumed == text.size() && text.find_first_of("xXnNiI") == std::string::npos;
+    } catch (...) { return false; }
+}
+
 int64_t ToInt(const Json& value, int64_t fallback) {
     if (value.is_number_integer()) {
         return value.get<int64_t>();
     }
     if (value.is_number_float()) {
-        return (int64_t)value.get<double>();
+        return (int64_t)value.get<double>(); // truncated toward zero (SPEC.md §2)
     }
     if (value.is_boolean()) {
         return value.get<bool>() ? 1 : 0;
     }
     if (value.is_string()) {
-        try {
-            return std::stoll(value.get<std::string>(), nullptr, 0);
-        } catch (...) { return fallback; }
+        int64_t parsed = 0;
+        return ParseIntString(value.get<std::string>(), parsed) ? parsed : fallback;
     }
     return fallback;
 }
@@ -148,9 +187,8 @@ double ToNumber(const Json& value, double fallback) {
         return value.get<double>();
     }
     if (value.is_string()) {
-        try {
-            return std::stod(value.get<std::string>()); // accepts "0x10" as well as "1.5"
-        } catch (...) { return fallback; }
+        double parsed = 0.0;
+        return ParseNumberString(value.get<std::string>(), parsed) ? parsed : fallback;
     }
     return fallback;
 }

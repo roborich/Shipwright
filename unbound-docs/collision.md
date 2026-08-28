@@ -1,8 +1,10 @@
 # Unbound: collision geometry
 
 Removes every fixed cap on scene (static) collision and relaxes the actor (dyna) collision
-caps, so a Prelude-built scene can carry arbitrarily large collision. Overview and rationale
-in [`README.md`](./README.md).
+caps, so a Prelude-built scene can carry arbitrarily large collision. The on-disk form
+(`collision.json`, `collision.bin`, the unpacked surface-type and water-box fields, the legacy
+encodings) is defined in [`SPEC.md`](./SPEC.md) §4.4 and §8; this file covers the engine side.
+Overview and rationale in [`README.md`](./README.md).
 
 ## The caps, and why they exist
 
@@ -15,6 +17,7 @@ All in `soh/include/z64bgcheck.h` and `soh/src/code/z_bgcheck.c`:
 | Node table | `BgCheck_Allocate` derives the node count from an N64 byte budget (`0x1CC00`, or one of eight hardcoded per-scene values, or `0xF000` for "spot" scenes), doubled by an existing SoH workaround. Overflow is `LOG_HUNGUP_THREAD` / `assert`. |
 | Arena | Everything is carved from the play-state bump arena (`THA_AllocEndAlign`, ~3.8 MB total for the whole gamestate, `z_play.c` `GameState_Realloc`). |
 | Dyna | `polyListMax`/`vtxListMax` 512 (×2 SoH), `polyNodesMax` 1 000; exceeding them is a fatal assert. |
+| Packed surface words | `SurfaceType.data[2]` and `WaterBox.properties` are bit fields: 8-bit camera, 5-bit exit, 5-bit light setting, 6-bit water-box room. |
 
 ## What changes
 
@@ -44,38 +47,42 @@ typedef struct {
 #define COLPOLY_VIB_CONVEYOR             (1u << 29)
 ```
 
-Vertices, bounds, `dist` and water-box extents are `f32` (`BGCHECK_XYZ_ABSMAX` = 2²⁰); see
-[`extent.md`](./extent.md).
+This is the same word layout `collision.bin` stores (SPEC §4.4.1), so the bulk file is a memcpy
+into the in-memory arrays. Vertices, bounds, `dist` and water-box extents are `f32`
+(`BGCHECK_XYZ_ABSMAX` = 2²⁰); see [`extent.md`](./extent.md).
 
 `SurfaceType` and `WaterBox` are stored **unpacked**: the two vanilla `data[2]` words become named
-fields (`camera`, `exit`, `lightSetting` as `s32`; `floorType`, `wallFlags`, `wallType`,
-`floorProperty`, `isSoft`, `isHorseBlocked`, `material`, `floorEffect`, `echo`, `canHookshot`,
-`conveyorSpeed`, `conveyorDirection`, `isWallDamage` as `u8`), and the water-box `properties` word
-becomes `camera`, `lightSetting`, `room` (`-1` = all rooms) and `notSwimmable`. The `SurfaceType_Get*`
-accessors in `z_bgcheck.c` read fields through one `SurfaceType_Get()` (which hands back an all-zero
-entry when a poly has none), so their ~200 callers are unchanged. This lifts the per-scene caps the
-packing imposed — 255 cameras, 31 exits, 31 light settings, 63 water-box rooms. Legacy data is
-converted once at the loader boundary by `SurfaceType_Unpack(data0, data1)` and
-`WaterBox_UnpackProperties()` (prototypes in `z64bgcheck.h`; `SOH::UnpackSurfaceType` /
-`SOH::UnpackWaterBoxProperties` wrap them for the C++ mirrors); nothing writes the packed form.
+fields (`camera`, `exit`, `lightSetting` as `s32`; the thirteen small fields as `u8`), and the
+water-box `properties` word becomes `camera`, `lightSetting`, `room` (`-1` = all rooms) and
+`notSwimmable`. The field names are the SPEC §4.4 key names. The `SurfaceType_Get*` accessors in
+`z_bgcheck.c` read fields through one `SurfaceType_Get()` (which hands back an all-zero entry when
+a poly has none), so their ~200 callers are unchanged. Legacy data is converted once at the loader
+boundary by `SurfaceType_Unpack(data0, data1)` and `WaterBox_UnpackProperties()` (prototypes in
+`z64bgcheck.h`; `SOH::UnpackSurfaceType` / `SOH::UnpackWaterBoxProperties` in
+`CollisionHeaderFactory.cpp` wrap them for the C++ mirrors, next to `static_assert`s on size and
+field offsets); nothing writes the packed form. `notSwimmable` is vanilla bit 19: the box is
+skipped by `WaterBox_GetSurfaceImpl` and found only by `WaterBox_GetSurface2`/`func_800425B0`
+(the ripple effect).
 
 `SSNode` becomes `{ s32 polyId; u32 next; }`, `SS_NULL` becomes `0xFFFFFFFF`, and every
 `SSList.head`, `SSNodeList.max/count`, `DynaLookup.polyStartIndex`, `BgActor.vtxStartIndex`,
 `CollisionHeader.numVertices/numPolygons` and the corresponding locals/params in `z_bgcheck.c`
 widen to 32 bits. `StaticLookup` grows from 6 to 12 bytes; the lookup table is tiny either way.
 
-The in-memory struct is the **only** contract: the vanilla struct layout was never exposed to
-mods because every collision header is materialised by the SoH importer.
+The in-memory struct is the **only** engine contract: the vanilla struct layout was never exposed
+to mods because every collision header is materialised by the SoH importer.
 
-### Loader (`CollisionHeaderFactory.cpp`)
+### Loaders
 
-- Binary v0 (today's `oot.o2r`): reads the `u16` packed words and **unpacks** them —
-  `index = v & 0x1FFF`, xpFlags `(v >> 13) << 29`, conveyor bit 13 → bit 29. Vanilla data and
-  every existing mod keep loading.
-- XML: `VertexA/B/C` are plain indices. If the element carries an `XpFlags` attribute (0-7)
-  and/or `Conveyor` (0/1) they are applied; if it carries neither, the attribute values are
-  treated as legacy packed `u16` words and unpacked as above. This is the Unbound authoring
-  form for Prelude until the `collision.json` + `collision.bin` split lands.
+- `UnboundCollisionFactory.cpp` (JSON + bin): reads SPEC §4.4 through `Ship::BinaryReader` with an
+  up-front size check; indexed lists (`surfaceTypes`, `cameras`, `cameraPositions`, `waterBoxes`)
+  go through `PositionalKeys`, so a hole fails the document; the legacy `data0/data1` and
+  `properties` forms are unpacked with one warning per document.
+- `CollisionHeaderFactory.cpp` (binary v0 / XML): the vanilla encodings of SPEC §8 — packed `u16`
+  vertex words unpacked (`index = v & 0x1FFF`, xpFlags `(v >> 13) << 29`, conveyor bit 13 → bit
+  29), `dist` read signed, surface types and water boxes through the unpack helpers. The XML form
+  with `XpFlags`/`Conveyor` attributes was the Unbound authoring form for Prelude before the
+  `collision.json` + `collision.bin` split.
 
 ### Allocation (`BgCheck_Allocate`)
 
@@ -103,9 +110,10 @@ exhaustion like the arena was).
   buffer. Actors keep `CollisionPoly*` into these lists (`Actor.floorPoly/wallPoly`, camera,
   a handful of overlay caches) — those pointers are already logically stale every frame, but
   they must stay *readable*, so superseded buffers are parked on `dyna.retiredBuffers` (a fixed
-  array of 32 — growth doubles, so a list retires one buffer per doubling) and freed with
-  everything else in `BgCheck_Free`. Geometric growth bounds the parked memory to the final
-  size. The dyna node list grows the same way (nodes are addressed by index).
+  array of 32 — growth doubles, so a list retires one buffer per doubling; overflow is
+  `LOG_HUNGUP_THREAD`) and freed with everything else in `BgCheck_Free`. Geometric growth bounds
+  the parked memory to the final size. The dyna node list grows the same way (nodes are addressed
+  by index).
 - Dyna actors: `BG_ACTOR_MAX` (50) is gone. `bgActors`/`bgActorFlags` are heap tables of
   `dyna.bgActorMax` slots (initially 64), doubled by `DynaPoly_SetBgActor` when the free-slot
   scan fails. `BGCHECK_SCENE` is a fixed sentinel (`0x7FFF`) instead of the table size, and
@@ -113,17 +121,18 @@ exhaustion like the arena was).
   `== BG_ACTOR_MAX` tests now name. `Actor.floorBgId/wallBgId` (were **u8** — silently
   truncating past 254) and `Camera.bgCheckId/nextBGCheckId` (s16) are `s32`. Query loops run
   over `bgActorMax`, which doubling keeps within 2× the live count. `DynaPoly_IsBgIdBgActor` is
-  a pure range check (`0 ≤ bgId < BGCHECK_SCENE`, no context); the `z_bgcheck.c` sites that
-  index the table also check the context's `bgActorMax` (`DynaPoly_IsBgIdInTable`). Also fixed: the
-  "transform unchanged" branch of `DynaPoly_ExpandSRT` still passed an `s16` to the widened
-  `s32*` `DynaSSNodeList_SetSSListHead` (4-byte read of a 2-byte local).
+  a pure range check (`0 ≤ bgId < BGCHECK_SCENE`, no context); the sites that index the table
+  also check the context's `bgActorMax` (`DynaPoly_IsBgIdInTable`, also used by
+  `code_800430A0.c`). Also fixed: the "transform unchanged" branch of `DynaPoly_ExpandSRT` still
+  passed an `s16` to the widened `s32*` `DynaSSNodeList_SetSSListHead` (4-byte read of a 2-byte
+  local).
 
 Memory impact on vanilla scenes: negligible (a few hundred KB moved from the arena to the heap).
 
 ## Not changed
 
-- Surface types (`u16 type` → 65 535 per header), water boxes (`u16`) — already ample.
-- Camera positions (`CamData.camPosData`) stay `Vec3s`; see the README's remaining limits.
+- `CollisionPoly.type` stays `u16` — 65 535 surface types per header, already ample.
+- Camera positions (`CamData.camPosData`) stay `Vec3s`; SPEC §9.
 
 ## Consumers touched
 
@@ -132,7 +141,9 @@ Memory impact on vanilla scenes: negligible (a few hundred KB moved from the are
 - `soh/soh/resource/type/CollisionHeader.h`, `importer/CollisionHeaderFactory.cpp` — struct
   mirror + unpacking.
 - `soh/soh/Enhancements/debugger/colViewer.cpp` — reads `numPolygons` / vertex indices via the
-  macros; no logic change.
+  macros and the surface-type accessors; no logic change.
+- `soh/soh/Enhancements/Restorations/GraveHoleJumps.cpp` — builds its synthetic surface type
+  through `SurfaceType_Unpack`.
 
 ## Status
 
@@ -146,3 +157,5 @@ Implemented on the `unbound` branch. See the README status table for build/verif
    dyna platforms. Collision viewer overlay should match pre-change.
 3. Stress: a Prelude-exported scene with > 8 191 vertices and > 32 767 polys loads and is
    walkable; scene transition back and forth shows no heap growth (`BgCheck_Free` works).
+4. Unpacked fields: a scene whose surface `exit` is 40 and `camera` 300 exits/cams correctly; a
+   water box with `room: 70` and one with `notSwimmable: 1` behave (swim vs. ripple only).

@@ -36,6 +36,10 @@ std::vector<std::string> ListKeys(const Json& obj);
 std::vector<std::string> PositionalKeys(const Json& list, const std::string& what);
 
 // Integer from a JSON number or a hex/decimal string ("0x0F12", "3858").
+// SPEC.md §2 string forms: decimal or 0x hex (ParseIntString), plus fraction/exponent (ParseNumberString);
+// the whole string must parse.
+bool ParseIntString(const std::string& text, int64_t& out);
+bool ParseNumberString(const std::string& text, double& out);
 int64_t ToInt(const Json& value, int64_t fallback = 0);
 // Number from a JSON number or string; positions may be fractional (world extent).
 double ToNumber(const Json& value, double fallback = 0.0);

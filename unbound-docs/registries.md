@@ -1,7 +1,9 @@
 # Unbound: scene and entrance registries
 
 Replaces the compiled-in `gSceneTable` / `gEntranceTable` with a runtime registry (`SceneDB`) so
-mods can add scenes and the entrances that lead into them. Overview in [`README.md`](./README.md).
+mods can add scenes and the entrances that lead into them. The registry document itself
+(`unbound/scenes.json`: keys, defaults, id rules) is defined in [`SPEC.md`](./SPEC.md) §7 and
+exit-by-name in SPEC §4.2; this file covers why and how. Overview in [`README.md`](./README.md).
 
 ## The cap, and why it exists
 
@@ -25,77 +27,48 @@ Mirrors the existing `ActorDB` pattern: the X-macro tables are kept **only as se
 
 - Scenes: `Entry { id, name, displayName, sceneFileName | scenePath, titleCardTexture, drawConfig }`.
   Vanilla entries are named by their enum (`SCENE_DEKU_TREE`), take their `displayName` from
-  `SohUtils::GetSceneName` once the registry is first used at runtime (`LoadCustomScenes`), and resolve
-  their o2r path with the vanilla MQ policy (`scenes/{shared,mq,nonmq}/<file>/<file>`;
+  `SohUtils::GetSceneName` once the registry is first used at runtime (`LoadCustomScenes`), and
+  resolve their o2r path with the vanilla MQ policy (`scenes/{shared,mq,nonmq}/<file>/<file>`;
   `GetScenePath(id, masterQuest)` picks the variant explicitly, `GetScenePath(id)` uses the mounted
   game's setting). Custom entries carry a full path.
-- Custom scene ids start at **`0x80`** (`CUSTOM_SCENE_ID_BASE`), leaving `SCENE_ID_MAX` (`0x6E`)
+- Custom scene ids start at `CUSTOM_SCENE_ID_BASE` (SPEC §7), leaving `SCENE_ID_MAX` (`0x6E`)
   free — it doubles as an "unused / no scene" sentinel in the vanilla entrance table and in
   Anchor/randomizer code.
 - Entrances: `gEntranceTable` is now a **pointer** into the registry's vector, so the ~25 existing
   `gEntranceTable[i]` read sites compile unchanged. `EntranceInfo.scene` is `s16`. A custom
-  entrance registers a full 4-entry layer group (all four identical) starting at an index that is
-  `>= ENTR_MAX` and a multiple of 4, so `entranceIndex + sceneSetupIndex` keeps working.
-- Names: vanilla entrances are addressable by their enum name (`ENTR_HYRULE_FIELD_0`); custom ones
-  as `<scene id>/<entrance id>`. `EntranceDB_RetrieveIndex(name)` resolves either. The debug
-  console's `entrance` command tries a registered name first, then a hex index (so a name that happens
-  to start with hex digits, `ENTR_DEKU_TREE_0`, is never misread as a number).
+  entrance registers a full 4-entry layer group starting at an index that is `>= ENTR_MAX` and a
+  multiple of 4 (SPEC §7), so `entranceIndex + sceneSetupIndex` keeps working.
+- Names: `EntranceDB_RetrieveIndex(name)` resolves both vanilla enum names and custom
+  `<scene id>/<entrance id>` names; the JSON loader's `ResolveExit` and the debug console's
+  `entrance` command both use it. The console tries a registered name first, then a hex index, so
+  a name that starts with hex digits (`ENTR_DEKU_TREE_0`) is never misread as a number.
+- Registry loading (`LoadCustomScenes`): `unbound/scenes.json` is read through
+  `Unbound::LoadMergedJson` after all mod archives are mounted (`UpdateModFiles(init)` in
+  `mod_menu.cpp`), so a mod can add a scene, patch another mod's entrance, or delete one with the
+  same merge rules as every other document. Each entry is registered in its own `try` — one
+  malformed entry is logged and skipped, the rest load. `DetectUnboundBase` parses every layer's
+  `unbound.json` for the version check (SPEC §6).
 
 `gSceneTable` no longer exists. Its two readers (`OTRPlay_SpawnScene`, randomizer `logic.cpp`)
-use the registry. `PlayState.loadedScene` and `SceneTableEntry` are gone; their only readers computed
-an unused title-file size.
+use the registry. `PlayState.loadedScene` and `SceneTableEntry` are gone; their only readers
+computed an unused title-file size.
 
-### Custom scene registry: `unbound/scenes.json`
-
-One layer-merged document (§3 of `scene-format.md`: `null` deletes, `$replace`, later archive wins)
-keyed by scene id, parsed after all mod archives are mounted (`UpdateModFiles(init)` in
-`mod_menu.cpp`). A mod can therefore add a scene, patch another mod's entrance, or delete one, with
-the same rules as every other document.
+Illustrative registry entry (the contract is SPEC §7):
 
 ```json
-{
-  "mymod/lava_temple": {
-    "name": "Lava Temple",
-    "scene": "scenes/mymod/lava_temple/scene.json",
-    "sceneId": 200,
-    "drawConfig": 0,
-    "titleCardTexture": "textures/mymod/lava_temple_title",
-    "entrances": {
-      "main": { "index": 1560, "spawn": 0, "showTitleCard": true, "continueBgm": false,
-                "endTransition": 2, "startTransition": 2 }
-    }
-  }
-}
+{ "mymod/lava_temple": { "scene": "scenes/mymod/lava_temple/scene.json",
+                         "entrances": { "main": { "spawn": 0, "showTitleCard": true } } } }
 ```
-
-| Field | Required | Notes |
-|---|---|---|
-| key | yes | Stable string id of the scene. Also the key under which the scene's saved flags are stored. |
-| `name` | no | Display name (menus, crash log). Defaults to the key. |
-| `scene` | yes | Full o2r path of the scene resource: a `scene.json`, or a binary/XML scene. Rooms come from the scene's own room list. |
-| `sceneId` | no | Explicit numeric id `>= 0x80`. Omit to take the next free one. Only needed when something outside the archive hard-codes the number. |
-| `drawConfig` | no | `SDC_*` index (0 = default). Out-of-range values are rejected. |
-| `titleCardTexture` | no | o2r path of a title card texture; shown when an entrance sets `showTitleCard`. |
-| `entrances` | no | Keyed list; the key is the entrance id, addressable as `<scene id>/<entrance id>`. |
-| `entrances.*.index` | no | Explicit first index of the 4-entry group, `>= 1556` and a multiple of 4. Only needed when a **binary** scene's exit list points at this entrance by number; JSON exit lists reference entrances by name and never need it. Deprecated: a later format version may drop it. |
-| `entrances.*.spawn` | no | Spawn index into the scene's start-position list. |
-| `entrances.*.showTitleCard` / `continueBgm` | no | `EntranceInfo` field flags. |
-| `entrances.*.endTransition` / `startTransition` | no | `TRANS_TYPE_*` values; default 2 (fade to black). |
-| `entrances.*.layers` | reserved | Per-layer (child/adult × day/night) overrides, not read yet; a custom entrance registers four identical layers today. |
-
-A JSON scene's exit list names entrances (`"exits": { "3": "mymod/lava_temple/main" }`, or a vanilla
-`ENTR_*` name); the loader resolves names through the registry when the scene loads, so no mod
-carries a table index. Numbers are still accepted (the converter emits them for vanilla scenes).
 
 ### Saved scene flags
 
 `SceneFlags_Get(sceneNum)` returns `&gSaveContext.sceneFlags[n]` for vanilla ids and a
-registry-owned `SavedSceneFlags` for custom ids; an unregistered id gets zeroed scratch storage and an
-error in the log. The four by-`sceneNum` sites (`Play_SaveSceneFlags`, `Actor_InitContext`,
-`GameInteractor_RawAction`, the debug save editor's Reload/Save Flags buttons) use it. `SaveManager`
-persists custom flags in a new `"unbound"` section as `sceneFlags.<scene id>.{chest,swch,…}`,
-keyed by **name**, so they survive id reassignment between mod stacks and never touch the
-positional vanilla array (old saves stay valid).
+registry-owned `SavedSceneFlags` for custom ids; an unregistered id gets zeroed scratch storage and
+an error in the log. The four by-`sceneNum` sites (`Play_SaveSceneFlags`, `Actor_InitContext`,
+`GameInteractor_RawAction`, the debug save editor's Reload/Save Flags buttons) use it.
+`SaveManager` persists custom flags in a new `"unbound"` section as
+`sceneFlags.<scene id>.{chest,swch,…}`, keyed by **name**, so they survive id reassignment between
+mod stacks and never touch the positional vanilla array (old saves stay valid).
 
 Known gap: save states (`savestates.cpp`) `memcpy` `gSaveContext` only, so they don't capture
 custom-scene flags.
@@ -122,6 +95,7 @@ custom-scene flags.
   (`entrance mymod/lava_temple/main`) or an exit from an edited scene.
 - Randomizer entrance shuffle still copies exactly `ENTR_MAX` entries; custom entrances are never
   shuffled. Randomizer is out of scope for Unbound.
+- Per-layer entrance overrides (`layers`, SPEC §7) are reserved but not read.
 
 ## Status
 
@@ -137,3 +111,5 @@ Implemented on the `unbound` branch. See the README status table for build/verif
    name.
 3. Robustness: an old save whose `entranceIndex` no longer exists lands in Hyrule Field with a
    log line, not a crash.
+4. Names: a `scene.json` exit naming `mymod/x/main` and one naming `ENTR_KOKIRI_FOREST_0` both
+   resolve; a misspelt name fails the scene with one log line.

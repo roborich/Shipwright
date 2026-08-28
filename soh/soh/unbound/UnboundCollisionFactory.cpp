@@ -225,6 +225,11 @@ ResourceFactoryJsonCollisionHeaderV1::ReadResource(std::shared_ptr<Ship::File> f
             version = std::stoi(schema.substr(slash + 1));
         } catch (...) { version = 1; }
     }
+    if (version != 1 && version != 2) {
+        SPDLOG_ERROR("[Unbound] {}: unsupported $schema '{}' (this build reads unbound/collision/1 and /2)",
+                     initData->Path, schema);
+        return nullptr;
+    }
     if (!ReadBulk(*col, doc.value(K::kBulk, Json::object()), version, initData->Path)) {
         return nullptr;
     }

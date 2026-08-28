@@ -9,14 +9,24 @@ modders can build things the vanilla game shape cannot hold.** Its primary consu
 It is not a randomizer build and does not try to stay diff-minimal against upstream. Randomizer
 and other enhancements that assume the vanilla tables may break; that is accepted.
 
+## Read this first
+
+- **[`SPEC.md`](./SPEC.md) — the contract.** Every way an Unbound `.o2r` differs from a vanilla
+  one: paths, documents, keys, types, merge rules, limits. Code reviews of this fork and of
+  Prelude's export are held to it; a fix that would change it is a format change. Nothing else in
+  this directory is normative.
+- The other files are *how* and *why*: they explain the engine changes behind each part of the
+  spec and may change freely.
+
 ## Goals
 
 1. **Uncap.** Collision size, scene and entrance count, objects per scene, actors, rooms, mesh
    entries, message ids, world extent — any fixed N64-era number a modder can hit.
-2. **Patch, don't replace.** Structured game data (scene/room headers, collision metadata, text)
-   is JSON that **merges across archive layers**, so a mod ships only what it changed. No more
-   bundling a whole scene because one exit moved.
-3. **Portable mods.** No ROM-version-specific names in anything a mod references.
+2. **Patch, don't replace.** Structured game data (scene/room headers, collision metadata, text,
+   the scene registry) is JSON that **merges across archive layers**, so a mod ships only what it
+   changed. No more bundling a whole scene because one exit moved.
+3. **Portable mods.** No ROM-version-specific names, and no allocated numbers, in anything a mod
+   references: entrances are referenced by name.
 4. **Keep the container.** Everything is still an `.o2r` (zip) loaded by libultraship; only what is
    *inside* the OoT archive was redesigned.
 
@@ -32,50 +42,53 @@ widened wherever a struct field or arena enforced a cap.
 
 ## What has been changed
 
-Everything below is tagged `// SOH [Unbound]` in the code. Each area has a detail doc.
+Everything below is tagged `// SOH [Unbound]` in the code. Each area has a how-doc; the format
+facts are in the cited SPEC sections.
 
-| Area | Change | Doc |
-|---|---|---|
-| **Collision** | Vertex indices and poly ids are 32-bit; the N64 byte budget is gone — node tables are heap-allocated and grow on demand, freed in `Play_Destroy`. Legacy 13-bit packed data is unpacked on load. Dyna actor table and dyna poly/vertex lists grow on demand (no `BG_ACTOR_MAX`). | [`collision.md`](./collision.md) |
-| **Scenes & entrances** | `gSceneTable`/`gEntranceTable` replaced by a runtime registry (`SceneDB`). Mods declare scenes + entrances in `unbound/scenes.json`; exit lists reference entrances by name; `EntranceInfo.scene` is 16-bit; custom-scene save flags are stored by scene name. Console: `entrance <name>`. | [`registries.md`](./registries.md) |
-| **Text** | Message tables are growable and hash-indexed; `text/<lang>/messages.json` merges across layers and can **add** or delete ids; message buffers 8 KB. | [`text.md`](./text.md) |
-| **Counts** | Object bank 1024 (was 128, silently dropping); actors per room and rooms per scene 16-bit; live-actor cap real (was a wrapping u8) and 8192; mesh entries 32-bit, sorted entries 1024; texture cache 8192. Room numbers 16-bit with unbounded clear flags, waterbox rooms and transition actors. Object ids past the vanilla table are usable — object "space" is vestigial on PC. | [`counts.md`](./counts.md) |
-| **Scene format** | The JSON layout, entity keys (Prelude's index scheme), and merge rules (`null` deletes, arrays replace, `$replace`, `$order`). | [`scene-format.md`](./scene-format.md) |
-| **World extent** | Positions are `f32` end to end: float `Mtx` (libultraship fork `GBI_FLOAT_MTX`), per-room mesh `origin`, f32 collision vertices/`dist`/bounds/water boxes (`collision.bin` v2), spawn entries, paths, point lights, colliders. `BGCHECK_XYZ_ABSMAX` is 2²⁰. Fog and draw distance are per-scene world units (`fogStart`/`fogEnd`/`drawDistance`/`nearPlane`; fog could not start past 2 500 units and `zFar` was 12 800). | [`extent.md`](./extent.md) |
-| **Converter** | `soh --export-unbound <out.o2r>` / console `unbound-export`: vanilla → Unbound archive in ~1 s. `soh/soh/unbound/UnboundExporter.cpp`. | `scene-format.md` §5 |
-| **Loader** | libultraship gained a JSON resource format (`{` sniff, type from `$schema`, found in any layer) and `LoadFileFromAllLayers`; SoH's JSON factories (`soh/soh/unbound/`) build the same command objects the binary loaders build, so scene execution code is untouched. | `scene-format.md` §4 |
+| Area | Change | How-doc | SPEC |
+|---|---|---|---|
+| **Collision** | Vertex indices and poly ids are 32-bit; the N64 byte budget is gone — node tables are heap-allocated and grow on demand, freed in `Play_Destroy`. Legacy packed data is unpacked on load. Surface types and water boxes are unpacked structs. Dyna actor table and dyna poly/vertex lists grow on demand. | [`collision.md`](./collision.md) | §4.4, §8 |
+| **Scenes & entrances** | `gSceneTable`/`gEntranceTable` replaced by a runtime registry (`SceneDB`) fed from a layer-merged `unbound/scenes.json`; exit lists reference entrances by name; custom-scene save flags are stored by scene name. Console: `entrance <name>`. | [`registries.md`](./registries.md) | §7, §4.2 |
+| **Text** | Message tables are growable and hash-indexed; `text/<lang>/messages.json` merges across layers and can add or delete ids; message buffers 8 KB. | [`text.md`](./text.md) | §5 |
+| **Counts** | Object bank 1024; actors per room and rooms per scene 16-bit; live-actor cap real and 8192; mesh entries unbounded; room numbers 16-bit with unbounded clear flags, waterbox rooms and transition actors. Object ids past the vanilla table are usable. | [`counts.md`](./counts.md) | §9 |
+| **Scene format** | Merging JSON loader, converter, entity-key scheme and the decisions behind them. | [`scene-format.md`](./scene-format.md) | §2–§4, §6 |
+| **World extent** | Positions are `f32` end to end: float `Mtx` (libultraship fork `GBI_FLOAT_MTX`), per-room mesh `origin`, f32 collision, spawns, paths, point lights, colliders. Fog and draw distance are per-scene world units. | [`extent.md`](./extent.md) | §4.2–4.4, §9 |
+| **Converter** | `soh --export-unbound <out.o2r>` / console `unbound-export`: vanilla → Unbound archive in ~1 s. `soh/soh/unbound/UnboundExporter.cpp`. | `scene-format.md` §3 | — |
+| **Loader** | libultraship gained a JSON resource format (`{` sniff, type from `$schema`, found in any layer) and `LoadFileFromAllLayers`; SoH's JSON factories (`soh/soh/unbound/`) build the same command objects the binary loaders build, so scene execution code is untouched. | `scene-format.md` §2 | §3 |
+| **Prelude** | Dated changelog of what Prelude must emit differently. | [`prelude-handoff.md`](./prelude-handoff.md) | — |
 
 Verified in game: a Prelude-generated mod adding a **new scene with high-poly collision** loads and
 plays; a two-line delta mod merges over the converted base (`examples/hyrule-field-actor-delta/`).
 
 ## Known remaining limits
 
-Likely next targets, roughly by how often a modder will hit them:
+The modder-facing list — what a tool must still validate — is SPEC §9. Engine-internal notes
+behind them and likely next targets:
 
-| Limit | Where | Notes |
-|---|---|---|
-| Scene camera data ±32 767 | `CamData.camPosData` is `Vec3s` (`BGCAM_*` packing in `z_camera.c`) | Fixed-camera zones cannot sit beyond the s16 range; the `Vec3s[3]` triple needs its own format change. |
-| Cutscene camera points ±32 767 | `CutsceneCameraPoint.pos` is parsed straight from cutscene command words | |
-| One room DL ≤ 65 535 units across | `Vtx` is `short` | Split rooms; each has its own `origin`. |
-| Mesh entries in **binary** headers ≤ 255 | binary `SetMesh` stores a u8 count | JSON headers have no such cap. Only matters for legacy archives. |
-| Decoded textbox 1 024 bytes | `MESSAGE_DECODED_BUF_SIZE` | Page long text with box-break control codes. |
-| Path points ≤ 255 | `PathData.count` is `u8` | The JSON loader logs and cuts a longer path. |
-| Light settings per setup ≤ 255 | `EnvironmentContext.numLightSettings` is `u8` | Surface/water-box `lightSetting` is unbounded in the format; the engine caps it. |
-| Entrance layer groups of 4 | `entranceIndex + sceneSetupIndex` arithmetic in `Play_Init` | Custom entrances register 4 identical layers. |
-| No minimap / pause map for custom scenes | `Map_Init` keyed by vanilla scene ranges | Needs a registry field for map data. |
-| Alternate setups | The JSON stores each in full; up to setup index 13 seen in vanilla | Not a cap, but `SetAlternateHeaders` arrays grow with the highest index. |
-| Save data | `sceneFlags[124]` positional for vanilla scenes; custom scenes keyed by name; save states don't capture custom flags | |
-| MQ | Converter emits `_mq` scenes only when `oot-mq.o2r` is mounted at export time | |
+- Scene camera data (`CamData.camPosData` `Vec3s[3]`) and cutscene camera points need their own
+  format change to leave the s16 range.
+- No minimap / pause map for custom scenes: `Map_Init` is keyed by vanilla scene ranges; needs a
+  registry field for map data.
+- Save data: `sceneFlags[124]` stays positional for vanilla scenes; custom scenes are keyed by
+  name in the `unbound` save section; save states don't capture custom flags.
+- Alternate setups are stored in full; `SetAlternateHeaders` arrays grow with the highest index
+  (13 seen in vanilla). Not a cap.
+- MQ: the converter emits `_mq` scenes only when `oot-mq.o2r` is mounted at export time.
+- A newer-`formatVersion` layer is refused as a base but its files still merge (libultraship
+  mounts whole archives).
 
 ## Working on the fork
 
-- Build: `cmake --build build-cmake --target soh -j8`. A change to `z64.h` rebuilds nearly
-  everything (10+ min on a busy machine); run long builds in the background with a log.
+- Build: `cmake --build build-cmake --target soh -j8`. A change to `z64.h` or `z64bgcheck.h`
+  rebuilds nearly everything (10+ min on a busy machine); run long builds in the background with a
+  log.
 - Smoke test: put `oot-unbound.o2r` beside `oot.o2r` in `build-cmake/soh`, launch, and grep the
   log for `[Unbound]` — the title screen loads Hyrule Field through `scene.json`.
 - Regenerate `soh.o2r` (`--target GenerateSohOtr`) if switching from a branch with different
   shaders; a stale one crashes at boot.
 - Prefer widening a field over adding a registry; prefer a registry over a static table; prefer
-  JSON that merges over binary that replaces. Keep the `SOH [Unbound]` marker on every edit.
+  JSON that merges over binary that replaces; prefer a name over an allocated number. Keep the
+  `SOH [Unbound]` marker on every edit. Key names live once, in `soh/soh/unbound/UnboundSchema.h`.
+- A change to what an archive may contain is a SPEC change first (SPEC §10), code second.
 - libultraship is a submodule on the fork branch `unbound`; commit there first, then update the
   pointer here.

@@ -2,7 +2,9 @@
 
 The small width lifts: how many objects a scene may list, how many actors a room header and the
 live world may hold, how many rooms a scene has, and how many display lists a room mesh may carry.
-Overview in [`README.md`](./README.md).
+The resulting limits, as a modder sees them, are the table in [`SPEC.md`](./SPEC.md) §9; this
+file explains where each cap came from and what was widened. Overview in
+[`README.md`](./README.md).
 
 ## What was capped, and what actually enforced it
 
@@ -18,22 +20,22 @@ Overview in [`README.md`](./README.md).
 | Sorted (type-2) mesh entries | `SHAPE_SORT_MAX` in `z_room.c` | 64 | `assert` |
 | Texture cache | `TEXTURE_CACHE_MAX_SIZE` in libultraship `interpreter.cpp` | 1 024 | Thrash, not crash. |
 
-## What changes
+## What changes (engine)
 
-- `OBJECT_EXCHANGE_BANK_MAX` 128 → **1024**; `ObjectContext.num/unk_09/mainKeepIndex/subKeepIndex`
+- `OBJECT_EXCHANGE_BANK_MAX` 128 → 1024; `ObjectContext.num/unk_09/mainKeepIndex/subKeepIndex`
   u8 → u16; `Actor.objBankIndex` s8 → s16. Overflow now logs (`[Unbound] object list exceeds the
   bank`) instead of dropping silently.
 - `gObjectTable[id]` reads in `Object_Spawn` / `func_800981B8` are guarded by
   `id < gObjectTableSize`; ids beyond the vanilla table get size 0, which is what every vanilla
-  object already has on PC. **A mod can use any object id ≥ 0x192 today**: put it in the scene's
-  object list, reference it from `ActorDB` entries, and ship its assets under any path the actor
-  code names. There is no object registry file because nothing on the game side needs one.
+  object already has on PC. A mod can therefore use any object id: put it in the scene's object
+  list, reference it from `ActorDB` entries, and ship its assets under any path the actor code
+  names. There is no object registry file because nothing on the game side needs one.
 - `numSetupActors`, `numRooms` u8 → u16 (`z64.h`).
-- `ActorContext.total` u8 → u16 and `ACTOR_NUMBER_MAX` 2000 → **8192**, so the cap is real and
+- `ActorContext.total` u8 → u16 and `ACTOR_NUMBER_MAX` 2000 → 8192, so the cap is real and
   generous.
 - `PolygonType0/2.num` u8 → u32 (`z64.h` and the `SetMesh` resource mirror). The binary `SetMesh`
-  reader still reads a u8 count (cast, no sign bug); the XML reader (`PolyNum` attribute) can
-  exceed 255 now. The binary format limit goes away with the scene-format redesign.
+  reader still reads a u8 count (cast, no sign bug); the XML reader (`PolyNum` attribute) and the
+  JSON loader are unbounded.
 - `SHAPE_SORT_MAX` 64 → 1024 (stack array in `func_80095D04`, ~24 KB; fine on PC).
 - `TEXTURE_CACHE_MAX_SIZE` 1024 → 8192 (libultraship fork).
 
@@ -45,26 +47,28 @@ Overview in [`README.md`](./README.md).
   Door_Shutter, Bg_Mori_Idomizu, plus the port-layer readers — `valueViewer` type tag, Anchor
   `TeleportTo`, `EnemyRandomizer`, `Warping`). The binary transition/entrance loaders read the room
   byte **signed** so vanilla's `0xFF` "no room" still arrives as `-1` (it used to be an accident of
-  the s8 truncation). The `s8` sweep alone was not enough — room-keyed *state* capped earlier:
+  the s8 truncation; SPEC §8). The `s8` sweep alone was not enough — room-keyed *state* capped
+  earlier:
   - **Clear / temp-clear flags** were `1 << room` on a `u32`. Rooms ≥ 32 now go through
     `SceneFlagsExt_*` (`SceneDB.cpp`): a growable per-scene bitset for any scene id, persisted by
     scene name in the `unbound` save section (`roomClearExt`). They are staged like the u32 masks:
     `SceneFlagsExt_LoadClear` on scene init (also resets temp flags), `SceneFlagsExt_SaveClear` from
     `Play_SaveSceneFlags` — so unsaved flags are discarded on game over for every room number alike.
     Rooms < 32 are untouched so vanilla saves keep their layout.
-  - **Waterbox room** was a 6-bit field in `properties` (`0x3F` = all). `WaterBox.room` is unpacked
-    at load by every loader; `collision.json` accepts an explicit `"room"` (`-1` = all) that overrides
-    the packed bits, so a mod can put water in room 70.
+  - **Waterbox room** was a 6-bit field in `properties`. `WaterBox.room` is a plain field now
+    (SPEC §4.4), unpacked at load by the legacy loaders, so a mod can put water in room 70.
   - **Transition actors** were capped at 64 by the index packed into `params` (`i << 10`).
     `Actor.transitionIndex` (set by `Actor_SpawnTransitionActors`) carries it; readers use
     `TRANSITION_ACTOR_INDEX(actor)`, which falls back to the params packing for actors spawned any
-    other way. `TransitionActorContext.numActors` is u16.
+    other way (the debugger's actor viewer still packs it that way). `TransitionActorContext.numActors`
+    is u16.
   - **Minimap visited bits** (`sceneFlags[].rooms`, `gBitFlags[room]`) are guarded to rooms < 32;
-    custom scenes have no minimap yet anyway (README limits).
+    custom scenes have no minimap yet anyway (SPEC §9).
+
 ## Not changed
 
 - The 1 MB object arena is still allocated from the play-state heap for vanilla parity
-  (`Object_InitBank`). It could be dropped entirely; left for the scene-format pass.
+  (`Object_InitBank`). It could be dropped entirely.
 - `OBJECT_ID_MAX` and the `ObjectID` enum are untouched — they name vanilla objects only.
 
 ## Status

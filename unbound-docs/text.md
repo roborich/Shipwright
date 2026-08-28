@@ -1,7 +1,9 @@
 # Unbound: text
 
 Lets mods **add** message ids (not just replace them), ship text as a small JSON merge file, and
-show longer messages. Overview in [`README.md`](./README.md).
+show longer messages. The document (`text/<lang>/messages.json`: keys, id rules, byte encoding)
+is defined in [`SPEC.md`](./SPEC.md) §5; this file covers why and how. Overview in
+[`README.md`](./README.md).
 
 ## The caps, and why they exist
 
@@ -23,42 +25,26 @@ One `MessageTable` per language (`eng`/`nes`, `ger`, `fra`, `jpn`, `staff`):
 - Owns its bytes (`std::deque<std::string>` so `c_str()` stays stable), keeps the C-visible
   `std::vector<MessageTableEntry>` in base order with new ids appended before the terminator, and
   a `textId → index` hash.
-- Load order per language: base (the layer-merged `text/<lang>/messages.json` when any mounted
-  archive provides it, otherwise the binary/XML `Text` resource) → `override/<folder>/*` (legacy
-  binary overrides, **add or replace**) → finalize. Initialisation runs once per process.
+- Load order per language: base (`LoadJsonBase` — the layer-merged `text/<lang>/messages.json`
+  through `Unbound::LoadMergedJson` when any mounted archive provides it, otherwise the binary/XML
+  `Text` resource) → `override/<folder>/*` (legacy binary overrides, **add or replace**) →
+  finalize. Initialisation runs once per process (`sInitialized`). An empty merged table is still
+  the base; it does not fall through to the binary resource.
+- `messages` entries whose value is `null` are deletions: the merge drops them from upper layers
+  and `ApplyJsonMessages` skips non-objects, so the id never reaches the table.
 - Publishes the same `sNes/Ger/Fra/Jpn/StaffMessageEntryTablePtr` globals, so the ~15 existing
   consumers (message viewer, settings menu, save editor, kanji font, custom message manager)
   compile unchanged and still see a `0xFFFF`-terminated array.
 - `OTRMessage_Find(table, id)` — hash lookup for any published table pointer; used by the three
   find functions in `z_message_PAL.c`, which keep their vanilla not-found fallbacks.
+- `JsonTextToBytes` maps each code point U+0000–U+00FF to one byte; anything higher becomes `?`
+  with one warning per message (SPEC §5).
 
-### `text/<lang>/messages.json`
-
-One layer-merged document per language (§3 of `scene-format.md`). The converter writes the full
-vanilla table; a mod ships the same path with only the ids it adds or changes, and `null` deletes
-an id. There is no separate merge-file mechanism.
+Illustrative merge file (the contract is SPEC §5):
 
 ```json
-{
-  "$schema": "unbound/text/1",
-  "messages": {
-    "0x0F12": { "box": 0, "ypos": 0, "text": "Hello, modded world." },
-    "3859":   { "box": 2, "ypos": 1, "text": "Second message" },
-    "0x0071": null
-  }
-}
+{ "messages": { "0x0F12": { "box": 0, "ypos": 0, "text": "Hello, modded world." } } }
 ```
-
-- `<lang>`: `eng`, `ger`, `fra`, `jpn`, `staff`. The folder is the language; the document carries no
-  `language` key. `$schema` is self-description for tools only — the table is read directly, not as a
-  libultraship resource.
-- `messages`: an object keyed by id — integer or a string parsed with base auto-detect (`"0x0F12"`,
-  `"3858"`).
-- `box` / `ypos`: textbox type and y-position (the `typePos` nibbles).
-- `text`: the raw message bytes as a JSON string where each code point `0–255` is one byte —
-  control codes (`\u0001` newline, `\u0005A` colour, `\u0002` end, …) are written as escapes.
-  A missing `\u0002` terminator is appended. Code points above `U+00FF` have no byte form; each becomes
-  `?` and the file logs a warning.
 
 Mods no longer bundle a language's whole table: a Prelude message edit becomes a `messages.json`
 with the changed ids. Adding an id used by a custom actor or scene is a one-line entry.
@@ -73,11 +59,10 @@ codes remain the way to page long text.
 ## Not changed
 
 - Legacy archives keep their binary/XML `Text` base resources — Prelude's OTXT codec keeps working,
-  and the `override/` mechanism now covers additions too. Only Unbound-format archives carry the base
-  as JSON.
+  and the `override/` mechanism still applies on top of either base.
 - `CustomMessageManager` (randomizer / enhancement text generated at runtime) still bypasses the
   tables via `VB`/`OnOpenText`; it neither needed nor gets a change.
-- Message ids stay `u16`. `0xFFFC`/`0xFFFD`/`0xFFFF` keep their sentinel roles.
+- Message ids stay `u16`; the sentinel ids are reserved (SPEC §5).
 
 ## Status
 
@@ -90,5 +75,6 @@ Implemented on the `unbound` branch. See the README status table for build/verif
 2. Add: an archive with `text/eng/messages.json` adding id `0x0F12`; `Message_StartTextbox` it via
    the Message Viewer / a modded actor — it displays.
 3. Replace: the same file overriding an existing id (e.g. `0x0001`) — the new text shows.
-4. Long: a message > 1280 bytes with box breaks pages correctly; one > 8192 bytes logs a truncation
+4. Delete: the same file with `"0x0001": null` — the vanilla not-found fallback shows.
+5. Long: a message > 1280 bytes with box breaks pages correctly; one > 8192 bytes logs a truncation
    line instead of corrupting memory.

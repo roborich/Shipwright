@@ -203,8 +203,16 @@ void ApplyJsonMessage(MessageTable& table, const nlohmann::json& entry, uint16_t
 // "messages": { "<id>": { box, ypos, text } }. A null entry is a deletion left by a single-layer document.
 size_t ApplyJsonMessages(MessageTable& table, const nlohmann::json& messages, const std::string& path) {
     size_t count = 0;
+    if (!messages.is_object()) {
+        SPDLOG_ERROR("[Unbound] {}: \"messages\" must be an object keyed by id (SPEC.md §5)", path);
+        return 0;
+    }
     for (const auto& [key, entry] : messages.items()) {
         if (entry.is_object()) {
+            if (!entry.contains(K::kText) || !entry[K::kText].is_string()) {
+                SPDLOG_ERROR("[Unbound] {}: message {} has no \"text\"; skipped", path, key);
+                continue;
+            }
             ApplyJsonMessage(table, entry, ParseMessageId(nlohmann::json(key)), path);
             count++;
         }

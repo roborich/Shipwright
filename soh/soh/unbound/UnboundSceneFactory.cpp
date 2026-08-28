@@ -256,22 +256,22 @@ Command BuildStartPositions(CommandBuilder& b, const Json& list) {
 
 // An exit is an entrance table index, or the name of a vanilla (ENTR_*) or registered custom entrance.
 uint16_t ResolveExit(CommandBuilder& b, const std::string& key, const Json& value) {
-    if (!value.is_string()) {
-        return (uint16_t)ToInt(value);
+    if (value.is_number_integer() && value.get<int64_t>() >= 0) {
+        return (uint16_t)value.get<int64_t>();
     }
-    std::string name = value.get<std::string>();
-    int32_t index = EntranceDB_RetrieveIndex(name.c_str());
-    if (index >= 0) {
-        return (uint16_t)index;
-    }
-    try {
-        size_t consumed = 0;
-        int index = std::stoi(name, &consumed, 0); // "0x0211" is still an index, not a name
-        if (consumed == name.size() && index >= 0) {
+    if (value.is_string()) {
+        std::string name = value.get<std::string>();
+        int32_t index = EntranceDB_RetrieveIndex(name.c_str());
+        if (index >= 0) {
             return (uint16_t)index;
         }
-    } catch (...) {}
-    throw Unbound::DocumentError(b.docPath + " " + K::kExits + "/" + key + ": unknown entrance '" + name + "'");
+        int64_t parsed = 0;
+        if (Unbound::ParseIntString(name, parsed) && parsed >= 0) { // "0x0211" is still an index, not a name
+            return (uint16_t)parsed;
+        }
+        throw Unbound::DocumentError(b.docPath + " " + K::kExits + "/" + key + ": unknown entrance '" + name + "'");
+    }
+    throw Unbound::DocumentError(b.docPath + " " + K::kExits + "/" + key + ": an exit is an index or an entrance name");
 }
 
 Command BuildExitList(CommandBuilder& b, const Json& list) {
