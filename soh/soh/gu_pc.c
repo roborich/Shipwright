@@ -1,41 +1,15 @@
 #include <math.h>
+#include <string.h>
 #include "z64.h"
 
+// SOH [Unbound] Mtx is float (GBI_FLOAT_MTX in libultraship fast/types.h): the s16.16 pack/unpack that wrapped
+// translations >= 32768 becomes a copy. See unbound-docs/extent.md.
 void guMtxF2L(float mf[4][4], Mtx* m) {
-    unsigned int r, c;
-    s32 tmp1;
-    s32 tmp2;
-    s32* m1 = &m->m[0][0];
-    s32* m2 = &m->m[2][0];
-    for (r = 0; r < 4; r++) {
-        for (c = 0; c < 2; c++) {
-            tmp1 = mf[r][2 * c] * 65536.0f;
-            tmp2 = mf[r][2 * c + 1] * 65536.0f;
-            *m1++ = (tmp1 & 0xffff0000) | ((tmp2 >> 0x10) & 0xffff);
-            *m2++ = ((tmp1 << 0x10) & 0xffff0000) | (tmp2 & 0xffff);
-        }
-    }
+    memcpy(m->mf, mf, sizeof(m->mf));
 }
 
 void guMtxL2F(float mf[4][4], Mtx* m) {
-    unsigned int r, c;
-    u32 tmp1;
-    u32 tmp2;
-    u32* m1;
-    u32* m2;
-    s32 stmp1, stmp2;
-    m1 = (u32*)&m->m[0][0];
-    m2 = (u32*)&m->m[2][0];
-    for (r = 0; r < 4; r++) {
-        for (c = 0; c < 2; c++) {
-            tmp1 = (*m1 & 0xffff0000) | ((*m2 >> 0x10) & 0xffff);
-            tmp2 = ((*m1++ << 0x10) & 0xffff0000) | (*m2++ & 0xffff);
-            stmp1 = *(s32*)&tmp1;
-            stmp2 = *(s32*)&tmp2;
-            mf[r][c * 2 + 0] = stmp1 / 65536.0f;
-            mf[r][c * 2 + 1] = stmp2 / 65536.0f;
-        }
-    }
+    memcpy(mf, m->mf, sizeof(m->mf));
 }
 
 void guMtxIdentF(f32 mf[4][4]) {
@@ -52,7 +26,7 @@ void guMtxIdentF(f32 mf[4][4]) {
 }
 
 void guMtxIdent(Mtx* m) {
-    guMtxIdentF(m->m);
+    guMtxIdentF(m->mf);
 }
 
 void guTranslateF(float m[4][4], float x, float y, float z) {

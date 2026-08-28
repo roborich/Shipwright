@@ -142,7 +142,7 @@ void EnTg_Update(Actor* thisx, PlayState* play) {
     EnTg* this = (EnTg*)thisx;
     s32 pad;
     f32 temp;
-    Vec3s sp2C;
+    Vec3f sp2C; // SOH [Unbound] collider dims are f32
 
     sp2C.x = this->actor.world.pos.x;
     sp2C.y = this->actor.world.pos.y;

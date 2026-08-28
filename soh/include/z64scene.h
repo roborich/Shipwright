@@ -273,7 +273,7 @@ typedef struct {
 
 typedef struct {
     /* 0x00 */ u8 count; // number of points in the path
-    /* 0x04 */ Vec3s* points; // Segment Address to the array of points
+    /* 0x04 */ Vec3f* points; // Segment Address to the array of points. // SOH [Unbound] s16 -> f32 (world extent)
 } Path; // size = 0x8
 
 typedef union {

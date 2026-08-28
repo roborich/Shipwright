@@ -140,6 +140,7 @@ Field ↔ SoH command mapping:
 ```json
 {
   "$schema": "unbound/room/1",
+  "origin": [0, 0, 0],
   "setups": {
     "0": {
       "behavior": { "gameplayFlags": 0, "gameplayFlags2": 0 },
@@ -199,14 +200,21 @@ additions (`"prelude-8f3a"`) as long as they are unique within the list.
   "surfaceTypes": { "0": { "data0": "0x00000000", "data1": "0x00000000" } },
   "cameras":  { "0": { "sType": 1, "count": 0, "positionIndex": null } },
   "cameraPositions": { "0": [0,0,0], "1": [0,0,0] },
-  "waterBoxes": { "0": { "xMin": 0, "ySurface": 0, "zMin": 0, "xLength": 0, "zLength": 0, "properties": "0x0" } }
+  "waterBoxes": { "0": { "xMin": 0, "ySurface": 0, "zMin": 0, "xLength": 0, "zLength": 0, "properties": "0x0", "room": -1 } }
 }
 ```
 
-`collision.bin` is little-endian, no LUS header: `vertices × { s16 x, y, z }` (6 bytes each),
-padded to 4, then `polys × { u16 type, u32 vA, u32 vB, u32 vC, s16 nx, ny, nz, s16 dist }`
-(24 bytes). Vertex words use the in-memory packing from `collision.md` (index bits 0–28,
-xpFlags/conveyor bits 29–31). Bulk replaces whole; `collision.json` merges key-wise.
+`collision.bin` is little-endian, no LUS header. The `$schema` version selects the layout:
+
+- **`unbound/collision/2`** (current, emitted by the converter): `vertices × { f32 x, y, z }`
+  (12 bytes), then `polys × { u16 type, u16 pad, u32 vA, u32 vB, u32 vC, s16 nx, ny, nz, s16 pad,
+  f32 dist }` (28 bytes). Positions are floats end to end (see `extent.md`).
+- `unbound/collision/1` (still loaded): `vertices × { s16 x, y, z }` (6 bytes), padded to 4, then
+  `polys × { u16 type, u32 vA, u32 vB, u32 vC, s16 nx, ny, nz, s16 dist, s16 pad }` (24 bytes).
+
+Vertex words use the in-memory packing from `collision.md` (index bits 0–28, xpFlags/conveyor
+bits 29–31). Bulk replaces whole; `collision.json` merges key-wise. `bounds`, water-box extents,
+and every `pos` in scene/room documents accept fractional numbers.
 
 ### 2.4 `paths/<name>.json`
 

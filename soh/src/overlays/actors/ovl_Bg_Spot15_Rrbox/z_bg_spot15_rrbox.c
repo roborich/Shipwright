@@ -65,7 +65,7 @@ void func_808B3960(BgSpot15Rrbox* this, PlayState* play, CollisionHeader* collis
 
     this->dyna.bgId = DynaPoly_SetBgActor(play, &play->colCtx.dyna, &this->dyna.actor, colHeader);
 
-    if (this->dyna.bgId == BG_ACTOR_MAX) {
+    if (this->dyna.bgId == BGACTOR_INVALID) {
         osSyncPrintf("Warning : move BG 登録失敗(%s %d)(name %d)(arg_data 0x%04x)\n", __FILE__, __LINE__,
                      this->dyna.actor.id, this->dyna.actor.params);
     }
@@ -78,7 +78,7 @@ void func_808B39E8(Vec3f* arg0, Vec3f* arg1, f32 arg2, f32 arg3) {
 }
 
 void func_808B3A34(BgSpot15Rrbox* this) {
-    this->bgId = BG_ACTOR_MAX;
+    this->bgId = BGACTOR_INVALID;
 }
 
 s32 func_808B3A40(BgSpot15Rrbox* this, PlayState* play) {

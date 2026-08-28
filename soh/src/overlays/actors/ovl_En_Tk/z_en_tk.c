@@ -304,7 +304,7 @@ f32 EnTk_Step(EnTk* this, PlayState* play) {
 
 s32 EnTk_Orient(EnTk* this, PlayState* play) {
     Path* path;
-    Vec3s* point;
+    Vec3f* point; // SOH [Unbound] f32 path points
     f32 dx;
     f32 dz;
 

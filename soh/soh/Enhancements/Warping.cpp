@@ -20,7 +20,7 @@ void Select_LoadGame(SelectContext* selectContext, s32 entranceIndex);
 
 typedef struct WarpPoint {
     s32 entranceId;
-    s8 roomNum;
+    s16 roomNum; // SOH [Unbound] s8 -> s16
     Vec3f pos;
     s16 rotY;
     bool bootToPoint;

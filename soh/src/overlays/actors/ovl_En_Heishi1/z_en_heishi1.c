@@ -159,7 +159,7 @@ void EnHeishi1_SetupWalk(EnHeishi1* this, PlayState* play) {
 
 void EnHeishi1_Walk(EnHeishi1* this, PlayState* play) {
     Path* path;
-    Vec3s* pointPos;
+    Vec3f* pointPos;
     f32 pathDiffX;
     f32 pathDiffZ;
     s16 randOffset;

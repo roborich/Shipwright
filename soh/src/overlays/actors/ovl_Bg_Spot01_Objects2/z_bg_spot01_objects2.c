@@ -78,7 +78,7 @@ void BgSpot01Objects2_Destroy(Actor* thisx, PlayState* play) {
 }
 
 s32 func_808AC22C(Path* pathList, Vec3f* pos, s32 path, s32 waypoint) {
-    Vec3s* pointPos = &((Vec3s*)SEGMENTED_TO_VIRTUAL((pathList + path)->points))[waypoint];
+    Vec3f* pointPos = &((Vec3f*)SEGMENTED_TO_VIRTUAL((pathList + path)->points))[waypoint];
 
     pos->x = pointPos->x;
     pos->y = pointPos->y;

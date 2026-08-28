@@ -146,7 +146,7 @@ void ObjBean_InitDynaPoly(ObjBean* this, PlayState* play, CollisionHeader* colli
     CollisionHeader_GetVirtual(collision, &colHeader);
 
     this->dyna.bgId = DynaPoly_SetBgActor(play, &play->colCtx.dyna, &this->dyna.actor, colHeader);
-    if (this->dyna.bgId == BG_ACTOR_MAX) {
+    if (this->dyna.bgId == BGACTOR_INVALID) {
         osSyncPrintf("Warning : move BG 登録失敗(%s %d)(name %d)(arg_data 0x%04x)\n", __FILE__, __LINE__,
                      this->dyna.actor.id, this->dyna.actor.params);
     }
@@ -235,7 +235,7 @@ void ObjBean_SetupPathCount(ObjBean* this, PlayState* play) {
 
 void ObjBean_SetupPath(ObjBean* this, PlayState* play) {
     Path* path = &play->setupPathList[(this->dyna.actor.params >> 8) & 0x1F];
-    Math_Vec3s_ToVec3f(&this->pathPoints, SEGMENTED_TO_VIRTUAL(path->points));
+    this->pathPoints = *(Vec3f*)SEGMENTED_TO_VIRTUAL(path->points); // SOH [Unbound]
 }
 
 void ObjBean_FollowPath(ObjBean* this, PlayState* play) {
@@ -243,9 +243,9 @@ void ObjBean_FollowPath(ObjBean* this, PlayState* play) {
     Vec3f acell;
     Vec3f pathPointsFloat;
     f32 speed;
-    Vec3s* nextPathPoint;
-    Vec3s* currentPoint;
-    Vec3s* sp4C;
+    Vec3f* nextPathPoint;
+    Vec3f* currentPoint;
+    Vec3f* sp4C;
     Vec3f sp40;
     Vec3f sp34;
     f32 sp30;
@@ -253,15 +253,15 @@ void ObjBean_FollowPath(ObjBean* this, PlayState* play) {
 
     Math_StepToF(&this->dyna.actor.speedXZ, sBeanSpeeds[this->unk_1F6].velocity, sBeanSpeeds[this->unk_1F6].accel);
     path = &play->setupPathList[(this->dyna.actor.params >> 8) & 0x1F];
-    nextPathPoint = &((Vec3s*)SEGMENTED_TO_VIRTUAL(path->points))[this->nextPointIndex];
+    nextPathPoint = &((Vec3f*)SEGMENTED_TO_VIRTUAL(path->points))[this->nextPointIndex];
 
-    Math_Vec3s_ToVec3f(&pathPointsFloat, nextPathPoint);
+    pathPointsFloat = *nextPathPoint; // SOH [Unbound]
 
     Math_Vec3f_Diff(&pathPointsFloat, &this->pathPoints, &acell);
     mag = Math3D_Vec3fMagnitude(&acell);
     speed = CLAMP_MIN(this->dyna.actor.speedXZ, 0.5f);
     if (speed > mag) {
-        currentPoint = &((Vec3s*)SEGMENTED_TO_VIRTUAL(path->points))[this->currentPointIndex];
+        currentPoint = &((Vec3f*)SEGMENTED_TO_VIRTUAL(path->points))[this->currentPointIndex];
 
         Math_Vec3f_Copy(&this->pathPoints, &pathPointsFloat);
         this->currentPointIndex = this->nextPointIndex;
@@ -271,7 +271,7 @@ void ObjBean_FollowPath(ObjBean* this, PlayState* play) {
         } else {
             this->nextPointIndex++;
         }
-        sp4C = &((Vec3s*)SEGMENTED_TO_VIRTUAL(path->points))[this->nextPointIndex];
+        sp4C = &((Vec3f*)SEGMENTED_TO_VIRTUAL(path->points))[this->nextPointIndex];
         Math_Vec3s_DiffToVec3f(&sp40, nextPathPoint, currentPoint);
         Math_Vec3s_DiffToVec3f(&sp34, sp4C, nextPathPoint);
         if (Math3D_CosOut(&sp40, &sp34, &sp30)) {

@@ -1027,7 +1027,7 @@ typedef struct {
 } PolygonType1;
 
 typedef struct {
-    /* 0x00 */ Vec3s pos;
+    /* 0x00 */ Vec3f pos; // SOH [Unbound] s16 -> f32 (world extent)
     /* 0x06 */ s16   unk_06;
     /* 0x08 */ Gfx*  opa;
     /* 0x0C */ Gfx*  xlu;
@@ -1072,7 +1072,7 @@ typedef enum {
 } RoomBehaviorType2;
 
 typedef struct {
-    /* 0x00 */ s8   num;
+    /* 0x00 */ s16  num; // SOH [Unbound] s8 -> s16 (rooms > 127)
     /* 0x01 */ u8   unk_01;
     /* 0x02 */ u8   behaviorType2;
     /* 0x03 */ u8   behaviorType1;
@@ -1081,6 +1081,9 @@ typedef struct {
     /* 0x08 */ MeshHeader* meshHeader; // original name: "ground_shape"
     /* 0x0C */ void* segment;
     /* 0x10 */ char unk_10[0x4];
+    // SOH [Unbound] World position of the room mesh's local origin (rooms/<n>.json "origin"); vanilla 0,0,0.
+    // Mesh vertices are s16, so a room placed beyond +/-32767 authors its geometry relative to this point.
+    Vec3f origin;
 } Room; // size = 0x14
 
 typedef struct {
@@ -1234,25 +1237,25 @@ typedef struct {
 
 typedef struct {
     /* 0x00 */ s16   id;
-    /* 0x02 */ Vec3s pos;
+    /* 0x02 */ Vec3f pos; // SOH [Unbound] s16 -> f32 (world extent)
     /* 0x08 */ Vec3s rot;
     /* 0x0E */ s16   params;
 } ActorEntry; // size = 0x10
 
 typedef struct {
     struct {
-        s8 room;    // Room to switch to
+        s16 room;   // Room to switch to. SOH [Unbound] s8 -> s16
         s8 effects; // How the camera reacts during the transition
     } /* 0x00 */ sides[2]; // 0 = front, 1 = back
     /* 0x04 */ s16   id;
-    /* 0x06 */ Vec3s pos;
+    /* 0x06 */ Vec3f pos; // SOH [Unbound] s16 -> f32 (world extent)
     /* 0x0C */ s16   rotY;
     /* 0x0E */ s16   params;
 } TransitionActorEntry; // size = 0x10
 
 typedef struct {
     /* 0x00 */ u8 spawn;
-    /* 0x01 */ u8 room;
+    /* 0x01 */ s16 room; // SOH [Unbound] u8 -> s16
 } EntranceEntry;
 
 #define SRAM_SIZE 0x8000
@@ -1365,7 +1368,7 @@ typedef struct {
 typedef struct {
     /*      */ s32 entranceIndex;
     /*      */ s32 returnEntranceIndex;
-    /*      */ s8 roomIndex;
+    /*      */ s16 roomIndex; // SOH [Unbound]
     /*      */ s8 data;
     /*      */ s8 exitScene;
     /*      */ Vec3f pos;
@@ -1413,7 +1416,7 @@ typedef struct {
 } ElfMessage; // size = 0x4
 
 typedef struct {
-    /* 0x00 */ u8 numActors;
+    /* 0x00 */ u16 numActors; // SOH [Unbound] u8 -> u16
     /* 0x04 */ TransitionActorEntry* list;
 } TransitionActorContext;
 

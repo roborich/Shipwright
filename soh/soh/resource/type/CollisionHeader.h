@@ -6,6 +6,11 @@
 #include <libultraship/libultra.h>
 #include "z64math.h"
 
+#ifndef WATERBOX_UNPACK_ROOM
+// SOH [Unbound] mirror of z64bgcheck.h
+#define WATERBOX_UNPACK_ROOM(p) ((((p) >> 13) & 0x3F) == 0x3F ? -1 : (s32)(((p) >> 13) & 0x3F))
+#endif
+
 namespace SOH {
 
 // SOH [Unbound] Must mirror CollisionPoly in soh/include/z64bgcheck.h (u32 vertex words, flags in bits 29-31)
@@ -22,21 +27,22 @@ typedef struct {
     Vec3s normal; // Unit normal vector
                   // Value ranges from -0x7FFF to 0x7FFF, representing -1.0 to 1.0; 0x8000 is invalid
 
-    s16 dist; // Plane distance from origin along the normal
+    f32 dist; // Plane distance from origin along the normal. // SOH [Unbound] s16 -> f32 (world extent)
 } CollisionPoly;
 
 typedef struct {
-    /* 0x00 */ s16 xMin;
-    /* 0x02 */ s16 ySurface;
-    /* 0x04 */ s16 zMin;
-    /* 0x06 */ s16 xLength;
-    /* 0x08 */ s16 zLength;
+    /* 0x00 */ f32 xMin; // SOH [Unbound] s16 -> f32 (world extent)
+    /* 0x02 */ f32 ySurface;
+    /* 0x04 */ f32 zMin;
+    /* 0x06 */ f32 xLength;
+    /* 0x08 */ f32 zLength;
     /* 0x0C */ u32 properties;
 
     // 0x0008_0000 = ?
     // 0x0007_E000 = Room Index, 0x3F = all rooms
     // 0x0000_1F00 = Lighting Settings Index
     // 0x0000_00FF = CamData index
+    s32 room; // SOH [Unbound] unpacked room index, -1 = all rooms
 } WaterBox; // size = 0x10
 
 typedef struct {
@@ -53,10 +59,10 @@ typedef struct {
 } SurfaceType;
 
 typedef struct {
-    /* 0x00 */ Vec3s minBounds; // minimum coordinates of poly bounding box
-    /* 0x06 */ Vec3s maxBounds; // maximum coordinates of poly bounding box
+    /* 0x00 */ Vec3f minBounds; // minimum coordinates of poly bounding box. // SOH [Unbound] s16 -> f32 (world extent)
+    /* 0x06 */ Vec3f maxBounds; // maximum coordinates of poly bounding box
     /* 0x0C */ u32 numVertices; // SOH [Unbound] widened from u16
-    /* 0x10 */ Vec3s* vtxList;
+    /* 0x10 */ Vec3f* vtxList; // SOH [Unbound] s16 -> f32 (world extent)
     /* 0x14 */ u32 numPolygons; // SOH [Unbound] widened from u16
     /* 0x18 */ CollisionPoly* polyList;
     /* 0x1C */ SurfaceType* surfaceTypeList;
@@ -78,7 +84,7 @@ class CollisionHeader : public Ship::Resource<CollisionHeaderData> {
 
     CollisionHeaderData collisionHeaderData;
 
-    std::vector<Vec3s> vertices;
+    std::vector<Vec3f> vertices;
 
     std::vector<CollisionPoly> polygons;
 

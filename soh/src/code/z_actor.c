@@ -85,6 +85,7 @@
 
 static CollisionPoly* sCurCeilingPoly;
 static s32 sCurCeilingBgId;
+static s32 sSpawnTransitionIndex = -1; // SOH [Unbound] set by Actor_SpawnTransitionActors around Actor_Spawn
 
 // Used for animating the ice trap on the "Get Item" model.
 f32 iceTrapScale;
@@ -758,6 +759,10 @@ void Flags_SetTreasure(PlayState* play, s32 flag) {
  * Tests if current scene clear flag is set.
  */
 s32 Flags_GetClear(PlayState* play, s32 flag) {
+    // SOH [Unbound] Clear flags are keyed by room; rooms >= 32 live in the registry's growable store.
+    if (flag >= 32) {
+        return SceneFlagsExt_Get(play->sceneNum, SCENE_FLAGS_EXT_CLEAR, flag);
+    }
     return play->actorCtx.flags.clear & (1 << flag);
 }
 
@@ -766,7 +771,11 @@ s32 Flags_GetClear(PlayState* play, s32 flag) {
  */
 void Flags_SetClear(PlayState* play, s32 flag) {
     u8 previouslyOff = !Flags_GetClear(play, flag);
-    play->actorCtx.flags.clear |= (1 << flag);
+    if (flag >= 32) { // SOH [Unbound]
+        SceneFlagsExt_Set(play->sceneNum, SCENE_FLAGS_EXT_CLEAR, flag);
+    } else {
+        play->actorCtx.flags.clear |= (1 << flag);
+    }
     if (previouslyOff) {
         LUSLOG_INFO("Clear Flag Set - %#x", flag);
         GameInteractor_ExecuteOnSceneFlagSet(play->sceneNum, FLAG_SCENE_CLEAR, flag);
@@ -778,7 +787,11 @@ void Flags_SetClear(PlayState* play, s32 flag) {
  */
 void Flags_UnsetClear(PlayState* play, s32 flag) {
     u8 previouslyOn = Flags_GetClear(play, flag);
-    play->actorCtx.flags.clear &= ~(1 << flag);
+    if (flag >= 32) { // SOH [Unbound]
+        SceneFlagsExt_Unset(play->sceneNum, SCENE_FLAGS_EXT_CLEAR, flag);
+    } else {
+        play->actorCtx.flags.clear &= ~(1 << flag);
+    }
     if (previouslyOn) {
         LUSLOG_INFO("Clear Flag Unset - %#x", flag);
         GameInteractor_ExecuteOnSceneFlagUnset(play->sceneNum, FLAG_SCENE_CLEAR, flag);
@@ -789,6 +802,9 @@ void Flags_UnsetClear(PlayState* play, s32 flag) {
  * Tests if current scene temp clear flag is set.
  */
 s32 Flags_GetTempClear(PlayState* play, s32 flag) {
+    if (flag >= 32) { // SOH [Unbound]
+        return SceneFlagsExt_Get(play->sceneNum, SCENE_FLAGS_EXT_TEMP_CLEAR, flag);
+    }
     return play->actorCtx.flags.tempClear & (1 << flag);
 }
 
@@ -796,6 +812,10 @@ s32 Flags_GetTempClear(PlayState* play, s32 flag) {
  * Sets current scene temp clear flag.
  */
 void Flags_SetTempClear(PlayState* play, s32 flag) {
+    if (flag >= 32) { // SOH [Unbound]
+        SceneFlagsExt_Set(play->sceneNum, SCENE_FLAGS_EXT_TEMP_CLEAR, flag);
+        return;
+    }
     play->actorCtx.flags.tempClear |= (1 << flag);
 }
 
@@ -803,6 +823,10 @@ void Flags_SetTempClear(PlayState* play, s32 flag) {
  * Unsets current scene temp clear flag.
  */
 void Flags_UnsetTempClear(PlayState* play, s32 flag) {
+    if (flag >= 32) { // SOH [Unbound]
+        SceneFlagsExt_Unset(play->sceneNum, SCENE_FLAGS_EXT_TEMP_CLEAR, flag);
+        return;
+    }
     play->actorCtx.flags.tempClear &= ~(1 << flag);
 }
 
@@ -2543,6 +2567,7 @@ void func_800304DC(PlayState* play, ActorContext* actorCtx, ActorEntry* actorEnt
     s32 i;
 
     savedSceneFlags = SceneFlags_Get(play->sceneNum); // SOH [Unbound]
+    SceneFlagsExt_ResetTemp();                        // SOH [Unbound] temp clear flags for rooms >= 32
 
     memset(actorCtx, 0, sizeof(*actorCtx));
 
@@ -3401,6 +3426,8 @@ Actor* Actor_Spawn(ActorContext* actorCtx, PlayState* play, s16 actorId, f32 pos
     actor->update = dbEntry->update;
     actor->draw = dbEntry->draw;
     actor->room = play->roomCtx.curRoom.num;
+    actor->transitionIndex = sSpawnTransitionIndex; // SOH [Unbound] -1 unless spawned from the transition list
+    sSpawnTransitionIndex = -1;
     actor->home.pos.x = posX;
     actor->home.pos.y = posY;
     actor->home.pos.z = posZ;
@@ -3450,7 +3477,7 @@ Actor* Actor_SpawnAsChild(ActorContext* actorCtx, Actor* parent, PlayState* play
 
 void Actor_SpawnTransitionActors(PlayState* play, ActorContext* actorCtx) {
     TransitionActorEntry* transitionActor;
-    u8 numActors;
+    u16 numActors; // SOH [Unbound]
     s32 i;
 
     transitionActor = play->transiActorCtx.list;
@@ -3464,9 +3491,13 @@ void Actor_SpawnTransitionActors(PlayState* play, ActorContext* actorCtx) {
                 ((transitionActor->sides[1].room >= 0) &&
                  ((transitionActor->sides[1].room == play->roomCtx.curRoom.num) ||
                   (transitionActor->sides[1].room == play->roomCtx.prevRoom.num)))) {
+                // SOH [Unbound] The list index travels on Actor.transitionIndex (see TRANSITION_ACTOR_INDEX);
+                // the 6-bit packing into params is kept for the first 64 so untouched readers still work.
+                sSpawnTransitionIndex = i;
                 Actor_Spawn(actorCtx, play, (s16)(transitionActor->id & 0x1FFF), transitionActor->pos.x,
                             transitionActor->pos.y, transitionActor->pos.z, 0, transitionActor->rotY, 0,
-                            (i << 0xA) + transitionActor->params);
+                            ((i & 0x3F) << 0xA) + transitionActor->params);
+                sSpawnTransitionIndex = -1;
 
                 transitionActor->id = -transitionActor->id;
                 numActors = play->transiActorCtx.numActors;

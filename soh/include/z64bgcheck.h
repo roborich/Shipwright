@@ -20,10 +20,16 @@ struct DynaPolyActor;
 #define DYNAPOLY_INVALIDATE_LOOKUP (1 << 0)
 
 #define BGACTOR_NEG_ONE -1
-#define BG_ACTOR_MAX 50
-#define BGCHECK_SCENE BG_ACTOR_MAX
-#define BGCHECK_Y_MIN -32000.0f
-#define BGCHECK_XYZ_ABSMAX 32760.0f
+// SOH [Unbound] The dyna actor table is heap-allocated and grows on demand (DynaCollisionContext.bgActorMax), so
+// the sentinels are fixed constants instead of the table size. BGACTOR_INVALID is what DynaPoly_SetBgActor returns
+// when it cannot allocate (vanilla returned BG_ACTOR_MAX, which was also BGCHECK_SCENE).
+#define BGCHECK_SCENE 0x7FFF
+#define BGACTOR_INVALID BGCHECK_SCENE
+#define BGACTOR_INITIAL_MAX 64
+// SOH [Unbound] World extent: positions are f32 end to end; 2^20 keeps ~0.06-unit precision at the edge.
+// BGCHECK_Y_MIN is the "no floor" sentinel (exactly representable in f32).
+#define BGCHECK_Y_MIN -2147483648.0f
+#define BGCHECK_XYZ_ABSMAX 1048576.0f
 #define BGCHECK_SUBDIV_OVERLAP 50
 #define BGCHECK_SUBDIV_MIN 150.0f
 
@@ -33,6 +39,10 @@ struct DynaPolyActor;
 #define FUNC_80041EA4_VOID_OUT 12
 
 #define WATERBOX_ROOM(p) ((p >> 13) & 0x3F)
+// SOH [Unbound] Unpacked room index carried on WaterBox.room: -1 = all rooms (packed 0x3F).
+#ifndef WATERBOX_UNPACK_ROOM
+#define WATERBOX_UNPACK_ROOM(p) ((WATERBOX_ROOM(p) == 0x3F) ? -1 : (s32)WATERBOX_ROOM(p))
+#endif
 
 typedef struct {
     Vec3f scale;
@@ -54,7 +64,7 @@ typedef struct {
     Vec3s normal; // Unit normal vector
                   // Value ranges from -0x7FFF to 0x7FFF, representing -1.0 to 1.0; 0x8000 is invalid
 
-    s16 dist; // Plane distance from origin along the normal
+    f32 dist; // Plane distance from origin along the normal. // SOH [Unbound] s16 -> f32 (world extent)
 } CollisionPoly;
 
 typedef struct {
@@ -64,17 +74,18 @@ typedef struct {
 } CamData;
 
 typedef struct {
-    /* 0x00 */ s16 xMin;
-    /* 0x02 */ s16 ySurface;
-    /* 0x04 */ s16 zMin;
-    /* 0x06 */ s16 xLength;
-    /* 0x08 */ s16 zLength;
+    /* 0x00 */ f32 xMin; // SOH [Unbound] s16 -> f32 (world extent)
+    /* 0x02 */ f32 ySurface;
+    /* 0x04 */ f32 zMin;
+    /* 0x06 */ f32 xLength;
+    /* 0x08 */ f32 zLength;
     /* 0x0C */ u32 properties;
 
     // 0x0008_0000 = ?
     // 0x0007_E000 = Room Index, 0x3F = all rooms
     // 0x0000_1F00 = Lighting Settings Index
     // 0x0000_00FF = CamData index
+    s32 room; // SOH [Unbound] unpacked room index, -1 = all rooms; loaders fill it (JSON may set it explicitly)
 } WaterBox; // size = 0x10
 
 typedef struct {
@@ -85,10 +96,10 @@ typedef struct {
 } SurfaceType;
 
 typedef struct {
-    /* 0x00 */ Vec3s minBounds; // minimum coordinates of poly bounding box
-    /* 0x06 */ Vec3s maxBounds; // maximum coordinates of poly bounding box
+    /* 0x00 */ Vec3f minBounds; // minimum coordinates of poly bounding box. // SOH [Unbound] s16 -> f32 (world extent)
+    /* 0x06 */ Vec3f maxBounds; // maximum coordinates of poly bounding box
     /* 0x0C */ u32 numVertices; // SOH [Unbound] widened from u16
-    /* 0x10 */ Vec3s* vtxList;
+    /* 0x10 */ Vec3f* vtxList; // SOH [Unbound] s16 -> f32 (world extent)
     /* 0x14 */ u32 numPolygons; // SOH [Unbound] widened from u16
     /* 0x18 */ CollisionPoly* polyList;
     /* 0x1C */ SurfaceType* surfaceTypeList;
@@ -149,10 +160,16 @@ typedef struct {
 
 typedef struct {
     /* 0x0000 */ u8 bitFlag;
-    /* 0x0004 */ BgActor bgActors[BG_ACTOR_MAX];
-    /* 0x138C */ u16 bgActorFlags[BG_ACTOR_MAX]; // & 0x0008 = no dyna ceiling
+    // SOH [Unbound] heap tables sized bgActorMax; grown by DynaPoly_SetBgActor, freed by BgCheck_Free
+    /* 0x0004 */ BgActor* bgActors;
+    /* 0x138C */ u16* bgActorFlags; // & 0x0008 = no dyna ceiling
+    s32 bgActorMax;
+    // SOH [Unbound] polyList/vtxList grow in DynaPoly_Setup; superseded buffers are parked here until BgCheck_Free
+    // because actors keep CollisionPoly* into them (already stale each frame, but they must stay readable).
+    void** retiredBuffers;
+    s32 retiredCount;
     /* 0x13F0 */ CollisionPoly* polyList;
-    /* 0x13F4 */ Vec3s* vtxList;
+    /* 0x13F4 */ Vec3f* vtxList; // SOH [Unbound] s16 -> f32 (world extent)
     /* 0x13F8 */ DynaSSNodeList polyNodes;
     /* 0x1404 */ s32 polyNodesMax;
     /* 0x1408 */ s32 polyListMax;

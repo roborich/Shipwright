@@ -113,6 +113,16 @@ int32_t EntranceDB_RetrieveIndex(const char* name); // -1 when unknown
 // registry-owned storage that SaveManager persists by scene name.
 SavedSceneFlags* SceneFlags_Get(int32_t sceneNum);
 
+// Room-keyed flags for rooms >= 32, which do not fit the u32 masks in SavedSceneFlags/ActorContext.
+// Storage is a growable bitset per scene (any scene id, vanilla or custom), persisted by scene name in the
+// "unbound" save section; temp flags are live-only and reset on scene init.
+#define SCENE_FLAGS_EXT_CLEAR 0
+#define SCENE_FLAGS_EXT_TEMP_CLEAR 1
+int32_t SceneFlagsExt_Get(int32_t sceneNum, int32_t kind, int32_t bit);
+void SceneFlagsExt_Set(int32_t sceneNum, int32_t kind, int32_t bit);
+void SceneFlagsExt_Unset(int32_t sceneNum, int32_t kind, int32_t bit);
+void SceneFlagsExt_ResetTemp(void);
+
 #ifdef __cplusplus
 }
 #endif

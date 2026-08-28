@@ -78,17 +78,29 @@ The N64 byte budget goes away:
 - Subdivision: vanilla amounts (`16×4×16`, or the per-scene overrides) are kept for parity
   when the header has ≤ 16 384 polys; above that the grid scales with the cube root of the
   poly count (capped at 64 per axis) so lookup cost stays bounded on huge scenes.
-- Dyna: `polyListMax`/`vtxListMax` become 16 384 each (fixed, because actors hold raw
-  pointers into these lists so they cannot be reallocated live); the dyna node list is
-  allocated at 16 384 and grows by doubling when a frame needs more (nodes are addressed by
-  index, so growth is safe).
+- Dyna: `polyListMax`/`vtxListMax` start at 16 384 each and **grow** in `DynaPoly_Setup`
+  (`DynaPoly_EnsureListCapacity`): a pre-pass sums every live bg actor's polys/verts before any
+  `DynaPoly_ExpandSRT` runs, and if the lists are too small they are reallocated (×2) and the
+  lookup is invalidated so the "transform unchanged" fast path cannot re-link polys in the old
+  buffer. Actors keep `CollisionPoly*` into these lists (`Actor.floorPoly/wallPoly`, camera,
+  a handful of overlay caches) — those pointers are already logically stale every frame, but
+  they must stay *readable*, so superseded buffers are parked on `dyna.retiredBuffers` and
+  freed with everything else in `BgCheck_Free`. Geometric growth bounds the parked memory to
+  the final size. The dyna node list grows the same way (nodes are addressed by index).
+- Dyna actors: `BG_ACTOR_MAX` (50) is gone. `bgActors`/`bgActorFlags` are heap tables of
+  `dyna.bgActorMax` slots (initially 64), doubled by `DynaPoly_SetBgActor` when the free-slot
+  scan fails. `BGCHECK_SCENE` is a fixed sentinel (`0x7FFF`) instead of the table size, and
+  `BGACTOR_INVALID` (same value) is the "could not allocate" return the ~60 overlay
+  `== BG_ACTOR_MAX` tests now name. `Actor.floorBgId/wallBgId` (were **u8** — silently
+  truncating past 254) and `Camera.bgCheckId/nextBGCheckId` (s16) are `s32`. Query loops run
+  over `bgActorMax`, which doubling keeps within 2× the live count. Also fixed: the
+  "transform unchanged" branch of `DynaPoly_ExpandSRT` still passed an `s16` to the widened
+  `s32*` `DynaSSNodeList_SetSSListHead` (4-byte read of a 2-byte local).
 
 Memory impact on vanilla scenes: negligible (a few hundred KB moved from the arena to the heap).
 
 ## Not changed
 
-- `BG_ACTOR_MAX` (50 simultaneous dyna actors). Not a Prelude pain point; touches actor
-  spawning semantics. Revisit if requested.
 - Surface types (`u16 type` → 65 535 per header), water boxes (`u16`), camera data — already
   ample.
 - Coordinates remain `s16` (±32 767 units, `BGCHECK_XYZ_ABSMAX` 32 760). Widening to float

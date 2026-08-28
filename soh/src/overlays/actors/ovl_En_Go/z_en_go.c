@@ -469,7 +469,7 @@ void EnGo_UpdateShadow(EnGo* this) {
 
 s32 EnGo_FollowPath(EnGo* this, PlayState* play) {
     Path* path;
-    Vec3s* pointPos;
+    Vec3f* pointPos;
     f32 xDist;
     f32 zDist;
 
@@ -506,7 +506,7 @@ s32 EnGo_FollowPath(EnGo* this, PlayState* play) {
 
 s32 EnGo_SetMovedPos(EnGo* this, PlayState* play) {
     Path* path;
-    Vec3s* pointPos;
+    Vec3f* pointPos;
 
     if ((this->actor.params & 0xF) == 0xF) {
         return false;

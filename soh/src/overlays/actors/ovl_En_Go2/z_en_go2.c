@@ -859,7 +859,7 @@ void EnGo2_SetShape(EnGo2* this) {
 }
 
 void EnGo2_CheckCollision(EnGo2* this, PlayState* play) {
-    Vec3s pos;
+    Vec3f pos; // SOH [Unbound] collider dims are f32
     f32 xzDist;
 
     pos.x = this->actor.world.pos.x;

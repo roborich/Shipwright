@@ -1993,8 +1993,8 @@ void RandomizerOnSceneInitHandler(int16_t sceneNum) {
     if (RAND_GET_OPTION(RSK_SHUFFLE_ENTRANCES)) {
         // In ER, override roomNum to load based on scene and spawn during scene init
         if (gSaveContext.respawnFlag <= 0) {
-            s8 origRoom = gPlayState->roomCtx.curRoom.num;
-            s8 replacedRoom = Entrance_OverrideSpawnSceneRoom(gPlayState->sceneNum, gPlayState->curSpawn, origRoom);
+            s16 origRoom = gPlayState->roomCtx.curRoom.num;
+            s16 replacedRoom = Entrance_OverrideSpawnSceneRoom(gPlayState->sceneNum, gPlayState->curSpawn, origRoom);
 
             if (origRoom != replacedRoom) {
                 // Reset room ctx back to prev room and then load the new room

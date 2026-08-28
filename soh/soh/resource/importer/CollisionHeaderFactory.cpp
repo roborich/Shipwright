@@ -37,7 +37,7 @@ ResourceFactoryBinaryCollisionHeaderV0::ReadResource(std::shared_ptr<Ship::File>
     collisionHeader->collisionHeaderData.numVertices = reader->ReadInt32();
     collisionHeader->vertices.reserve(collisionHeader->collisionHeaderData.numVertices);
     for (uint32_t i = 0; i < collisionHeader->collisionHeaderData.numVertices; i++) {
-        Vec3s vtx;
+        Vec3f vtx;
         vtx.x = reader->ReadInt16();
         vtx.y = reader->ReadInt16();
         vtx.z = reader->ReadInt16();
@@ -129,6 +129,7 @@ ResourceFactoryBinaryCollisionHeaderV0::ReadResource(std::shared_ptr<Ship::File>
         waterBox.xLength = reader->ReadInt16();
         waterBox.zLength = reader->ReadInt16();
         waterBox.properties = reader->ReadInt32();
+        waterBox.room = WATERBOX_UNPACK_ROOM(waterBox.properties); // SOH [Unbound]
 
         collisionHeader->waterBoxes.push_back(waterBox);
     }
@@ -166,7 +167,7 @@ ResourceFactoryXMLCollisionHeaderV0::ReadResource(std::shared_ptr<Ship::File> fi
     while (child != nullptr) {
         std::string childName = child->Name();
         if (childName == "Vertex") {
-            Vec3s vtx;
+            Vec3f vtx;
             vtx.x = child->IntAttribute("X");
             vtx.y = child->IntAttribute("Y");
             vtx.z = child->IntAttribute("Z");
@@ -236,6 +237,7 @@ ResourceFactoryXMLCollisionHeaderV0::ReadResource(std::shared_ptr<Ship::File> fi
             waterBox.xLength = child->IntAttribute("XLength");
             waterBox.zLength = child->IntAttribute("ZLength");
             waterBox.properties = child->IntAttribute("Properties");
+            waterBox.room = WATERBOX_UNPACK_ROOM(waterBox.properties); // SOH [Unbound]
 
             collisionHeader->waterBoxes.push_back(waterBox);
         }

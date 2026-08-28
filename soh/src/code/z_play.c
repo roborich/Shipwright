@@ -2130,7 +2130,7 @@ void Play_SetRespawnData(PlayState* play, s32 respawnMode, s16 entranceIndex, s3
 void Play_SetupRespawnPoint(PlayState* play, s32 respawnMode, s32 playerParams) {
     Player* player = GET_PLAYER(play);
     s32 entranceIndex;
-    s8 roomIndex;
+    s16 roomIndex; // SOH [Unbound]
 
     if ((play->sceneNum != SCENE_FAIRYS_FOUNTAIN) && (play->sceneNum != SCENE_GROTTOS)) {
         roomIndex = play->roomCtx.curRoom.num;
@@ -2192,7 +2192,7 @@ s32 func_800C0D34(PlayState* play, Actor* actor, s16* yaw) {
         return 0;
     }
 
-    transitionActor = &play->transiActorCtx.list[(u16)actor->params >> 10];
+    transitionActor = &play->transiActorCtx.list[TRANSITION_ACTOR_INDEX(actor)];
     frontRoom = transitionActor->sides[0].room;
 
     if (frontRoom == transitionActor->sides[1].room) {

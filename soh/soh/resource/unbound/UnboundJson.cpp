@@ -101,6 +101,20 @@ std::vector<std::string> ListKeys(const Json& obj) {
     return keys;
 }
 
+double ToNumber(const Json& value, double fallback) {
+    if (value.is_number()) {
+        return value.get<double>();
+    }
+    if (value.is_string()) {
+        try {
+            return std::stod(value.get<std::string>());
+        } catch (...) {
+            return (double)ToInt(value, (int64_t)fallback);
+        }
+    }
+    return fallback;
+}
+
 int64_t ToInt(const Json& value, int64_t fallback) {
     if (value.is_number_integer()) {
         return value.get<int64_t>();

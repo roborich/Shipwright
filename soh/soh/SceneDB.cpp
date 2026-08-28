@@ -64,6 +64,36 @@ constexpr int32_t kEntranceLayerCount = 4; // child day/night, adult day/night
 // Saved flags for custom scenes; vanilla ids live in gSaveContext.sceneFlags.
 std::unordered_map<int32_t, SavedSceneFlags> sCustomSceneFlags;
 
+// Room-keyed flags for rooms >= 32 (see SceneFlagsExt_* in SceneDB.h). Bit n of the bitset is room n;
+// bits below 32 are never used here (they live in the u32 masks).
+using ExtBitset = std::vector<uint32_t>;
+std::unordered_map<int32_t, ExtBitset> sExtClearFlags; // persisted
+std::unordered_map<int32_t, ExtBitset> sExtTempClearFlags; // live-only
+
+ExtBitset& ExtFlagsFor(int32_t sceneNum, int32_t kind) {
+    return (kind == SCENE_FLAGS_EXT_TEMP_CLEAR ? sExtTempClearFlags : sExtClearFlags)[sceneNum];
+}
+
+bool ExtBitTest(const ExtBitset& bits, int32_t bit) {
+    size_t word = (size_t)bit / 32;
+    return word < bits.size() && (bits[word] & (1u << (bit % 32)));
+}
+
+void ExtBitWrite(ExtBitset& bits, int32_t bit, bool value) {
+    size_t word = (size_t)bit / 32;
+    if (word >= bits.size()) {
+        if (!value) {
+            return;
+        }
+        bits.resize(word + 1, 0);
+    }
+    if (value) {
+        bits[word] |= (1u << (bit % 32));
+    } else {
+        bits[word] &= ~(1u << (bit % 32));
+    }
+}
+
 } // namespace
 
 // ---- construction ---------------------------------------------------------------------------------
@@ -367,6 +397,43 @@ void SaveUnboundSection(SaveContext* saveContext, int sectionID, bool fullSave) 
             });
         }
     });
+    // Rooms >= 32: one word array per scene, keyed by name so it survives id reassignment.
+    SaveManager::Instance->SaveStruct("roomClearExt", []() {
+        for (const auto& [id, bits] : sExtClearFlags) {
+            const SceneDB::Entry& entry = SceneDB::Instance->RetrieveEntry(id);
+            if (!entry.valid || bits.empty()) {
+                continue;
+            }
+            SaveManager::Instance->SaveStruct(entry.name, [&bits]() {
+                SaveManager::Instance->SaveData("words", (uint32_t)bits.size());
+                SaveManager::Instance->SaveArray("bits", bits.size(), [&bits](size_t i) {
+                    SaveManager::Instance->SaveData("", bits[i]);
+                });
+            });
+        }
+    });
+}
+
+void LoadExtClearFlags() {
+    SaveManager::Instance->LoadStruct("roomClearExt", []() {
+        for (const auto& entry : SceneDB::Instance->Entries()) {
+            if (!entry.valid) {
+                continue;
+            }
+            ExtBitset bits;
+            SaveManager::Instance->LoadStruct(entry.name, [&bits]() {
+                uint32_t words = 0;
+                SaveManager::Instance->LoadData("words", words);
+                bits.assign(words, 0);
+                SaveManager::Instance->LoadArray("bits", words, [&bits](size_t i) {
+                    SaveManager::Instance->LoadData("", bits[i]);
+                });
+            });
+            if (!bits.empty()) {
+                sExtClearFlags[entry.id] = std::move(bits);
+            }
+        }
+    });
 }
 
 void LoadUnboundSection() {
@@ -387,10 +454,13 @@ void LoadUnboundSection() {
             });
         }
     });
+    LoadExtClearFlags();
 }
 
 void InitUnboundSection(bool isDebug) {
     sCustomSceneFlags.clear();
+    sExtClearFlags.clear();
+    sExtTempClearFlags.clear();
 }
 
 } // namespace
@@ -441,4 +511,22 @@ extern "C" SavedSceneFlags* SceneFlags_Get(int32_t sceneNum) {
         return &gSaveContext.sceneFlags[sceneNum];
     }
     return &sCustomSceneFlags[sceneNum]; // value-initialised (all zero) on first access
+}
+
+extern "C" int32_t SceneFlagsExt_Get(int32_t sceneNum, int32_t kind, int32_t bit) {
+    auto& map = (kind == SCENE_FLAGS_EXT_TEMP_CLEAR) ? sExtTempClearFlags : sExtClearFlags;
+    auto it = map.find(sceneNum);
+    return it != map.end() && ExtBitTest(it->second, bit);
+}
+
+extern "C" void SceneFlagsExt_Set(int32_t sceneNum, int32_t kind, int32_t bit) {
+    ExtBitWrite(ExtFlagsFor(sceneNum, kind), bit, true);
+}
+
+extern "C" void SceneFlagsExt_Unset(int32_t sceneNum, int32_t kind, int32_t bit) {
+    ExtBitWrite(ExtFlagsFor(sceneNum, kind), bit, false);
+}
+
+extern "C" void SceneFlagsExt_ResetTemp(void) {
+    sExtTempClearFlags.clear();
 }

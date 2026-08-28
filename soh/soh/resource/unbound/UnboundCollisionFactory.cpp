@@ -44,7 +44,20 @@ Vec3s ReadVec(const Json& v) {
     return out;
 }
 
-bool ReadBulk(CollisionHeader& col, const Json& bulk, const std::string& docPath) {
+Vec3f ReadVecF(const Json& v) {
+    Vec3f out{ 0.0f, 0.0f, 0.0f };
+    if (v.is_array() && v.size() >= 3) {
+        out.x = (f32)Unbound::ToNumber(v[0]);
+        out.y = (f32)Unbound::ToNumber(v[1]);
+        out.z = (f32)Unbound::ToNumber(v[2]);
+    }
+    return out;
+}
+
+// collision.bin layouts (scene-format.md §2.3):
+//   v1: vertices s16 x3 (6 B, padded to 4), polys 24 B { u16 type, u32 vA, vB, vC, s16 nx, ny, nz, s16 dist, s16 pad }
+//   v2: vertices f32 x3 (12 B),             polys 28 B { u16 type, u16 pad, u32 vA, vB, vC, s16 nx, ny, nz, s16 pad, f32 dist }
+bool ReadBulk(CollisionHeader& col, const Json& bulk, int version, const std::string& docPath) {
     std::string binPath = bulk.value("file", "");
     auto bytes = Unbound::LoadBulk(binPath);
     if (bytes.empty()) {
@@ -57,10 +70,16 @@ bool ReadBulk(CollisionHeader& col, const Json& bulk, const std::string& docPath
 
     col.vertices.reserve(numVertices);
     for (uint32_t i = 0; i < numVertices && r.ok; i++) {
-        Vec3s v;
-        v.x = r.Read<int16_t>();
-        v.y = r.Read<int16_t>();
-        v.z = r.Read<int16_t>();
+        Vec3f v;
+        if (version >= 2) {
+            v.x = r.Read<float>();
+            v.y = r.Read<float>();
+            v.z = r.Read<float>();
+        } else {
+            v.x = r.Read<int16_t>();
+            v.y = r.Read<int16_t>();
+            v.z = r.Read<int16_t>();
+        }
         col.vertices.push_back(v);
     }
     r.Align4();
@@ -68,14 +87,22 @@ bool ReadBulk(CollisionHeader& col, const Json& bulk, const std::string& docPath
     for (uint32_t i = 0; i < numPolys && r.ok; i++) {
         CollisionPoly p{};
         p.type = r.Read<uint16_t>();
+        if (version >= 2) {
+            r.Read<uint16_t>(); // pad
+        }
         p.flags_vIA = r.Read<uint32_t>();
         p.flags_vIB = r.Read<uint32_t>();
         p.vIC = r.Read<uint32_t>();
         p.normal.x = r.Read<int16_t>();
         p.normal.y = r.Read<int16_t>();
         p.normal.z = r.Read<int16_t>();
-        p.dist = r.Read<int16_t>();
-        r.Read<int16_t>(); // pad
+        if (version >= 2) {
+            r.Read<int16_t>(); // pad
+            p.dist = r.Read<float>();
+        } else {
+            p.dist = r.Read<int16_t>();
+            r.Read<int16_t>(); // pad
+        }
         col.polygons.push_back(p);
     }
     if (!r.ok) {
@@ -132,12 +159,14 @@ void ReadWaterBoxes(CollisionHeader& col, const Json& list) {
     for (const auto& k : ListKeys(list)) {
         const Json& w = list[k];
         WaterBox box{};
-        box.xMin = (s16)ToInt(w.value("xMin", Json(0)));
-        box.ySurface = (s16)ToInt(w.value("ySurface", Json(0)));
-        box.zMin = (s16)ToInt(w.value("zMin", Json(0)));
-        box.xLength = (s16)ToInt(w.value("xLength", Json(0)));
-        box.zLength = (s16)ToInt(w.value("zLength", Json(0)));
+        box.xMin = (f32)Unbound::ToNumber(w.value("xMin", Json(0)));
+        box.ySurface = (f32)Unbound::ToNumber(w.value("ySurface", Json(0)));
+        box.zMin = (f32)Unbound::ToNumber(w.value("zMin", Json(0)));
+        box.xLength = (f32)Unbound::ToNumber(w.value("xLength", Json(0)));
+        box.zLength = (f32)Unbound::ToNumber(w.value("zLength", Json(0)));
         box.properties = (u32)ToInt(w.value("properties", Json(0)));
+        // Explicit "room" (-1 = all) overrides the 6-bit packed field, lifting the 63-room cap.
+        box.room = w.contains("room") ? (s32)ToInt(w["room"]) : WATERBOX_UNPACK_ROOM(box.properties);
         col.waterBoxes.push_back(box);
     }
     col.collisionHeaderData.numWaterBoxes = (u16)col.waterBoxes.size();
@@ -160,10 +189,20 @@ ResourceFactoryJsonCollisionHeaderV1::ReadResource(std::shared_ptr<Ship::File> f
 
     auto col = std::make_shared<CollisionHeader>(initData);
     const Json& bounds = doc.value("bounds", Json::object());
-    col->collisionHeaderData.minBounds = ReadVec(bounds.value("min", Json::array()));
-    col->collisionHeaderData.maxBounds = ReadVec(bounds.value("max", Json::array()));
+    col->collisionHeaderData.minBounds = ReadVecF(bounds.value("min", Json::array()));
+    col->collisionHeaderData.maxBounds = ReadVecF(bounds.value("max", Json::array()));
 
-    if (!ReadBulk(*col, doc.value("bulk", Json::object()), initData->Path)) {
+    // "$schema": "unbound/collision/<n>" selects the collision.bin layout; missing = v1.
+    int version = 1;
+    std::string schema = doc.value("$schema", "");
+    if (auto slash = schema.rfind('/'); slash != std::string::npos) {
+        try {
+            version = std::stoi(schema.substr(slash + 1));
+        } catch (...) {
+            version = 1;
+        }
+    }
+    if (!ReadBulk(*col, doc.value("bulk", Json::object()), version, initData->Path)) {
         return nullptr;
     }
     ReadSurfaceTypes(*col, doc.value("surfaceTypes", Json::object()));

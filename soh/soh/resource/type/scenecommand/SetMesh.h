@@ -72,7 +72,7 @@ typedef union {
 } MeshHeader; // "Ground Shape"
 
 typedef struct {
-    /* 0x00 */ Vec3s pos;
+    /* 0x00 */ Vec3f pos; // SOH [Unbound] s16 -> f32 (world extent)
     /* 0x06 */ s16 unk_06;
     /* 0x08 */ Gfx* opa;
     /* 0x0C */ Gfx* xlu;
@@ -101,5 +101,6 @@ class SetMesh : public SceneCommand<MeshHeader> {
     std::vector<std::string> imagePaths;
     std::vector<BgImage> images;
     MeshHeader meshHeader;
+    Vec3f origin{ 0.0f, 0.0f, 0.0f }; // SOH [Unbound] room mesh origin (see Room.origin)
 };
 }; // namespace SOH

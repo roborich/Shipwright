@@ -36,11 +36,12 @@ Everything below is tagged `// SOH [Unbound]` in the code. Each area has a detai
 
 | Area | Change | Doc |
 |---|---|---|
-| **Collision** | Vertex indices and poly ids are 32-bit; the N64 byte budget is gone — node tables are heap-allocated and grow on demand, freed in `Play_Destroy`. Legacy 13-bit packed data is unpacked on load. | [`collision.md`](./collision.md) |
+| **Collision** | Vertex indices and poly ids are 32-bit; the N64 byte budget is gone — node tables are heap-allocated and grow on demand, freed in `Play_Destroy`. Legacy 13-bit packed data is unpacked on load. Dyna actor table and dyna poly/vertex lists grow on demand (no `BG_ACTOR_MAX`). | [`collision.md`](./collision.md) |
 | **Scenes & entrances** | `gSceneTable`/`gEntranceTable` replaced by a runtime registry (`SceneDB`). Mods declare scenes + entrances in `unbound/scenes/*.json`; `EntranceInfo.scene` is 16-bit; custom-scene save flags are stored by scene name. Console: `entrance <name>`. | [`registries.md`](./registries.md) |
 | **Text** | Message tables are growable and hash-indexed; `override/text/` and `unbound/text/*.json` can **add** ids; message buffers 8 KB. | [`text.md`](./text.md) |
-| **Counts** | Object bank 1024 (was 128, silently dropping); actors per room and rooms per scene 16-bit; live-actor cap real (was a wrapping u8) and 8192; mesh entries 32-bit, sorted entries 1024; texture cache 8192. Object ids past the vanilla table are usable — object "space" is vestigial on PC. | [`counts.md`](./counts.md) |
+| **Counts** | Object bank 1024 (was 128, silently dropping); actors per room and rooms per scene 16-bit; live-actor cap real (was a wrapping u8) and 8192; mesh entries 32-bit, sorted entries 1024; texture cache 8192. Room numbers 16-bit with unbounded clear flags, waterbox rooms and transition actors. Object ids past the vanilla table are usable — object "space" is vestigial on PC. | [`counts.md`](./counts.md) |
 | **Scene format** | The JSON layout, entity keys (Prelude's index scheme), and merge rules (`null` deletes, arrays replace, `$replace`, `$order`). | [`scene-format.md`](./scene-format.md) |
+| **World extent** | Positions are `f32` end to end: float `Mtx` (libultraship fork `GBI_FLOAT_MTX`), per-room mesh `origin`, f32 collision vertices/`dist`/bounds/water boxes (`collision.bin` v2), spawn entries, paths, point lights, colliders. `BGCHECK_XYZ_ABSMAX` is 2²⁰. | [`extent.md`](./extent.md) |
 | **Converter** | `soh --export-unbound <out.o2r>` / console `unbound-export`: vanilla → Unbound archive in ~1 s. `soh/soh/Enhancements/unbound/UnboundExporter.cpp`. | `scene-format.md` §5 |
 | **Loader** | libultraship gained a JSON resource format (`{` sniff, type from `$schema`, found in any layer) and `LoadFileFromAllLayers`; SoH's JSON factories (`soh/soh/resource/unbound/`) build the same command objects the binary loaders build, so scene execution code is untouched. | `scene-format.md` §4 |
 
@@ -53,9 +54,9 @@ Likely next targets, roughly by how often a modder will hit them:
 
 | Limit | Where | Notes |
 |---|---|---|
-| **World extent ±32 767 units** | `s16` positions everywhere: `Vec3s` in collision vertices, `ActorEntry.pos`, `BGCHECK_XYZ_ABSMAX` 32 760 in `z_bgcheck.c`, `Actor.world.pos` clamps | The one a large scene hits first. Collision vertices could go 32-bit in `collision.bin`/`CollisionPoly` cheaply; actor positions are floats at runtime but spawn entries and many actor behaviours assume s16. Camera/culling code also assumes the range. |
-| Rooms addressable ≤ 127 | `Room.num`, `Actor.room`, `TransitionActorEntry.sides[].room` are `s8` | `numRooms` is already u16; the s8 → s16 sweep across actors is mechanical. |
-| Dyna (moving) collision actors ≤ 50 | `BG_ACTOR_MAX` | Dyna polys/verts are capped at 16 384 each (fixed, actors hold raw pointers). |
+| Scene camera data ±32 767 | `CamData.camPosData` is `Vec3s` (`BGCAM_*` packing in `z_camera.c`) | Fixed-camera zones cannot sit beyond the s16 range; the `Vec3s[3]` triple needs its own format change. |
+| Cutscene camera points ±32 767 | `CutsceneCameraPoint.pos` is parsed straight from cutscene command words | |
+| One room DL ≤ 65 535 units across | `Vtx` is `short` | Split rooms; each has its own `origin`. |
 | Mesh entries in **binary** headers ≤ 255 | binary `SetMesh` stores a u8 count | JSON headers have no such cap. Only matters for legacy archives. |
 | Decoded textbox 1 024 bytes | `MESSAGE_DECODED_BUF_SIZE` | Page long text with box-break control codes. |
 | Entrance layer groups of 4 | `entranceIndex + sceneSetupIndex` arithmetic in `Play_Init` | Custom entrances register 4 identical layers. |

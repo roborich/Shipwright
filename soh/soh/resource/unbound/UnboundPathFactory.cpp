@@ -29,10 +29,10 @@ std::shared_ptr<Ship::IResource> ResourceFactoryJsonPathV1::ReadResource(std::sh
     path->paths.reserve(keys.size());
     path->pathData.reserve(keys.size());
     for (const auto& k : keys) {
-        std::vector<Vec3s> points;
+        std::vector<Vec3f> points; // SOH [Unbound] f32 waypoints (world extent)
         for (const auto& p : paths[k].value("points", Json::array())) {
             if (p.is_array() && p.size() >= 3) {
-                points.push_back(Vec3s{ (s16)ToInt(p[0]), (s16)ToInt(p[1]), (s16)ToInt(p[2]) });
+                points.push_back(Vec3f{ (f32)Unbound::ToNumber(p[0]), (f32)Unbound::ToNumber(p[1]), (f32)Unbound::ToNumber(p[2]) });
             }
         }
         path->paths.push_back(std::move(points));

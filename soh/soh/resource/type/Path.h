@@ -10,7 +10,7 @@ namespace SOH {
 
 typedef struct {
     /* 0x00 */ u8 count;      // number of points in the path
-    /* 0x04 */ Vec3s* points; // Segment Address to the array of points
+    /* 0x04 */ Vec3f* points; // Segment Address to the array of points. // SOH [Unbound] s16 -> f32 (world extent)
 } PathData;                   // size = 0x8
 
 class Path : public Ship::Resource<PathData> {
@@ -25,6 +25,6 @@ class Path : public Ship::Resource<PathData> {
 
     uint32_t numPaths;
     std::vector<PathData> pathData;
-    std::vector<std::vector<Vec3s>> paths;
+    std::vector<std::vector<Vec3f>> paths;
 };
 }; // namespace SOH

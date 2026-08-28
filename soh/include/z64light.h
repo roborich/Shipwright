@@ -7,9 +7,9 @@
 #include <libultraship/color.h>
 
 typedef struct {
-    /* 0x0 */ s16 x;
-    /* 0x2 */ s16 y;
-    /* 0x4 */ s16 z;
+    /* 0x0 */ f32 x; // SOH [Unbound] s16 -> f32 (world extent)
+    /* 0x2 */ f32 y;
+    /* 0x4 */ f32 z;
     /* 0x6 */ u8 color[3];
     /* 0x9 */ u8 drawGlow;
     /* 0xA */ s16 radius;

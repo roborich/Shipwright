@@ -17,9 +17,9 @@ SetTransitionActorListFactory::ReadResource(std::shared_ptr<Ship::ResourceInitDa
     for (uint32_t i = 0; i < setTransitionActorList->numTransitionActors; i++) {
         TransitionActorEntry entry;
 
-        entry.sides[0].room = reader->ReadUByte();
+        entry.sides[0].room = reader->ReadInt8(); // SOH [Unbound] sign-extend: 0xFF means "no room"
         entry.sides[0].effects = reader->ReadUByte();
-        entry.sides[1].room = reader->ReadUByte();
+        entry.sides[1].room = reader->ReadInt8(); // SOH [Unbound] sign-extend: 0xFF means "no room"
         entry.sides[1].effects = reader->ReadUByte();
         entry.id = reader->ReadInt16();
         entry.pos.x = reader->ReadInt16();

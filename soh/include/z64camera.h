@@ -1198,7 +1198,7 @@ typedef struct {
     /* 0x140 */ s16 status;
     /* 0x142 */ s16 setting;
     /* 0x144 */ s16 mode;
-    /* 0x146 */ s16 bgCheckId;
+    /* 0x146 */ s32 bgCheckId; // SOH [Unbound] s16 -> s32
     /* 0x148 */ s16 camDataIdx;
     /* 0x14A */ s16 unk_14A;
     /* 0x14C */ s16 unk_14C;
@@ -1207,7 +1207,7 @@ typedef struct {
     /* 0x152 */ s16 distortionFlags;
     /* 0x154 */ s16 prevSetting;
     /* 0x156 */ s16 nextCamDataIdx;
-    /* 0x158 */ s16 nextBGCheckId;
+    /* 0x158 */ s32 nextBGCheckId; // SOH [Unbound] s16 -> s32
     /* 0x15A */ s16 roll;
     /* 0x15C */ s16 paramFlags;
     /* 0x15E */ s16 animState;

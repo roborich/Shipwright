@@ -423,9 +423,9 @@ void DrawDynapoly(std::vector<Gfx>& dl, CollisionHeader* col, int32_t bgId) {
         lastColorG = color.g;
         lastColorB = color.b;
 
-        Vec3s* va = &col->vtxList[COLPOLY_VTX_INDEX(poly->flags_vIA)];
-        Vec3s* vb = &col->vtxList[COLPOLY_VTX_INDEX(poly->flags_vIB)];
-        Vec3s* vc = &col->vtxList[COLPOLY_VTX_INDEX(poly->vIC)];
+        Vec3f* va = &col->vtxList[COLPOLY_VTX_INDEX(poly->flags_vIA)];
+        Vec3f* vb = &col->vtxList[COLPOLY_VTX_INDEX(poly->flags_vIB)];
+        Vec3f* vc = &col->vtxList[COLPOLY_VTX_INDEX(poly->vIC)];
         vtxDl.push_back(gdSPDefVtxN(va->x, va->y, va->z, 0, 0, (signed char)(poly->normal.x / 0x100),
                                     (signed char)(poly->normal.y / 0x100), (signed char)(poly->normal.z / 0x100),
                                     0xFF));
@@ -481,7 +481,7 @@ void DrawBgActorCollision() {
     InitGfx(dl, showBgActorSetting);
     dl.push_back(gsSPMatrix(&gMtxClear, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH));
 
-    for (int32_t bgIndex = 0; bgIndex < BG_ACTOR_MAX; bgIndex++) {
+    for (int32_t bgIndex = 0; bgIndex < gPlayState->colCtx.dyna.bgActorMax; bgIndex++) {
         if (gPlayState->colCtx.dyna.bgActorFlags[bgIndex] & 1) {
             BgActor& bg = gPlayState->colCtx.dyna.bgActors[bgIndex];
             Mtx m;
@@ -680,8 +680,8 @@ void DrawColCheckCollision() {
 // Draws a waterbox
 void DrawWaterbox(std::vector<Gfx>& dl, WaterBox* water, float water_max_depth = -4000.0f) {
     // Skip waterboxes that would be disabled in current room
-    int32_t room = ((water->properties >> 13) & 0x3F);
-    if ((room != gPlayState->roomCtx.curRoom.num) && (room != 0x3F)) {
+    int32_t room = water->room; // SOH [Unbound]
+    if ((room != gPlayState->roomCtx.curRoom.num) && (room != -1)) {
         return;
     }
 

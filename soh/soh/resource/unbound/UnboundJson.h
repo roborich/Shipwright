@@ -24,6 +24,7 @@ std::vector<std::string> ListKeys(const Json& obj);
 
 // Integer from a JSON number or a hex/decimal string ("0x0F12", "3858").
 int64_t ToInt(const Json& value, int64_t fallback = 0);
+double ToNumber(const Json& value, double fallback = 0.0); // SOH [Unbound] numbers may be fractional (world extent)
 
 // Raw bytes of `path` from the topmost archive that has it (bulk resources: last-wins).
 std::vector<char> LoadBulk(const std::string& path);

@@ -406,6 +406,11 @@ void OTRGlobals::RunExtract(int argc, char* argv[]) {
     std::vector<std::string> args;
     if (argc > 1) {
         for (int i = 1; i < argc; i++) {
+            // SOH [Unbound] `--export-unbound <out>` is handled after boot (InitOTR); it is not a ROM to extract.
+            if (std::string(argv[i]) == "--export-unbound") {
+                i++;
+                continue;
+            }
             args.push_back(argv[i]);
         }
     }
@@ -855,6 +860,10 @@ void OTRGlobals::Initialize() {
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryJsonCollisionHeaderV1>(),
                                     RESOURCE_FORMAT_JSON, "unbound/collision",
                                     static_cast<uint32_t>(SOH::ResourceType::SOH_UnboundCollision), 1);
+    // Schema 2 = f32 collision.bin (extent.md); the same factory reads both layouts by version.
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryJsonCollisionHeaderV1>(),
+                                    RESOURCE_FORMAT_JSON, "unbound/collision",
+                                    static_cast<uint32_t>(SOH::ResourceType::SOH_UnboundCollision), 2);
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryJsonPathV1>(), RESOURCE_FORMAT_JSON,
                                     "unbound/paths", static_cast<uint32_t>(SOH::ResourceType::SOH_UnboundPath), 1);
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryCollisionHeaderV0>(),

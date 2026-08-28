@@ -77,6 +77,17 @@ Vec3s ReadVec(const Json& v) {
     return out;
 }
 
+// SOH [Unbound] world positions are f32 (world extent); rotations stay Vec3s via ReadVec
+Vec3f ReadVecF(const Json& v) {
+    Vec3f out{ 0.0f, 0.0f, 0.0f };
+    if (v.is_array() && v.size() >= 3) {
+        out.x = (f32)Unbound::ToNumber(v[0]);
+        out.y = (f32)Unbound::ToNumber(v[1]);
+        out.z = (f32)Unbound::ToNumber(v[2]);
+    }
+    return out;
+}
+
 template <typename T> void ReadRgb(const Json& v, T* out) {
     if (v.is_array() && v.size() >= 3) {
         out[0] = (T)ToInt(v[0]);
@@ -98,7 +109,7 @@ std::string PathField(const Json& obj, const char* key) {
 ActorEntry ReadActor(const Json& a) {
     ActorEntry e{};
     e.id = (s16)Field(a, "id");
-    e.pos = ReadVec(a.value("pos", Json::array()));
+    e.pos = ReadVecF(a.value("pos", Json::array()));
     e.rot = ReadVec(a.value("rot", Json::array()));
     e.params = (s16)Field(a, "params");
     return e;
@@ -156,7 +167,7 @@ std::shared_ptr<ISceneCommand> BuildMesh(CommandBuilder& b, const Json& m) {
             for (const auto& k : keys) {
                 const Json& e = entries[k];
                 PolygonDlist2 d{};
-                d.pos = ReadVec(e.value("pos", Json::array()));
+                d.pos = ReadVecF(e.value("pos", Json::array()));
                 d.unk_06 = (s16)Field(e, "radius");
                 d.opa = keepPath(cmd->opaPaths, PathField(e, "opa"));
                 d.xlu = keepPath(cmd->xluPaths, PathField(e, "xlu"));
@@ -234,7 +245,7 @@ std::shared_ptr<ISceneCommand> BuildLightList(CommandBuilder& b, const Json& lis
             info.params.dir.z = (s8)dir.z;
             ReadRgb(l.value("color", Json::array()), info.params.dir.color);
         } else {
-            Vec3s pos = ReadVec(l.value("pos", Json::array()));
+            Vec3f pos = ReadVecF(l.value("pos", Json::array()));
             info.params.point.x = pos.x;
             info.params.point.y = pos.y;
             info.params.point.z = pos.z;
@@ -298,6 +309,7 @@ std::shared_ptr<ISceneCommand> BuildCollision(CommandBuilder& b, const std::stri
 struct SharedRefs {
     Json rooms;           // top-level "rooms" (scene docs)
     std::string collision; // top-level "collision" (scene docs)
+    Vec3f origin{ 0.0f, 0.0f, 0.0f }; // top-level "origin" (room docs): world position of the mesh's local origin
 };
 
 // Order follows the vanilla headers (and Prelude's emitter): settings that seed envCtx first, lists after.
@@ -418,14 +430,14 @@ void BuildSetupCommands(CommandBuilder& b, const Json& setup, const SharedRefs& 
             const Json& t = list[k];
             TransitionActorEntry e{};
             e.id = (s16)Field(t, "id");
-            e.pos = ReadVec(t.value("pos", Json::array()));
+            e.pos = ReadVecF(t.value("pos", Json::array()));
             e.rotY = (s16)Field(t, "rotY");
             e.params = (s16)Field(t, "params");
             const Json& front = t.value("front", Json::object());
             const Json& back = t.value("back", Json::object());
-            e.sides[0].room = (s8)Field(front, "room");
+            e.sides[0].room = (s16)Field(front, "room");
             e.sides[0].effects = (s8)Field(front, "effects");
-            e.sides[1].room = (s8)Field(back, "room");
+            e.sides[1].room = (s16)Field(back, "room");
             e.sides[1].effects = (s8)Field(back, "effects");
             cmd->transitionActorList.push_back(e);
         }
@@ -465,7 +477,9 @@ void BuildSetupCommands(CommandBuilder& b, const Json& setup, const SharedRefs& 
         out.push_back(cmd);
     }
     if (has("mesh")) {
-        out.push_back(BuildMesh(b, setup["mesh"]));
+        auto mesh = BuildMesh(b, setup["mesh"]);
+        static_cast<SetMesh*>(mesh.get())->origin = shared.origin;
+        out.push_back(mesh);
     }
     if (has("cutscene") && setup["cutscene"].is_string()) {
         auto cmd = b.Make<SetCutscenes>(SceneCommandID::SetCutscenes);
@@ -490,6 +504,11 @@ std::shared_ptr<Scene> BuildScene(std::shared_ptr<Ship::ResourceInitData> initDa
     SharedRefs shared;
     shared.rooms = doc.value("rooms", Json::object());
     shared.collision = PathField(doc, "collision");
+    if (doc.contains("origin") && doc["origin"].is_array() && doc["origin"].size() >= 3) {
+        shared.origin.x = doc["origin"][0].get<float>();
+        shared.origin.y = doc["origin"][1].get<float>();
+        shared.origin.z = doc["origin"][2].get<float>();
+    }
 
     const Json& setups = doc.value("setups", Json::object());
     auto keys = ListKeys(setups);

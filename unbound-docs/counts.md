@@ -39,9 +39,26 @@ Overview in [`README.md`](./README.md).
 
 ## Not changed
 
-- Room *numbers* stay `s8` in `Room.num`, `Actor.room` and `TransitionActorEntry.sides[].room`
-  (127 addressable rooms). `numRooms` is u16 so the header can list more, but addressing them
-  needs the s8 → s16 sweep across actors; not a reported need.
+- Room numbers are now `s16` (`Room.num`, `Actor.room`, `TransitionActorEntry.sides[].room`,
+  `EntranceEntry.room`, the save-side `RespawnData.roomIndex` / `SohStats.roomNum` /
+  `SceneTimestamp.room`, and the narrow locals in `z_play.c`, `z_actor.c`, En_Ru1, Bg_Relay_Objects,
+  Door_Shutter, Bg_Mori_Idomizu, plus the port-layer readers — `valueViewer` type tag, Anchor
+  `TeleportTo`, `EnemyRandomizer`, `Warping`). The binary transition/entrance loaders read the room
+  byte **signed** so vanilla's `0xFF` "no room" still arrives as `-1` (it used to be an accident of
+  the s8 truncation). The `s8` sweep alone was not enough — room-keyed *state* capped earlier:
+  - **Clear / temp-clear flags** were `1 << room` on a `u32`. Rooms ≥ 32 now go through
+    `SceneFlagsExt_*` (`SceneDB.cpp`): a growable per-scene bitset for any scene id, persisted by
+    scene name in the `unbound` save section (`roomClearExt`), temp flags reset on scene init.
+    Rooms < 32 are untouched so vanilla saves keep their layout.
+  - **Waterbox room** was a 6-bit field in `properties` (`0x3F` = all). `WaterBox.room` is unpacked
+    at load by every loader; `collision.json` accepts an explicit `"room"` (`-1` = all) that overrides
+    the packed bits, so a mod can put water in room 70.
+  - **Transition actors** were capped at 64 by the index packed into `params` (`i << 10`).
+    `Actor.transitionIndex` (set by `Actor_SpawnTransitionActors`) carries it; readers use
+    `TRANSITION_ACTOR_INDEX(actor)`, which falls back to the params packing for actors spawned any
+    other way. `TransitionActorContext.numActors` is u16.
+  - **Minimap visited bits** (`sceneFlags[].rooms`, `gBitFlags[room]`) are guarded to rooms < 32;
+    custom scenes have no minimap yet anyway (README limits).
 - The 1 MB object arena is still allocated from the play-state heap for vanilla parity
   (`Object_InitBank`). It could be dropped entirely; left for the scene-format pass.
 - `OBJECT_ID_MAX` and the `ObjectID` enum are untouched — they name vanilla objects only.

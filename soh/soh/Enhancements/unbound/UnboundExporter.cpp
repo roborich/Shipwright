@@ -219,6 +219,18 @@ json Vec(const Vec3s& v) {
     return json::array({ v.x, v.y, v.z });
 }
 
+// SOH [Unbound] world positions are f32; emit integers when integral so converted vanilla data stays tidy.
+json Num(f32 v) {
+    if (v == (f32)(int64_t)v) {
+        return json((int64_t)v);
+    }
+    return json(v);
+}
+
+json Vec(const Vec3f& v) {
+    return json::array({ Num(v.x), Num(v.y), Num(v.z) });
+}
+
 json Rgb(const u8* c) {
     return json::array({ c[0], c[1], c[2] });
 }
@@ -245,29 +257,34 @@ void PutU32(std::vector<uint8_t>& out, uint32_t v) {
     }
 }
 
+void PutF32(std::vector<uint8_t>& out, float v) {
+    uint32_t bits;
+    std::memcpy(&bits, &v, sizeof(bits));
+    PutU32(out, bits);
+}
+
+// collision.bin v2 (scene-format.md §2.3): f32 vertices, 28-byte polys with f32 dist. v1 stays readable.
 std::vector<uint8_t> BuildCollisionBin(const SOH::CollisionHeader& col) {
     std::vector<uint8_t> bin;
     const auto& d = col.collisionHeaderData;
-    bin.reserve(d.numVertices * 6 + 4 + d.numPolygons * 24);
+    bin.reserve(d.numVertices * 12 + d.numPolygons * 28);
     for (uint32_t i = 0; i < d.numVertices; i++) {
-        PutS16(bin, d.vtxList[i].x);
-        PutS16(bin, d.vtxList[i].y);
-        PutS16(bin, d.vtxList[i].z);
-    }
-    while (bin.size() % 4 != 0) {
-        bin.push_back(0);
+        PutF32(bin, d.vtxList[i].x);
+        PutF32(bin, d.vtxList[i].y);
+        PutF32(bin, d.vtxList[i].z);
     }
     for (uint32_t i = 0; i < d.numPolygons; i++) {
         const auto& p = d.polyList[i];
         PutS16(bin, (int16_t)p.type);
+        PutS16(bin, 0); // pad
         PutU32(bin, p.flags_vIA);
         PutU32(bin, p.flags_vIB);
         PutU32(bin, p.vIC);
         PutS16(bin, p.normal.x);
         PutS16(bin, p.normal.y);
         PutS16(bin, p.normal.z);
-        PutS16(bin, p.dist);
-        PutS16(bin, 0); // pad to a 24-byte stride
+        PutS16(bin, 0); // pad
+        PutF32(bin, p.dist);
     }
     return bin;
 }
@@ -275,7 +292,7 @@ std::vector<uint8_t> BuildCollisionBin(const SOH::CollisionHeader& col) {
 json BuildCollisionJson(const SOH::CollisionHeader& col, const std::string& binPath) {
     const auto& d = col.collisionHeaderData;
     json doc;
-    doc["$schema"] = "unbound/collision/1";
+    doc["$schema"] = "unbound/collision/2";
     doc["bounds"] = { { "min", Vec(d.minBounds) }, { "max", Vec(d.maxBounds) } };
     doc["bulk"] = { { "file", binPath }, { "vertices", d.numVertices }, { "polys", d.numPolygons } };
 
@@ -308,9 +325,10 @@ json BuildCollisionJson(const SOH::CollisionHeader& col, const std::string& binP
     json water = json::object();
     for (size_t i = 0; i < col.waterBoxes.size(); i++) {
         const auto& w = col.waterBoxes[i];
-        water[Key(i)] = { { "xMin", w.xMin },       { "ySurface", w.ySurface },
-                          { "zMin", w.zMin },       { "xLength", w.xLength },
-                          { "zLength", w.zLength }, { "properties", Hex(w.properties) } };
+        water[Key(i)] = { { "xMin", Num(w.xMin) },       { "ySurface", Num(w.ySurface) },
+                          { "zMin", Num(w.zMin) },       { "xLength", Num(w.xLength) },
+                          { "zLength", Num(w.zLength) }, { "properties", Hex(w.properties) },
+                          { "room", w.room } };
     }
     doc["waterBoxes"] = water;
     return doc;
@@ -443,7 +461,7 @@ json LightJson(const SOH::LightInfo& l) {
         j["dir"] = json::array({ l.params.dir.x, l.params.dir.y, l.params.dir.z });
         j["color"] = Rgb(l.params.dir.color);
     } else {
-        j["pos"] = json::array({ l.params.point.x, l.params.point.y, l.params.point.z });
+        j["pos"] = json::array({ Num(l.params.point.x), Num(l.params.point.y), Num(l.params.point.z) });
         j["color"] = Rgb(l.params.point.color);
         j["glow"] = l.params.point.drawGlow;
         j["radius"] = l.params.point.radius;

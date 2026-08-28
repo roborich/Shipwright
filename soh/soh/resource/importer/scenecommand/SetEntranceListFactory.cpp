@@ -17,7 +17,7 @@ std::shared_ptr<Ship::IResource> SetEntranceListFactory::ReadResource(std::share
         EntranceEntry entranceEntry;
 
         entranceEntry.spawn = reader->ReadInt8();
-        entranceEntry.room = reader->ReadInt8();
+        entranceEntry.room = reader->ReadUByte(); // SOH [Unbound] 0..255 spawn room
 
         setEntranceList->entrances.push_back(entranceEntry);
     }
