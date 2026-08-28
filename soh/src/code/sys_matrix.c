@@ -3,6 +3,11 @@
 #include "soh/frame_interpolation.h"
 #include <assert.h>
 
+// SOH [Unbound] every Mtx writer below assumes the libultraship GBI_FLOAT_MTX option (float Mtx, no s16.16 packing)
+#ifndef GBI_FLOAT_MTX
+#error "SoH: Unbound requires libultraship built with GBI_FLOAT_MTX (see unbound-docs/extent.md)"
+#endif
+
 // clang-format off
 // SOH [Unbound] Mtx is float (GBI_FLOAT_MTX); this is the identity, not the s16.16 packing of it.
 Mtx gMtxClear = {
@@ -940,7 +945,9 @@ void Matrix_SetTranslateUniformScaleMtx(Mtx* mtx, f32 scale, f32 translateX, f32
 
 // SOH [Unbound] Mtx is float; the vanilla hand-packed s16.16 writers become plain float fills.
 void Matrix_SetTranslateUniformScaleMtx2(Mtx* mtx, f32 scale, f32 translateX, f32 translateY, f32 translateZ) {
-    MtxF mtxf = { { { scale, 0, 0, 0 }, { 0, scale, 0, 0 }, { 0, 0, scale, 0 }, { translateX, translateY, translateZ, 1 } } };
+    MtxF mtxf = {
+        { { scale, 0, 0, 0 }, { 0, scale, 0, 0 }, { 0, 0, scale, 0 }, { translateX, translateY, translateZ, 1 } }
+    };
     guMtxF2L(&mtxf, mtx);
 }
 

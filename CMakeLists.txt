@@ -14,10 +14,6 @@ set(SPDLOG_LEVEL_OFF 6)
 set(SPDLOG_MIN_CUTOFF SPDLOG_LEVEL_TRACE CACHE STRING "cutoff at trace")
 
 option(SUPPRESS_WARNINGS "Suppress warnings in LUS and src (decomp)" ON)
-option(SOH_UNBOUND "Build SoH: Unbound (uncapped modding build, see unbound-docs/)" ON)
-if(SOH_UNBOUND)
-    add_compile_definitions(SOH_UNBOUND=1)
-endif()
 if(SUPPRESS_WARNINGS)
     MESSAGE("Suppressing warnings in LUS and src")
     if(MSVC)
@@ -161,6 +157,9 @@ set(GFX_DEBUG_DISASSEMBLER ON)
 
 # Tell LUS we're using F3DEX_GBI_2 (in a way that doesn't break libgfxd)
 set(GBI_UCODE F3DEX_GBI_2)
+
+# SOH [Unbound] float matrices: world positions past +/-32767 need a Mtx that does not wrap (unbound-docs/extent.md)
+set(GBI_FLOAT_MTX ON)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
 
 # Enable MPQ and OTR support
