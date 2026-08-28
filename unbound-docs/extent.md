@@ -1,8 +1,7 @@
 # Unbound: world extent
 
-Lifts the ±32 767-unit world limit that `s16` positions imposed everywhere. Overview and the survey
-that produced this design are in [`README.md`](./README.md) and
-[`plan-extent-rooms-dyna.md`](./plan-extent-rooms-dyna.md).
+Lifts the ±32 767-unit world limit that `s16` positions imposed everywhere. Overview in
+[`README.md`](./README.md).
 
 ## Three caps behind one number
 
@@ -23,7 +22,8 @@ that produced this design are in [`README.md`](./README.md) and
 - `MatrixFactory.cpp`: `.o2r` matrix resources are stored s16.16; they are unpacked to float at load.
 - SoH: `guMtxF2L`/`guMtxL2F` are copies; `gMtxClear` is a float identity; the two hand-packed
   writers in `sys_matrix.c` (`Matrix_SetTranslateUniformScaleMtx2`, `Matrix_SetTranslateScaleMtx1`)
-  build an `MtxF` instead. Nothing else in `soh/` touched `Mtx.m[]` directly.
+  build an `MtxF` instead. Nothing else that is compiled in `soh/` touched `Mtx.m[]` directly (`ucode_disas.c`
+  still reads `intPart`/`fracPart` but is not built).
 
 Precision: f32 has ~7 significant digits, so at 10⁶ units positions resolve to ~0.06 units. The
 Unbound world is therefore ±2²⁰ (1 048 576) — `BGCHECK_XYZ_ABSMAX`.
@@ -42,7 +42,7 @@ stay **absolute** — only the mesh vertices are relative.
 |---|---|---|---|
 | `ActorEntry.pos`, `TransitionActorEntry.pos` (+ SOH mirrors) | `Vec3s` | `Vec3f` | binary, XML, JSON, exporter |
 | `PolygonDlist2.pos` (mesh-type-2 cull centre) | `Vec3s` | `Vec3f` | same |
-| `Path.points` / `PathData.points` | `Vec3s*` | `Vec3f*` | `PathFactory`, `UnboundPathFactory`, exporter; overlay readers that did `Math_Vec3s_ToVec3f` |
+| `Path.points` / `PathData.points` | `Vec3s*` | `Vec3f*` | `PathFactory`, `UnboundPathFactory`, exporter; every overlay reader (`z_path.c`, En_Kz, En_Md, En_Nb, En_Mb, En_Mm, En_Cs, En_Daiku_Kakariko and the `Math_Vec3s_ToVec3f` users) — `SEGMENTED_TO_VIRTUAL` returns `void*`, so a reader left on `Vec3s*` compiles and reads garbage |
 | `LightPoint.x/y/z` + `Lights_Point*SetInfo` | `s16` | `f32` | binary, XML, JSON, exporter |
 | `HorseData.pos` | `Vec3s` | `Vec3f` | JSON save (name-keyed) |
 | `CollisionHeader.vtxList`, `dyna.vtxList` | `Vec3s` | `Vec3f` | `collision.bin` **v2**, binary, XML |

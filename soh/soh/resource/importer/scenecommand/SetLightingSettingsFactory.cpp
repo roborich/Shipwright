@@ -3,6 +3,13 @@
 #include "soh/resource/logging/SceneCommandLoggers.h"
 #include "spdlog/spdlog.h"
 #include <tinyxml2.h>
+#include "z64environment.h"
+
+// SOH [Unbound] SOH::EnvLightSettings mirrors the game struct field for field; Scene_CommandLightingSettings
+// hands the vector's storage straight to the game.
+static_assert(sizeof(SOH::EnvLightSettings) == sizeof(::EnvLightSettings), "EnvLightSettings mirror out of sync");
+static_assert(offsetof(SOH::EnvLightSettings, worldFog) == offsetof(::EnvLightSettings, worldFog),
+              "EnvLightSettings mirror out of sync");
 
 namespace SOH {
 std::shared_ptr<Ship::IResource>
@@ -16,7 +23,7 @@ SetLightingSettingsFactory::ReadResource(std::shared_ptr<Ship::ResourceInitData>
     setLightingSettings->settings.reserve(count);
 
     for (uint32_t i = 0; i < count; i++) {
-        EnvLightSettings lightSettings;
+        EnvLightSettings lightSettings{}; // SOH [Unbound] value-init: the world-fog fields have no binary source
         lightSettings.ambientColor[0] = reader->ReadInt8();
         lightSettings.ambientColor[1] = reader->ReadInt8();
         lightSettings.ambientColor[2] = reader->ReadInt8();
@@ -65,7 +72,7 @@ SetLightingSettingsFactoryXML::ReadResource(std::shared_ptr<Ship::ResourceInitDa
     while (child != nullptr) {
         std::string childName = child->Name();
         if (childName == "LightingSetting") {
-            EnvLightSettings lightSettings;
+            EnvLightSettings lightSettings{}; // SOH [Unbound] value-init: the world-fog fields have no XML source
             lightSettings.ambientColor[0] = child->IntAttribute("AmbientColorR");
             lightSettings.ambientColor[1] = child->IntAttribute("AmbientColorG");
             lightSettings.ambientColor[2] = child->IntAttribute("AmbientColorB");

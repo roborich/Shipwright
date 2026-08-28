@@ -76,6 +76,14 @@ typedef struct {
     u8 worldFog;
 } EnvLightSettings;
 
+// SOH [Unbound] World-unit distance at which vanilla fog starts: fogNear is on the 0..1000 scale (zNear 10) with
+// the blend rate in its high bits. Shared by the blend code (z_kankyo.c) and the JSON scene loader.
+static inline f32 Environment_LegacyFogStart(s16 fogNear, f32 fogFar) {
+    s32 fogNearScaled = fogNear & 0x3FF;
+
+    return fogNearScaled >= 997 ? fogFar : 10000.0f / (f32)(1000 - fogNearScaled);
+}
+
 // 1.0: 801D8EC4
 // dbg: 80222A44
 typedef struct {

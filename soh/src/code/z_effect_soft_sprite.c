@@ -305,10 +305,11 @@ void EffectSs_DrawAll(PlayState* play) {
 
     for (i = 0; i < sEffectSsInfo.tableSize; i++) {
         if (sEffectSsInfo.table[i].life > -1) {
+            Vec3f* pos = &sEffectSsInfo.table[i].pos;
+
             // SOH [Unbound] was +/-32000
-            if ((sEffectSsInfo.table[i].pos.x > BGCHECK_XYZ_ABSMAX) || (sEffectSsInfo.table[i].pos.x < -BGCHECK_XYZ_ABSMAX) ||
-                (sEffectSsInfo.table[i].pos.y > BGCHECK_XYZ_ABSMAX) || (sEffectSsInfo.table[i].pos.y < -BGCHECK_XYZ_ABSMAX) ||
-                (sEffectSsInfo.table[i].pos.z > BGCHECK_XYZ_ABSMAX) || (sEffectSsInfo.table[i].pos.z < -BGCHECK_XYZ_ABSMAX)) {
+            if ((pos->x > BGCHECK_XYZ_ABSMAX) || (pos->x < -BGCHECK_XYZ_ABSMAX) || (pos->y > BGCHECK_XYZ_ABSMAX) ||
+                (pos->y < -BGCHECK_XYZ_ABSMAX) || (pos->z > BGCHECK_XYZ_ABSMAX) || (pos->z < -BGCHECK_XYZ_ABSMAX)) {
                 osSyncPrintf(VT_FGCOL(RED));
                 // "Since the position is outside the area, delete it.
                 // Effect label No. %d: Please respond by the program.

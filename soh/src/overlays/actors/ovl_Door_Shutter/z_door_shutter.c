@@ -746,7 +746,8 @@ void DoorShutter_Draw(Actor* thisx, PlayState* play) {
             }
         } else {
             if (sp70->b != NULL) {
-                TransitionActorEntry* transitionEntry = &play->transiActorCtx.list[TRANSITION_ACTOR_INDEX(&this->dyna.actor)];
+                TransitionActorEntry* transitionEntry =
+                    &play->transiActorCtx.list[TRANSITION_ACTOR_INDEX(&this->dyna.actor)];
 
                 if (play->roomCtx.prevRoom.num >= 0 ||
                     transitionEntry->sides[0].room == transitionEntry->sides[1].room) {

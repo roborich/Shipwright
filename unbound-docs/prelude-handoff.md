@@ -1,9 +1,9 @@
 # Handoff to Prelude: limits lifted on 2026-08-27
 
-For the Prelude of Light agent. What changed in SoH: Unbound (branch `unbound`, uncommitted as of
-writing), what Prelude must emit differently, and what it may now allow the user to build.
-Authoritative detail: `counts.md` (rooms), `collision.md` (dyna), `extent.md` (world extent),
-`scene-format.md` (format). Everything in the code is tagged `SOH [Unbound]`.
+For the Prelude of Light agent. What changed in SoH: Unbound (branch `unbound`), what Prelude must
+emit differently, and what it may now allow the user to build. Authoritative detail: `counts.md`
+(rooms), `collision.md` (dyna), `extent.md` (world extent), `scene-format.md` (format); when this
+summary and an area doc disagree, the area doc wins. Everything in the code is tagged `SOH [Unbound]`.
 
 ## 1. Format changes Prelude has to handle
 

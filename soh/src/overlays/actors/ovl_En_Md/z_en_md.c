@@ -571,7 +571,7 @@ void EnMd_UpdateTalking(EnMd* this, PlayState* play) {
 
 u8 EnMd_FollowPath(EnMd* this, PlayState* play) {
     Path* path;
-    Vec3s* pointPos;
+    Vec3f* pointPos; // SOH [Unbound] path points are f32
     f32 pathDiffX;
     f32 pathDiffZ;
 
@@ -600,7 +600,7 @@ u8 EnMd_FollowPath(EnMd* this, PlayState* play) {
 
 u8 EnMd_SetMovedPos(EnMd* this, PlayState* play) {
     Path* path;
-    Vec3s* lastPointPos;
+    Vec3f* lastPointPos; // SOH [Unbound] path points are f32
 
     if ((this->actor.params & 0xFF00) == 0xFF00) {
         return 0;

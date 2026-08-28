@@ -60,9 +60,9 @@ std::shared_ptr<Ship::IResource> SetLightListFactoryXML::ReadResource(std::share
                 light.params.dir.color[1] = child->IntAttribute("ColorG");
                 light.params.dir.color[2] = child->IntAttribute("ColorB");
             } else {
-                light.params.point.x = child->IntAttribute("X");
-                light.params.point.y = child->IntAttribute("Y");
-                light.params.point.z = child->IntAttribute("Z");
+                light.params.point.x = child->FloatAttribute("X"); // SOH [Unbound] f32 position
+                light.params.point.y = child->FloatAttribute("Y");
+                light.params.point.z = child->FloatAttribute("Z");
                 light.params.point.color[0] = child->IntAttribute("ColorR");
                 light.params.point.color[1] = child->IntAttribute("ColorG");
                 light.params.point.color[2] = child->IntAttribute("ColorB");

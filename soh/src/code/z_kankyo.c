@@ -9,30 +9,60 @@
 #include "soh/Enhancements/game-interactor/GameInteractor.h"
 #include "soh/Enhancements/game-interactor/GameInteractor_Hooks.h"
 
-// SOH [Unbound] Blend the world-unit fog / draw-distance fields of two lighting entries (extent.md). An entry
-// without world fog is treated as its vanilla equivalent so mixed setups (day world-fog, night legacy) still blend.
-static void Environment_LerpWorldFog(EnvLightSettings* out, const EnvLightSettings* a, const EnvLightSettings* b, f32 t) {
-    f32 aStart, aEnd, aFar, aNear, bStart, bEnd, bFar, bNear;
+// SOH [Unbound] World-unit fog / draw distance (extent.md). A lighting entry without world fog resolves to its
+// vanilla equivalent so mixed setups (day world-fog, night legacy) blend without reading unset fields.
+typedef struct {
+    f32 start;
+    f32 end;
+    f32 zFar;
+    f32 zNear;
+} WorldFogParams;
 
-    if (!a->worldFog && !b->worldFog) {
-        out->worldFog = 0;
-        return;
+static WorldFogParams Environment_ResolveWorldFog(const EnvLightSettings* s) {
+    WorldFogParams p;
+
+    if (s->worldFog) {
+        p.start = s->fogStart;
+        p.end = s->fogEnd;
+        p.zFar = s->drawDistance;
+        p.zNear = s->nearPlane;
+    } else {
+        p.zFar = s->fogFar;
+        p.start = Environment_LegacyFogStart(s->fogNear, p.zFar);
+        p.end = p.zFar;
+        p.zNear = 0.0f;
     }
-#define UNBOUND_LEGACY_START(s) (((s)->fogNear & 0x3FF) >= 997 ? (f32)(s)->fogFar : 10000.0f / (f32)(1000 - ((s)->fogNear & 0x3FF)))
-    aStart = a->worldFog ? a->fogStart : UNBOUND_LEGACY_START(a);
-    bStart = b->worldFog ? b->fogStart : UNBOUND_LEGACY_START(b);
-    aFar = a->worldFog ? a->drawDistance : (f32)a->fogFar;
-    bFar = b->worldFog ? b->drawDistance : (f32)b->fogFar;
-    aEnd = a->worldFog ? a->fogEnd : aFar;
-    bEnd = b->worldFog ? b->fogEnd : bFar;
-    aNear = a->worldFog ? a->nearPlane : 0.0f;
-    bNear = b->worldFog ? b->nearPlane : 0.0f;
-#undef UNBOUND_LEGACY_START
-    out->worldFog = 1;
-    out->fogStart = aStart + (bStart - aStart) * t;
-    out->fogEnd = aEnd + (bEnd - aEnd) * t;
-    out->drawDistance = aFar + (bFar - aFar) * t;
-    out->nearPlane = aNear + (bNear - aNear) * t;
+    return p;
+}
+
+static WorldFogParams Environment_LerpWorldFogParams(WorldFogParams a, WorldFogParams b, f32 t) {
+    WorldFogParams p;
+
+    p.start = LERP(a.start, b.start, t);
+    p.end = LERP(a.end, b.end, t);
+    p.zFar = LERP(a.zFar, b.zFar, t);
+    p.zNear = LERP(a.zNear, b.zNear, t);
+    return p;
+}
+
+static void Environment_SetWorldFog(EnvLightSettings* out, WorldFogParams p, u8 worldFog) {
+    out->worldFog = worldFog;
+    out->fogStart = p.start;
+    out->fogEnd = p.end;
+    out->drawDistance = p.zFar;
+    out->nearPlane = p.zNear;
+}
+
+static void Environment_CopyWorldFog(EnvLightSettings* out, const EnvLightSettings* src) {
+    Environment_SetWorldFog(out, Environment_ResolveWorldFog(src), src->worldFog);
+}
+
+static void Environment_LerpWorldFog(EnvLightSettings* out, const EnvLightSettings* a, const EnvLightSettings* b,
+                                     f32 t) {
+    WorldFogParams pa = Environment_ResolveWorldFog(a);
+    WorldFogParams pb = Environment_ResolveWorldFog(b);
+
+    Environment_SetWorldFog(out, Environment_LerpWorldFogParams(pa, pb, t), a->worldFog || b->worldFog);
 }
 
 typedef enum {
@@ -1086,13 +1116,17 @@ void Environment_Update(PlayState* play, EnvironmentContext* envCtx, LightContex
 
                         // SOH [Unbound] world-unit fog / draw distance follow the same two-level blend
                         {
-                            EnvLightSettings a;
-                            EnvLightSettings b;
-                            Environment_LerpWorldFog(&a, &lightSettingsList[TIME_ENTRY_1F.unk_04],
-                                                     &lightSettingsList[TIME_ENTRY_1F.unk_05], sp8C);
-                            Environment_LerpWorldFog(&b, &lightSettingsList[TIME_ENTRY_20.unk_04],
-                                                     &lightSettingsList[TIME_ENTRY_20.unk_05], sp8C);
-                            Environment_LerpWorldFog(&envCtx->lightSettings, &a, &b, sp88);
+                            const EnvLightSettings* a0 = &lightSettingsList[TIME_ENTRY_1F.unk_04];
+                            const EnvLightSettings* a1 = &lightSettingsList[TIME_ENTRY_1F.unk_05];
+                            const EnvLightSettings* b0 = &lightSettingsList[TIME_ENTRY_20.unk_04];
+                            const EnvLightSettings* b1 = &lightSettingsList[TIME_ENTRY_20.unk_05];
+                            WorldFogParams a = Environment_LerpWorldFogParams(Environment_ResolveWorldFog(a0),
+                                                                              Environment_ResolveWorldFog(a1), sp8C);
+                            WorldFogParams b = Environment_LerpWorldFogParams(Environment_ResolveWorldFog(b0),
+                                                                              Environment_ResolveWorldFog(b1), sp8C);
+
+                            Environment_SetWorldFog(&envCtx->lightSettings, Environment_LerpWorldFogParams(a, b, sp88),
+                                                    a0->worldFog || a1->worldFog || b0->worldFog || b1->worldFog);
                         }
 
                         if (TIME_ENTRY_20.unk_05 >= envCtx->numLightSettings) {
@@ -1119,8 +1153,8 @@ void Environment_Update(PlayState* play, EnvironmentContext* envCtx, LightContex
 
                     envCtx->lightSettings.fogNear = lightSettingsList[envCtx->unk_BD].fogNear & 0x3FF;
                     envCtx->lightSettings.fogFar = lightSettingsList[envCtx->unk_BD].fogFar;
-                    Environment_LerpWorldFog(&envCtx->lightSettings, &lightSettingsList[envCtx->unk_BD],
-                                             &lightSettingsList[envCtx->unk_BD], 0.0f); // SOH [Unbound]
+                    // SOH [Unbound]
+                    Environment_CopyWorldFog(&envCtx->lightSettings, &lightSettingsList[envCtx->unk_BD]);
                     envCtx->unk_D8 = 1.0f;
                 } else {
                     u8 blendRate = (lightSettingsList[envCtx->unk_BD].fogNear >> 0xA) * 4;

@@ -14,6 +14,7 @@
 
 void func_80095AB4(PlayState* play, Room* room, u32 flags);
 void func_80095D04(PlayState* play, Room* room, u32 flags);
+void func_80096F6C(PlayState* play, Room* room, u32 flags);
 
 // SOH [Unbound] Room meshes draw under the identity matrix, i.e. their s16 vertices are world coordinates. A room
 // with a non-zero origin (rooms/<n>.json "origin") authors its vertices relative to that point and is placed here.
@@ -26,7 +27,6 @@ static Mtx* Room_OriginMtx(PlayState* play, Room* room) {
     SkinMatrix_SetTranslate(&mf, room->origin.x, room->origin.y, room->origin.z);
     return Matrix_MtxFToNewMtx(&mf, play->state.gfxCtx);
 }
-void func_80096F6C(PlayState* play, Room* room, u32 flags);
 
 Vec3f D_801270A0 = { 0.0f, 0.0f, 0.0f };
 
@@ -151,7 +151,7 @@ void func_80095D04(PlayState* play, Room* room, u32 flags) {
         sp90.y = polygonDlist->pos.y;
         sp90.z = polygonDlist->pos.z;
         SkinMatrix_Vec3fMtxFMultXYZW(&play->viewProjectionMtxF, &sp90, &sp84, &sp80);
-        if (-(f32)polygonDlist->unk_06 < sp84.z) {
+        if (-polygonDlist->unk_06 < sp84.z) {
             temp_f2 = sp84.z - polygonDlist->unk_06;
             if (temp_f2 < play->lightCtx.zFar) { // SOH [Unbound] was fogFar (<= 12800)
                 phi_v0 = spB4;

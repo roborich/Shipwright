@@ -318,8 +318,8 @@ s32 EnMm_GetPointCount(Path* pathList, s32 pathNum) {
 }
 
 s32 func_80AADE60(Path* pathList, Vec3f* pos, s32 pathNum, s32 waypoint) {
-    Vec3s* pointPos;
-    pointPos = &((Vec3s*)SEGMENTED_TO_VIRTUAL((pathList + pathNum)->points))[waypoint];
+    Vec3f* pointPos; // SOH [Unbound] path points are f32
+    pointPos = &((Vec3f*)SEGMENTED_TO_VIRTUAL((pathList + pathNum)->points))[waypoint];
 
     pos->x = pointPos->x;
     pos->y = pointPos->y;

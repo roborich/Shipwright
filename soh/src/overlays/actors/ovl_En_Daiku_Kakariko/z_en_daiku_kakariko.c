@@ -354,7 +354,7 @@ void EnDaikuKakariko_StopRunning(EnDaikuKakariko* this, PlayState* play) {
 void EnDaikuKakariko_Run(EnDaikuKakariko* this, PlayState* play) {
     s32 pad;
     Path* path;
-    Vec3s* pathPos;
+    Vec3f* pathPos; // SOH [Unbound] path points are f32
     f32 xDist;
     f32 zDist;
     s16 runAngle;
@@ -364,7 +364,7 @@ void EnDaikuKakariko_Run(EnDaikuKakariko* this, PlayState* play) {
 
     do {
         path = &play->setupPathList[(this->actor.params >> 8) & 0xFF];
-        pathPos = &((Vec3s*)SEGMENTED_TO_VIRTUAL(path->points))[this->waypoint];
+        pathPos = &((Vec3f*)SEGMENTED_TO_VIRTUAL(path->points))[this->waypoint];
         xDist = pathPos->x - this->actor.world.pos.x;
         zDist = pathPos->z - this->actor.world.pos.z;
         runAngle = Math_FAtan2F(xDist, zDist) * (32768.0f / M_PI);
