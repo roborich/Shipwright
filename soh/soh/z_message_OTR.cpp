@@ -1,7 +1,9 @@
 // SOH [Unbound] Message tables are owned, growable and hash-indexed; mods can add message ids.
 // See unbound-docs/text.md.
+#include "z_message_OTR.h"
 #include <libultraship/libultraship.h>
 #include "soh/resource/type/Scene.h"
+#include "soh/resource/unbound/UnboundJson.h"
 #include <ship/utils/StringHelper.h>
 #include "global.h"
 #include "vt.h"
@@ -34,11 +36,11 @@ enum MessageLanguage { MSG_NES, MSG_GER, MSG_FRA, MSG_JPN, MSG_STAFF, MSG_LANGUA
 
 struct LanguageSpec {
     MessageLanguage language;
-    const char* jsonName;   // "language" value in unbound/text/*.json
-    const char* folder;     // archive folder, also the override/ subfolder
-    const char* baseFile;   // primary base resource
+    const char* jsonName;    // "language" value in unbound/text/*.json
+    const char* folder;      // archive folder, also the override/ subfolder
+    const char* baseFile;    // primary base resource
     const char* altBaseFile; // fallback base resource (NTSC english), may be null
-    uint16_t firstId;       // asserted first id of the base table
+    uint16_t firstId;        // asserted first id of the base table
 };
 
 const LanguageSpec kLanguages[MSG_LANGUAGE_COUNT] = {
@@ -50,8 +52,8 @@ const LanguageSpec kLanguages[MSG_LANGUAGE_COUNT] = {
       0x0001 },
     { MSG_JPN, "jpn", "text/jpn_message_data_static", "text/jpn_message_data_static/jpn_message_data_static", nullptr,
       0x0001 },
-    { MSG_STAFF, "staff", "text/staff_message_data_static",
-      "text/staff_message_data_static/staff_message_data_static", nullptr, 0x0500 },
+    { MSG_STAFF, "staff", "text/staff_message_data_static", "text/staff_message_data_static/staff_message_data_static",
+      nullptr, 0x0500 },
 };
 
 /**
@@ -108,21 +110,26 @@ struct MessageTable {
 };
 
 std::array<MessageTable, MSG_LANGUAGE_COUNT> sTables;
+bool sInitialized = false;
 
 std::shared_ptr<SOH::Text> LoadTextResource(const std::string& path) {
-    return std::static_pointer_cast<SOH::Text>(
-        Ship::Context::GetInstance()->GetResourceManager()->LoadResource(path));
+    return std::static_pointer_cast<SOH::Text>(Ship::Context::GetInstance()->GetResourceManager()->LoadResource(path));
 }
 
-bool LoadJsonMessageFile(const std::string& path);
+bool LoadJsonMessageFile(const std::string& path, const LanguageSpec* expected);
+
+// Unbound archives carry the base table as text/<lang>/messages.json (unbound-docs/text.md).
+bool LoadJsonBase(const LanguageSpec& spec) {
+    std::string jsonBase = std::string("text/") + spec.jsonName + "/messages.json";
+    if (!Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->HasFile(jsonBase)) {
+        return false;
+    }
+    return LoadJsonMessageFile(jsonBase, &spec);
+}
 
 bool LoadBase(MessageTable& table, const LanguageSpec& spec) {
-    // Unbound archives carry the base table as JSON (unbound-docs/text.md)
-    std::string jsonBase = std::string("text/") + spec.jsonName + "/messages.json";
-    if (Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->HasFile(jsonBase)) {
-        if (LoadJsonMessageFile(jsonBase)) {
-            return !table.entries.empty();
-        }
+    if (LoadJsonBase(spec)) {
+        return true;
     }
 
     auto file = LoadTextResource(spec.baseFile);
@@ -160,7 +167,9 @@ void LoadOverrides(MessageTable& table, const LanguageSpec& spec) {
 }
 
 // JSON strings carry message bytes as code points 0-255 (Latin-1 mapping); control codes included.
-std::string JsonTextToBytes(const std::string& utf8) {
+// Code points above U+00FF have no byte representation; each becomes '?' and is counted in `replaced`.
+std::string JsonTextToBytes(const std::string& utf8, size_t& replaced) {
+    constexpr char kReplacement = '?';
     std::string bytes;
     bytes.reserve(utf8.size());
     for (size_t i = 0; i < utf8.size();) {
@@ -173,20 +182,16 @@ std::string JsonTextToBytes(const std::string& utf8) {
             bytes.push_back((char)(cp & 0xFF));
             i += 2;
         } else {
-            // code points above U+00FF have no byte representation; keep the low byte and move on
-            size_t len = (c & 0xF0) == 0xE0 ? 3 : 4;
-            bytes.push_back((char)c);
-            i += len;
+            bytes.push_back(kReplacement);
+            replaced++;
+            i += (c & 0xF0) == 0xE0 ? 3 : 4;
         }
     }
     return bytes;
 }
 
 uint16_t ParseMessageId(const nlohmann::json& value) {
-    if (value.is_number_integer()) {
-        return (uint16_t)value.get<int>();
-    }
-    return (uint16_t)std::stoi(value.get<std::string>(), nullptr, 0);
+    return (uint16_t)Unbound::ToInt(value, kTerminatorId);
 }
 
 MessageTable* TableForJsonLanguage(const std::string& name) {
@@ -198,15 +203,38 @@ MessageTable* TableForJsonLanguage(const std::string& name) {
     return nullptr;
 }
 
-void ApplyJsonMessage(MessageTable& table, const nlohmann::json& entry, uint16_t id) {
-    uint8_t box = (uint8_t)entry.value("box", 0);
-    uint8_t ypos = (uint8_t)entry.value("ypos", 0);
-    table.Set(id, (uint8_t)((box << 4) | ypos), JsonTextToBytes(entry.at("text").get<std::string>()));
+void ApplyJsonMessage(MessageTable& table, const nlohmann::json& entry, uint16_t id, const std::string& path) {
+    uint8_t box = (uint8_t)Unbound::ToInt(entry.value("box", nlohmann::json(0)));
+    uint8_t ypos = (uint8_t)Unbound::ToInt(entry.value("ypos", nlohmann::json(0)));
+    size_t replaced = 0;
+    std::string bytes = JsonTextToBytes(entry.at("text").get<std::string>(), replaced);
+    if (replaced > 0) {
+        SPDLOG_WARN("[Unbound] {}: message {:#06x} has {} character(s) outside U+0000-U+00FF, written as '?'", path, id,
+                    replaced);
+    }
+    table.Set(id, (uint8_t)((box << 4) | ypos), std::move(bytes));
 }
 
-// unbound/text/*.json : { "language": "eng", "messages": [ {id, box, ypos, text}, ... ] }
-// or "messages": { "<id>": {box, ypos, text}, ... }
-bool LoadJsonMessageFile(const std::string& path) {
+// "messages": [ {id, box, ypos, text}, ... ]  or  { "<id>": {box, ypos, text}, ... }
+size_t ApplyJsonMessages(MessageTable& table, const nlohmann::json& messages, const std::string& path) {
+    size_t count = 0;
+    if (messages.is_array()) {
+        for (const auto& entry : messages) {
+            ApplyJsonMessage(table, entry, ParseMessageId(entry.at("id")), path);
+            count++;
+        }
+    } else {
+        for (const auto& [key, entry] : messages.items()) {
+            ApplyJsonMessage(table, entry, ParseMessageId(nlohmann::json(key)), path);
+            count++;
+        }
+    }
+    return count;
+}
+
+// { "language": "eng", "messages": ... }. When `expected` is set the file must declare that language
+// (base tables); otherwise any language is accepted (unbound/text merge files).
+bool LoadJsonMessageFile(const std::string& path, const LanguageSpec* expected) {
     auto archiveManager = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager();
     auto file = archiveManager->LoadFile(path);
     if (file == nullptr || file->Buffer == nullptr) {
@@ -215,26 +243,19 @@ bool LoadJsonMessageFile(const std::string& path) {
     }
     try {
         auto doc = nlohmann::json::parse(file->Buffer->begin(), file->Buffer->end(), nullptr, true, true);
-        MessageTable* table = TableForJsonLanguage(doc.at("language").get<std::string>());
+        std::string language = doc.at("language").get<std::string>();
+        MessageTable* table = TableForJsonLanguage(language);
         if (table == nullptr) {
-            SPDLOG_ERROR("[Unbound] {}: unknown language '{}'", path, doc["language"].get<std::string>());
+            SPDLOG_ERROR("[Unbound] {}: unknown language '{}'", path, language);
             return false;
         }
-        const auto& messages = doc.at("messages");
-        size_t count = 0;
-        if (messages.is_array()) {
-            for (const auto& entry : messages) {
-                ApplyJsonMessage(*table, entry, ParseMessageId(entry.at("id")));
-                count++;
-            }
-        } else {
-            for (const auto& [key, entry] : messages.items()) {
-                ApplyJsonMessage(*table, entry, (uint16_t)std::stoi(key, nullptr, 0));
-                count++;
-            }
+        if (expected != nullptr && table != &sTables[expected->language]) {
+            SPDLOG_ERROR("[Unbound] {}: declares language '{}', expected '{}'", path, language, expected->jsonName);
+            return false;
         }
+        size_t count = ApplyJsonMessages(*table, doc.at("messages"), path);
         SPDLOG_INFO("[Unbound] {}: {} message(s)", path, count);
-        return true;
+        return count > 0;
     } catch (const std::exception& e) {
         SPDLOG_ERROR("[Unbound] {}: {}", path, e.what());
         return false;
@@ -242,25 +263,15 @@ bool LoadJsonMessageFile(const std::string& path) {
 }
 
 void LoadJsonMessages() {
-    auto files =
-        Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->ListFiles("unbound/text/*");
+    auto files = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->ListFiles("unbound/text/*");
     if (files == nullptr) {
         return;
     }
     for (const auto& path : *files) {
         if (path.ends_with(".json")) {
-            LoadJsonMessageFile(path);
+            LoadJsonMessageFile(path, nullptr);
         }
     }
-}
-
-MessageTableEntry* BuildLanguage(const LanguageSpec& spec) {
-    MessageTable& table = sTables[spec.language];
-    if (!LoadBase(table, spec)) {
-        return nullptr;
-    }
-    LoadOverrides(table, spec);
-    return table.Finalize();
 }
 
 void PublishTables() {
@@ -276,10 +287,11 @@ void PublishTables() {
 
 } // namespace
 
-extern "C" void OTRMessage_Init() {
-    if (sTables[MSG_NES].loaded) {
-        return; // already built; the tables are process-lifetime
+extern "C" void OTRMessage_Init(void) {
+    if (sInitialized) {
+        return; // the tables are process-lifetime; a second pass would append a second terminator
     }
+    sInitialized = true;
 
     // Base + override/ per language, then JSON merge files across all languages, then publish.
     // JSON runs after every base so a mod file can carry several languages.
@@ -298,9 +310,6 @@ extern "C" void OTRMessage_Init() {
     PublishTables();
 }
 
-/**
- * Hash lookup for any published table pointer. Returns NULL when the id is absent or the table is unknown.
- */
 extern "C" MessageTableEntry* OTRMessage_Find(MessageTableEntry* table, u16 textId) {
     for (auto& t : sTables) {
         if (t.loaded && t.entries.data() == table) {

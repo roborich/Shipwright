@@ -207,7 +207,8 @@ Gfx* Play_SetFog(PlayState* play, Gfx* gfx) {
 
     if (lightCtx->worldFog) {
         // Fog factor in the interpreter is fog = ndcZ * mul + offset with u = 500 * (ndcZ + 1), so a ramp from u0 to
-        // u1 is mul = 128000 / (u1 - u0), offset = (500 - u0) * 256 / (u1 - u0) — the gSPFogPosition formula in float.
+        // u1 is mul = 128000 / (u1 - u0), offset = (500 - u0) * 256 / (u1 - u0): the gSPFogPosition formula
+        // in float.
         f32* factor = Graph_Alloc(play->state.gfxCtx, 2 * sizeof(f32));
         f32 u0 = Play_FogU(lightCtx->fogStart, lightCtx->zNear, lightCtx->zFar);
         f32 u1 = Play_FogU(lightCtx->fogEnd, lightCtx->zNear, lightCtx->zFar);
@@ -2140,6 +2141,7 @@ void Play_SaveSceneFlags(PlayState* play) {
     savedSceneFlags->swch = play->actorCtx.flags.swch;
     savedSceneFlags->clear = play->actorCtx.flags.clear;
     savedSceneFlags->collect = play->actorCtx.flags.collect;
+    SceneFlagsExt_SaveClear(play->sceneNum); // SOH [Unbound] rooms >= 32
 }
 
 void Play_SetRespawnData(PlayState* play, s32 respawnMode, s16 entranceIndex, s32 roomIndex, s32 playerParams,

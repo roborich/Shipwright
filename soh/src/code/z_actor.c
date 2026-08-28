@@ -85,7 +85,9 @@
 
 static CollisionPoly* sCurCeilingPoly;
 static s32 sCurCeilingBgId;
-static s32 sSpawnTransitionIndex = -1; // SOH [Unbound] set by Actor_SpawnTransitionActors around Actor_Spawn
+// SOH [Unbound] Transition-actor list index for the Actor_Spawn in flight. It has to be a side channel: the
+// actor's Init runs inside Actor_Spawn and door actors read their list index there, before Actor_Spawn returns.
+static s32 sSpawnTransitionIndex = -1;
 
 // Used for animating the ice trap on the "Get Item" model.
 f32 iceTrapScale;
@@ -901,8 +903,6 @@ void TitleCard_InitBossName(PlayState* play, TitleCardContext* titleCtx, void* t
 
 void TitleCard_InitPlaceName(PlayState* play, TitleCardContext* titleCtx, void* texture, s32 x, s32 y, s32 width,
                              s32 height, s32 delay) {
-    SceneTableEntry* loadedScene = play->loadedScene;
-    //  size_t size = loadedScene->titleFile.vromEnd - loadedScene->titleFile.vromStart;
     switch (play->sceneNum) {
         case SCENE_DEKU_TREE:
             texture = gDekuTreeTitleCardENGTex;
@@ -2567,7 +2567,7 @@ void func_800304DC(PlayState* play, ActorContext* actorCtx, ActorEntry* actorEnt
     s32 i;
 
     savedSceneFlags = SceneFlags_Get(play->sceneNum); // SOH [Unbound]
-    SceneFlagsExt_ResetTemp();                        // SOH [Unbound] temp clear flags for rooms >= 32
+    SceneFlagsExt_LoadClear(play->sceneNum);          // SOH [Unbound] clear/temp flags for rooms >= 32
 
     memset(actorCtx, 0, sizeof(*actorCtx));
 
@@ -3019,6 +3019,7 @@ s32 Ship_CalcShouldDrawAndUpdate(PlayState* play, Actor* actor, Vec3f* projected
 
     // SOH [Unbound] Scenes that raise their draw distance past the vanilla 12800 get actor culling scaled to match,
     // otherwise a far horizon shows empty terrain (vanilla uncull zones were tuned to the 12800 far plane).
+    // Stopgap: a per-scene cull scale in the lighting entry would be the honest format field.
     if (play->lightCtx.worldFog && play->lightCtx.zFar > 12800.0f) {
         multiplier *= play->lightCtx.zFar / 12800.0f;
     }

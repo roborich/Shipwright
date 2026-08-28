@@ -20,7 +20,7 @@ Ship::IResource* OTRPlay_LoadFile(PlayState* play, const char* fileName) {
 }
 
 extern "C" void OTRPlay_SpawnScene(PlayState* play, s32 sceneId, s32 spawn) {
-    // SOH [Unbound] scene identity comes from SceneDB; the legacy SceneTableEntry pointer is unused on PC.
+    // SOH [Unbound] scene identity comes from SceneDB
     SceneDB::Entry& scene = SceneDB::Instance->RetrieveEntry(sceneId);
 
     if (!scene.valid) {
@@ -29,7 +29,6 @@ extern "C" void OTRPlay_SpawnScene(PlayState* play, s32 sceneId, s32 spawn) {
         return;
     }
 
-    play->loadedScene = nullptr;
     play->sceneNum = sceneId;
     play->sceneConfig = scene.drawConfig < SDC_MAX ? scene.drawConfig : SDC_DEFAULT;
 

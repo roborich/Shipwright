@@ -7,10 +7,11 @@ RomFile sNaviMsgFiles[];
 
 s32 Object_Spawn(ObjectContext* objectCtx, s16 objectId) {
     size_t size;
+    // SOH [Unbound] objects are resolved by asset name on PC; ids past the vanilla table have no ROM file
+    s32 hasRomFile = (objectId >= 0) && ((u32)objectId < gObjectTableSize);
 
     objectCtx->status[objectCtx->num].id = objectId;
-    size = objectId < gObjectTableSize ? gObjectTable[objectId].vromEnd - gObjectTable[objectId].vromStart
-                                       : 0; // SOH [Unbound]
+    size = hasRomFile ? gObjectTable[objectId].vromEnd - gObjectTable[objectId].vromStart : 0;
 
     osSyncPrintf("OBJECT[%d] SIZE %fK SEG=%x\n", objectId, size / 1024.0f, objectCtx->status[objectCtx->num].segment);
 
@@ -20,10 +21,9 @@ s32 Object_Spawn(ObjectContext* objectCtx, s16 objectId) {
     assert(((objectCtx->num < OBJECT_EXCHANGE_BANK_MAX) &&
             (((uintptr_t)objectCtx->status[objectCtx->num].segment + size) < (uintptr_t)objectCtx->spaceEnd)));
 
-    // SOH [Unbound] objects are resolved by asset name on PC; ids past the vanilla table have no ROM file
-    if (objectId < gObjectTableSize) {
-        DmaMgr_SendRequest1(objectCtx->status[objectCtx->num].segment, gObjectTable[objectId].vromStart, size,
-                            __FILE__, __LINE__);
+    if (hasRomFile) {
+        DmaMgr_SendRequest1(objectCtx->status[objectCtx->num].segment, gObjectTable[objectId].vromStart, size, __FILE__,
+                            __LINE__);
     }
 
     if (objectCtx->num < OBJECT_EXCHANGE_BANK_MAX - 1) {

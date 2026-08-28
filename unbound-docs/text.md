@@ -23,35 +23,41 @@ One `MessageTable` per language (`eng`/`nes`, `ger`, `fra`, `jpn`, `staff`):
 - Owns its bytes (`std::deque<std::string>` so `c_str()` stays stable), keeps the C-visible
   `std::vector<MessageTableEntry>` in base order with new ids appended before the terminator, and
   a `textId → index` hash.
-- Load order per language: base resource → `override/<folder>/*` (**add or replace**) →
-  `unbound/text/*.json` (add or replace, any language per file) → finalize.
+- Load order per language: base (`text/<lang>/messages.json` when an Unbound archive provides it,
+  otherwise the binary/XML `Text` resource) → `override/<folder>/*` (**add or replace**) →
+  `unbound/text/*.json` (add or replace, any language per file) → finalize. Initialisation runs once
+  per process.
 - Publishes the same `sNes/Ger/Fra/Jpn/StaffMessageEntryTablePtr` globals, so the ~15 existing
   consumers (message viewer, settings menu, save editor, kanji font, custom message manager)
   compile unchanged and still see a `0xFFFF`-terminated array.
 - `OTRMessage_Find(table, id)` — hash lookup for any published table pointer; used by the three
   find functions in `z_message_PAL.c`, which keep their vanilla not-found fallbacks.
 
-### JSON merge files
+### JSON message files
 
-`unbound/text/<anything>.json` in any loaded archive:
+The same document shape serves the converted base table (`text/<lang>/messages.json`, written by the
+exporter) and mod merge files (`unbound/text/<anything>.json` in any loaded archive):
 
 ```json
 {
   "language": "eng",
-  "messages": [
-    { "id": "0x0F12", "box": 0, "ypos": 0, "text": "Hello, modded world." },
-    { "id": 3859,     "box": 2, "ypos": 1, "text": "Second message" }
-  ]
+  "messages": {
+    "0x0F12": { "box": 0, "ypos": 0, "text": "Hello, modded world." },
+    "3859":   { "box": 2, "ypos": 1, "text": "Second message" }
+  }
 }
 ```
 
-- `language`: `eng` (or `nes`), `ger`, `fra`, `jpn`, `staff`.
-- `messages`: array of entries, or an object keyed by id (`"0x0F12": { … }`).
-- `id`: integer or a string parsed with base auto-detect (`"0x0F12"`, `"3858"`).
+- `language`: `eng` (or `nes`), `ger`, `fra`, `jpn`, `staff`. A base file must declare the language of
+  the folder it sits in.
+- `messages`: an object keyed by id (what the exporter writes). An array of entries carrying their own
+  `"id"` is also accepted.
+- ids: integer or a string parsed with base auto-detect (`"0x0F12"`, `"3858"`).
 - `box` / `ypos`: textbox type and y-position (the `typePos` nibbles).
 - `text`: the raw message bytes as a JSON string where each code point `0–255` is one byte —
   control codes (`` newline, `A` colour, `` end, …) are written as escapes.
-  A missing `` terminator is appended.
+  A missing `` terminator is appended. Code points above `U+00FF` have no byte form; each becomes
+  `?` and the file logs a warning.
 
 Mods no longer bundle a language's whole table: a Prelude message edit becomes a JSON file with
 the changed ids. Adding an id used by a custom actor or scene is a one-line entry.
@@ -65,8 +71,9 @@ codes remain the way to page long text.
 
 ## Not changed
 
-- The base resources stay the binary/XML `Text` type — Prelude's OTXT codec keeps working, and the
-  `override/` mechanism now covers additions too.
+- Legacy archives keep their binary/XML `Text` base resources — Prelude's OTXT codec keeps working,
+  and the `override/` mechanism now covers additions too. Only Unbound-format archives carry the base
+  as JSON.
 - `CustomMessageManager` (randomizer / enhancement text generated at runtime) still bypasses the
   tables via `VB`/`OnOpenText`; it neither needed nor gets a change.
 - Message ids stay `u16`. `0xFFFC`/`0xFFFD`/`0xFFFF` keep their sentinel roles.

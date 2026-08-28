@@ -14,6 +14,7 @@
 #include "soh/OTRGlobals.h"
 #include "soh/SaveManager.h"
 #include "soh/ResourceManagerHelpers.h"
+#include "soh/z_message_OTR.h"
 
 // #region SOH [NTSC] - Allows custom messages to work on japanese
 static bool sDisplayNextMessageAsEnglish = false;
@@ -52,9 +53,6 @@ MessageTableEntry* sJpnMessageEntryTablePtr = NULL;
 MessageTableEntry* sStaffMessageEntryTablePtr = NULL;
 
 char* _message_0xFFFC_nes;
-
-// SOH [Unbound] hash lookup into a published message table (soh/z_message_OTR.cpp)
-MessageTableEntry* OTRMessage_Find(MessageTableEntry* table, u16 textId);
 
 s16 sTextboxBackgroundForePrimColors[][3] = {
     { 255, 255, 255 }, { 50, 20, 0 },     { 255, 60, 0 },    { 255, 255, 255 },
@@ -307,24 +305,23 @@ void Message_FindMessageJPN(PlayState* play, u16 textId) {
     const char* seg;
     Font* font = &play->msgCtx.font;
     MessageTableEntry* messageTableEntry = sJpnMessageEntryTablePtr;
+    MessageTableEntry* found;
 
     seg = messageTableEntry->segment;
 
     // SOH [Unbound] hash lookup instead of a linear scan
-    {
-        MessageTableEntry* found = OTRMessage_Find(messageTableEntry, textId);
-        if (found != NULL) {
-            foundSeg = found->segment;
-            font->charTexBuf[0] = found->typePos;
-            nextSeg = found->segment;
-            font->msgOffset = found->segment;
-            font->msgLength = found->msgSize;
-            // "Message found!!!"
-            osSyncPrintf(" メッセージが,見つかった！！！ = %x  "
-                         "(data=%x) (data0=%x) (data1=%x) (data2=%x) (data3=%x)\n",
-                         textId, font->msgOffset, font->msgLength, foundSeg, seg, nextSeg);
-            return;
-        }
+    found = OTRMessage_Find(messageTableEntry, textId);
+    if (found != NULL) {
+        foundSeg = found->segment;
+        font->charTexBuf[0] = found->typePos;
+        nextSeg = found->segment;
+        font->msgOffset = found->segment;
+        font->msgLength = found->msgSize;
+        // "Message found!!!"
+        osSyncPrintf(" メッセージが,見つかった！！！ = %x  "
+                     "(data=%x) (data0=%x) (data1=%x) (data2=%x) (data3=%x)\n",
+                     textId, font->msgOffset, font->msgLength, foundSeg, seg, nextSeg);
+        return;
     }
 
     // "Message not found!!!"
@@ -344,8 +341,8 @@ void Message_FindMessage(PlayState* play, u16 textId) {
     const char* foundSeg;
     const char* nextSeg;
     MessageTableEntry* messageTableEntry = sNesMessageEntryTablePtr;
-    const char** languageSegmentTable;
-    Font* font;
+    MessageTableEntry* found;
+    Font* font = &play->msgCtx.font;
     const char* seg;
 
     if (gSaveContext.language == LANGUAGE_GER)
@@ -360,29 +357,24 @@ void Message_FindMessage(PlayState* play, u16 textId) {
     seg = messageTableEntry->segment;
 
     // SOH [Unbound] hash lookup instead of a linear scan
-    {
-        MessageTableEntry* found = OTRMessage_Find(messageTableEntry, textId);
-        font = &play->msgCtx.font;
+    found = OTRMessage_Find(messageTableEntry, textId);
+    if (found != NULL) {
+        foundSeg = found->segment;
+        font->charTexBuf[0] = found->typePos;
 
-        if (found != NULL) {
-            foundSeg = found->segment;
-            font->charTexBuf[0] = found->typePos;
+        nextSeg = found->segment;
+        font->msgOffset = found->segment;
+        font->msgLength = found->msgSize;
 
-            nextSeg = found->segment;
-            font->msgOffset = found->segment;
-            font->msgLength = found->msgSize;
-
-            // "Message found!!!"
-            osSyncPrintf(" メッセージが,見つかった！！！ = %x  "
-                         "(data=%x) (data0=%x) (data1=%x) (data2=%x) (data3=%x)\n",
-                         textId, font->msgOffset, font->msgLength, foundSeg, seg, nextSeg);
-            return;
-        }
+        // "Message found!!!"
+        osSyncPrintf(" メッセージが,見つかった！！！ = %x  "
+                     "(data=%x) (data0=%x) (data1=%x) (data2=%x) (data3=%x)\n",
+                     textId, font->msgOffset, font->msgLength, foundSeg, seg, nextSeg);
+        return;
     }
 
     // "Message not found!!!"
     osSyncPrintf(" メッセージが,見つからなかった！！！ = %x\n", textId);
-    font = &play->msgCtx.font;
     messageTableEntry = sNesMessageEntryTablePtr;
 
     foundSeg = messageTableEntry->segment;
@@ -398,25 +390,22 @@ void Message_FindCreditsMessage(PlayState* play, u16 textId) {
     const char* nextSeg;
     const char* seg;
     MessageTableEntry* messageTableEntry = sStaffMessageEntryTablePtr;
-    Font* font;
+    MessageTableEntry* found;
+    Font* font = &play->msgCtx.font;
 
     seg = messageTableEntry->segment;
     // SOH [Unbound] hash lookup instead of a linear scan
-    {
-        MessageTableEntry* found = OTRMessage_Find(messageTableEntry, textId);
-        font = &play->msgCtx.font;
-
-        if (found != NULL) {
-            foundSeg = found->segment;
-            font->charTexBuf[0] = found->typePos;
-            nextSeg = found->segment;
-            font->msgOffset = found->segment;
-            font->msgLength = found->msgSize;
-            // "Message found!!!"
-            osSyncPrintf(" メッセージが,見つかった！！！ = %x  (data=%x) (data0=%x) (data1=%x) (data2=%x) (data3=%x)\n",
-                         textId, font->msgOffset, font->msgLength, foundSeg, seg, nextSeg);
-            return;
-        }
+    found = OTRMessage_Find(messageTableEntry, textId);
+    if (found != NULL) {
+        foundSeg = found->segment;
+        font->charTexBuf[0] = found->typePos;
+        nextSeg = found->segment;
+        font->msgOffset = found->segment;
+        font->msgLength = found->msgSize;
+        // "Message found!!!"
+        osSyncPrintf(" メッセージが,見つかった！！！ = %x  (data=%x) (data0=%x) (data1=%x) (data2=%x) (data3=%x)\n",
+                     textId, font->msgOffset, font->msgLength, foundSeg, seg, nextSeg);
+        return;
     }
 }
 

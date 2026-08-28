@@ -6,6 +6,7 @@
 #include "soh/SohGui/UIWidgets.hpp"
 #include "soh/SohGui/SohGui.hpp"
 #include "soh/SaveManager.h"
+#include "soh/SceneDB.h"
 
 #include <spdlog/fmt/fmt.h>
 #include <array>
@@ -930,18 +931,20 @@ void DrawFlagsTab() {
 
             if (Button("Reload Flags", buttonOptionsBase.Tooltip(
                                            "Load flags from saved scene flags. Normally happens on scene load"))) {
-                act->flags.swch = gSaveContext.sceneFlags[gPlayState->sceneNum].swch;
-                act->flags.clear = gSaveContext.sceneFlags[gPlayState->sceneNum].clear;
-                act->flags.collect = gSaveContext.sceneFlags[gPlayState->sceneNum].collect;
-                act->flags.chest = gSaveContext.sceneFlags[gPlayState->sceneNum].chest;
+                SavedSceneFlags* saved = SceneFlags_Get(gPlayState->sceneNum); // SOH [Unbound]
+                act->flags.swch = saved->swch;
+                act->flags.clear = saved->clear;
+                act->flags.collect = saved->collect;
+                act->flags.chest = saved->chest;
             }
 
             if (Button("Save Flags",
                        buttonOptionsBase.Tooltip("Save current scene flags. Normally happens on scene exit"))) {
-                gSaveContext.sceneFlags[gPlayState->sceneNum].swch = act->flags.swch;
-                gSaveContext.sceneFlags[gPlayState->sceneNum].clear = act->flags.clear;
-                gSaveContext.sceneFlags[gPlayState->sceneNum].collect = act->flags.collect;
-                gSaveContext.sceneFlags[gPlayState->sceneNum].chest = act->flags.chest;
+                SavedSceneFlags* saved = SceneFlags_Get(gPlayState->sceneNum); // SOH [Unbound]
+                saved->swch = act->flags.swch;
+                saved->clear = act->flags.clear;
+                saved->collect = act->flags.collect;
+                saved->chest = act->flags.chest;
             }
 
             if (Button("Clear Flags",

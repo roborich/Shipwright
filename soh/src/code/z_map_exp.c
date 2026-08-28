@@ -84,7 +84,8 @@ void Map_SetFloorPalettesData(PlayState* play, s16 floor) {
         case SCENE_SHADOW_TEMPLE_BOSS:
             for (i = 0; i < gMapData->maxPaletteCount[mapIndex]; i++) {
                 room = gMapData->paletteRoom[mapIndex][floor][i];
-                if ((room != 0xFF) && (room < 32) && (gSaveContext.sceneFlags[mapIndex].rooms & gBitFlags[room])) { // SOH [Unbound] rooms >= 32 have no minimap bit
+                // SOH [Unbound] rooms >= 32 have no minimap bit
+                if ((room != 0xFF) && (room < 32) && (gSaveContext.sceneFlags[mapIndex].rooms & gBitFlags[room])) {
                     Map_SetPaletteData(play, room);
                 }
             }

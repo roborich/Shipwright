@@ -352,7 +352,7 @@ typedef struct {
     /* 0x0002 */ u8     unk_02;
     /* 0x0003 */ u8     lensActive;
     /* 0x0004 */ char   unk_04[0x04];
-    /* 0x0008 */ u16    total; // total number of actors loaded -- SOH [Unbound] widened from u8 (it wrapped at 256)
+    /*        */ u16    total; // total number of actors loaded. SOH [Unbound] widened from u8 (it wrapped at 256)
     /* 0x000C */ ActorListEntry actorLists[ACTORCAT_MAX];
     /* 0x006C */ TargetContext targetCtx;
     struct {
@@ -961,10 +961,10 @@ typedef struct {
 typedef struct {
     /* 0x0000 */ void*  spaceStart;
     /* 0x0004 */ void*  spaceEnd; // original name: "endSegment"
-    /* 0x0008 */ u16    num; // number of objects in bank -- SOH [Unbound] widened from u8
-    /* 0x0009 */ u16    unk_09;
-    /* 0x000A */ u16    mainKeepIndex; // "gameplay_keep" index in bank
-    /* 0x000B */ u16    subKeepIndex; // "gameplay_field_keep" or "gameplay_dangeon_keep" index in bank
+    /*        */ u16    num; // number of objects in bank. SOH [Unbound] widened from u8
+    /*        */ u16    unk_09;
+    /*        */ u16    mainKeepIndex; // "gameplay_keep" index in bank
+    /*        */ u16    subKeepIndex; // "gameplay_field_keep" or "gameplay_dangeon_keep" index in bank
     /* 0x000C */ ObjectStatus status[OBJECT_EXCHANGE_BANK_MAX];
 } ObjectContext; // size = 0x518
 
@@ -984,9 +984,9 @@ typedef struct {
 
 typedef struct {
     /* 0x00 */ PolygonBase base;
-    /* 0x01 */ u32   num; // number of dlist entries -- SOH [Unbound] widened from u8
-    /* 0x04 */ void* start;
-    /* 0x08 */ void* end;
+    /*      */ u32   num; // number of dlist entries. SOH [Unbound] widened from u8
+    /*      */ void* start;
+    /*      */ void* end;
 } PolygonType0;
 
 typedef struct {
@@ -1027,17 +1027,17 @@ typedef struct {
 } PolygonType1;
 
 typedef struct {
-    /* 0x00 */ Vec3f pos; // SOH [Unbound] s16 -> f32 (world extent)
-    /* 0x06 */ f32   unk_06; // SOH [Unbound] cull radius, s16 -> f32
+    /*      */ Vec3f pos; // SOH [Unbound] s16 -> f32 (world extent)
+    /*      */ f32   unk_06; // SOH [Unbound] cull radius, s16 -> f32
     /* 0x08 */ Gfx*  opa;
     /* 0x0C */ Gfx*  xlu;
 } PolygonDlist2; // size = 0x8
 
 typedef struct {
     /* 0x00 */ PolygonBase base;
-    /* 0x01 */ u32   num; // number of dlist entries -- SOH [Unbound] widened from u8
-    /* 0x04 */ void* start;
-    /* 0x08 */ void* end;
+    /*      */ u32   num; // number of dlist entries. SOH [Unbound] widened from u8
+    /*      */ void* start;
+    /*      */ void* end;
 } PolygonType2;
 
 typedef union {
@@ -1072,7 +1072,7 @@ typedef enum {
 } RoomBehaviorType2;
 
 typedef struct {
-    /* 0x00 */ s16  num; // SOH [Unbound] s8 -> s16 (rooms > 127)
+    /*      */ s16  num; // SOH [Unbound] s8 -> s16 (rooms > 127)
     /* 0x01 */ u8   unk_01;
     /* 0x02 */ u8   behaviorType2;
     /* 0x03 */ u8   behaviorType1;
@@ -1084,7 +1084,7 @@ typedef struct {
     // SOH [Unbound] World position of the room mesh's local origin (rooms/<n>.json "origin"); vanilla 0,0,0.
     // Mesh vertices are s16, so a room placed beyond +/-32767 authors its geometry relative to this point.
     Vec3f origin;
-} Room; // size = 0x14
+} Room;
 
 typedef struct {
     /* 0x00 */ Room  curRoom;
@@ -1237,7 +1237,7 @@ typedef struct {
 
 typedef struct {
     /* 0x00 */ s16   id;
-    /* 0x02 */ Vec3f pos; // SOH [Unbound] s16 -> f32 (world extent)
+    /*      */ Vec3f pos; // SOH [Unbound] s16 -> f32 (world extent)
     /* 0x08 */ Vec3s rot;
     /* 0x0E */ s16   params;
 } ActorEntry; // size = 0x10
@@ -1248,14 +1248,14 @@ typedef struct {
         s8 effects; // How the camera reacts during the transition
     } /* 0x00 */ sides[2]; // 0 = front, 1 = back
     /* 0x04 */ s16   id;
-    /* 0x06 */ Vec3f pos; // SOH [Unbound] s16 -> f32 (world extent)
+    /*      */ Vec3f pos; // SOH [Unbound] s16 -> f32 (world extent)
     /* 0x0C */ s16   rotY;
     /* 0x0E */ s16   params;
 } TransitionActorEntry; // size = 0x10
 
 typedef struct {
     /* 0x00 */ u8 spawn;
-    /* 0x01 */ s16 room; // SOH [Unbound] u8 -> s16
+    /*      */ s16 room; // SOH [Unbound] u8 -> s16
 } EntranceEntry;
 
 #define SRAM_SIZE 0x8000
@@ -1416,7 +1416,7 @@ typedef struct {
 } ElfMessage; // size = 0x4
 
 typedef struct {
-    /* 0x00 */ u16 numActors; // SOH [Unbound] u8 -> u16
+    /*      */ u16 numActors; // SOH [Unbound] u8 -> u16
     /* 0x04 */ TransitionActorEntry* list;
 } TransitionActorContext;
 
@@ -1469,8 +1469,8 @@ typedef struct PlayState {
     /* 0x11DE8 */ u8 linkAgeOnLoad;
     /* 0x11DE9 */ u8 unk_11DE9;
     /* 0x11DEA */ u8 curSpawn;
-    /* 0x11DEB */ u16 numSetupActors; // SOH [Unbound] widened from u8
-    /* 0x11DEC */ u16 numRooms;       // SOH [Unbound] widened from u8
+    /*         */ u16 numSetupActors; // SOH [Unbound] widened from u8
+    /*         */ u16 numRooms;       // SOH [Unbound] widened from u8
     /* 0x11DF0 */ RomFile* roomList;
     /* 0x11DF4 */ ActorEntry* linkActorEntry;
     /* 0x11DF8 */ ActorEntry* setupActorList;
@@ -1500,7 +1500,6 @@ typedef struct PlayState {
     /* 0x1241C */ TransitionFade transitionFade;
     /* 0x12428 */ char unk_12428[0x3];
     /* 0x1242B */ u8 unk_1242B;
-    /* 0x1242C */ SceneTableEntry* loadedScene;
     /* 0x12430 */ char unk_12430[0xE8];
     // SOH [Custom Models] MTX tracker for flex based skeletons
     Mtx** flexLimbOverrideMTX;

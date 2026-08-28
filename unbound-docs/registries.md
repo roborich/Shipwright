@@ -24,8 +24,11 @@ Mirrors the existing `ActorDB` pattern: the X-macro tables are kept **only as se
 `std::vector`, and mods extend the vector at runtime.
 
 - Scenes: `Entry { id, name, displayName, sceneFileName | scenePath, titleCardTexture, drawConfig }`.
-  Vanilla entries are named by their enum (`SCENE_DEKU_TREE`) and resolve their o2r path with the
-  vanilla MQ policy (`scenes/{shared,mq,nonmq}/<file>/<file>`). Custom entries carry a full path.
+  Vanilla entries are named by their enum (`SCENE_DEKU_TREE`), take their `displayName` from
+  `SohUtils::GetSceneName` once the registry is first used at runtime (`LoadCustomScenes`), and resolve
+  their o2r path with the vanilla MQ policy (`scenes/{shared,mq,nonmq}/<file>/<file>`;
+  `GetScenePath(id, masterQuest)` picks the variant explicitly, `GetScenePath(id)` uses the mounted
+  game's setting). Custom entries carry a full path.
 - Custom scene ids start at **`0x80`** (`CUSTOM_SCENE_ID_BASE`), leaving `SCENE_ID_MAX` (`0x6E`)
   free — it doubles as an "unused / no scene" sentinel in the vanilla entrance table and in
   Anchor/randomizer code.
@@ -35,11 +38,12 @@ Mirrors the existing `ActorDB` pattern: the X-macro tables are kept **only as se
   `>= ENTR_MAX` and a multiple of 4, so `entranceIndex + sceneSetupIndex` keeps working.
 - Names: vanilla entrances are addressable by their enum name (`ENTR_HYRULE_FIELD_0`); custom ones
   as `<scene id>/<entrance id>`. `EntranceDB_RetrieveIndex(name)` resolves either. The debug
-  console's `entrance` command accepts a name as well as a hex index.
+  console's `entrance` command tries a registered name first, then a hex index (so a name that happens
+  to start with hex digits, `ENTR_DEKU_TREE_0`, is never misread as a number).
 
 `gSceneTable` no longer exists. Its two readers (`OTRPlay_SpawnScene`, randomizer `logic.cpp`)
-use the registry. `play->loadedScene` is set to `NULL`; the only remaining readers computed an
-unused title-file size.
+use the registry. `PlayState.loadedScene` and `SceneTableEntry` are gone; their only readers computed
+an unused title-file size.
 
 ### Custom scene files
 
@@ -82,8 +86,9 @@ the debug slots, minus the slot.
 ### Saved scene flags
 
 `SceneFlags_Get(sceneNum)` returns `&gSaveContext.sceneFlags[n]` for vanilla ids and a
-registry-owned `SavedSceneFlags` for custom ids. The three by-`sceneNum` sites
-(`Play_SaveSceneFlags`, `Actor_InitContext`, `GameInteractor_RawAction`) use it. `SaveManager`
+registry-owned `SavedSceneFlags` for custom ids; an unregistered id gets zeroed scratch storage and an
+error in the log. The four by-`sceneNum` sites (`Play_SaveSceneFlags`, `Actor_InitContext`,
+`GameInteractor_RawAction`, the debug save editor's Reload/Save Flags buttons) use it. `SaveManager`
 persists custom flags in a new `"unbound"` section as `sceneFlags.<scene id>.{chest,swch,…}`,
 keyed by **name**, so they survive id reassignment between mod stacks and never touch the
 positional vanilla array (old saves stay valid).

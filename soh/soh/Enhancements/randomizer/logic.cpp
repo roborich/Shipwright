@@ -2406,9 +2406,7 @@ const std::vector<uint8_t>& GetDungeonSmallKeyDoors(SceneID sceneId) {
     dungeonSmallKeyDoors[key] = {};
 
     // Get the scene path
-    const std::string& sceneFileName = SceneDB::Instance->RetrieveEntry(sceneId).sceneFileName; // SOH [Unbound]
-    std::string scenePath = StringHelper::Sprintf("scenes/%s/%s/%s", masterQuest ? "mq" : "nonmq",
-                                                  sceneFileName.c_str(), sceneFileName.c_str());
+    std::string scenePath = SceneDB::Instance->GetScenePath(sceneId, masterQuest); // SOH [Unbound]
 
     // Load the scene
     std::shared_ptr<SOH::Scene> scene = std::dynamic_pointer_cast<SOH::Scene>(

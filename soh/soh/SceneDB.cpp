@@ -10,9 +10,12 @@
 #include "soh/OTRGlobals.h"
 #include "soh/ResourceManagerHelpers.h"
 #include "soh/SaveManager.h"
+#include "soh/resource/unbound/UnboundJson.h"
 #include "soh/util.h"
 
-extern "C" EntranceInfo* gEntranceTable = nullptr;
+extern "C" {
+EntranceInfo* gEntranceTable = nullptr;
+}
 
 SceneDB* SceneDB::Instance = new SceneDB();
 
@@ -66,12 +69,16 @@ std::unordered_map<int32_t, SavedSceneFlags> sCustomSceneFlags;
 
 // Room-keyed flags for rooms >= 32 (see SceneFlagsExt_* in SceneDB.h). Bit n of the bitset is room n;
 // bits below 32 are never used here (they live in the u32 masks).
+// Clear flags are staged the way ActorContext.flags stages the u32 masks: SceneFlagsExt_LoadClear copies the
+// persisted bits into the live map on scene init and SceneFlagsExt_SaveClear commits them back, so a game over or
+// save-state restore discards unsaved flags for every room number alike.
 using ExtBitset = std::vector<uint32_t>;
-std::unordered_map<int32_t, ExtBitset> sExtClearFlags; // persisted
+std::unordered_map<int32_t, ExtBitset> sExtClearFlags;     // persisted
+std::unordered_map<int32_t, ExtBitset> sExtLiveClearFlags; // current play state
 std::unordered_map<int32_t, ExtBitset> sExtTempClearFlags; // live-only
 
-ExtBitset& ExtFlagsFor(int32_t sceneNum, int32_t kind) {
-    return (kind == SCENE_FLAGS_EXT_TEMP_CLEAR ? sExtTempClearFlags : sExtClearFlags)[sceneNum];
+std::unordered_map<int32_t, ExtBitset>& ExtFlagMap(SceneFlagsExtKind kind) {
+    return kind == SCENE_FLAGS_EXT_TEMP_CLEAR ? sExtTempClearFlags : sExtLiveClearFlags;
 }
 
 bool ExtBitTest(const ExtBitset& bits, int32_t bit) {
@@ -111,11 +118,18 @@ void SceneDB::SeedVanillaScenes() {
         entry.valid = true;
         entry.isCustom = false;
         entry.name = sVanillaScenes[id].enumName;
-        // Static-init safe: no cross-TU globals here. SohUtils::GetSceneName covers vanilla display names.
-        entry.displayName = entry.name;
+        entry.displayName = entry.name; // replaced by the pretty name in SeedVanillaDisplayNames
         entry.sceneFileName = sVanillaScenes[id].fileName;
         entry.drawConfig = sVanillaScenes[id].drawConfig;
         nameTable[entry.name] = id;
+    }
+}
+
+// The constructor runs during static initialisation, before SohUtils' name table is guaranteed to exist,
+// so the pretty names are filled in from LoadCustomScenes (the first runtime entry point).
+void SceneDB::SeedVanillaDisplayNames() {
+    for (int32_t id = 0; id < SCENE_ID_MAX; id++) {
+        db[id].displayName = SohUtils::GetSceneName(id);
     }
 }
 
@@ -159,8 +173,7 @@ SceneDB::Entry& SceneDB::AddCustomScene(const CustomSceneInit& init) {
         return invalid;
     }
     if (init.drawConfig >= SDC_MAX) {
-        SPDLOG_ERROR("[Unbound] scene '{}' requests draw config {} (max {})", init.name, init.drawConfig,
-                     SDC_MAX - 1);
+        SPDLOG_ERROR("[Unbound] scene '{}' requests draw config {} (max {})", init.name, init.drawConfig, SDC_MAX - 1);
         return invalid;
     }
 
@@ -204,8 +217,8 @@ int32_t SceneDB::AddCustomEntrance(const CustomEntranceInit& init) {
 
     int32_t index = init.index >= 0 ? init.index : nextEntranceIndex;
     if (index < ENTR_MAX || index % kEntranceLayerCount != 0) {
-        SPDLOG_ERROR("[Unbound] entrance '{}' requests index {:#x}; must be >= {:#x} and a multiple of {}",
-                     init.name, index, (int)ENTR_MAX, kEntranceLayerCount);
+        SPDLOG_ERROR("[Unbound] entrance '{}' requests index {:#x}; must be >= {:#x} and a multiple of {}", init.name,
+                     index, (int)ENTR_MAX, kEntranceLayerCount);
         return -1;
     }
     if (index < (int32_t)entranceTable.size() && entranceTable[index].scene != SCENE_ID_MAX) {
@@ -235,6 +248,10 @@ SceneDB::Entry& SceneDB::RetrieveEntry(int32_t id) {
     return db[id];
 }
 
+const SceneDB::Entry& SceneDB::RetrieveEntry(int32_t id) const {
+    return const_cast<SceneDB*>(this)->RetrieveEntry(id);
+}
+
 int32_t SceneDB::RetrieveId(const std::string& name) const {
     auto it = nameTable.find(name);
     return it == nameTable.end() ? -1 : it->second;
@@ -262,10 +279,14 @@ const std::vector<SceneDB::EntranceEntry>& SceneDB::CustomEntrances() const {
 }
 
 std::string SceneDB::GetScenePath(int32_t id) const {
-    if (id < 0 || id >= (int32_t)db.size() || !db[id].valid) {
+    return GetScenePath(id, ResourceMgr_IsGameMasterQuest());
+}
+
+std::string SceneDB::GetScenePath(int32_t id, bool masterQuest) const {
+    const Entry& entry = RetrieveEntry(id);
+    if (!entry.valid) {
         return "";
     }
-    const Entry& entry = db[id];
     if (entry.isCustom) {
         return entry.scenePath;
     }
@@ -273,22 +294,17 @@ std::string SceneDB::GetScenePath(int32_t id) const {
     // Vanilla dungeons with a Master Quest variant live under mq/ or nonmq/; everything else is shared.
     bool hasMqVariant = (id >= SCENE_DEKU_TREE && id <= SCENE_ICE_CAVERN) || id == SCENE_GERUDO_TRAINING_GROUND ||
                         id == SCENE_INSIDE_GANONS_CASTLE;
+    bool useMq = hasMqVariant && masterQuest;
     if (unboundBase) {
         // scenes/<leaf minus _scene>[_mq]/scene.json (unbound-docs/scene-format.md §1)
         std::string dir = entry.sceneFileName;
         const std::string suffix = "_scene";
-        if (dir.size() > suffix.size() && dir.compare(dir.size() - suffix.size(), suffix.size(), suffix) == 0) {
+        if (dir.ends_with(suffix)) {
             dir.resize(dir.size() - suffix.size());
         }
-        if (hasMqVariant && ResourceMgr_IsGameMasterQuest()) {
-            dir += "_mq";
-        }
-        return "scenes/" + dir + "/scene.json";
+        return "scenes/" + dir + (useMq ? "_mq" : "") + "/scene.json";
     }
-    const char* sceneVersion = "shared";
-    if (hasMqVariant) {
-        sceneVersion = ResourceMgr_IsGameMasterQuest() ? "mq" : "nonmq";
-    }
+    const char* sceneVersion = hasMqVariant ? (useMq ? "mq" : "nonmq") : "shared";
     return StringHelper::Sprintf("scenes/%s/%s/%s", sceneVersion, entry.sceneFileName.c_str(),
                                  entry.sceneFileName.c_str());
 }
@@ -300,6 +316,7 @@ bool SceneDB::HasUnboundBase() const {
 }
 
 void SceneDB::LoadCustomScenes() {
+    SeedVanillaDisplayNames();
     auto archiveManager = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager();
     unboundBase = archiveManager->HasFile("unbound.json");
     if (unboundBase) {
@@ -320,8 +337,7 @@ void SceneDB::LoadCustomScenes() {
         }
     }
     if (loaded > 0) {
-        SPDLOG_INFO("[Unbound] registered {} custom scene(s), {} custom entrance(s)", loaded,
-                    customEntrances.size());
+        SPDLOG_INFO("[Unbound] registered {} custom scene(s), {} custom entrance(s)", loaded, customEntrances.size());
     }
 }
 
@@ -347,8 +363,8 @@ bool SceneDB::LoadCustomSceneFile(const std::string& path) {
         scene.displayName = doc.value("name", scene.name);
         scene.scenePath = doc.at("scene").get<std::string>();
         scene.titleCardTexture = doc.value("titleCard", "");
-        scene.sceneId = doc.value("sceneId", -1);
-        scene.drawConfig = (uint8_t)doc.value("drawConfig", 0);
+        scene.sceneId = (int32_t)Unbound::ToInt(doc.value("sceneId", nlohmann::json(-1)), -1);
+        scene.drawConfig = (uint8_t)Unbound::ToInt(doc.value("drawConfig", nlohmann::json(0)));
 
         Entry& entry = AddCustomScene(scene);
         if (!entry.valid) {
@@ -358,7 +374,7 @@ bool SceneDB::LoadCustomSceneFile(const std::string& path) {
         for (const auto& e : doc.value("entrances", nlohmann::json::array())) {
             CustomEntranceInit entrance;
             entrance.name = scene.name + "/" + e.at("id").get<std::string>();
-            entrance.index = e.value("index", -1);
+            entrance.index = (int32_t)Unbound::ToInt(e.value("index", nlohmann::json(-1)), -1);
             entrance.sceneId = entry.id;
             entrance.spawn = (int8_t)e.value("spawn", 0);
             entrance.continueBgm = e.value("continueBgm", false);
@@ -406,9 +422,8 @@ void SaveUnboundSection(SaveContext* saveContext, int sectionID, bool fullSave) 
             }
             SaveManager::Instance->SaveStruct(entry.name, [&bits]() {
                 SaveManager::Instance->SaveData("words", (uint32_t)bits.size());
-                SaveManager::Instance->SaveArray("bits", bits.size(), [&bits](size_t i) {
-                    SaveManager::Instance->SaveData("", bits[i]);
-                });
+                SaveManager::Instance->SaveArray("bits", bits.size(),
+                                                 [&bits](size_t i) { SaveManager::Instance->SaveData("", bits[i]); });
             });
         }
     });
@@ -425,9 +440,8 @@ void LoadExtClearFlags() {
                 uint32_t words = 0;
                 SaveManager::Instance->LoadData("words", words);
                 bits.assign(words, 0);
-                SaveManager::Instance->LoadArray("bits", words, [&bits](size_t i) {
-                    SaveManager::Instance->LoadData("", bits[i]);
-                });
+                SaveManager::Instance->LoadArray("bits", words,
+                                                 [&bits](size_t i) { SaveManager::Instance->LoadData("", bits[i]); });
             });
             if (!bits.empty()) {
                 sExtClearFlags[entry.id] = std::move(bits);
@@ -460,6 +474,7 @@ void LoadUnboundSection() {
 void InitUnboundSection(bool isDebug) {
     sCustomSceneFlags.clear();
     sExtClearFlags.clear();
+    sExtLiveClearFlags.clear();
     sExtTempClearFlags.clear();
 }
 
@@ -510,23 +525,44 @@ extern "C" SavedSceneFlags* SceneFlags_Get(int32_t sceneNum) {
     if (sceneNum >= 0 && sceneNum < (int32_t)ARRAY_COUNT(gSaveContext.sceneFlags)) {
         return &gSaveContext.sceneFlags[sceneNum];
     }
-    return &sCustomSceneFlags[sceneNum]; // value-initialised (all zero) on first access
+    if (SceneDB::Instance->RetrieveEntry(sceneNum).valid) {
+        return &sCustomSceneFlags[sceneNum]; // value-initialised (all zero) on first access
+    }
+    // Unregistered id: hand back scratch storage rather than minting a save entry nothing can name.
+    static SavedSceneFlags scratch;
+    SPDLOG_ERROR("[Unbound] SceneFlags_Get: scene id {} is not registered", sceneNum);
+    scratch = SavedSceneFlags{};
+    return &scratch;
 }
 
-extern "C" int32_t SceneFlagsExt_Get(int32_t sceneNum, int32_t kind, int32_t bit) {
-    auto& map = (kind == SCENE_FLAGS_EXT_TEMP_CLEAR) ? sExtTempClearFlags : sExtClearFlags;
+extern "C" int32_t SceneFlagsExt_Get(int32_t sceneNum, SceneFlagsExtKind kind, int32_t bit) {
+    auto& map = ExtFlagMap(kind);
     auto it = map.find(sceneNum);
     return it != map.end() && ExtBitTest(it->second, bit);
 }
 
-extern "C" void SceneFlagsExt_Set(int32_t sceneNum, int32_t kind, int32_t bit) {
-    ExtBitWrite(ExtFlagsFor(sceneNum, kind), bit, true);
+extern "C" void SceneFlagsExt_Set(int32_t sceneNum, SceneFlagsExtKind kind, int32_t bit) {
+    ExtBitWrite(ExtFlagMap(kind)[sceneNum], bit, true);
 }
 
-extern "C" void SceneFlagsExt_Unset(int32_t sceneNum, int32_t kind, int32_t bit) {
-    ExtBitWrite(ExtFlagsFor(sceneNum, kind), bit, false);
+extern "C" void SceneFlagsExt_Unset(int32_t sceneNum, SceneFlagsExtKind kind, int32_t bit) {
+    ExtBitWrite(ExtFlagMap(kind)[sceneNum], bit, false);
 }
 
-extern "C" void SceneFlagsExt_ResetTemp(void) {
+extern "C" void SceneFlagsExt_LoadClear(int32_t sceneNum) {
+    sExtLiveClearFlags.clear();
     sExtTempClearFlags.clear();
+    auto it = sExtClearFlags.find(sceneNum);
+    if (it != sExtClearFlags.end()) {
+        sExtLiveClearFlags[sceneNum] = it->second;
+    }
+}
+
+extern "C" void SceneFlagsExt_SaveClear(int32_t sceneNum) {
+    auto it = sExtLiveClearFlags.find(sceneNum);
+    if (it != sExtLiveClearFlags.end()) {
+        sExtClearFlags[sceneNum] = it->second;
+    } else {
+        sExtClearFlags.erase(sceneNum);
+    }
 }

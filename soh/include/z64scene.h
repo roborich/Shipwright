@@ -12,15 +12,6 @@ typedef struct {
 } RomFile; // size = 0x8
 
 typedef struct {
-    /* 0x00 */ RomFile sceneFile;
-    /* 0x08 */ RomFile titleFile;
-    /* 0x10 */ u8  unk_10;
-    /* 0x11 */ u8  config;
-    /* 0x12 */ u8  unk_12;
-    /* 0x13 */ u8  unk_13;
-} SceneTableEntry; // size = 0x14
-
-typedef struct {
     /* 0x00 */ u8  code;
     /* 0x01 */ u8  data1;
     /* 0x04 */ u32 data2;

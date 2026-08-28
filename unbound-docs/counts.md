@@ -37,7 +37,7 @@ Overview in [`README.md`](./README.md).
 - `SHAPE_SORT_MAX` 64 → 1024 (stack array in `func_80095D04`, ~24 KB; fine on PC).
 - `TEXTURE_CACHE_MAX_SIZE` 1024 → 8192 (libultraship fork).
 
-## Not changed
+## Rooms
 
 - Room numbers are now `s16` (`Room.num`, `Actor.room`, `TransitionActorEntry.sides[].room`,
   `EntranceEntry.room`, the save-side `RespawnData.roomIndex` / `SohStats.roomNum` /
@@ -48,7 +48,9 @@ Overview in [`README.md`](./README.md).
   the s8 truncation). The `s8` sweep alone was not enough — room-keyed *state* capped earlier:
   - **Clear / temp-clear flags** were `1 << room` on a `u32`. Rooms ≥ 32 now go through
     `SceneFlagsExt_*` (`SceneDB.cpp`): a growable per-scene bitset for any scene id, persisted by
-    scene name in the `unbound` save section (`roomClearExt`), temp flags reset on scene init.
+    scene name in the `unbound` save section (`roomClearExt`). They are staged like the u32 masks:
+    `SceneFlagsExt_LoadClear` on scene init (also resets temp flags), `SceneFlagsExt_SaveClear` from
+    `Play_SaveSceneFlags` — so unsaved flags are discarded on game over for every room number alike.
     Rooms < 32 are untouched so vanilla saves keep their layout.
   - **Waterbox room** was a 6-bit field in `properties` (`0x3F` = all). `WaterBox.room` is unpacked
     at load by every loader; `collision.json` accepts an explicit `"room"` (`-1` = all) that overrides
@@ -59,6 +61,8 @@ Overview in [`README.md`](./README.md).
     other way. `TransitionActorContext.numActors` is u16.
   - **Minimap visited bits** (`sceneFlags[].rooms`, `gBitFlags[room]`) are guarded to rooms < 32;
     custom scenes have no minimap yet anyway (README limits).
+## Not changed
+
 - The 1 MB object arena is still allocated from the play-state heap for vanilla parity
   (`Object_InitBank`). It could be dropped entirely; left for the scene-format pass.
 - `OBJECT_ID_MAX` and the `ObjectID` enum are untouched — they name vanilla objects only.

@@ -61,6 +61,7 @@ class SceneDB {
     int32_t AddCustomEntrance(const CustomEntranceInit& init);
 
     Entry& RetrieveEntry(int32_t id);
+    const Entry& RetrieveEntry(int32_t id) const;
     int32_t RetrieveId(const std::string& name) const;
     size_t GetEntryCount() const;
     const std::vector<Entry>& Entries() const;
@@ -69,8 +70,10 @@ class SceneDB {
     size_t GetEntranceCount() const;
     const std::vector<EntranceEntry>& CustomEntrances() const;
 
-    // Full o2r path of a scene's resource, applying the vanilla MQ policy for vanilla dungeons.
+    // Full o2r path of a scene's resource. Vanilla dungeons with a Master Quest variant resolve to the
+    // mq/nonmq copy selected by `masterQuest`; the one-argument form uses the mounted game's MQ setting.
     std::string GetScenePath(int32_t id) const;
+    std::string GetScenePath(int32_t id, bool masterQuest) const;
 
     // Scans every loaded archive for unbound/scenes/*.json and registers what it finds, and notes whether an
     // Unbound-format base archive (unbound.json) is mounted so vanilla scenes resolve to scene.json.
@@ -79,6 +82,7 @@ class SceneDB {
 
   private:
     void SeedVanillaScenes();
+    void SeedVanillaDisplayNames();
     void SeedVanillaEntrances();
     void RefreshEntranceTablePointer();
     void AddEntranceLayerGroup(int32_t index, const EntranceInfo& info);
@@ -115,13 +119,17 @@ SavedSceneFlags* SceneFlags_Get(int32_t sceneNum);
 
 // Room-keyed flags for rooms >= 32, which do not fit the u32 masks in SavedSceneFlags/ActorContext.
 // Storage is a growable bitset per scene (any scene id, vanilla or custom), persisted by scene name in the
-// "unbound" save section; temp flags are live-only and reset on scene init.
-#define SCENE_FLAGS_EXT_CLEAR 0
-#define SCENE_FLAGS_EXT_TEMP_CLEAR 1
-int32_t SceneFlagsExt_Get(int32_t sceneNum, int32_t kind, int32_t bit);
-void SceneFlagsExt_Set(int32_t sceneNum, int32_t kind, int32_t bit);
-void SceneFlagsExt_Unset(int32_t sceneNum, int32_t kind, int32_t bit);
-void SceneFlagsExt_ResetTemp(void);
+// "unbound" save section. Clear flags are staged like ActorContext.flags: LoadClear on scene init (which also
+// resets temp flags), SaveClear alongside Play_SaveSceneFlags.
+typedef enum SceneFlagsExtKind {
+    SCENE_FLAGS_EXT_CLEAR,
+    SCENE_FLAGS_EXT_TEMP_CLEAR,
+} SceneFlagsExtKind;
+int32_t SceneFlagsExt_Get(int32_t sceneNum, SceneFlagsExtKind kind, int32_t bit);
+void SceneFlagsExt_Set(int32_t sceneNum, SceneFlagsExtKind kind, int32_t bit);
+void SceneFlagsExt_Unset(int32_t sceneNum, SceneFlagsExtKind kind, int32_t bit);
+void SceneFlagsExt_LoadClear(int32_t sceneNum);
+void SceneFlagsExt_SaveClear(int32_t sceneNum);
 
 #ifdef __cplusplus
 }

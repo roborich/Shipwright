@@ -28,8 +28,9 @@
 #include "soh/ResourceManagerHelpers.h"
 #include "soh/Enhancements/game-interactor/GameInteractor_Hooks.h"
 
-// SOH [Unbound] gEntranceTable and the scene table are owned by SceneDB (soh/soh/SceneDB.cpp),
-// seeded from tables/entrance_table.h and tables/scene_table.h and extended by mods at runtime.
+// SOH [Unbound] gSceneTable and gEntranceTable used to be defined here. Both are owned by SceneDB
+// (soh/soh/SceneDB.cpp), seeded from tables/scene_table.h and tables/entrance_table.h and extended by mods
+// at runtime; this file keeps only the per-scene draw configs.
 
 Gfx sDefaultDisplayList[] = {
     gsSPSegment(0x08, gEmptyDL),

@@ -212,11 +212,13 @@ typedef struct {
 typedef struct Actor {
     /* 0x000 */ s16 id; // Actor ID
     /* 0x002 */ u8 category; // Actor category. Refer to the corresponding enum for values
-    /* 0x003 */ s16 room; // SOH [Unbound] s8 -> s16. Room number the actor is in. -1 denotes that the actor won't despawn on a room change
+    /*       */ s16 room; // Room number the actor is in. -1 denotes that the actor won't despawn on a room change
+                          // SOH [Unbound] s8 -> s16
     /* 0x004 */ u32 flags; // Flags used for various purposes
     /* 0x008 */ PosRot home; // Initial position/rotation when spawned. Can be used for other purposes
     /* 0x01C */ s16 params; // Configurable variable set by the actor's spawn data; original name: "args_data"
-    /* 0x01E */ s16 objBankIndex; // SOH [Unbound] widened from s8; // Object bank index of the actor's object dependency; original name: "bank"
+    /*       */ s16 objBankIndex; // Object bank index of the actor's object dependency; original name: "bank"
+                                  // SOH [Unbound] s8 -> s16
     /* 0x01F */ s8 targetMode; // Controls how far the actor can be targeted from and how far it can stay locked on
     /* 0x020 */ u16 sfx; // SFX ID to play. Sound plays when value is set, then is cleared the following update cycle
     /* 0x024 */ PosRot world; // Position/rotation in the world
@@ -229,8 +231,8 @@ typedef struct Actor {
     /* 0x070 */ f32 minVelocityY; // Sets the lower bounds cap on velocity along the Y axis
     /* 0x074 */ CollisionPoly* wallPoly; // Wall polygon the actor is touching
     /* 0x078 */ CollisionPoly* floorPoly; // Floor polygon directly below the actor
-    /* 0x07C */ s32 wallBgId; // SOH [Unbound] u8 -> s32 // Bg ID of the wall polygon the actor is touching
-    /* 0x07D */ s32 floorBgId; // SOH [Unbound] u8 -> s32 // Bg ID of the floor polygon directly below the actor
+    /*       */ s32 wallBgId; // Bg ID of the wall polygon the actor is touching. SOH [Unbound] u8 -> s32
+    /*       */ s32 floorBgId; // Bg ID of the floor polygon directly below the actor. SOH [Unbound] u8 -> s32
     /* 0x07E */ s16 wallYaw; // Y rotation of the wall polygon the actor is touching
     /* 0x080 */ f32 floorHeight; // Y position of the floor polygon directly below the actor
     /* 0x084 */ f32 yDistToWater; // Distance to the surface of active waterbox. Negative value means above water
