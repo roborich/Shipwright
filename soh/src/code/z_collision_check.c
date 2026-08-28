@@ -2788,7 +2788,7 @@ void CollisionCheck_OC_JntSphVsJntSph(PlayState* play, CollisionCheckContext* co
                     Vec3f leftPos;
                     Vec3f rightPos;
 
-                    leftPos = leftElem->dim.worldSphere.center; // SOH [Unbound] f32 shape
+                    leftPos = leftElem->dim.worldSphere.center;   // SOH [Unbound] f32 shape
                     rightPos = rightElem->dim.worldSphere.center; // SOH [Unbound] f32 shape
                     CollisionCheck_SetOCvsOC(&left->base, &leftElem->info, &leftPos, &right->base, &rightElem->info,
                                              &rightPos, overlap);
@@ -2818,7 +2818,7 @@ void CollisionCheck_OC_JntSphVsCyl(PlayState* play, CollisionCheckContext* colCh
                     Vec3f rightPos;
 
                     leftPos = leftElem->dim.worldSphere.center; // SOH [Unbound] f32 shape
-                    rightPos = right->dim.pos; // SOH [Unbound] f32 shape
+                    rightPos = right->dim.pos;                  // SOH [Unbound] f32 shape
                     CollisionCheck_SetOCvsOC(&left->base, &leftElem->info, &leftPos, &right->base, &right->info,
                                              &rightPos, overlap);
                 }
@@ -2848,7 +2848,7 @@ void CollisionCheck_OC_CylVsCyl(PlayState* play, CollisionCheckContext* colChkCt
                 Vec3f leftPos;
                 Vec3f rightPos;
 
-                leftPos = left->dim.pos; // SOH [Unbound] f32 shape
+                leftPos = left->dim.pos;   // SOH [Unbound] f32 shape
                 rightPos = right->dim.pos; // SOH [Unbound] f32 shape
                 CollisionCheck_SetOCvsOC(&left->base, &left->info, &leftPos, &right->base, &right->info, &rightPos,
                                          deadSpace);

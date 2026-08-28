@@ -647,6 +647,7 @@ void SSNodeList_Initialize(SSNodeList*);
 void SSNodeList_Alloc(PlayState* play, SSNodeList* this, s32 tblMax, s32 numPolys);
 u32 SSNodeList_GetNextNodeIdx(SSNodeList* this);
 s32 DynaPoly_IsBgIdBgActor(s32 bgId);
+s32 DynaPoly_IsBgIdInTable(DynaCollisionContext* dyna, s32 bgId); // SOH [Unbound]
 void DynaPoly_Init(PlayState* play, DynaCollisionContext* dyna);
 void DynaPoly_Alloc(PlayState* play, DynaCollisionContext* dyna);
 void func_8003EBF8(PlayState* play, DynaCollisionContext* dyna, s32 bgId);

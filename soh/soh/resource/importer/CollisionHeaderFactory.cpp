@@ -60,7 +60,7 @@ ResourceFactoryBinaryCollisionHeaderV0::ReadResource(std::shared_ptr<Ship::File>
         polygon.normal.y = reader->ReadUInt16();
         polygon.normal.z = reader->ReadUInt16();
 
-        polygon.dist = reader->ReadUInt16();
+        polygon.dist = reader->ReadInt16(); // SOH [Unbound] dist is f32 now; the u16 read no longer wraps negative
 
         collisionHeader->polygons.push_back(polygon);
     }

@@ -5,11 +5,7 @@
 #include <ship/resource/Resource.h>
 #include <libultraship/libultra.h>
 #include "z64math.h"
-
-#ifndef WATERBOX_UNPACK_ROOM
-// SOH [Unbound] mirror of z64bgcheck.h
-#define WATERBOX_UNPACK_ROOM(p) ((((p) >> 13) & 0x3F) == 0x3F ? -1 : (s32)(((p) >> 13) & 0x3F))
-#endif
+#include "z64bgcheck.h" // SOH [Unbound] WATERBOX_UNPACK_ROOM
 
 namespace SOH {
 
@@ -30,20 +26,21 @@ typedef struct {
     f32 dist; // Plane distance from origin along the normal. // SOH [Unbound] s16 -> f32 (world extent)
 } CollisionPoly;
 
+// SOH [Unbound] Must mirror WaterBox in soh/include/z64bgcheck.h (f32 extents, unpacked room)
 typedef struct {
-    /* 0x00 */ f32 xMin; // SOH [Unbound] s16 -> f32 (world extent)
-    /* 0x02 */ f32 ySurface;
-    /* 0x04 */ f32 zMin;
-    /* 0x06 */ f32 xLength;
-    /* 0x08 */ f32 zLength;
-    /* 0x0C */ u32 properties;
+    f32 xMin;
+    f32 ySurface;
+    f32 zMin;
+    f32 xLength;
+    f32 zLength;
+    u32 properties;
 
     // 0x0008_0000 = ?
     // 0x0007_E000 = Room Index, 0x3F = all rooms
     // 0x0000_1F00 = Lighting Settings Index
     // 0x0000_00FF = CamData index
-    s32 room; // SOH [Unbound] unpacked room index, -1 = all rooms
-} WaterBox; // size = 0x10
+    s32 room; // unpacked room index, -1 = all rooms
+} WaterBox;
 
 typedef struct {
     /* 0x00 */ u16 cameraSType;
@@ -58,17 +55,18 @@ typedef struct {
     // 0x0800_0000 = wall damage
 } SurfaceType;
 
+// SOH [Unbound] Must mirror CollisionHeader in soh/include/z64bgcheck.h (f32 bounds/vertices, u32 counts)
 typedef struct {
-    /* 0x00 */ Vec3f minBounds; // minimum coordinates of poly bounding box. // SOH [Unbound] s16 -> f32 (world extent)
-    /* 0x06 */ Vec3f maxBounds; // maximum coordinates of poly bounding box
-    /* 0x0C */ u32 numVertices; // SOH [Unbound] widened from u16
-    /* 0x10 */ Vec3f* vtxList; // SOH [Unbound] s16 -> f32 (world extent)
-    /* 0x14 */ u32 numPolygons; // SOH [Unbound] widened from u16
-    /* 0x18 */ CollisionPoly* polyList;
-    /* 0x1C */ SurfaceType* surfaceTypeList;
-    /* 0x20 */ CamData* cameraDataList;
-    /* 0x24 */ u16 numWaterBoxes;
-    /* 0x28 */ WaterBox* waterBoxes;
+    Vec3f minBounds; // minimum coordinates of poly bounding box
+    Vec3f maxBounds; // maximum coordinates of poly bounding box
+    u32 numVertices;
+    Vec3f* vtxList;
+    u32 numPolygons;
+    CollisionPoly* polyList;
+    SurfaceType* surfaceTypeList;
+    CamData* cameraDataList;
+    u16 numWaterBoxes;
+    WaterBox* waterBoxes;
     size_t cameraDataListLen; // OTRTODO: Added to allow for bounds checking the cameraDataList.
 } CollisionHeaderData;        // original name: BGDataInfo
 

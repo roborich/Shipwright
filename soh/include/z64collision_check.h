@@ -191,12 +191,13 @@ typedef struct {
     /* 0x0C */ ColliderTrisElementInit* elements;
 } ColliderTrisInitType1; // size = 0x10
 
+// SOH [Unbound] dcMid/baMid are f32 (world extent)
 typedef struct {
-    /* 0x00 */ Vec3f quad[4];
-    /* 0x30 */ Vec3f dcMid; // midpoint of vectors d, c. // SOH [Unbound] s16 -> f32 (world extent)
-    /* 0x36 */ Vec3f baMid; // midpoint of vectors b, a
-    /* 0x3C */ f32 acDist; // distance to nearest AC collision this frame.
-} ColliderQuadDim; // size = 0x40
+    Vec3f quad[4];
+    Vec3f dcMid; // midpoint of vectors d, c
+    Vec3f baMid; // midpoint of vectors b, a
+    f32 acDist;  // distance to nearest AC collision this frame.
+} ColliderQuadDim;
 
 typedef struct {
     /* 0x00 */ Vec3f quad[4];

@@ -35,14 +35,19 @@ typedef struct {
         };
     };
     Vec3s normal;
-    s16 dist;
+    f32 dist; // world extent: was s16
 } CollisionPoly;
 
-#define COLPOLY_VTX_INDEX(vI)            ((vI) & 0x1FFFFFFF)
+#define COLPOLY_VTX_INDEX(vI)            ((vI) & 0x1FFFFFFFu)
 #define COLPOLY_VIA_FLAG_TEST(vIA, f)    ((vIA) & (((f) & 7) << 29))
-#define COLPOLY_VIA_FLAGS_MASK           0xE0000000
+#define COLPOLY_VIA_FLAGS_MASK           0xE0000000u
 #define COLPOLY_VIB_CONVEYOR             (1u << 29)
 ```
+
+Vertices, bounds, `dist` and water-box extents are `f32` (`BGCHECK_XYZ_ABSMAX` = 2²⁰); see
+[`extent.md`](./extent.md). `WaterBox` carries an unpacked `s32 room` (`-1` = all rooms) that every
+loader fills from the packed `properties` word (`WATERBOX_UNPACK_ROOM`) unless the JSON sets it
+explicitly, which is what lifts the 63-room cap on water boxes.
 
 `SSNode` becomes `{ s32 polyId; u32 next; }`, `SS_NULL` becomes `0xFFFFFFFF`, and every
 `SSList.head`, `SSNodeList.max/count`, `DynaLookup.polyStartIndex`, `BgActor.vtxStartIndex`,
@@ -64,13 +69,16 @@ mods because every collision header is materialised by the SoH importer.
 
 ### Allocation (`BgCheck_Allocate`)
 
-The N64 byte budget goes away:
+The N64 byte budget goes away: `BgCheck_Allocate` no longer computes `memSize` (the per-scene
+table, the "spot"/"mini" sizes and `CollisionContext.memSize` are deleted); the only thing still
+chosen per scene is the vanilla lookup-grid shape (`BgCheck_SetVanillaSubdivisions`). Every table
+grows through one helper, `BgCheck_ReallocTable` (realloc into a temp, double, fatal on heap
+exhaustion like the arena was).
 
 - Static node table: **growable**. Allocated at `max(2 × numPolygons, 4096)` nodes and doubled
   on demand (`SSNodeList_Grow`). Nodes are addressed by index, so `realloc` is safe as long as
   no caller holds an `SSNode*` across an insert — `StaticLookup_AddPolyToSSList` was rewritten
-  to re-derive its cursor from an index for exactly that reason. No guessing, no
-  `LOG_HUNGUP_THREAD`.
+  to re-derive its cursor from an index for exactly that reason.
 - `polyCheckTbl` (one byte per static poly), the node table, the static lookup grid, and the
   dyna poly/vertex/node lists are `malloc`'d and released by a new `BgCheck_Free`, called from
   `Play_Destroy`. They no longer touch the play-state arena, so a 2 M-poly scene does not
@@ -84,16 +92,19 @@ The N64 byte budget goes away:
   lookup is invalidated so the "transform unchanged" fast path cannot re-link polys in the old
   buffer. Actors keep `CollisionPoly*` into these lists (`Actor.floorPoly/wallPoly`, camera,
   a handful of overlay caches) — those pointers are already logically stale every frame, but
-  they must stay *readable*, so superseded buffers are parked on `dyna.retiredBuffers` and
-  freed with everything else in `BgCheck_Free`. Geometric growth bounds the parked memory to
-  the final size. The dyna node list grows the same way (nodes are addressed by index).
+  they must stay *readable*, so superseded buffers are parked on `dyna.retiredBuffers` (a fixed
+  array of 32 — growth doubles, so a list retires one buffer per doubling) and freed with
+  everything else in `BgCheck_Free`. Geometric growth bounds the parked memory to the final
+  size. The dyna node list grows the same way (nodes are addressed by index).
 - Dyna actors: `BG_ACTOR_MAX` (50) is gone. `bgActors`/`bgActorFlags` are heap tables of
   `dyna.bgActorMax` slots (initially 64), doubled by `DynaPoly_SetBgActor` when the free-slot
   scan fails. `BGCHECK_SCENE` is a fixed sentinel (`0x7FFF`) instead of the table size, and
   `BGACTOR_INVALID` (same value) is the "could not allocate" return the ~60 overlay
   `== BG_ACTOR_MAX` tests now name. `Actor.floorBgId/wallBgId` (were **u8** — silently
   truncating past 254) and `Camera.bgCheckId/nextBGCheckId` (s16) are `s32`. Query loops run
-  over `bgActorMax`, which doubling keeps within 2× the live count. Also fixed: the
+  over `bgActorMax`, which doubling keeps within 2× the live count. `DynaPoly_IsBgIdBgActor` is
+  a pure range check (`0 ≤ bgId < BGCHECK_SCENE`, no context); the `z_bgcheck.c` sites that
+  index the table also check the context's `bgActorMax` (`DynaPoly_IsBgIdInTable`). Also fixed: the
   "transform unchanged" branch of `DynaPoly_ExpandSRT` still passed an `s16` to the widened
   `s32*` `DynaSSNodeList_SetSSListHead` (4-byte read of a 2-byte local).
 
@@ -101,10 +112,8 @@ Memory impact on vanilla scenes: negligible (a few hundred KB moved from the are
 
 ## Not changed
 
-- Surface types (`u16 type` → 65 535 per header), water boxes (`u16`), camera data — already
-  ample.
-- Coordinates remain `s16` (±32 767 units, `BGCHECK_XYZ_ABSMAX` 32 760). Widening to float
-  is a much larger change across actors; out of scope for this pass.
+- Surface types (`u16 type` → 65 535 per header), water boxes (`u16`) — already ample.
+- Camera positions (`CamData.camPosData`) stay `Vec3s`; see the README's remaining limits.
 
 ## Consumers touched
 
@@ -117,8 +126,7 @@ Memory impact on vanilla scenes: negligible (a few hundred KB moved from the are
 
 ## Status
 
-Implemented on the `unbound` branch; builds clean (RelWithDebInfo). In-game verification below
-has not been run yet.
+Implemented on the `unbound` branch. See the README status table for build/verification state.
 
 ## Verification
 

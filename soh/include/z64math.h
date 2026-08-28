@@ -37,7 +37,7 @@ typedef struct {
 typedef struct {
     Vec3f center;
     f32 radius;
-} Sphere16; // size = 0x10
+} Sphere16;
 
 typedef struct {
     Vec3f center;
@@ -56,11 +56,11 @@ typedef struct {
 
 // SOH [Unbound] Fields are f32 (world extent); see Sphere16.
 typedef struct {
-    /* 0x0000 */ f32 radius;
-    /* 0x0002 */ f32 height;
-    /* 0x0004 */ f32 yShift;
-    /* 0x0006 */ Vec3f pos;
-} Cylinder16; // size = 0x18
+    f32 radius;
+    f32 height;
+    f32 yShift;
+    Vec3f pos;
+} Cylinder16;
 
 typedef struct {
     /* 0x00 */ f32 radius;

@@ -9,6 +9,20 @@
 
 #define SS_NULL 0xFFFFFFFFu // SOH [Unbound] node indices are 32-bit
 
+/**
+ * SOH [Unbound] Grow a heap table to `newMax` entries. Every table that goes through here is addressed by
+ * index, so callers only re-derive pointers they held across the call. Running out of heap is fatal, as
+ * running out of arena was on N64.
+ */
+static void* BgCheck_ReallocTable(void* tbl, s32 newMax, size_t elemSize) {
+    void* newTbl = realloc(tbl, (size_t)newMax * elemSize);
+
+    if (newTbl == NULL) {
+        LOG_HUNGUP_THREAD();
+    }
+    return newTbl;
+}
+
 // bccFlags
 #define BGCHECK_CHECK_WALL (1 << 0)
 #define BGCHECK_CHECK_FLOOR (1 << 1)
@@ -91,7 +105,6 @@ void SSNodeList_SetSSListHead(SSNodeList* nodeList, SSList* ssList, s32* polyId)
 void DynaSSNodeList_SetSSListHead(DynaSSNodeList* nodeList, SSList* ssList, s32* polyId) {
     u32 newNodeId = DynaSSNodeList_GetNextNodeIdx(nodeList);
 
-    assert(newNodeId != SS_NULL);
     SSNode_SetValue(&nodeList->tbl[newNodeId], polyId, ssList->head);
     ssList->head = newNodeId;
 }
@@ -126,44 +139,17 @@ void DynaSSNodeList_ResetCount(DynaSSNodeList* nodeList) {
 
 /**
  * Get next available node index in DynaSSNodeList
- * returns SS_NULL if list is full
+ * SOH [Unbound] grows the table instead of returning SS_NULL when it is full
  */
 u32 DynaSSNodeList_GetNextNodeIdx(DynaSSNodeList* nodeList) {
     u32 idx = nodeList->count++;
 
-    // SOH [Unbound] grow instead of failing; nodes are addressed by index so realloc is safe
-    if (nodeList->max <= (s32)idx) {
-        s32 newMax = nodeList->max * 2;
-        SSNode* newTbl = realloc(nodeList->tbl, newMax * sizeof(SSNode));
-
-        if (newTbl == NULL) {
-            return SS_NULL;
-        }
-        nodeList->tbl = newTbl;
-        nodeList->max = newMax;
+    if ((s32)idx >= nodeList->max) {
+        nodeList->max *= 2;
+        nodeList->tbl = BgCheck_ReallocTable(nodeList->tbl, nodeList->max, sizeof(SSNode));
     }
 
     return idx;
-}
-
-/**
- * original name: T_BGCheck_Vec3sToVec3f
- */
-// SOH [Unbound] vertices are f32; name kept for the call sites
-void BgCheck_Vec3sToVec3f(Vec3f* src, Vec3f* dst) {
-    dst->x = src->x;
-    dst->y = src->y;
-    dst->z = src->z;
-}
-
-/**
- * original name: T_BGCheck_Vec3fToVec3s
- */
-// SOH [Unbound] vertices are f32; name kept for the call sites
-void BgCheck_Vec3fToVec3s(Vec3f* dst, Vec3f* src) {
-    dst->x = src->x;
-    dst->y = src->y;
-    dst->z = src->z;
 }
 
 /**
@@ -173,7 +159,7 @@ f32 CollisionPoly_GetMinY(CollisionPoly* poly, Vec3f* vtxList) {
     s32 a;
     s32 b;
     s32 c;
-    s16 min;
+    f32 min; // SOH [Unbound] s16 -> f32 (world extent)
 
     //! @bug Due to rounding errors, some polys with a slight slope have a y normal of 1.0f/-1.0f. As such, this
     //! optimization returns the wrong minimum y for a subset of these polys.
@@ -270,9 +256,9 @@ f32 CollisionPoly_GetPointDistanceFromPlane(CollisionPoly* poly, Vec3f* point) {
  * Get Poly Vertices
  */
 void CollisionPoly_GetVertices(CollisionPoly* poly, Vec3f* vtxList, Vec3f* dest) {
-    BgCheck_Vec3sToVec3f(&vtxList[COLPOLY_VTX_INDEX(poly->flags_vIA)], &dest[0]);
-    BgCheck_Vec3sToVec3f(&vtxList[COLPOLY_VTX_INDEX(poly->flags_vIB)], &dest[1]);
-    BgCheck_Vec3sToVec3f(&vtxList[poly->vIC], &dest[2]);
+    dest[0] = vtxList[COLPOLY_VTX_INDEX(poly->flags_vIA)];
+    dest[1] = vtxList[COLPOLY_VTX_INDEX(poly->flags_vIB)];
+    dest[2] = vtxList[poly->vIC];
 }
 
 /**
@@ -476,7 +462,7 @@ void StaticLookup_AddPolyToSSList(CollisionContext* colCtx, SSList* ssList, Coll
                                   s32 polyId) {
     SSNode* curNode;
     SSNode* nextNode;
-    s32 polyYMin;
+    f32 polyYMin; // SOH [Unbound] s32 -> f32 (world extent)
     u32 newNodeId;
     s32 curPolyId;
     u32 curNodeId; // SOH [Unbound] the node table can grow on insert, so re-derive pointers by index
@@ -1292,19 +1278,19 @@ s32 BgCheck_PolyIntersectsSubdivision(Vec3f* min, Vec3f* max, CollisionPoly* pol
     flags[0] = flags[1] = 0;
     poly = &polyList[polyId];
 
-    BgCheck_Vec3sToVec3f(&vtxList[COLPOLY_VTX_INDEX(poly->flags_vIA)], &va);
+    va = vtxList[COLPOLY_VTX_INDEX(poly->flags_vIA)];
     flags[0] = Math3D_PointRelativeToCubeFaces(&va, min, max);
     if (flags[0] == 0) {
         return true;
     }
 
-    BgCheck_Vec3sToVec3f(&vtxList[COLPOLY_VTX_INDEX(poly->flags_vIB)], &vb);
+    vb = vtxList[COLPOLY_VTX_INDEX(poly->flags_vIB)];
     flags[1] = Math3D_PointRelativeToCubeFaces(&vb, min, max);
     if (flags[1] == 0) {
         return true;
     }
 
-    BgCheck_Vec3sToVec3f(&vtxList[poly->vIC], &vc);
+    vc = vtxList[poly->vIC];
     flags[2] = Math3D_PointRelativeToCubeFaces(&vc, min, max);
     if (flags[2] == 0) {
         return true;
@@ -1362,9 +1348,9 @@ s32 BgCheck_PolyIntersectsSubdivision(Vec3f* min, Vec3f* max, CollisionPoly* pol
         return true;
     }
 
-    BgCheck_Vec3sToVec3f(&vtxList[COLPOLY_VTX_INDEX(poly->flags_vIA)], &va2);
-    BgCheck_Vec3sToVec3f(&vtxList[COLPOLY_VTX_INDEX(poly->flags_vIB)], &vb2);
-    BgCheck_Vec3sToVec3f(&vtxList[poly->vIC], &vc2);
+    va2 = vtxList[COLPOLY_VTX_INDEX(poly->flags_vIA)];
+    vb2 = vtxList[COLPOLY_VTX_INDEX(poly->flags_vIB)];
+    vc2 = vtxList[poly->vIC];
     if (Math3D_LineVsCube(min, max, &va2, &vb2) || Math3D_LineVsCube(min, max, &vb2, &vc2) ||
         Math3D_LineVsCube(min, max, &vc2, &va2)) {
         return true;
@@ -1477,32 +1463,6 @@ s32 BgCheck_IsSpotScene(PlayState* play) {
     return false;
 }
 
-typedef struct {
-    s16 sceneId;
-    u32 memSize;
-} BgCheckSceneMemEntry;
-
-/**
- * Get custom scene memSize
- */
-s32 BgCheck_TryGetCustomMemsize(s32 sceneId, u32* memSize) {
-    static BgCheckSceneMemEntry sceneMemList[] = {
-        { SCENE_HYRULE_FIELD, 0xB798 },         { SCENE_GANONS_TOWER_COLLAPSE_EXTERIOR, 0x78C8 },
-        { SCENE_GANON_BOSS, 0x70C8 },           { SCENE_SPIRIT_TEMPLE_BOSS, 0xACC8 },
-        { SCENE_CHAMBER_OF_THE_SAGES, 0x70C8 }, { SCENE_SPIRIT_TEMPLE, 0x16CC8 },
-        { SCENE_FIRE_TEMPLE, 0x198C8 },         { SCENE_GANONDORF_BOSS, 0x84C8 },
-    };
-    s32 i;
-
-    for (i = 0; i < ARRAY_COUNT(sceneMemList); i++) {
-        if (sceneId == sceneMemList[i].sceneId) {
-            *memSize = sceneMemList[i].memSize;
-            return true;
-        }
-    }
-    return false;
-}
-
 /**
  * Compute subdivLength for scene mesh lookup, for a single dimension
  */
@@ -1519,15 +1479,14 @@ void BgCheck_SetSubdivisionDimension(f32 min, s32 subdivAmount, f32* max, f32* s
 typedef struct {
     s16 sceneId;
     Vec3s subdivAmount;
-    s32 nodeListMax; // if -1, dynamically compute max nodes
 } BgCheckSceneSubdivisionEntry;
 
-// SOH [Unbound] Collision memory policy. See unbound-docs/collision.md.
-#define UNBOUND_DYNA_POLY_MAX 16384       // initial; grows in DynaPoly_Setup (old buffers retired, see DynaPoly_EnsureListCapacity)
-#define UNBOUND_DYNA_VTX_MAX 16384        // initial; same growth path as polyList
-#define UNBOUND_DYNA_NODES_INITIAL 16384  // dyna node list grows on demand
-#define UNBOUND_STATIC_NODES_MIN 4096     // static node list grows on demand
-#define UNBOUND_SUBDIV_SCALE_POLY_THRESHOLD 16384 // above any vanilla scene; below this the grid is vanilla
+// SOH [Unbound] Initial table sizes; every one of them grows on demand. See unbound-docs/collision.md.
+#define UNBOUND_DYNA_POLY_MAX 16384               // dyna polyList (grows in DynaPoly_EnsureListCapacity)
+#define UNBOUND_DYNA_VTX_MAX 16384                // dyna vtxList (same)
+#define UNBOUND_DYNA_NODES_INITIAL 16384          // dyna node list
+#define UNBOUND_STATIC_NODES_MIN 4096             // static node list floor (2 x numPolygons otherwise)
+#define UNBOUND_SUBDIV_SCALE_POLY_THRESHOLD 16384 // above any vanilla scene; at or below, the grid is vanilla
 #define UNBOUND_SUBDIV_MAX 64
 
 static s32 BgCheck_ScaleSubdivAxis(s32 amount, f32 scale) {
@@ -1556,6 +1515,8 @@ static void BgCheck_ScaleSubdivisionsForPolyCount(CollisionContext* colCtx, u32 
  * SOH [Unbound] Release everything BgCheck_Allocate / DynaPoly_Alloc put on the heap.
  */
 void BgCheck_Free(CollisionContext* colCtx) {
+    s32 i;
+
     free(colCtx->lookupTbl);
     colCtx->lookupTbl = NULL;
     free(colCtx->polyNodes.tbl);
@@ -1573,14 +1534,41 @@ void BgCheck_Free(CollisionContext* colCtx) {
     free(colCtx->dyna.bgActorFlags);
     colCtx->dyna.bgActorFlags = NULL;
     colCtx->dyna.bgActorMax = 0;
-    {
-        s32 i;
-        for (i = 0; i < colCtx->dyna.retiredCount; i++) {
-            free(colCtx->dyna.retiredBuffers[i]);
+    for (i = 0; i < colCtx->dyna.retiredCount; i++) {
+        free(colCtx->dyna.retiredBuffers[i]);
+    }
+    colCtx->dyna.retiredCount = 0;
+}
+
+/**
+ * SOH [Unbound] Vanilla lookup-grid shape per scene. The N64 byte budget that used to be chosen alongside it is
+ * gone (every table is heap-allocated and grows on demand), so the grid shape is all that is scene-dependent.
+ */
+static void BgCheck_SetVanillaSubdivisions(CollisionContext* colCtx, PlayState* play) {
+    static BgCheckSceneSubdivisionEntry sceneSubdivisionList[] = {
+        { SCENE_SHADOW_TEMPLE, { 23, 7, 14 } },
+        { SCENE_FOREST_TEMPLE, { 38, 1, 38 } },
+    };
+    s32 i;
+
+    if (YREG(15) == 0x10 || YREG(15) == 0x20 || YREG(15) == 0x30 || YREG(15) == 0x40) {
+        colCtx->subdivAmount.x = 2;
+        colCtx->subdivAmount.y = 2;
+        colCtx->subdivAmount.z = 2;
+        return;
+    }
+    colCtx->subdivAmount.x = 16;
+    colCtx->subdivAmount.y = 4;
+    colCtx->subdivAmount.z = 16;
+    if (BgCheck_IsSpotScene(play) == true) {
+        return;
+    }
+    for (i = 0; i < ARRAY_COUNT(sceneSubdivisionList); i++) {
+        if (play->sceneNum == sceneSubdivisionList[i].sceneId) {
+            colCtx->subdivAmount.x = sceneSubdivisionList[i].subdivAmount.x;
+            colCtx->subdivAmount.y = sceneSubdivisionList[i].subdivAmount.y;
+            colCtx->subdivAmount.z = sceneSubdivisionList[i].subdivAmount.z;
         }
-        free(colCtx->dyna.retiredBuffers);
-        colCtx->dyna.retiredBuffers = NULL;
-        colCtx->dyna.retiredCount = 0;
     }
 }
 
@@ -1588,92 +1576,21 @@ void BgCheck_Free(CollisionContext* colCtx) {
  * Allocate CollisionContext
  */
 void BgCheck_Allocate(CollisionContext* colCtx, PlayState* play, CollisionHeader* colHeader) {
-    static BgCheckSceneSubdivisionEntry sceneSubdivisionList[] = {
-        { SCENE_SHADOW_TEMPLE, { 23, 7, 14 }, -1 },
-        { SCENE_FOREST_TEMPLE, { 38, 1, 38 }, -1 },
-    };
     u32 tblMax;
-    u32 memSize;
-    u32 lookupTblMemSize;
-    SSNodeList* nodeList;
-    s32 useCustomSubdivisions;
-    u32 customMemSize;
-    s32 customNodeListMax;
-    s32 i;
 
     colCtx->colHeader = colHeader;
-    customNodeListMax = -1;
 
-    // "/*---------------- BGCheck Buffer Memory Size -------------*/\n"
-    osSyncPrintf("/*---------------- BGCheck バッファーメモリサイズ -------------*/\n");
-
-    if (YREG(15) == 0x10 || YREG(15) == 0x20 || YREG(15) == 0x30 || YREG(15) == 0x40) {
-        if (play->sceneNum == SCENE_STABLE) {
-            // "/* BGCheck LonLon Size %dbyte */\n"
-            osSyncPrintf("/* BGCheck LonLonサイズ %dbyte */\n", 0x3520);
-            colCtx->memSize = 0x3520;
-        } else {
-            // "/* BGCheck Mini Size %dbyte */\n"
-            osSyncPrintf("/* BGCheck ミニサイズ %dbyte */\n", 0x4E20);
-            colCtx->memSize = 0x4E20;
-        }
-        colCtx->dyna.polyNodesMax = 500;
-        colCtx->dyna.polyListMax = 256;
-        colCtx->dyna.vtxListMax = 256;
-        colCtx->subdivAmount.x = 2;
-        colCtx->subdivAmount.y = 2;
-        colCtx->subdivAmount.z = 2;
-    } else if (BgCheck_IsSpotScene(play) == true) {
-        colCtx->memSize = 0xF000;
-        // "/* BGCheck Spot Size %dbyte */\n"
-        osSyncPrintf("/* BGCheck Spot用サイズ %dbyte */\n", 0xF000);
-        colCtx->dyna.polyNodesMax = 1000;
-        colCtx->dyna.polyListMax = 512;
-        colCtx->dyna.vtxListMax = 512;
-        colCtx->subdivAmount.x = 16;
-        colCtx->subdivAmount.y = 4;
-        colCtx->subdivAmount.z = 16;
-    } else {
-        if (BgCheck_TryGetCustomMemsize(play->sceneNum, &customMemSize)) {
-            colCtx->memSize = customMemSize;
-        } else {
-            colCtx->memSize = 0x1CC00;
-        }
-        // "/* BGCheck Normal Size %dbyte  */\n"
-        osSyncPrintf("/* BGCheck ノーマルサイズ %dbyte  */\n", colCtx->memSize);
-        colCtx->dyna.polyNodesMax = 1000;
-        colCtx->dyna.polyListMax = 512;
-        colCtx->dyna.vtxListMax = 512;
-        useCustomSubdivisions = false;
-
-        for (i = 0; i < ARRAY_COUNT(sceneSubdivisionList); i++) {
-            if (play->sceneNum == sceneSubdivisionList[i].sceneId) {
-                colCtx->subdivAmount.x = sceneSubdivisionList[i].subdivAmount.x;
-                colCtx->subdivAmount.y = sceneSubdivisionList[i].subdivAmount.y;
-                colCtx->subdivAmount.z = sceneSubdivisionList[i].subdivAmount.z;
-                useCustomSubdivisions = true;
-                customNodeListMax = sceneSubdivisionList[i].nodeListMax;
-            }
-        }
-        if (useCustomSubdivisions == false) {
-            colCtx->subdivAmount.x = 16;
-            colCtx->subdivAmount.y = 4;
-            colCtx->subdivAmount.z = 16;
-        }
-    }
-    // SOH [Unbound] finer grid for oversized scenes; heap-allocated lookup table (freed by BgCheck_Free)
+    // SOH [Unbound] Everything below is heap-allocated, sized from the header, grown on demand and released by
+    // BgCheck_Free; nothing touches the play-state arena and there is no byte budget to pick.
+    BgCheck_SetVanillaSubdivisions(colCtx, play);
     BgCheck_ScaleSubdivisionsForPolyCount(colCtx, colHeader->numPolygons);
     colCtx->lookupTbl =
         malloc(colCtx->subdivAmount.x * sizeof(StaticLookup) * colCtx->subdivAmount.y * colCtx->subdivAmount.z);
     if (colCtx->lookupTbl == NULL) {
         LOG_HUNGUP_THREAD();
     }
-    colCtx->minBounds.x = colCtx->colHeader->minBounds.x;
-    colCtx->minBounds.y = colCtx->colHeader->minBounds.y;
-    colCtx->minBounds.z = colCtx->colHeader->minBounds.z;
-    colCtx->maxBounds.x = colCtx->colHeader->maxBounds.x;
-    colCtx->maxBounds.y = colCtx->colHeader->maxBounds.y;
-    colCtx->maxBounds.z = colCtx->colHeader->maxBounds.z;
+    colCtx->minBounds = colCtx->colHeader->minBounds;
+    colCtx->maxBounds = colCtx->colHeader->maxBounds;
     BgCheck_SetSubdivisionDimension(colCtx->minBounds.x, colCtx->subdivAmount.x, &colCtx->maxBounds.x,
                                     &colCtx->subdivLength.x, &colCtx->subdivLengthInv.x);
     BgCheck_SetSubdivisionDimension(colCtx->minBounds.y, colCtx->subdivAmount.y, &colCtx->maxBounds.y,
@@ -1681,30 +1598,14 @@ void BgCheck_Allocate(CollisionContext* colCtx, PlayState* play, CollisionHeader
     BgCheck_SetSubdivisionDimension(colCtx->minBounds.z, colCtx->subdivAmount.z, &colCtx->maxBounds.z,
                                     &colCtx->subdivLength.z, &colCtx->subdivLengthInv.z);
 
-    // SOH [Unbound] The N64 byte budget (memSize) no longer bounds anything: the static node table starts
-    // at an estimate and grows on demand, and the dyna lists get a generous fixed cap. memSize is kept only
-    // for the debug print below.
     colCtx->dyna.polyListMax = UNBOUND_DYNA_POLY_MAX;
     colCtx->dyna.vtxListMax = UNBOUND_DYNA_VTX_MAX;
     colCtx->dyna.polyNodesMax = UNBOUND_DYNA_NODES_INITIAL;
 
-    tblMax = colCtx->colHeader->numPolygons * 2;
-    if (tblMax < UNBOUND_STATIC_NODES_MIN) {
-        tblMax = UNBOUND_STATIC_NODES_MIN;
-    }
-    memSize = colCtx->subdivAmount.x * sizeof(StaticLookup) * colCtx->subdivAmount.y * colCtx->subdivAmount.z +
-              colCtx->colHeader->numPolygons * sizeof(u8) + colCtx->dyna.polyNodesMax * sizeof(SSNode) +
-              colCtx->dyna.polyListMax * sizeof(CollisionPoly) + colCtx->dyna.vtxListMax * sizeof(Vec3f) +
-              sizeof(CollisionContext);
-    colCtx->memSize = memSize;
-
+    tblMax = CLAMP_MIN(colCtx->colHeader->numPolygons * 2, UNBOUND_STATIC_NODES_MIN);
     SSNodeList_Initialize(&colCtx->polyNodes);
     SSNodeList_Alloc(play, &colCtx->polyNodes, tblMax, colCtx->colHeader->numPolygons);
-
-    lookupTblMemSize = BgCheck_InitializeStaticLookup(colCtx, play, colCtx->lookupTbl);
-    osSyncPrintf(VT_FGCOL(GREEN));
-    osSyncPrintf("/*---結局 BG使用サイズ %dbyte---*/\n", memSize + lookupTblMemSize);
-    osSyncPrintf(VT_RST);
+    BgCheck_InitializeStaticLookup(colCtx, play, colCtx->lookupTbl);
 
     DynaPoly_Init(play, &colCtx->dyna);
     DynaPoly_Alloc(play, &colCtx->dyna);
@@ -1718,7 +1619,7 @@ CollisionHeader* BgCheck_GetCollisionHeader(CollisionContext* colCtx, s32 bgId) 
     if (bgId == BGCHECK_SCENE) {
         return colCtx->colHeader;
     }
-    if (!DynaPoly_IsBgIdBgActor(bgId)) { // SOH [Unbound]
+    if (!DynaPoly_IsBgIdInTable(&colCtx->dyna, bgId)) { // SOH [Unbound]
         return NULL;
     }
     if (!(colCtx->dyna.bgActorFlags[bgId] & 1)) {
@@ -2530,12 +2431,8 @@ void SSNodeList_Alloc(PlayState* play, SSNodeList* this, s32 tblMax, s32 numPoly
  * SOH [Unbound] Double the SSNodeList table. Callers must not hold SSNode pointers across this.
  */
 static void SSNodeList_Grow(SSNodeList* this) {
-    u32 newMax = this->max * 2;
-    SSNode* newTbl = realloc(this->tbl, newMax * sizeof(SSNode));
-
-    assert(newTbl != NULL);
-    this->tbl = newTbl;
-    this->max = newMax;
+    this->max *= 2;
+    this->tbl = BgCheck_ReallocTable(this->tbl, this->max, sizeof(SSNode));
 }
 
 /**
@@ -2544,7 +2441,7 @@ static void SSNodeList_Grow(SSNodeList* this) {
 SSNode* SSNodeList_GetNextNode(SSNodeList* this) {
     SSNode* result;
 
-    if (this->count + 1 >= this->max) {
+    if (this->count >= this->max) {
         SSNodeList_Grow(this);
     }
     result = &this->tbl[this->count];
@@ -2695,11 +2592,24 @@ void DynaPoly_SetBgActorPrevTransform(PlayState* play, BgActor* bgActor) {
  * Is BgActor Id
  */
 s32 DynaPoly_IsBgIdBgActor(s32 bgId) {
-    // SOH [Unbound] The table is per-PlayState and growable; the signature is kept for the ~130 callers.
-    if (bgId < 0 || gPlayState == NULL || bgId >= gPlayState->colCtx.dyna.bgActorMax) {
-        return false;
-    }
-    return true;
+    // SOH [Unbound] Ids are minted below BGCHECK_SCENE and the table grows to fit them, so this is a pure range
+    // check (vanilla compared against the fixed table size). Sites that index the table also check
+    // DynaPoly_IsBgIdInTable, which is what rejects an id the current context never allocated.
+    return bgId >= 0 && bgId < BGCHECK_SCENE;
+}
+
+/**
+ * SOH [Unbound] Is `bgId` a slot of this context's (growable) dyna actor table
+ */
+s32 DynaPoly_IsBgIdInTable(DynaCollisionContext* dyna, s32 bgId) {
+    return DynaPoly_IsBgIdBgActor(bgId) && bgId < dyna->bgActorMax;
+}
+
+/**
+ * SOH [Unbound] Is `bgId` a slot that currently holds a bg actor
+ */
+static s32 DynaPoly_IsBgIdAllocated(DynaCollisionContext* dyna, s32 bgId) {
+    return DynaPoly_IsBgIdInTable(dyna, bgId) && (dyna->bgActorFlags[bgId] & 1);
 }
 
 /**
@@ -2709,9 +2619,8 @@ s32 DynaPoly_IsBgIdBgActor(s32 bgId) {
 static void DynaPoly_GrowBgActorTable(PlayState* play, DynaCollisionContext* dyna, s32 newMax) {
     s32 i;
 
-    dyna->bgActors = realloc(dyna->bgActors, newMax * sizeof(BgActor));
-    dyna->bgActorFlags = realloc(dyna->bgActorFlags, newMax * sizeof(u16));
-    assert(dyna->bgActors != NULL && dyna->bgActorFlags != NULL);
+    dyna->bgActors = BgCheck_ReallocTable(dyna->bgActors, newMax, sizeof(BgActor));
+    dyna->bgActorFlags = BgCheck_ReallocTable(dyna->bgActorFlags, newMax, sizeof(u16));
     for (i = dyna->bgActorMax; i < newMax; i++) {
         BgActor_Initialize(play, &dyna->bgActors[i]);
         dyna->bgActorFlags[i] = 0;
@@ -2721,10 +2630,10 @@ static void DynaPoly_GrowBgActorTable(PlayState* play, DynaCollisionContext* dyn
 
 /**
  * SOH [Unbound] Park a superseded poly/vtx buffer until BgCheck_Free (see DynaCollisionContext.retiredBuffers).
+ * Growth doubles, so the two lists retire at most ~2 x log2(final size / initial size) buffers per scene.
  */
 static void DynaPoly_RetireBuffer(DynaCollisionContext* dyna, void* buffer) {
-    dyna->retiredBuffers = realloc(dyna->retiredBuffers, (dyna->retiredCount + 1) * sizeof(void*));
-    assert(dyna->retiredBuffers != NULL);
+    assert(dyna->retiredCount < DYNA_RETIRED_BUFFERS_MAX);
     dyna->retiredBuffers[dyna->retiredCount++] = buffer;
 }
 
@@ -2780,7 +2689,6 @@ void DynaPoly_Alloc(PlayState* play, DynaCollisionContext* dyna) {
     dyna->bgActors = NULL;
     dyna->bgActorFlags = NULL;
     dyna->bgActorMax = 0;
-    dyna->retiredBuffers = NULL;
     dyna->retiredCount = 0;
     DynaPoly_GrowBgActorTable(play, dyna, BGACTOR_INITIAL_MAX);
     DynaPoly_NullPolyList(&dyna->polyList);
@@ -2832,36 +2740,35 @@ s32 DynaPoly_SetBgActor(PlayState* play, DynaCollisionContext* dyna, Actor* acto
  * possible orginal name: DynaPolyInfo_getActor
  */
 DynaPolyActor* DynaPoly_GetActor(CollisionContext* colCtx, s32 bgId) {
-    if (!DynaPoly_IsBgIdBgActor(bgId) || !(colCtx->dyna.bgActorFlags[bgId] & 1) ||
-        colCtx->dyna.bgActorFlags[bgId] & 2) {
+    if (!DynaPoly_IsBgIdAllocated(&colCtx->dyna, bgId) || colCtx->dyna.bgActorFlags[bgId] & 2) { // SOH [Unbound]
         return NULL;
     }
     return (DynaPolyActor*)colCtx->dyna.bgActors[bgId].actor;
 }
 
 void func_8003EBF8(PlayState* play, DynaCollisionContext* dyna, s32 bgId) {
-    if (DynaPoly_IsBgIdBgActor(bgId)) {
+    if (DynaPoly_IsBgIdInTable(dyna, bgId)) { // SOH [Unbound]
         dyna->bgActorFlags[bgId] |= 4;
         dyna->bitFlag |= DYNAPOLY_INVALIDATE_LOOKUP;
     }
 }
 
 void func_8003EC50(PlayState* play, DynaCollisionContext* dyna, s32 bgId) {
-    if (DynaPoly_IsBgIdBgActor(bgId)) {
+    if (DynaPoly_IsBgIdInTable(dyna, bgId)) { // SOH [Unbound]
         dyna->bgActorFlags[bgId] &= ~4;
         dyna->bitFlag |= DYNAPOLY_INVALIDATE_LOOKUP;
     }
 }
 
 void func_8003ECA8(PlayState* play, DynaCollisionContext* dyna, s32 bgId) {
-    if (DynaPoly_IsBgIdBgActor(bgId)) {
+    if (DynaPoly_IsBgIdInTable(dyna, bgId)) { // SOH [Unbound]
         dyna->bgActorFlags[bgId] |= 8;
         dyna->bitFlag |= DYNAPOLY_INVALIDATE_LOOKUP;
     }
 }
 
 void func_8003ED00(PlayState* play, DynaCollisionContext* dyna, s32 bgId) {
-    if (DynaPoly_IsBgIdBgActor(bgId)) {
+    if (DynaPoly_IsBgIdInTable(dyna, bgId)) { // SOH [Unbound]
         dyna->bgActorFlags[bgId] &= ~8;
         dyna->bitFlag |= DYNAPOLY_INVALIDATE_LOOKUP;
     }
@@ -2876,7 +2783,7 @@ void DynaPoly_DeleteBgActor(PlayState* play, DynaCollisionContext* dyna, s32 bgI
     osSyncPrintf(VT_FGCOL(GREEN));
     osSyncPrintf("DynaPolyInfo_delReserve():index %d\n", bgId);
     osSyncPrintf(VT_RST);
-    if (DynaPoly_IsBgIdBgActor(bgId) == false) {
+    if (DynaPoly_IsBgIdInTable(dyna, bgId) == false) { // SOH [Unbound]
 
         if (bgId == -1) {
             osSyncPrintf(VT_FGCOL(GREEN));
@@ -3002,7 +2909,7 @@ void DynaPoly_ExpandSRT(PlayState* play, DynaCollisionContext* dyna, s32 bgId, s
             Vec3f vtxT; // Vtx after mtx transform
             vtx = pbgdata->vtxList[i];
             SkinMatrix_Vec3fMtxFMultXYZ(&mtx, &vtx, &vtxT);
-            BgCheck_Vec3fToVec3s(&dyna->vtxList[*vtxStartIndex + i], &vtxT);
+            dyna->vtxList[*vtxStartIndex + i] = vtxT;
 
             if (i == 0) {
                 dyna->bgActors[bgId].minY = dyna->bgActors[bgId].maxY = vtxT.y;
@@ -3045,10 +2952,10 @@ void DynaPoly_ExpandSRT(PlayState* play, DynaCollisionContext* dyna, s32 bgId, s
             *newPoly = pbgdata->polyList[i];
 
             // Yeah, this is all kinds of fake, but my God, it matches.
-            newPoly->flags_vIA =
-                (COLPOLY_VTX_INDEX(newPoly->flags_vIA) + *vtxStartIndex) | ((*newPoly).flags_vIA & COLPOLY_VIA_FLAGS_MASK);
-            newPoly->flags_vIB =
-                (COLPOLY_VTX_INDEX(newPoly->flags_vIB) + *vtxStartIndex) | ((*newPoly).flags_vIB & COLPOLY_VIA_FLAGS_MASK);
+            newPoly->flags_vIA = (COLPOLY_VTX_INDEX(newPoly->flags_vIA) + *vtxStartIndex) |
+                                 (newPoly->flags_vIA & COLPOLY_VIA_FLAGS_MASK);
+            newPoly->flags_vIB = (COLPOLY_VTX_INDEX(newPoly->flags_vIB) + *vtxStartIndex) |
+                                 (newPoly->flags_vIB & COLPOLY_VIA_FLAGS_MASK);
             newPoly->vIC = *vtxStartIndex + newPoly->vIC;
             dVtxList = dyna->vtxList;
             vtxA.x = dVtxList[(uintptr_t)COLPOLY_VTX_INDEX(newPoly->flags_vIA)].x;
@@ -3575,17 +3482,17 @@ s32 BgCheck_SphVsDynaWall(CollisionContext* colCtx, u16 xpFlags, f32* outX, f32*
             continue;
         }
 
-        bgActor->boundingSphere.radius += (s16)radius;
+        bgActor->boundingSphere.radius += radius;
 
         r = bgActor->boundingSphere.radius;
         dx = bgActor->boundingSphere.center.x - resultPos.x;
         dz = bgActor->boundingSphere.center.z - resultPos.z;
         if (SQ(r) < (SQ(dx) + SQ(dz)) || (!Math3D_XYInSphere(&bgActor->boundingSphere, resultPos.x, resultPos.y) &&
                                           !Math3D_YZInSphere(&bgActor->boundingSphere, resultPos.y, resultPos.z))) {
-            bgActor->boundingSphere.radius -= (s16)radius;
+            bgActor->boundingSphere.radius -= radius;
             continue;
         }
-        bgActor->boundingSphere.radius -= (s16)radius;
+        bgActor->boundingSphere.radius -= radius;
         if (BgCheck_SphVsDynaWallInBgActor(colCtx, xpFlags, &colCtx->dyna,
                                            &(colCtx->dyna.bgActors + i)->dynaLookup.wall, outX, outZ, outPoly, outBgId,
                                            &resultPos, radius, i)) {
@@ -4568,9 +4475,9 @@ void BgCheck_DrawDynaPolyList(PlayState* play, CollisionContext* colCtx, DynaCol
         while (true) {
             curPolyId = curNode->polyId;
             poly = &dyna->polyList[curPolyId];
-            BgCheck_Vec3sToVec3f(COLPOLY_VTX_INDEX(poly->flags_vIA) + dyna->vtxList, &vA);
-            BgCheck_Vec3sToVec3f(COLPOLY_VTX_INDEX(poly->flags_vIB) + dyna->vtxList, &vB);
-            BgCheck_Vec3sToVec3f((s32)(poly->vIC) + dyna->vtxList, &vC);
+            vA = dyna->vtxList[COLPOLY_VTX_INDEX(poly->flags_vIA)];
+            vB = dyna->vtxList[COLPOLY_VTX_INDEX(poly->flags_vIB)];
+            vC = dyna->vtxList[poly->vIC];
             if (AREG(26)) {
                 nx = COLPOLY_GET_NORMAL(poly->normal.x);
                 ny = COLPOLY_GET_NORMAL(poly->normal.y);
@@ -4637,9 +4544,9 @@ void BgCheck_DrawStaticPoly(PlayState* play, CollisionContext* colCtx, Collision
     f32 ny;
     f32 nz;
 
-    BgCheck_Vec3sToVec3f(COLPOLY_VTX_INDEX(poly->flags_vIA) + colCtx->colHeader->vtxList, &vA);
-    BgCheck_Vec3sToVec3f(COLPOLY_VTX_INDEX(poly->flags_vIB) + colCtx->colHeader->vtxList, &vB);
-    BgCheck_Vec3sToVec3f(poly->vIC + colCtx->colHeader->vtxList, &vC);
+    vA = colCtx->colHeader->vtxList[COLPOLY_VTX_INDEX(poly->flags_vIA)];
+    vB = colCtx->colHeader->vtxList[COLPOLY_VTX_INDEX(poly->flags_vIB)];
+    vC = colCtx->colHeader->vtxList[poly->vIC];
     if (AREG(26) != 0) {
         nx = COLPOLY_GET_NORMAL(poly->normal.x);
         ny = COLPOLY_GET_NORMAL(poly->normal.y);
