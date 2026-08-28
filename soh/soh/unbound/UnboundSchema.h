@@ -143,7 +143,6 @@ inline constexpr const char* kIsHorseBlocked = "isHorseBlocked";
 inline constexpr const char* kMaterial = "material";
 inline constexpr const char* kFloorEffect = "floorEffect";
 inline constexpr const char* kLightSetting = "lightSetting";
-inline constexpr const char* kEcho = "echo";
 inline constexpr const char* kCanHookshot = "canHookshot";
 inline constexpr const char* kConveyorSpeed = "conveyorSpeed";
 inline constexpr const char* kConveyorDirection = "conveyorDirection";

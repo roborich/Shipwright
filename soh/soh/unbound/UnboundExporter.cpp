@@ -313,6 +313,24 @@ std::vector<uint8_t> BuildCollisionBin(const SOH::CollisionHeader& col) {
     return bin;
 }
 
+json SurfaceTypeJson(const SurfaceType& t) {
+    return { { K::kCamera, t.camera },
+             { K::kExit, t.exit },
+             { K::kFloorType, t.floorType },
+             { K::kWallFlags, t.wallFlags },
+             { K::kWallType, t.wallType },
+             { K::kFloorProperty, t.floorProperty },
+             { K::kIsSoft, t.isSoft },
+             { K::kIsHorseBlocked, t.isHorseBlocked },
+             { K::kMaterial, t.material },
+             { K::kFloorEffect, t.floorEffect },
+             { K::kLightSetting, t.lightSetting },
+             { K::kEcho, t.echo },
+             { K::kCanHookshot, t.canHookshot },
+             { K::kConveyorSpeed, t.conveyorSpeed },
+             { K::kConveyorDirection, t.conveyorDirection },
+             { K::kIsWallDamage, t.isWallDamage } };
+}
 json BuildCollisionJson(const SOH::CollisionHeader& col, const std::string& binPath) {
     const auto& d = col.collisionHeaderData;
     json doc;
@@ -322,7 +340,7 @@ json BuildCollisionJson(const SOH::CollisionHeader& col, const std::string& binP
 
     json surfaces = json::object();
     for (size_t i = 0; i < col.surfaceTypes.size(); i++) {
-        surfaces[Key(i)] = { { K::kData0, col.surfaceTypes[i].data[0] }, { K::kData1, col.surfaceTypes[i].data[1] } };
+        surfaces[Key(i)] = SurfaceTypeJson(col.surfaceTypes[i]);
     }
     doc[K::kSurfaceTypes] = surfaces;
 
@@ -353,8 +371,10 @@ json BuildCollisionJson(const SOH::CollisionHeader& col, const std::string& binP
                           { K::kZMin, Num(w.zMin) },
                           { K::kXLength, Num(w.xLength) },
                           { K::kZLength, Num(w.zLength) },
-                          { K::kProperties, w.properties },
-                          { K::kRoom, w.room } };
+                          { K::kCamera, w.camera },
+                          { K::kLightSetting, w.lightSetting },
+                          { K::kRoom, w.room },
+                          { K::kFlag19, w.flag19 } };
     }
     doc[K::kWaterBoxes] = water;
     return doc;
@@ -500,10 +520,137 @@ json LightJson(const SOH::LightInfo& l) {
     return j;
 }
 
+// Positional list (scene-format.md §2): "0", "1", ... in engine order.
+template <typename T, typename F> json PositionalList(const std::vector<T>& items, F toJson) {
+    json list = json::object();
+    for (size_t i = 0; i < items.size(); i++) {
+        list[Key(i)] = toJson(items[i]);
+    }
+    return list;
+}
+
+template <typename T> const T& As(const std::shared_ptr<SOH::ISceneCommand>& cmd) {
+    return *static_cast<const T*>(cmd.get());
+}
+
+// One emitter per scene command (the loader's builders in UnboundSceneFactory.cpp are their inverse).
+json SpawnsJson(const SOH::SetStartPositionList& c) {
+    return PositionalList(c.startPositions, [](const auto& a) { return ActorJson(a); });
+}
+
+json ActorsJson(const SOH::SetActorList& c) {
+    return PositionalList(c.actorList, [](const auto& a) { return ActorJson(a); });
+}
+
+json WindJson(const SOH::SetWindSettings& c) {
+    return { { K::kWest, c.settings.windWest },
+             { K::kVertical, c.settings.windVertical },
+             { K::kSouth, c.settings.windSouth },
+             { K::kSpeed, c.settings.windSpeed } };
+}
+
+json EntrancesJson(const SOH::SetEntranceList& c) {
+    return PositionalList(c.entrances, [](const auto& e) {
+        return json{ { K::kSpawn, e.spawn }, { K::kRoom, e.room } };
+    });
+}
+
+json SpecialObjectsJson(const SOH::SetSpecialObjects& c) {
+    return { { K::kElfMessage, c.specialObjects.elfMessage }, { K::kGlobalObject, c.specialObjects.globalObject } };
+}
+
+json BehaviorJson(const SOH::SetRoomBehavior& c) {
+    return { { K::kGameplayFlags, c.roomBehavior.gameplayFlags },
+             { K::kGameplayFlags2, c.roomBehavior.gameplayFlags2 } };
+}
+
+json ObjectsJson(const SOH::SetObjectList& c) {
+    return PositionalList(c.objects, [](const auto& id) { return json(id); });
+}
+
+json LightsJson(const SOH::SetLightList& c) {
+    return PositionalList(c.lightList, [](const auto& l) { return LightJson(l); });
+}
+
+json PathsJson(ExportContext& ctx, const SOH::SetPathways& c, const std::string& sceneDir) {
+    json files = json::array();
+    for (const auto& f : c.pathFileNames) {
+        std::string out = ConvertPaths(ctx, f, sceneDir);
+        if (!out.empty()) {
+            files.push_back(out);
+        }
+    }
+    return files;
+}
+
+json TransitionActorsJson(const SOH::SetTransitionActorList& c) {
+    return PositionalList(c.transitionActorList, [](const auto& t) {
+        json front = { { K::kRoom, t.sides[0].room }, { K::kEffects, t.sides[0].effects } };
+        json back = { { K::kRoom, t.sides[1].room }, { K::kEffects, t.sides[1].effects } };
+        return json{ { K::kId, t.id },         { K::kPos, Vec(t.pos) }, { K::kRotY, t.rotY },
+                     { K::kParams, t.params }, { K::kFront, front },    { K::kBack, back } };
+    });
+}
+
+// fogNear is the vanilla packed word: blend rate in the high bits, near distance in the low ten.
+json LightingJson(const SOH::SetLightingSettings& c) {
+    return PositionalList(c.settings, [](const auto& s) {
+        return json{ { K::kAmbient, Rgb(s.ambientColor) },
+                     { K::kLight1Dir, Rgb(s.light1Dir) },
+                     { K::kLight1Color, Rgb(s.light1Color) },
+                     { K::kLight2Dir, Rgb(s.light2Dir) },
+                     { K::kLight2Color, Rgb(s.light2Color) },
+                     { K::kFogColor, Rgb(s.fogColor) },
+                     { K::kFogNear, s.fogNear & 0x3FF },
+                     { K::kFogBlendRate, ((u16)s.fogNear >> 10) & 0x3F },
+                     { K::kFogFar, s.fogFar } };
+    });
+}
+
+json TimeJson(const SOH::SetTimeSettings& c) {
+    return { { K::kHour, c.settings.hour },
+             { K::kMinute, c.settings.minute },
+             { K::kIncrement, c.settings.timeIncrement } };
+}
+
+json SkyboxJson(const SOH::SetSkyboxSettings& c) {
+    return { { K::kId, c.settings.skyboxId },
+             { K::kWeather, c.settings.weather },
+             { K::kIndoors, c.settings.indoors },
+             { K::kUnk, c.settings.unk } };
+}
+
+json SkyboxModifierJson(const SOH::SetSkyboxModifier& c) {
+    return { { K::kSkyboxDisabled, c.modifier.skyboxDisabled }, { K::kSunMoonDisabled, c.modifier.sunMoonDisabled } };
+}
+
+json ExitsJson(const SOH::SetExitList& c) {
+    return PositionalList(c.exits, [](const auto& e) { return json(e); });
+}
+
+json SoundJson(const SOH::SetSoundSettings& c) {
+    return { { K::kSeq, c.settings.seqId },
+             { K::kNatureAmbience, c.settings.natureAmbienceId },
+             { K::kReverb, c.settings.reverb } };
+}
+
+json CameraSettingsJson(const SOH::SetCameraSettings& c) {
+    return { { K::kCameraMovement, c.settings.cameraMovement }, { K::kWorldMapArea, c.settings.worldMapArea } };
+}
+
+// Alternate headers become sibling setups; their header resources are consumed, not copied.
+std::vector<std::shared_ptr<SOH::Scene>> AlternateHeaders(ExportContext& ctx, const SOH::SetAlternateHeaders& c) {
+    for (const auto& name : c.headerFileNames) {
+        ctx.consumed.insert(name);
+    }
+    return c.headers;
+}
+
 // Fills `setup` from one header's commands. Cross-setup references (rooms, collision) go to `refs`;
 // alternate headers are returned for the caller to recurse.
 std::vector<std::shared_ptr<SOH::Scene>> BuildSetup(ExportContext& ctx, json& setup, SOH::Scene& scene,
                                                     const std::string& sceneDir, SceneRefs& refs) {
+    using SOH::SceneCommandID;
     std::vector<std::shared_ptr<SOH::Scene>> alternates;
 
     for (auto& cmd : scene.commands) {
@@ -511,188 +658,75 @@ std::vector<std::shared_ptr<SOH::Scene>> BuildSetup(ExportContext& ctx, json& se
             continue;
         }
         switch (cmd->cmdId) {
-            case SOH::SceneCommandID::SetStartPositionList: {
-                auto* c = (SOH::SetStartPositionList*)cmd.get();
-                json list = json::object();
-                for (size_t i = 0; i < c->startPositions.size(); i++) {
-                    list[Key(i)] = ActorJson(c->startPositions[i]);
-                }
-                setup[K::kSpawns] = list;
+            case SceneCommandID::SetStartPositionList:
+                setup[K::kSpawns] = SpawnsJson(As<SOH::SetStartPositionList>(cmd));
                 break;
-            }
-            case SOH::SceneCommandID::SetActorList: {
-                auto* c = (SOH::SetActorList*)cmd.get();
-                json list = json::object();
-                for (size_t i = 0; i < c->actorList.size(); i++) {
-                    list[Key(i)] = ActorJson(c->actorList[i]);
-                }
-                setup[K::kActors] = list;
+            case SceneCommandID::SetActorList:
+                setup[K::kActors] = ActorsJson(As<SOH::SetActorList>(cmd));
                 break;
-            }
-            case SOH::SceneCommandID::SetCollisionHeader: {
-                auto* c = (SOH::SetCollisionHeader*)cmd.get();
-                refs.collisionPath = c->fileName;
+            case SceneCommandID::SetCollisionHeader:
+                refs.collisionPath = As<SOH::SetCollisionHeader>(cmd).fileName;
                 break;
-            }
-            case SOH::SceneCommandID::SetRoomList: {
-                auto* c = (SOH::SetRoomList*)cmd.get();
-                refs.roomFiles = c->fileNames;
+            case SceneCommandID::SetRoomList:
+                refs.roomFiles = As<SOH::SetRoomList>(cmd).fileNames;
                 break;
-            }
-            case SOH::SceneCommandID::SetWind: {
-                auto* c = (SOH::SetWindSettings*)cmd.get();
-                setup[K::kWind] = { { K::kWest, c->settings.windWest },
-                                    { K::kVertical, c->settings.windVertical },
-                                    { K::kSouth, c->settings.windSouth },
-                                    { K::kSpeed, c->settings.windSpeed } };
+            case SceneCommandID::SetWind:
+                setup[K::kWind] = WindJson(As<SOH::SetWindSettings>(cmd));
                 break;
-            }
-            case SOH::SceneCommandID::SetEntranceList: {
-                auto* c = (SOH::SetEntranceList*)cmd.get();
-                json list = json::object();
-                for (size_t i = 0; i < c->entrances.size(); i++) {
-                    list[Key(i)] = { { K::kSpawn, c->entrances[i].spawn }, { K::kRoom, c->entrances[i].room } };
-                }
-                setup[K::kEntrances] = list;
+            case SceneCommandID::SetEntranceList:
+                setup[K::kEntrances] = EntrancesJson(As<SOH::SetEntranceList>(cmd));
                 break;
-            }
-            case SOH::SceneCommandID::SetSpecialObjects: {
-                auto* c = (SOH::SetSpecialObjects*)cmd.get();
-                setup[K::kSpecialObjects] = { { K::kElfMessage, c->specialObjects.elfMessage },
-                                              { K::kGlobalObject, c->specialObjects.globalObject } };
+            case SceneCommandID::SetSpecialObjects:
+                setup[K::kSpecialObjects] = SpecialObjectsJson(As<SOH::SetSpecialObjects>(cmd));
                 break;
-            }
-            case SOH::SceneCommandID::SetRoomBehavior: {
-                auto* c = (SOH::SetRoomBehavior*)cmd.get();
-                setup[K::kBehavior] = { { K::kGameplayFlags, c->roomBehavior.gameplayFlags },
-                                        { K::kGameplayFlags2, c->roomBehavior.gameplayFlags2 } };
+            case SceneCommandID::SetRoomBehavior:
+                setup[K::kBehavior] = BehaviorJson(As<SOH::SetRoomBehavior>(cmd));
                 break;
-            }
-            case SOH::SceneCommandID::SetMesh: {
-                setup[K::kMesh] = MeshJson(*(SOH::SetMesh*)cmd.get());
+            case SceneCommandID::SetMesh:
+                setup[K::kMesh] = MeshJson(As<SOH::SetMesh>(cmd));
                 break;
-            }
-            case SOH::SceneCommandID::SetObjectList: {
-                auto* c = (SOH::SetObjectList*)cmd.get();
-                json list = json::object();
-                for (size_t i = 0; i < c->objects.size(); i++) {
-                    list[Key(i)] = c->objects[i];
-                }
-                setup[K::kObjects] = list;
+            case SceneCommandID::SetObjectList:
+                setup[K::kObjects] = ObjectsJson(As<SOH::SetObjectList>(cmd));
                 break;
-            }
-            case SOH::SceneCommandID::SetLightList: {
-                auto* c = (SOH::SetLightList*)cmd.get();
-                json list = json::object();
-                for (size_t i = 0; i < c->lightList.size(); i++) {
-                    list[Key(i)] = LightJson(c->lightList[i]);
-                }
-                setup[K::kLights] = list;
+            case SceneCommandID::SetLightList:
+                setup[K::kLights] = LightsJson(As<SOH::SetLightList>(cmd));
                 break;
-            }
-            case SOH::SceneCommandID::SetPathways: {
-                auto* c = (SOH::SetPathways*)cmd.get();
-                json files = json::array();
-                for (const auto& f : c->pathFileNames) {
-                    std::string out = ConvertPaths(ctx, f, sceneDir);
-                    if (!out.empty()) {
-                        files.push_back(out);
-                    }
-                }
-                setup[K::kPaths] = files;
+            case SceneCommandID::SetPathways:
+                setup[K::kPaths] = PathsJson(ctx, As<SOH::SetPathways>(cmd), sceneDir);
                 break;
-            }
-            case SOH::SceneCommandID::SetTransitionActorList: {
-                auto* c = (SOH::SetTransitionActorList*)cmd.get();
-                json list = json::object();
-                for (size_t i = 0; i < c->transitionActorList.size(); i++) {
-                    const auto& t = c->transitionActorList[i];
-                    json front = { { K::kRoom, t.sides[0].room }, { K::kEffects, t.sides[0].effects } };
-                    json back = { { K::kRoom, t.sides[1].room }, { K::kEffects, t.sides[1].effects } };
-                    list[Key(i)] = { { K::kId, t.id },         { K::kPos, Vec(t.pos) }, { K::kRotY, t.rotY },
-                                     { K::kParams, t.params }, { K::kFront, front },    { K::kBack, back } };
-                }
-                setup[K::kTransitionActors] = list;
+            case SceneCommandID::SetTransitionActorList:
+                setup[K::kTransitionActors] = TransitionActorsJson(As<SOH::SetTransitionActorList>(cmd));
                 break;
-            }
-            case SOH::SceneCommandID::SetLightingSettings: {
-                auto* c = (SOH::SetLightingSettings*)cmd.get();
-                json list = json::object();
-                for (size_t i = 0; i < c->settings.size(); i++) {
-                    const auto& s = c->settings[i];
-                    list[Key(i)] = { { K::kAmbient, Rgb(s.ambientColor) },
-                                     { K::kLight1Dir, Rgb(s.light1Dir) },
-                                     { K::kLight1Color, Rgb(s.light1Color) },
-                                     { K::kLight2Dir, Rgb(s.light2Dir) },
-                                     { K::kLight2Color, Rgb(s.light2Color) },
-                                     { K::kFogColor, Rgb(s.fogColor) },
-                                     { K::kFogNear, s.fogNear },
-                                     { K::kFogFar, s.fogFar } };
-                }
-                setup[K::kLighting] = list;
+            case SceneCommandID::SetLightingSettings:
+                setup[K::kLighting] = LightingJson(As<SOH::SetLightingSettings>(cmd));
                 break;
-            }
-            case SOH::SceneCommandID::SetTimeSettings: {
-                auto* c = (SOH::SetTimeSettings*)cmd.get();
-                setup[K::kTime] = { { K::kHour, c->settings.hour },
-                                    { K::kMinute, c->settings.minute },
-                                    { K::kIncrement, c->settings.timeIncrement } };
+            case SceneCommandID::SetTimeSettings:
+                setup[K::kTime] = TimeJson(As<SOH::SetTimeSettings>(cmd));
                 break;
-            }
-            case SOH::SceneCommandID::SetSkyboxSettings: {
-                auto* c = (SOH::SetSkyboxSettings*)cmd.get();
-                setup[K::kSkybox] = { { K::kId, c->settings.skyboxId },
-                                      { K::kWeather, c->settings.weather },
-                                      { K::kIndoors, c->settings.indoors },
-                                      { K::kUnk, c->settings.unk } };
+            case SceneCommandID::SetSkyboxSettings:
+                setup[K::kSkybox] = SkyboxJson(As<SOH::SetSkyboxSettings>(cmd));
                 break;
-            }
-            case SOH::SceneCommandID::SetSkyboxModifier: {
-                auto* c = (SOH::SetSkyboxModifier*)cmd.get();
-                setup[K::kSkyboxModifier] = { { K::kSkyboxDisabled, c->modifier.skyboxDisabled },
-                                              { K::kSunMoonDisabled, c->modifier.sunMoonDisabled } };
+            case SceneCommandID::SetSkyboxModifier:
+                setup[K::kSkyboxModifier] = SkyboxModifierJson(As<SOH::SetSkyboxModifier>(cmd));
                 break;
-            }
-            case SOH::SceneCommandID::SetExitList: {
-                auto* c = (SOH::SetExitList*)cmd.get();
-                json list = json::object();
-                for (size_t i = 0; i < c->exits.size(); i++) {
-                    list[Key(i)] = c->exits[i];
-                }
-                setup[K::kExits] = list;
+            case SceneCommandID::SetExitList:
+                setup[K::kExits] = ExitsJson(As<SOH::SetExitList>(cmd));
                 break;
-            }
-            case SOH::SceneCommandID::SetSoundSettings: {
-                auto* c = (SOH::SetSoundSettings*)cmd.get();
-                setup[K::kSound] = { { K::kSeq, c->settings.seqId },
-                                     { K::kNatureAmbience, c->settings.natureAmbienceId },
-                                     { K::kReverb, c->settings.reverb } };
+            case SceneCommandID::SetSoundSettings:
+                setup[K::kSound] = SoundJson(As<SOH::SetSoundSettings>(cmd));
                 break;
-            }
-            case SOH::SceneCommandID::SetEchoSettings: {
-                auto* c = (SOH::SetEchoSettings*)cmd.get();
-                setup[K::kEcho] = c->settings.echo;
+            case SceneCommandID::SetEchoSettings:
+                setup[K::kEcho] = As<SOH::SetEchoSettings>(cmd).settings.echo;
                 break;
-            }
-            case SOH::SceneCommandID::SetCutscenes: {
-                auto* c = (SOH::SetCutscenes*)cmd.get();
-                setup[K::kCutscene] = c->fileName; // copied verbatim under its original path
+            case SceneCommandID::SetCutscenes:
+                setup[K::kCutscene] = As<SOH::SetCutscenes>(cmd).fileName; // copied verbatim under its path
                 break;
-            }
-            case SOH::SceneCommandID::SetAlternateHeaders: {
-                auto* c = (SOH::SetAlternateHeaders*)cmd.get();
-                alternates = c->headers;
-                for (const auto& name : c->headerFileNames) {
-                    ctx.consumed.insert(name);
-                }
+            case SceneCommandID::SetAlternateHeaders:
+                alternates = AlternateHeaders(ctx, As<SOH::SetAlternateHeaders>(cmd));
                 break;
-            }
-            case SOH::SceneCommandID::SetCameraSettings: {
-                auto* c = (SOH::SetCameraSettings*)cmd.get();
-                setup[K::kCameraSettings] = { { K::kCameraMovement, c->settings.cameraMovement },
-                                              { K::kWorldMapArea, c->settings.worldMapArea } };
+            case SceneCommandID::SetCameraSettings:
+                setup[K::kCameraSettings] = CameraSettingsJson(As<SOH::SetCameraSettings>(cmd));
                 break;
-            }
             default:
                 break; // CsCamera, EndMarker, Unused: nothing to carry
         }
@@ -843,7 +877,6 @@ void ConvertMessages(ExportContext& ctx) {
             }
             json doc;
             doc[K::kSchema] = K::kTextV1;
-            doc[K::kLanguage] = lang.name;
             json messages = json::object();
             for (const auto& m : text->messages) {
                 if (m.id == 0xFFFF) {
@@ -855,7 +888,7 @@ void ConvertMessages(ExportContext& ctx) {
                 ctx.report.messages++;
             }
             doc[K::kMessages] = messages;
-            ctx.zip.Add(std::string("text/") + lang.name + "/messages.json", doc.dump(2));
+            ctx.zip.Add(std::string(K::kMessagesPathPrefix) + lang.name + K::kMessagesPathSuffix, doc.dump(2));
             ctx.consumed.insert(base);
             break; // first available base wins for this language
         }

@@ -8,6 +8,7 @@
 #include "UnboundFactories.h"
 #include "UnboundJson.h"
 #include "UnboundSchema.h"
+#include "soh/unbound/SceneDB.h"
 
 #include <libultraship/libultraship.h>
 #include <spdlog/spdlog.h>
@@ -42,17 +43,17 @@
 #include "soh/resource/type/scenecommand/SetTransitionActorList.h"
 #include "soh/resource/type/scenecommand/SetWindSettings.h"
 
-using Unbound::Field;
-using Unbound::Json;
-using Unbound::ListKeys;
-using Unbound::NumberField;
-using Unbound::PathField;
-using Unbound::PositionalKeys;
-using Unbound::ReadRgb;
-using Unbound::ReadVec3f;
-using Unbound::ReadVec3s;
-using Unbound::ToInt;
-namespace K = Unbound::Schema;
+using SOH::Unbound::Field;
+using SOH::Unbound::Json;
+using SOH::Unbound::ListKeys;
+using SOH::Unbound::NumberField;
+using SOH::Unbound::PathField;
+using SOH::Unbound::PositionalKeys;
+using SOH::Unbound::ReadRgb;
+using SOH::Unbound::ReadVec3f;
+using SOH::Unbound::ReadVec3s;
+using SOH::Unbound::ToInt;
+namespace K = SOH::Unbound::Schema;
 
 namespace SOH {
 namespace {
@@ -253,10 +254,27 @@ Command BuildStartPositions(CommandBuilder& b, const Json& list) {
     return cmd;
 }
 
+// An exit is an entrance table index, or the name of a vanilla (ENTR_*) or registered custom entrance.
+uint16_t ResolveExit(CommandBuilder& b, const std::string& key, const Json& value) {
+    if (!value.is_string()) {
+        return (uint16_t)ToInt(value);
+    }
+    std::string name = value.get<std::string>();
+    int32_t index = EntranceDB_RetrieveIndex(name.c_str());
+    if (index >= 0) {
+        return (uint16_t)index;
+    }
+    try {
+        return (uint16_t)std::stoi(name, nullptr, 0); // "0x0211" is still an index, not a name
+    } catch (...) {
+        throw Unbound::DocumentError(b.docPath + " " + K::kExits + "/" + key + ": unknown entrance '" + name + "'");
+    }
+}
+
 Command BuildExitList(CommandBuilder& b, const Json& list) {
     auto cmd = b.Make<SetExitList>(SceneCommandID::SetExitList);
     for (const auto& k : b.Positional(list, K::kExits)) {
-        cmd->exits.push_back((uint16_t)ToInt(list[k]));
+        cmd->exits.push_back(ResolveExit(b, k, list[k]));
     }
     cmd->numExits = (uint32_t)cmd->exits.size();
     return cmd;
@@ -333,6 +351,12 @@ void ReadWorldFog(const Json& s, EnvLightSettings& e) {
     e.nearPlane = (f32)NumberField(s, K::kNearPlane, 0);
 }
 
+// The vanilla fogNear word: low 10 bits fog near (0-1000), high 6 bits blend rate (z_kankyo.c reads
+// `fogNear & 0x3FF` and `fogNear >> 0xA`). The document stores the two halves separately.
+s16 PackFogNear(int64_t fogNear, int64_t blendRate) {
+    return (s16)(((blendRate & 0x3F) << 10) | (fogNear & 0x3FF));
+}
+
 EnvLightSettings ReadLighting(const Json& s) {
     EnvLightSettings e{};
     ReadRgb(Sub(s, K::kAmbient), e.ambientColor);
@@ -341,7 +365,7 @@ EnvLightSettings ReadLighting(const Json& s) {
     ReadRgb(Sub(s, K::kLight2Dir), e.light2Dir);
     ReadRgb(Sub(s, K::kLight2Color), e.light2Color);
     ReadRgb(Sub(s, K::kFogColor), e.fogColor);
-    e.fogNear = (s16)Field(s, K::kFogNear);
+    e.fogNear = PackFogNear(Field(s, K::kFogNear), Field(s, K::kFogBlendRate));
     e.fogFar = (s16)Field(s, K::kFogFar);
     ReadWorldFog(s, e);
     return e;
@@ -568,7 +592,13 @@ ResourceFactoryJsonSceneV1::ReadResource(std::shared_ptr<Ship::File> file,
         SPDLOG_ERROR("[Unbound] {}: no usable document", initData->Path);
         return nullptr;
     }
-    auto scene = BuildScene(initData, doc);
+    std::shared_ptr<Scene> scene;
+    try {
+        scene = BuildScene(initData, doc);
+    } catch (const Unbound::DocumentError& e) {
+        SPDLOG_ERROR("[Unbound] {}", e.what());
+        return nullptr;
+    }
     if (scene != nullptr) {
         SPDLOG_DEBUG("[Unbound] {}: built from JSON ({} setups, {} commands in setup 0)", initData->Path,
                      Sub(doc, K::kSetups).size(), scene->commands.size());

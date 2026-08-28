@@ -2,6 +2,25 @@
 #include "soh/resource/type/CollisionHeader.h"
 #include "spdlog/spdlog.h"
 #include <tinyxml2.h>
+#include <cstring>
+#include "z64bgcheck.h"
+
+namespace SOH {
+// SOH [Unbound] The mirrors are cast to the game structs by z_scene_otr.cpp; the game helpers own the bit layout.
+static_assert(sizeof(SurfaceType) == sizeof(::SurfaceType), "SOH::SurfaceType must mirror ::SurfaceType");
+static_assert(sizeof(WaterBox) == sizeof(::WaterBox), "SOH::WaterBox must mirror ::WaterBox");
+
+SurfaceType UnpackSurfaceType(uint32_t data0, uint32_t data1) {
+    ::SurfaceType game = SurfaceType_Unpack(data0, data1);
+    SurfaceType out;
+    std::memcpy(&out, &game, sizeof(out));
+    return out;
+}
+
+void UnpackWaterBoxProperties(WaterBox& waterBox, uint32_t properties) {
+    WaterBox_UnpackProperties(reinterpret_cast<::WaterBox*>(&waterBox), properties);
+}
+} // namespace SOH
 
 namespace SOH {
 
@@ -69,12 +88,10 @@ ResourceFactoryBinaryCollisionHeaderV0::ReadResource(std::shared_ptr<Ship::File>
     collisionHeader->surfaceTypesCount = reader->ReadUInt32();
     collisionHeader->surfaceTypes.reserve(collisionHeader->surfaceTypesCount);
     for (uint32_t i = 0; i < collisionHeader->surfaceTypesCount; i++) {
-        SurfaceType surfaceType;
+        uint32_t data1 = reader->ReadUInt32();
+        uint32_t data0 = reader->ReadUInt32();
 
-        surfaceType.data[1] = reader->ReadUInt32();
-        surfaceType.data[0] = reader->ReadUInt32();
-
-        collisionHeader->surfaceTypes.push_back(surfaceType);
+        collisionHeader->surfaceTypes.push_back(UnpackSurfaceType(data0, data1)); // SOH [Unbound]
     }
     collisionHeader->collisionHeaderData.surfaceTypeList = collisionHeader->surfaceTypes.data();
 
@@ -128,8 +145,7 @@ ResourceFactoryBinaryCollisionHeaderV0::ReadResource(std::shared_ptr<Ship::File>
         waterBox.zMin = reader->ReadInt16();
         waterBox.xLength = reader->ReadInt16();
         waterBox.zLength = reader->ReadInt16();
-        waterBox.properties = reader->ReadInt32();
-        waterBox.room = WATERBOX_UNPACK_ROOM(waterBox.properties); // SOH [Unbound]
+        UnpackWaterBoxProperties(waterBox, reader->ReadUInt32()); // SOH [Unbound]
 
         collisionHeader->waterBoxes.push_back(waterBox);
     }
@@ -198,12 +214,9 @@ ResourceFactoryXMLCollisionHeaderV0::ReadResource(std::shared_ptr<Ship::File> fi
 
             collisionHeader->polygons.push_back(polygon);
         } else if (childName == "PolygonType") {
-            SurfaceType surfaceType;
-
-            surfaceType.data[0] = child->UnsignedAttribute("Data1");
-            surfaceType.data[1] = child->UnsignedAttribute("Data2");
-
-            collisionHeader->surfaceTypes.push_back(surfaceType);
+            // SOH [Unbound]
+            collisionHeader->surfaceTypes.push_back(
+                UnpackSurfaceType(child->UnsignedAttribute("Data1"), child->UnsignedAttribute("Data2")));
         } else if (childName == "CameraData") {
             CamData camDataEntry;
             camDataEntry.cameraSType = child->UnsignedAttribute("SType");
@@ -236,8 +249,7 @@ ResourceFactoryXMLCollisionHeaderV0::ReadResource(std::shared_ptr<Ship::File> fi
             waterBox.zMin = child->IntAttribute("ZMin");
             waterBox.xLength = child->IntAttribute("XLength");
             waterBox.zLength = child->IntAttribute("ZLength");
-            waterBox.properties = child->IntAttribute("Properties");
-            waterBox.room = WATERBOX_UNPACK_ROOM(waterBox.properties); // SOH [Unbound]
+            UnpackWaterBoxProperties(waterBox, child->UnsignedAttribute("Properties")); // SOH [Unbound]
 
             collisionHeader->waterBoxes.push_back(waterBox);
         }

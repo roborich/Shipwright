@@ -11,6 +11,7 @@
 #include "soh/ResourceManagerHelpers.h"
 #include "soh/SaveManager.h"
 #include "soh/unbound/UnboundJson.h"
+#include "soh/unbound/UnboundSchema.h"
 #include "soh/util.h"
 
 extern "C" {
@@ -61,7 +62,6 @@ uint16_t PackEntranceField(bool continueBgm, bool displayTitleCard, uint8_t endT
            ((startTransType << ENTRANCE_INFO_START_TRANS_TYPE_SHIFT) & ENTRANCE_INFO_START_TRANS_TYPE_MASK);
 }
 
-constexpr const char* kCustomSceneGlob = "unbound/scenes/*";
 constexpr int32_t kEntranceLayerCount = 4; // child day/night, adult day/night
 
 // Saved flags for custom scenes; vanilla ids live in gSaveContext.sceneFlags.
@@ -315,80 +315,104 @@ bool SceneDB::HasUnboundBase() const {
     return unboundBase;
 }
 
+namespace {
+
+namespace K = SOH::Unbound::Schema;
+using SOH::Unbound::Json;
+
+// unbound.json (scene-format.md §1): every mounted layer's manifest must be a version this build reads.
+// Returns true when at least one mountable Unbound manifest is present.
+bool DetectUnboundBase() {
+    auto archiveManager = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager();
+    bool mountable = false;
+    for (const auto& file : archiveManager->LoadFileFromAllLayers(K::kManifestPath)) {
+        Json doc;
+        try {
+            doc = Json::parse(file->Buffer->begin(), file->Buffer->end(), nullptr, true, true);
+        } catch (const std::exception& e) {
+            SPDLOG_ERROR("[Unbound] {}: invalid JSON: {}", K::kManifestPath, e.what());
+            continue;
+        }
+        int64_t version = SOH::Unbound::Field(doc, K::kFormatVersion, K::kCurrentFormatVersion);
+        int64_t required = SOH::Unbound::Field(doc.value(K::kRequires, Json::object()), K::kFormatVersion, version);
+        if (version > K::kCurrentFormatVersion || required > K::kCurrentFormatVersion) {
+            SPDLOG_ERROR("[Unbound] {}: format version {} is newer than this build ({}); layer ignored",
+                         K::kManifestPath, std::max(version, required), K::kCurrentFormatVersion);
+            continue;
+        }
+        mountable = true;
+    }
+    return mountable;
+}
+
+} // namespace
+
 void SceneDB::LoadCustomScenes() {
     SeedVanillaDisplayNames();
-    auto archiveManager = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager();
-    unboundBase = archiveManager->HasFile("unbound.json");
+    unboundBase = DetectUnboundBase();
     if (unboundBase) {
         SPDLOG_INFO("[Unbound] Unbound-format archive mounted; vanilla scenes load from scene.json");
     }
-    auto files = archiveManager->ListFiles(kCustomSceneGlob);
-    if (files == nullptr) {
+
+    Json registry = SOH::Unbound::LoadMergedJson(K::kRegistryPath);
+    if (!registry.is_object()) {
         return;
     }
-
     size_t loaded = 0;
-    for (const auto& path : *files) {
-        if (!path.ends_with(".json")) {
-            continue;
-        }
-        if (LoadCustomSceneFile(path)) {
+    for (const auto& id : SOH::Unbound::ListKeys(registry)) {
+        if (registry[id].is_object() && RegisterScene(id, registry[id])) {
             loaded++;
         }
     }
-    if (loaded > 0) {
-        SPDLOG_INFO("[Unbound] registered {} custom scene(s), {} custom entrance(s)", loaded, customEntrances.size());
-    }
+    SPDLOG_INFO("[Unbound] {}: registered {} custom scene(s), {} custom entrance(s)", K::kRegistryPath, loaded,
+                customEntrances.size());
 }
 
-bool SceneDB::LoadCustomSceneFile(const std::string& path) {
-    auto archiveManager = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager();
-    auto file = archiveManager->LoadFile(path);
-    if (file == nullptr || file->Buffer == nullptr) {
-        SPDLOG_ERROR("[Unbound] could not read {}", path);
+// One entry of unbound/scenes.json (registries.md), keyed by the scene id.
+bool SceneDB::RegisterScene(const std::string& id, const nlohmann::json& def) {
+    using SOH::Unbound::Field;
+    CustomSceneInit scene;
+    scene.name = id;
+    scene.displayName = def.value(K::kName, id);
+    scene.scenePath = SOH::Unbound::PathField(def, K::kScene);
+    scene.titleCardTexture = SOH::Unbound::PathField(def, K::kTitleCardTexture);
+    scene.sceneId = (int32_t)Field(def, K::kSceneId, -1);
+    scene.drawConfig = (uint8_t)Field(def, K::kDrawConfig);
+    if (scene.scenePath.empty()) {
+        SPDLOG_ERROR("[Unbound] {}: scene '{}' has no \"{}\" path", K::kRegistryPath, id, K::kScene);
         return false;
     }
 
-    nlohmann::json doc;
-    try {
-        doc = nlohmann::json::parse(file->Buffer->begin(), file->Buffer->end(), nullptr, true, true);
-    } catch (const std::exception& e) {
-        SPDLOG_ERROR("[Unbound] {}: invalid JSON: {}", path, e.what());
+    Entry& entry = AddCustomScene(scene);
+    if (!entry.valid) {
         return false;
     }
-
-    try {
-        CustomSceneInit scene;
-        scene.name = doc.at("id").get<std::string>();
-        scene.displayName = doc.value("name", scene.name);
-        scene.scenePath = doc.at("scene").get<std::string>();
-        scene.titleCardTexture = doc.value("titleCard", "");
-        scene.sceneId = (int32_t)SOH::Unbound::ToInt(doc.value("sceneId", nlohmann::json(-1)), -1);
-        scene.drawConfig = (uint8_t)SOH::Unbound::ToInt(doc.value("drawConfig", nlohmann::json(0)));
-
-        Entry& entry = AddCustomScene(scene);
-        if (!entry.valid) {
-            return false;
+    const Json& entrances = def.value(K::kEntrances, Json::object());
+    for (const auto& key : SOH::Unbound::ListKeys(entrances)) {
+        if (entrances[key].is_object()) {
+            RegisterEntrance(entry, key, entrances[key]);
         }
-
-        for (const auto& e : doc.value("entrances", nlohmann::json::array())) {
-            CustomEntranceInit entrance;
-            entrance.name = scene.name + "/" + e.at("id").get<std::string>();
-            entrance.index = (int32_t)SOH::Unbound::ToInt(e.value("index", nlohmann::json(-1)), -1);
-            entrance.sceneId = entry.id;
-            entrance.spawn = (int8_t)e.value("spawn", 0);
-            entrance.continueBgm = e.value("continueBgm", false);
-            entrance.displayTitleCard = e.value("titleCard", false);
-            entrance.endTransType = (uint8_t)e.value("endTransition", 2);
-            entrance.startTransType = (uint8_t)e.value("startTransition", 2);
-            AddCustomEntrance(entrance);
-        }
-        SPDLOG_INFO("[Unbound] {}: scene '{}' -> id {:#x}", path, entry.name, entry.id);
-        return true;
-    } catch (const std::exception& e) {
-        SPDLOG_ERROR("[Unbound] {}: {}", path, e.what());
-        return false;
     }
+    SPDLOG_INFO("[Unbound] scene '{}' -> id {:#x}", entry.name, entry.id);
+    return true;
+}
+
+void SceneDB::RegisterEntrance(const Entry& scene, const std::string& key, const nlohmann::json& def) {
+    using SOH::Unbound::Field;
+    if (def.contains(K::kLayers)) {
+        SPDLOG_WARN("[Unbound] {}/{}: \"{}\" is reserved and not read yet; all four layers are identical", scene.name,
+                    key, K::kLayers);
+    }
+    CustomEntranceInit entrance;
+    entrance.name = scene.name + "/" + key;
+    entrance.index = (int32_t)Field(def, K::kIndex, -1);
+    entrance.sceneId = scene.id;
+    entrance.spawn = (int8_t)Field(def, K::kSpawn);
+    entrance.continueBgm = Field(def, K::kContinueBgm) != 0;
+    entrance.displayTitleCard = Field(def, K::kShowTitleCard) != 0;
+    entrance.endTransType = (uint8_t)Field(def, K::kEndTransition, 2);
+    entrance.startTransType = (uint8_t)Field(def, K::kStartTransition, 2);
+    AddCustomEntrance(entrance);
 }
 
 // ---- save integration -----------------------------------------------------------------------------
@@ -522,7 +546,7 @@ extern "C" int32_t EntranceDB_RetrieveIndex(const char* name) {
 }
 
 extern "C" SavedSceneFlags* SceneFlags_Get(int32_t sceneNum) {
-    if (sceneNum >= 0 && sceneNum < (int32_t)ARRAY_COUNT(gSaveContext.sceneFlags)) {
+    if (sceneNum >= 0 && sceneNum < SCENE_ID_MAX) {
         return &gSaveContext.sceneFlags[sceneNum];
     }
     if (SceneDB::Instance->RetrieveEntry(sceneNum).valid) {

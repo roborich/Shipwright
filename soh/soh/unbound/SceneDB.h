@@ -5,6 +5,7 @@
 
 #ifdef __cplusplus
 #include <cstdint>
+#include <nlohmann/json_fwd.hpp>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -75,8 +76,8 @@ class SceneDB {
     std::string GetScenePath(int32_t id) const;
     std::string GetScenePath(int32_t id, bool masterQuest) const;
 
-    // Scans every loaded archive for unbound/scenes/*.json and registers what it finds, and notes whether an
-    // Unbound-format base archive (unbound.json) is mounted so vanilla scenes resolve to scene.json.
+    // Registers every scene in the layer-merged unbound/scenes.json (registries.md), and notes whether an
+    // Unbound-format archive (unbound.json of a readable version) is mounted so vanilla scenes resolve to scene.json.
     void LoadCustomScenes();
     bool HasUnboundBase() const;
 
@@ -86,7 +87,8 @@ class SceneDB {
     void SeedVanillaEntrances();
     void RefreshEntranceTablePointer();
     void AddEntranceLayerGroup(int32_t index, const EntranceInfo& info);
-    bool LoadCustomSceneFile(const std::string& path);
+    bool RegisterScene(const std::string& id, const nlohmann::json& def);
+    void RegisterEntrance(const Entry& scene, const std::string& key, const nlohmann::json& def);
 
     std::vector<Entry> db;
     std::unordered_map<std::string, int32_t> nameTable;

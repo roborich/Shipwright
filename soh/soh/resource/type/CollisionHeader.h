@@ -5,7 +5,6 @@
 #include <ship/resource/Resource.h>
 #include <libultraship/libultra.h>
 #include "z64math.h"
-#include "z64bgcheck.h" // SOH [Unbound] WATERBOX_UNPACK_ROOM
 
 namespace SOH {
 
@@ -26,20 +25,17 @@ typedef struct {
     f32 dist; // Plane distance from origin along the normal. // SOH [Unbound] s16 -> f32 (world extent)
 } CollisionPoly;
 
-// SOH [Unbound] Must mirror WaterBox in soh/include/z64bgcheck.h (f32 extents, unpacked room)
+// SOH [Unbound] Must mirror WaterBox in soh/include/z64bgcheck.h (f32 extents, unpacked properties)
 typedef struct {
     f32 xMin;
     f32 ySurface;
     f32 zMin;
     f32 xLength;
     f32 zLength;
-    u32 properties;
-
-    // 0x0008_0000 = ?
-    // 0x0007_E000 = Room Index, 0x3F = all rooms
-    // 0x0000_1F00 = Lighting Settings Index
-    // 0x0000_00FF = CamData index
-    s32 room; // unpacked room index, -1 = all rooms
+    s32 camera;
+    s32 lightSetting;
+    s32 room;
+    u8 flag19;
 } WaterBox;
 
 typedef struct {
@@ -48,12 +44,30 @@ typedef struct {
     /* 0x04 */ Vec3s* camPosData;
 } CamData;
 
+// SOH [Unbound] Must mirror SurfaceType in soh/include/z64bgcheck.h (unpacked fields)
 typedef struct {
-    u32 data[2];
-
-    // Type 1
-    // 0x0800_0000 = wall damage
+    s32 camera;
+    s32 exit;
+    s32 lightSetting;
+    u8 floorType;
+    u8 wallFlags;
+    u8 wallType;
+    u8 floorProperty;
+    u8 isSoft;
+    u8 isHorseBlocked;
+    u8 material;
+    u8 floorEffect;
+    u8 echo;
+    u8 canHookshot;
+    u8 conveyorSpeed;
+    u8 conveyorDirection;
+    u8 isWallDamage;
 } SurfaceType;
+
+// SOH [Unbound] Legacy archives carry the packed vanilla words; defined in CollisionHeaderFactory.cpp, which
+// can see the game header (this mirror header deliberately does not include it).
+SurfaceType UnpackSurfaceType(uint32_t data0, uint32_t data1);
+void UnpackWaterBoxProperties(WaterBox& waterBox, uint32_t properties);
 
 // SOH [Unbound] Must mirror CollisionHeader in soh/include/z64bgcheck.h (f32 bounds/vertices, u32 counts)
 typedef struct {

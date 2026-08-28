@@ -118,10 +118,8 @@ std::vector<std::string> PositionalKeys(const Json& list, const std::string& wha
     std::vector<std::string> keys = ListKeys(list);
     for (size_t i = 0; i < keys.size(); i++) {
         if (keys[i] != std::to_string(i)) {
-            SPDLOG_ERROR("[Unbound] {}: positional list has a hole at index {} (found key '{}'); truncating", what, i,
-                         keys[i]);
-            keys.resize(i);
-            break;
+            throw DocumentError(what + ": positional list has a hole at index " + std::to_string(i) + " (found key '" +
+                                keys[i] + "')");
         }
     }
     return keys;

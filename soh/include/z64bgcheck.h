@@ -43,9 +43,6 @@ struct DynaPolyActor;
 #define FUNC_80041EA4_STOP 8
 #define FUNC_80041EA4_VOID_OUT 12
 
-#define WATERBOX_ROOM(p) ((p >> 13) & 0x3F)
-// SOH [Unbound] Unpacked room index carried on WaterBox.room: -1 = all rooms (packed 0x3F).
-#define WATERBOX_UNPACK_ROOM(p) ((WATERBOX_ROOM(p) == 0x3F) ? -1 : (s32)WATERBOX_ROOM(p))
 
 typedef struct {
     Vec3f scale;
@@ -76,28 +73,50 @@ typedef struct {
     /* 0x04 */ Vec3s* camPosData;
 } CamData;
 
-// SOH [Unbound] Widened from the N64 0x10-byte layout: extents are f32 (world extent), room is unpacked
+// SOH [Unbound] Widened from the N64 0x10-byte layout: extents are f32 (world extent) and the packed
+// `properties` word is unpacked into fields (WaterBox_UnpackProperties for legacy data).
 typedef struct {
     f32 xMin;
     f32 ySurface;
     f32 zMin;
     f32 xLength;
     f32 zLength;
-    u32 properties;
-
-    // 0x0008_0000 = ?
-    // 0x0007_E000 = Room Index, 0x3F = all rooms
-    // 0x0000_1F00 = Lighting Settings Index
-    // 0x0000_00FF = CamData index
-    s32 room; // unpacked room index, -1 = all rooms; loaders fill it (JSON may set it explicitly)
+    s32 camera;       // CamData index (was 8 bits)
+    s32 lightSetting; // lighting settings index (was 5 bits)
+    s32 room;         // -1 = all rooms (was 6 bits, 0x3F)
+    u8 flag19;        // vanilla bit 19: box is only found by func_800425B0, not WaterBox_GetSurface*
 } WaterBox;
 
+// SOH [Unbound] The two packed vanilla words are unpacked into named fields (SurfaceType_Unpack for legacy
+// data), so `camera`, `exit` and `lightSetting` are no longer capped at 8 / 5 / 5 bits.
 typedef struct {
-    u32 data[2];
-
-    // Type 1
-    // 0x0800_0000 = wall damage
+    s32 camera;        // CamData index
+    s32 exit;          // scene exit index, 0 = none
+    s32 lightSetting;  // lighting settings index
+    u8 floorType;      // 0-31
+    u8 wallFlags;      // 0-7 (vanilla "unk18")
+    u8 wallType;       // 0-31, index into D_80119D90
+    u8 floorProperty;  // 0-15
+    u8 isSoft;         // "floor minus 1"
+    u8 isHorseBlocked;
+    u8 material;       // 0-15, walk sfx index
+    u8 floorEffect;    // 0-3, slope
+    u8 echo;           // 0-63
+    u8 canHookshot;
+    u8 conveyorSpeed;     // 0-7
+    u8 conveyorDirection; // 0-63, 360 / 64 degrees
+    u8 isWallDamage;
 } SurfaceType;
+
+// SOH [Unbound] Legacy (packed) collision data is unpacked at the loader boundary with these.
+#ifdef __cplusplus
+extern "C" {
+#endif
+SurfaceType SurfaceType_Unpack(u32 data0, u32 data1);
+void WaterBox_UnpackProperties(WaterBox* waterBox, u32 properties);
+#ifdef __cplusplus
+}
+#endif
 
 // SOH [Unbound] Widened from the N64 layout: bounds and vertices are f32 (world extent), counts are u32
 typedef struct {

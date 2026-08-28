@@ -117,7 +117,7 @@ custom-scene flags.
 - MQ selection (`SceneDB::GetScenePath`) and the world-map-area / dungeon-mode range checks
   treat custom ids as "other". Correct for now.
 - Title cards for vanilla scenes still come from the 66-case `switch` in `TitleCard_InitPlaceName`;
-  custom scenes use the registry's `titleCard`.
+  custom scenes use the registry's `titleCardTexture`.
 - The Better Debug Warp screen (`z_select.c`) lists only vanilla entrances. Use the console
   (`entrance mymod/lava_temple/main`) or an exit from an edited scene.
 - Randomizer entrance shuffle still copies exactly `ENTR_MAX` entries; custom entrances are never

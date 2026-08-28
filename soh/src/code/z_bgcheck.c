@@ -627,7 +627,6 @@ f32 BgCheck_RaycastFloorStatic(StaticLookup* lookup, CollisionContext* colCtx, u
 s32 BgCheck_ComputeWallDisplacement(CollisionContext* colCtx, CollisionPoly* poly, f32* posX, f32* posZ, f32 nx, f32 ny,
                                     f32 nz, f32 invXZlength, f32 planeDist, f32 radius, CollisionPoly** wallPolyPtr) {
     CollisionPoly* wallPoly;
-    u32 surfaceData;
     u32 wallDamage;
     f32 displacement = (radius - planeDist) * invXZlength;
 
@@ -640,8 +639,7 @@ s32 BgCheck_ComputeWallDisplacement(CollisionContext* colCtx, CollisionPoly* pol
         return true;
     }
 
-    surfaceData = colCtx->colHeader->surfaceTypeList[wallPoly->type].data[1];
-    wallDamage = surfaceData & 0x08000000 ? 1 : 0;
+    wallDamage = colCtx->colHeader->surfaceTypeList[wallPoly->type].isWallDamage; // SOH [Unbound] unpacked
 
     if (!wallDamage) {
         *wallPolyPtr = poly;
@@ -2633,7 +2631,9 @@ static void DynaPoly_GrowBgActorTable(PlayState* play, DynaCollisionContext* dyn
  * Growth doubles, so the two lists retire at most ~2 x log2(final size / initial size) buffers per scene.
  */
 static void DynaPoly_RetireBuffer(DynaCollisionContext* dyna, void* buffer) {
-    assert(dyna->retiredCount < DYNA_RETIRED_BUFFERS_MAX);
+    if (dyna->retiredCount >= DYNA_RETIRED_BUFFERS_MAX) {
+        LOG_HUNGUP_THREAD();
+    }
     dyna->retiredBuffers[dyna->retiredCount++] = buffer;
 }
 
@@ -3901,22 +3901,55 @@ void BgCheck_ResetPolyCheckTbl(SSNodeList* nodeList, s32 numPolys) {
     }
 }
 
+// SOH [Unbound] Surface types are stored unpacked; the vanilla packed words only survive in legacy archives.
+SurfaceType SurfaceType_Unpack(u32 data0, u32 data1) {
+    SurfaceType s;
+
+    s.camera = data0 & 0xFF;
+    s.exit = (data0 >> 8) & 0x1F;
+    s.floorType = (data0 >> 13) & 0x1F;
+    s.wallFlags = (data0 >> 18) & 7;
+    s.wallType = (data0 >> 21) & 0x1F;
+    s.floorProperty = (data0 >> 26) & 0xF;
+    s.isSoft = (data0 >> 30) & 1;
+    s.isHorseBlocked = (data0 >> 31) & 1;
+    s.material = data1 & 0xF;
+    s.floorEffect = (data1 >> 4) & 3;
+    s.lightSetting = (data1 >> 6) & 0x1F;
+    s.echo = (data1 >> 11) & 0x3F;
+    s.canHookshot = (data1 >> 17) & 1;
+    s.conveyorSpeed = (data1 >> 18) & 7;
+    s.conveyorDirection = (data1 >> 21) & 0x3F;
+    s.isWallDamage = (data1 >> 27) & 1;
+    return s;
+}
+
+void WaterBox_UnpackProperties(WaterBox* waterBox, u32 properties) {
+    u32 room = (properties >> 13) & 0x3F;
+
+    waterBox->camera = properties & 0xFF;
+    waterBox->lightSetting = (properties >> 8) & 0x1F;
+    waterBox->room = room == 0x3F ? -1 : (s32)room;
+    waterBox->flag19 = (properties >> 19) & 1;
+}
+
 /**
- * Get SurfaceType property set
+ * Get SurfaceType property set. Returns an all-zero entry when the poly has none, so callers can read fields directly.
  */
-u32 SurfaceType_GetData(CollisionContext* colCtx, CollisionPoly* poly, s32 bgId, s32 dataIdx) {
+static SurfaceType* SurfaceType_Get(CollisionContext* colCtx, CollisionPoly* poly, s32 bgId) {
+    static SurfaceType sNoSurfaceType = { 0 };
     CollisionHeader* colHeader;
     SurfaceType* surfaceTypes;
 
     colHeader = BgCheck_GetCollisionHeader(colCtx, bgId);
     if (colHeader == NULL || poly == NULL) {
-        return 0;
+        return &sNoSurfaceType;
     }
     surfaceTypes = colHeader->surfaceTypeList;
     if (surfaceTypes == PHYSICAL_TO_VIRTUAL(gSegments[0])) {
-        return 0;
+        return &sNoSurfaceType;
     }
-    return surfaceTypes[poly->type].data[dataIdx];
+    return &surfaceTypes[poly->type];
 }
 
 /**
@@ -3924,7 +3957,7 @@ u32 SurfaceType_GetData(CollisionContext* colCtx, CollisionPoly* poly, s32 bgId,
  */
 u32 SurfaceType_GetCamDataIndex(CollisionContext* colCtx, CollisionPoly* poly, s32 bgId) {
 
-    return SurfaceType_GetData(colCtx, poly, bgId, 0) & 0xFF;
+    return SurfaceType_Get(colCtx, poly, bgId)->camera;
 }
 
 /**
@@ -4049,28 +4082,28 @@ Vec3s* SurfaceType_GetCamPosData(CollisionContext* colCtx, CollisionPoly* poly, 
  * SurfaceType Get Scene Exit Index
  */
 u32 SurfaceType_GetSceneExitIndex(CollisionContext* colCtx, CollisionPoly* poly, s32 bgId) {
-    return SurfaceType_GetData(colCtx, poly, bgId, 0) >> 8 & 0x1F;
+    return SurfaceType_Get(colCtx, poly, bgId)->exit;
 }
 
 /**
  * SurfaceType Get ? Property (& 0x0003 E000)
  */
 u32 func_80041D4C(CollisionContext* colCtx, CollisionPoly* poly, s32 bgId) {
-    return SurfaceType_GetData(colCtx, poly, bgId, 0) >> 13 & 0x1F;
+    return SurfaceType_Get(colCtx, poly, bgId)->floorType;
 }
 
 /**
  * SurfaceType Get ? Property (& 0x001C 0000)
  */
 u32 func_80041D70(CollisionContext* colCtx, CollisionPoly* poly, s32 bgId) {
-    return SurfaceType_GetData(colCtx, poly, bgId, 0) >> 18 & 7;
+    return SurfaceType_Get(colCtx, poly, bgId)->wallFlags;
 }
 
 /**
  * SurfaceType Get Wall Property (Internal)
  */
 u32 func_80041D94(CollisionContext* colCtx, CollisionPoly* poly, s32 bgId) {
-    return SurfaceType_GetData(colCtx, poly, bgId, 0) >> 21 & 0x1F;
+    return SurfaceType_Get(colCtx, poly, bgId)->wallType;
 }
 
 /**
@@ -4109,32 +4142,32 @@ s32 func_80041E4C(CollisionContext* colCtx, CollisionPoly* poly, s32 bgId) {
  * unused
  */
 s32 func_80041E80(CollisionContext* colCtx, CollisionPoly* poly, s32 bgId) {
-    return SurfaceType_GetData(colCtx, poly, bgId, 0) >> 26 & 0xF;
+    return SurfaceType_Get(colCtx, poly, bgId)->floorProperty;
 }
 
 /**
  * SurfaceType Get Floor Property
  */
 u32 func_80041EA4(CollisionContext* colCtx, CollisionPoly* poly, s32 bgId) {
-    return SurfaceType_GetData(colCtx, poly, bgId, 0) >> 26 & 0xF;
+    return SurfaceType_Get(colCtx, poly, bgId)->floorProperty;
 }
 
 /**
  * SurfaceType Is Floor Minus 1
  */
 u32 func_80041EC8(CollisionContext* colCtx, CollisionPoly* poly, s32 bgId) {
-    return SurfaceType_GetData(colCtx, poly, bgId, 0) >> 30 & 1;
+    return SurfaceType_Get(colCtx, poly, bgId)->isSoft;
 }
 
 /**
  * SurfaceType Is Horse Blocked
  */
 u32 SurfaceType_IsHorseBlocked(CollisionContext* colCtx, CollisionPoly* poly, s32 bgId) {
-    return SurfaceType_GetData(colCtx, poly, bgId, 0) >> 31 & 1;
+    return SurfaceType_Get(colCtx, poly, bgId)->isHorseBlocked;
 }
 
 u32 func_80041F10(CollisionContext* colCtx, CollisionPoly* poly, s32 bgId) {
-    return SurfaceType_GetData(colCtx, poly, bgId, 1) & 0xF;
+    return SurfaceType_Get(colCtx, poly, bgId)->material;
 }
 
 /**
@@ -4153,28 +4186,28 @@ u16 SurfaceType_GetSfx(CollisionContext* colCtx, CollisionPoly* poly, s32 bgId) 
  * SurfaceType get terrain slope surface
  */
 u32 SurfaceType_GetSlope(CollisionContext* colCtx, CollisionPoly* poly, s32 bgId) {
-    return SurfaceType_GetData(colCtx, poly, bgId, 1) >> 4 & 3;
+    return SurfaceType_Get(colCtx, poly, bgId)->floorEffect;
 }
 
 /**
  * SurfaceType get surface lighting setting
  */
 u32 SurfaceType_GetLightSettingIndex(CollisionContext* colCtx, CollisionPoly* poly, s32 bgId) {
-    return SurfaceType_GetData(colCtx, poly, bgId, 1) >> 6 & 0x1F;
+    return SurfaceType_Get(colCtx, poly, bgId)->lightSetting;
 }
 
 /**
  * SurfaceType get echo
  */
 u32 SurfaceType_GetEcho(CollisionContext* colCtx, CollisionPoly* poly, s32 bgId) {
-    return SurfaceType_GetData(colCtx, poly, bgId, 1) >> 11 & 0x3F;
+    return SurfaceType_Get(colCtx, poly, bgId)->echo;
 }
 
 /**
  * SurfaceType Is Hookshot Surface
  */
 u32 SurfaceType_IsHookshotSurface(CollisionContext* colCtx, CollisionPoly* poly, s32 bgId) {
-    return CVarGetInteger(CVAR_CHEAT("HookshotEverything"), 0) || SurfaceType_GetData(colCtx, poly, bgId, 1) >> 17 & 1;
+    return CVarGetInteger(CVAR_CHEAT("HookshotEverything"), 0) || SurfaceType_Get(colCtx, poly, bgId)->canHookshot;
 }
 
 /**
@@ -4223,7 +4256,7 @@ s32 SurfaceType_IsConveyor(CollisionContext* colCtx, CollisionPoly* poly, s32 bg
  * SurfaceType Get Conveyor Surface Speed
  */
 u32 SurfaceType_GetConveyorSpeed(CollisionContext* colCtx, CollisionPoly* poly, s32 bgId) {
-    return SurfaceType_GetData(colCtx, poly, bgId, 1) >> 18 & 7;
+    return SurfaceType_Get(colCtx, poly, bgId)->conveyorSpeed;
 }
 
 /**
@@ -4231,14 +4264,14 @@ u32 SurfaceType_GetConveyorSpeed(CollisionContext* colCtx, CollisionPoly* poly, 
  * returns a value between 0-63, representing 360 / 64 degrees of rotation
  */
 u32 SurfaceType_GetConveyorDirection(CollisionContext* colCtx, CollisionPoly* poly, s32 bgId) {
-    return SurfaceType_GetData(colCtx, poly, bgId, 1) >> 21 & 0x3F;
+    return SurfaceType_Get(colCtx, poly, bgId)->conveyorDirection;
 }
 
 /**
  * SurfaceType is Wall Damage
  */
 u32 SurfaceType_IsWallDamage(CollisionContext* colCtx, CollisionPoly* poly, s32 bgId) {
-    return (SurfaceType_GetData(colCtx, poly, bgId, 1) & 0x8000000) ? 1 : 0;
+    return SurfaceType_Get(colCtx, poly, bgId)->isWallDamage;
 }
 
 /**
@@ -4282,7 +4315,7 @@ s32 WaterBox_GetSurface1(PlayState* play, CollisionContext* colCtx, f32 x, f32 z
 s32 WaterBox_GetSurfaceImpl(PlayState* play, CollisionContext* colCtx, f32 x, f32 z, f32* ySurface,
                             WaterBox** outWaterBox) {
     CollisionHeader* colHeader = colCtx->colHeader;
-    u32 room;
+    s32 room;
     WaterBox* curWaterBox;
 
     if (colHeader->numWaterBoxes == 0 || colHeader->waterBoxes == PHYSICAL_TO_VIRTUAL(gSegments[0])) {
@@ -4291,9 +4324,9 @@ s32 WaterBox_GetSurfaceImpl(PlayState* play, CollisionContext* colCtx, f32 x, f3
 
     for (curWaterBox = colHeader->waterBoxes; curWaterBox < colHeader->waterBoxes + colHeader->numWaterBoxes;
          curWaterBox++) {
-        room = (curWaterBox->properties >> 13) & 0x3F;
-        if (room == (u32)play->roomCtx.curRoom.num || room == 0x3F) {
-            if ((curWaterBox->properties & 0x80000) == 0) {
+        room = curWaterBox->room; // SOH [Unbound] unpacked, -1 = all rooms
+        if (room == play->roomCtx.curRoom.num || room == -1) {
+            if (!curWaterBox->flag19) {
                 if (curWaterBox->xMin < x && x < curWaterBox->xMin + curWaterBox->xLength) {
                     if (curWaterBox->zMin < z && z < curWaterBox->zMin + curWaterBox->zLength) {
                         *outWaterBox = curWaterBox;
@@ -4308,7 +4341,7 @@ s32 WaterBox_GetSurfaceImpl(PlayState* play, CollisionContext* colCtx, f32 x, f3
 }
 
 /**
- * Gets the first active WaterBox at `pos` where WaterBox.properties & 0x80000 == 0
+ * Gets the first active WaterBox at `pos` where WaterBox.flag19 is clear
  * `surfaceChkDist` is the absolute y distance from the water surface to check
  * returns the index of the waterbox found, or -1 if no waterbox is found
  * `outWaterBox` returns the pointer to the waterbox found, or NULL if none is found
@@ -4333,7 +4366,7 @@ s32 WaterBox_GetSurface2(PlayState* play, CollisionContext* colCtx, Vec3f* pos, 
         if (!(room == play->roomCtx.curRoom.num || room == -1)) {
             continue;
         }
-        if ((waterBox->properties & 0x80000)) {
+        if (waterBox->flag19) {
             continue;
         }
         if (!(waterBox->xMin < pos->x && pos->x < waterBox->xMin + waterBox->xLength)) {
@@ -4356,9 +4389,7 @@ s32 WaterBox_GetSurface2(PlayState* play, CollisionContext* colCtx, Vec3f* pos, 
  * WaterBox get CamData index
  */
 u32 WaterBox_GetCamDataIndex(CollisionContext* colCtx, WaterBox* waterBox) {
-    u32 prop = waterBox->properties >> 0;
-
-    return prop & 0xFF;
+    return waterBox->camera; // SOH [Unbound] unpacked
 }
 
 /**
@@ -4379,20 +4410,18 @@ u16 WaterBox_GetCameraSType(CollisionContext* colCtx, WaterBox* waterBox) {
  * WaterBox get lighting settings
  */
 u32 WaterBox_GetLightSettingIndex(CollisionContext* colCtx, WaterBox* waterBox) {
-    u32 prop = waterBox->properties >> 8;
-
-    return prop & 0x1F;
+    return waterBox->lightSetting; // SOH [Unbound] unpacked
 }
 
 /**
  * Get the water surface at point (`x`, `ySurface`, `z`). `ySurface` doubles as position y input
- * same as WaterBox_GetSurfaceImpl, but tests if WaterBox properties & 0x80000 != 0
+ * same as WaterBox_GetSurfaceImpl, but tests if WaterBox.flag19 is set
  * returns true if point is within the xz boundaries of an active water box, else false
  * `ySurface` returns the water box's surface, while `outWaterBox` returns a pointer to the WaterBox
  */
 s32 func_800425B0(PlayState* play, CollisionContext* colCtx, f32 x, f32 z, f32* ySurface, WaterBox** outWaterBox) {
     CollisionHeader* colHeader = colCtx->colHeader;
-    u32 room;
+    s32 room;
     WaterBox* curWaterBox;
 
     if (colHeader->numWaterBoxes == 0 || colHeader->waterBoxes == PHYSICAL_TO_VIRTUAL(gSegments[0])) {
@@ -4401,9 +4430,9 @@ s32 func_800425B0(PlayState* play, CollisionContext* colCtx, f32 x, f32 z, f32* 
 
     for (curWaterBox = colHeader->waterBoxes; curWaterBox < colHeader->waterBoxes + colHeader->numWaterBoxes;
          curWaterBox++) {
-        room = (curWaterBox->properties >> 0xD) & 0x3F;
-        if ((room == (u32)play->roomCtx.curRoom.num) || (room == 0x3F)) {
-            if ((curWaterBox->properties & 0x80000) != 0) {
+        room = curWaterBox->room; // SOH [Unbound] unpacked, -1 = all rooms
+        if (room == play->roomCtx.curRoom.num || room == -1) {
+            if (curWaterBox->flag19) {
                 if (curWaterBox->xMin < x && x < (curWaterBox->xMin + curWaterBox->xLength)) {
                     if (curWaterBox->zMin < z && z < (curWaterBox->zMin + curWaterBox->zLength)) {
                         *outWaterBox = curWaterBox;

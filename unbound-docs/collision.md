@@ -45,9 +45,19 @@ typedef struct {
 ```
 
 Vertices, bounds, `dist` and water-box extents are `f32` (`BGCHECK_XYZ_ABSMAX` = 2²⁰); see
-[`extent.md`](./extent.md). `WaterBox` carries an unpacked `s32 room` (`-1` = all rooms) that every
-loader fills from the packed `properties` word (`WATERBOX_UNPACK_ROOM`) unless the JSON sets it
-explicitly, which is what lifts the 63-room cap on water boxes.
+[`extent.md`](./extent.md).
+
+`SurfaceType` and `WaterBox` are stored **unpacked**: the two vanilla `data[2]` words become named
+fields (`camera`, `exit`, `lightSetting` as `s32`; `floorType`, `wallFlags`, `wallType`,
+`floorProperty`, `isSoft`, `isHorseBlocked`, `material`, `floorEffect`, `echo`, `canHookshot`,
+`conveyorSpeed`, `conveyorDirection`, `isWallDamage` as `u8`), and the water-box `properties` word
+becomes `camera`, `lightSetting`, `room` (`-1` = all rooms) and `flag19`. The `SurfaceType_Get*`
+accessors in `z_bgcheck.c` read fields through one `SurfaceType_Get()` (which hands back an all-zero
+entry when a poly has none), so their ~200 callers are unchanged. This lifts the per-scene caps the
+packing imposed — 255 cameras, 31 exits, 31 light settings, 63 water-box rooms. Legacy data is
+converted once at the loader boundary by `SurfaceType_Unpack(data0, data1)` and
+`WaterBox_UnpackProperties()` (prototypes in `z64bgcheck.h`; `SOH::UnpackSurfaceType` /
+`SOH::UnpackWaterBoxProperties` wrap them for the C++ mirrors); nothing writes the packed form.
 
 `SSNode` becomes `{ s32 polyId; u32 next; }`, `SS_NULL` becomes `0xFFFFFFFF`, and every
 `SSList.head`, `SSNodeList.max/count`, `DynaLookup.polyStartIndex`, `BgActor.vtxStartIndex`,

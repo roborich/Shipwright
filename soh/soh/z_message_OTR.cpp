@@ -4,6 +4,7 @@
 #include <libultraship/libultraship.h>
 #include "soh/resource/type/Scene.h"
 #include "soh/unbound/UnboundJson.h"
+#include "soh/unbound/UnboundSchema.h"
 #include <ship/utils/StringHelper.h>
 #include "global.h"
 #include "vt.h"
@@ -36,7 +37,7 @@ enum MessageLanguage { MSG_NES, MSG_GER, MSG_FRA, MSG_JPN, MSG_STAFF, MSG_LANGUA
 
 struct LanguageSpec {
     MessageLanguage language;
-    const char* jsonName;    // "language" value in unbound/text/*.json
+    const char* jsonName;    // text/<jsonName>/messages.json (unbound-docs/text.md)
     const char* folder;      // archive folder, also the override/ subfolder
     const char* baseFile;    // primary base resource
     const char* altBaseFile; // fallback base resource (NTSC english), may be null
@@ -116,19 +117,10 @@ std::shared_ptr<SOH::Text> LoadTextResource(const std::string& path) {
     return std::static_pointer_cast<SOH::Text>(Ship::Context::GetInstance()->GetResourceManager()->LoadResource(path));
 }
 
-bool LoadJsonMessageFile(const std::string& path, const LanguageSpec* expected);
-
-// Unbound archives carry the base table as text/<lang>/messages.json (unbound-docs/text.md).
-bool LoadJsonBase(const LanguageSpec& spec) {
-    std::string jsonBase = std::string("text/") + spec.jsonName + "/messages.json";
-    if (!Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->HasFile(jsonBase)) {
-        return false;
-    }
-    return LoadJsonMessageFile(jsonBase, &spec);
-}
+bool LoadJsonBase(MessageTable& table, const LanguageSpec& spec);
 
 bool LoadBase(MessageTable& table, const LanguageSpec& spec) {
-    if (LoadJsonBase(spec)) {
+    if (LoadJsonBase(table, spec)) {
         return true;
     }
 
@@ -194,15 +186,6 @@ uint16_t ParseMessageId(const nlohmann::json& value) {
     return (uint16_t)SOH::Unbound::ToInt(value, kTerminatorId);
 }
 
-MessageTable* TableForJsonLanguage(const std::string& name) {
-    for (const auto& spec : kLanguages) {
-        if (name == spec.jsonName || (spec.language == MSG_NES && name == "nes")) {
-            return &sTables[spec.language];
-        }
-    }
-    return nullptr;
-}
-
 void ApplyJsonMessage(MessageTable& table, const nlohmann::json& entry, uint16_t id, const std::string& path) {
     uint8_t box = (uint8_t)SOH::Unbound::ToInt(entry.value("box", nlohmann::json(0)));
     uint8_t ypos = (uint8_t)SOH::Unbound::ToInt(entry.value("ypos", nlohmann::json(0)));
@@ -215,16 +198,11 @@ void ApplyJsonMessage(MessageTable& table, const nlohmann::json& entry, uint16_t
     table.Set(id, (uint8_t)((box << 4) | ypos), std::move(bytes));
 }
 
-// "messages": [ {id, box, ypos, text}, ... ]  or  { "<id>": {box, ypos, text}, ... }
+// "messages": { "<id>": { box, ypos, text } }. A null entry is a deletion left by a single-layer document.
 size_t ApplyJsonMessages(MessageTable& table, const nlohmann::json& messages, const std::string& path) {
     size_t count = 0;
-    if (messages.is_array()) {
-        for (const auto& entry : messages) {
-            ApplyJsonMessage(table, entry, ParseMessageId(entry.at("id")), path);
-            count++;
-        }
-    } else {
-        for (const auto& [key, entry] : messages.items()) {
+    for (const auto& [key, entry] : messages.items()) {
+        if (entry.is_object()) {
             ApplyJsonMessage(table, entry, ParseMessageId(nlohmann::json(key)), path);
             count++;
         }
@@ -232,45 +210,22 @@ size_t ApplyJsonMessages(MessageTable& table, const nlohmann::json& messages, co
     return count;
 }
 
-// { "language": "eng", "messages": ... }. When `expected` is set the file must declare that language
-// (base tables); otherwise any language is accepted (unbound/text merge files).
-bool LoadJsonMessageFile(const std::string& path, const LanguageSpec* expected) {
-    auto archiveManager = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager();
-    auto file = archiveManager->LoadFile(path);
-    if (file == nullptr || file->Buffer == nullptr) {
-        SPDLOG_ERROR("[Unbound] could not read {}", path);
+// text/<lang>/messages.json, layer-merged across every mounted archive: the converted base table plus each
+// mod's additions, replacements and deletions (unbound-docs/text.md).
+bool LoadJsonBase(MessageTable& table, const LanguageSpec& spec) {
+    namespace K = SOH::Unbound::Schema;
+    std::string path = std::string(K::kMessagesPathPrefix) + spec.jsonName + K::kMessagesPathSuffix;
+    nlohmann::json doc = SOH::Unbound::LoadMergedJson(path);
+    if (!doc.is_object()) {
         return false;
     }
     try {
-        auto doc = nlohmann::json::parse(file->Buffer->begin(), file->Buffer->end(), nullptr, true, true);
-        std::string language = doc.at("language").get<std::string>();
-        MessageTable* table = TableForJsonLanguage(language);
-        if (table == nullptr) {
-            SPDLOG_ERROR("[Unbound] {}: unknown language '{}'", path, language);
-            return false;
-        }
-        if (expected != nullptr && table != &sTables[expected->language]) {
-            SPDLOG_ERROR("[Unbound] {}: declares language '{}', expected '{}'", path, language, expected->jsonName);
-            return false;
-        }
-        size_t count = ApplyJsonMessages(*table, doc.at("messages"), path);
+        size_t count = ApplyJsonMessages(table, doc.value(K::kMessages, nlohmann::json::object()), path);
         SPDLOG_INFO("[Unbound] {}: {} message(s)", path, count);
-        return count > 0;
+        return true; // an empty (or fully deleted) table is still the base; do not fall through to the binary one
     } catch (const std::exception& e) {
         SPDLOG_ERROR("[Unbound] {}: {}", path, e.what());
         return false;
-    }
-}
-
-void LoadJsonMessages() {
-    auto files = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->ListFiles("unbound/text/*");
-    if (files == nullptr) {
-        return;
-    }
-    for (const auto& path : *files) {
-        if (path.ends_with(".json")) {
-            LoadJsonMessageFile(path, nullptr);
-        }
     }
 }
 
@@ -293,15 +248,13 @@ extern "C" void OTRMessage_Init(void) {
     }
     sInitialized = true;
 
-    // Base + override/ per language, then JSON merge files across all languages, then publish.
-    // JSON runs after every base so a mod file can carry several languages.
+    // Per language: base (merged JSON, or the legacy Text resource) + legacy override/ resources, then publish.
     for (const auto& spec : kLanguages) {
         MessageTable& table = sTables[spec.language];
         if (LoadBase(table, spec)) {
             LoadOverrides(table, spec);
         }
     }
-    LoadJsonMessages();
     for (auto& table : sTables) {
         if (!table.entries.empty()) {
             table.Finalize();

@@ -7,8 +7,8 @@
 
 #include "soh/resource/type/Path.h"
 
-using Unbound::Json;
-namespace K = Unbound::Schema;
+using SOH::Unbound::Json;
+namespace K = SOH::Unbound::Schema;
 
 namespace SOH {
 namespace {
@@ -51,7 +51,13 @@ ResourceFactoryJsonPathV1::ReadResource(std::shared_ptr<Ship::File> file,
 
     auto path = std::make_shared<Path>(initData);
     const Json& paths = doc.value(K::kPaths, Json::object());
-    auto keys = Unbound::PositionalKeys(paths, initData->Path + " " + K::kPaths);
+    std::vector<std::string> keys;
+    try {
+        keys = Unbound::PositionalKeys(paths, initData->Path + " " + K::kPaths);
+    } catch (const Unbound::DocumentError& e) {
+        SPDLOG_ERROR("[Unbound] {}", e.what());
+        return nullptr;
+    }
     path->paths.reserve(keys.size());
     path->pathData.reserve(keys.size());
     for (const auto& k : keys) {

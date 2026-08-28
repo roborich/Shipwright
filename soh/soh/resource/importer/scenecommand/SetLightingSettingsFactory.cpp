@@ -3,6 +3,7 @@
 #include "soh/resource/logging/SceneCommandLoggers.h"
 #include "spdlog/spdlog.h"
 #include <tinyxml2.h>
+#include <cstddef>
 #include "z64environment.h"
 
 // SOH [Unbound] SOH::EnvLightSettings mirrors the game struct field for field; Scene_CommandLightingSettings

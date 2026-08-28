@@ -2,6 +2,7 @@
 // SOH [Unbound] Layer-merged JSON documents and the shared readers of the Unbound schema.
 // Merge rules: unbound-docs/scene-format.md §3. Key names: UnboundSchema.h.
 #include <nlohmann/json.hpp>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -11,6 +12,11 @@
 namespace SOH::Unbound {
 
 using Json = nlohmann::json;
+
+// A document that violates the format (scene-format.md §3): factories catch it and fail the resource.
+struct DocumentError : std::runtime_error {
+    using std::runtime_error::runtime_error;
+};
 
 // Deep-merges `overlay` into `base`: objects key-wise (later wins), null deletes, arrays replace,
 // "$replace": true discards `base` for that subtree.
@@ -25,8 +31,8 @@ Json LoadMergedJson(const std::string& path);
 // "$order" and "$replace" are never returned.
 std::vector<std::string> ListKeys(const Json& obj);
 
-// Keys "0", "1", ... of a positional list. The engine addresses these by index, so the list stops
-// at the first gap, with an error naming `what`.
+// Keys "0", "1", ... of a positional list. The engine addresses these by index, so a gap is a
+// DocumentError naming `what` (§3.2).
 std::vector<std::string> PositionalKeys(const Json& list, const std::string& what);
 
 // Integer from a JSON number or a hex/decimal string ("0x0F12", "3858").

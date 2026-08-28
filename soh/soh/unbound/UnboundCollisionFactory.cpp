@@ -8,10 +8,10 @@
 
 #include "soh/resource/type/CollisionHeader.h"
 
-using Unbound::Json;
-using Unbound::ListKeys;
-using Unbound::ToInt;
-namespace K = Unbound::Schema;
+using SOH::Unbound::Json;
+using SOH::Unbound::ListKeys;
+using SOH::Unbound::ToInt;
+namespace K = SOH::Unbound::Schema;
 
 namespace SOH {
 namespace {
@@ -98,12 +98,41 @@ bool ReadBulk(CollisionHeader& col, const Json& bulk, int version, const std::st
     return true;
 }
 
-void ReadSurfaceTypes(CollisionHeader& col, const Json& list) {
+SurfaceType ReadSurfaceType(const Json& e) {
+    SurfaceType s{};
+    s.camera = (s32)Unbound::Field(e, K::kCamera);
+    s.exit = (s32)Unbound::Field(e, K::kExit);
+    s.lightSetting = (s32)Unbound::Field(e, K::kLightSetting);
+    s.floorType = (u8)Unbound::Field(e, K::kFloorType);
+    s.wallFlags = (u8)Unbound::Field(e, K::kWallFlags);
+    s.wallType = (u8)Unbound::Field(e, K::kWallType);
+    s.floorProperty = (u8)Unbound::Field(e, K::kFloorProperty);
+    s.isSoft = (u8)Unbound::Field(e, K::kIsSoft);
+    s.isHorseBlocked = (u8)Unbound::Field(e, K::kIsHorseBlocked);
+    s.material = (u8)Unbound::Field(e, K::kMaterial);
+    s.floorEffect = (u8)Unbound::Field(e, K::kFloorEffect);
+    s.echo = (u8)Unbound::Field(e, K::kEcho);
+    s.canHookshot = (u8)Unbound::Field(e, K::kCanHookshot);
+    s.conveyorSpeed = (u8)Unbound::Field(e, K::kConveyorSpeed);
+    s.conveyorDirection = (u8)Unbound::Field(e, K::kConveyorDirection);
+    s.isWallDamage = (u8)Unbound::Field(e, K::kIsWallDamage);
+    return s;
+}
+
+void ReadSurfaceTypes(CollisionHeader& col, const Json& list, const std::string& docPath) {
+    bool legacy = false;
     for (const auto& k : ListKeys(list)) {
-        SurfaceType s{};
-        s.data[0] = (u32)ToInt(list[k].value(K::kData0, Json(0)));
-        s.data[1] = (u32)ToInt(list[k].value(K::kData1, Json(0)));
-        col.surfaceTypes.push_back(s);
+        const Json& e = list[k];
+        if (e.contains(K::kData0) || e.contains(K::kData1)) {
+            legacy = true;
+            col.surfaceTypes.push_back(
+                UnpackSurfaceType((u32)Unbound::Field(e, K::kData0), (u32)Unbound::Field(e, K::kData1)));
+        } else {
+            col.surfaceTypes.push_back(ReadSurfaceType(e));
+        }
+    }
+    if (legacy) {
+        SPDLOG_WARN("[Unbound] {}: legacy packed surface types (data0/data1); re-export the archive", docPath);
     }
     col.surfaceTypesCount = (uint32_t)col.surfaceTypes.size();
     col.collisionHeaderData.surfaceTypeList = col.surfaceTypes.data();
@@ -138,19 +167,32 @@ void ReadCameras(CollisionHeader& col, const Json& cameras, const Json& position
     col.collisionHeaderData.cameraDataListLen = col.camDataCount;
 }
 
-void ReadWaterBoxes(CollisionHeader& col, const Json& list) {
+void ReadWaterBoxes(CollisionHeader& col, const Json& list, const std::string& docPath) {
+    bool legacy = false;
     for (const auto& k : ListKeys(list)) {
         const Json& w = list[k];
         WaterBox box{};
-        box.xMin = (f32)Unbound::ToNumber(w.value(K::kXMin, Json(0)));
-        box.ySurface = (f32)Unbound::ToNumber(w.value(K::kYSurface, Json(0)));
-        box.zMin = (f32)Unbound::ToNumber(w.value(K::kZMin, Json(0)));
-        box.xLength = (f32)Unbound::ToNumber(w.value(K::kXLength, Json(0)));
-        box.zLength = (f32)Unbound::ToNumber(w.value(K::kZLength, Json(0)));
-        box.properties = (u32)ToInt(w.value(K::kProperties, Json(0)));
-        // Explicit K::kRoom (-1 = all) overrides the 6-bit packed field, lifting the 63-room cap.
-        box.room = w.contains(K::kRoom) ? (s32)ToInt(w[K::kRoom]) : WATERBOX_UNPACK_ROOM(box.properties);
+        box.xMin = (f32)Unbound::NumberField(w, K::kXMin);
+        box.ySurface = (f32)Unbound::NumberField(w, K::kYSurface);
+        box.zMin = (f32)Unbound::NumberField(w, K::kZMin);
+        box.xLength = (f32)Unbound::NumberField(w, K::kXLength);
+        box.zLength = (f32)Unbound::NumberField(w, K::kZLength);
+        if (w.contains(K::kProperties)) {
+            legacy = true;
+            UnpackWaterBoxProperties(box, (u32)Unbound::Field(w, K::kProperties));
+        } else {
+            box.camera = (s32)Unbound::Field(w, K::kCamera);
+            box.lightSetting = (s32)Unbound::Field(w, K::kLightSetting);
+            box.room = -1;
+            box.flag19 = (u8)Unbound::Field(w, K::kFlag19);
+        }
+        if (w.contains(K::kRoom)) {
+            box.room = (s32)ToInt(w[K::kRoom]);
+        }
         col.waterBoxes.push_back(box);
+    }
+    if (legacy) {
+        SPDLOG_WARN("[Unbound] {}: legacy packed water box properties; re-export the archive", docPath);
     }
     col.collisionHeaderData.numWaterBoxes = (u16)col.waterBoxes.size();
     col.collisionHeaderData.waterBoxes = col.waterBoxes.data();
@@ -186,9 +228,9 @@ ResourceFactoryJsonCollisionHeaderV1::ReadResource(std::shared_ptr<Ship::File> f
     if (!ReadBulk(*col, doc.value(K::kBulk, Json::object()), version, initData->Path)) {
         return nullptr;
     }
-    ReadSurfaceTypes(*col, doc.value(K::kSurfaceTypes, Json::object()));
+    ReadSurfaceTypes(*col, doc.value(K::kSurfaceTypes, Json::object()), initData->Path);
     ReadCameras(*col, doc.value(K::kCameras, Json::object()), doc.value(K::kCameraPositions, Json::object()));
-    ReadWaterBoxes(*col, doc.value(K::kWaterBoxes, Json::object()));
+    ReadWaterBoxes(*col, doc.value(K::kWaterBoxes, Json::object()), initData->Path);
     return col;
 }
 
