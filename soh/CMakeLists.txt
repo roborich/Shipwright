@@ -495,8 +495,11 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
             -Wno-missing-braces
             $<$<COMPILE_LANGUAGE:C>:
                 -Werror-implicit-function-declaration
-                -Wno-incompatible-pointer-types
-                -Wno-int-conversion
+                # SOH [Unbound] -Wno-incompatible-pointer-types deliberately NOT set: widening a struct field
+                # (Vec3s -> Vec3f/Vec3i) silently breaks pointer-typed readers, and this is the only diagnostic
+                # that catches it. It hid a Cylinder16.pos misread that broke all cylinder collision (bd442aa9e).
+                -Wno-int-conversion  # the N64 boot code casts ints to pointers; an error by default in clang 15+
+                -Wno-incompatible-function-pointer-types  # pre-existing u8/char, size_t/u32 callback signatures
             >
             $<$<COMPILE_LANGUAGE:CXX>:-fpermissive>
             $<$<COMPILE_LANGUAGE:CXX>:
