@@ -92,3 +92,24 @@ behind them and likely next targets:
 - A change to what an archive may contain is a SPEC change first (SPEC §10), code second.
 - libultraship is a submodule on the fork branch `unbound`; commit there first, then update the
   pointer here.
+
+## Releasing
+
+`roborich/Shipwright` ships two products from one workflow, `.github/workflows/generate-builds.yml`
+(kept identical on both release branches; the tag decides everything):
+
+| Product | Branch | Tag | Release title |
+|---|---|---|---|
+| SoH: Unbound | `unbound` | `<SoH version>-unbound<X.Y>` (`9.2.3-unbound0.1`) | `SoH: Unbound <tag>` |
+| SoH (cel-shading fork) | `wind-waker-style-cel-shading` | `<SoH version>-celshade<X.Y>` | `SoH (cel-shading fork) <tag>` |
+
+Pushing a release branch warms the CI caches; pushing a tag builds macOS, Linux and Windows and
+publishes the release with assets `SoH-<tag>-{Mac.dmg,Linux.appimage,Win64.zip}`. Release notes are
+generated from the previous tag of the *same* product, prefixed by `.github/release-notes/<product>.md`.
+
+```
+git checkout unbound && git push origin unbound        # warm caches (optional)
+git tag 9.2.3-unbound0.1 && git push origin 9.2.3-unbound0.1
+```
+
+`gh` defaults to upstream here; pass `-R roborich/Shipwright` to watch the run or the release.

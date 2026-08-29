@@ -1,7 +1,18 @@
 name: generate-builds
+# SOH [fork] This repo ships two products from one workflow:
+#   - "SoH (cel-shading fork)"  branch wind-waker-style-cel-shading, tags <SoH-version>-celshade<X.Y>
+#   - "SoH: Unbound"            branch unbound,                      tags <SoH-version>-unbound<X.Y>
+# Pushes to a release branch warm the ccache/deps/vcpkg/macports caches; a release tag builds all
+# three platforms and publishes a GitHub Release named for its product. Keep this file identical on
+# both branches; the tag decides everything else.
 on:
   push:
-  pull_request:
+    branches:
+      - wind-waker-style-cel-shading
+      - unbound
+    tags:
+      - '*celshade*'
+      - '*unbound*'
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -17,7 +28,7 @@ jobs:
     - name: Configure ccache
       uses: hendrikmuhs/ccache-action@v1.2
       with:
-        save: ${{ github.ref_name == github.event.repository.default_branch }}
+        save: ${{ github.ref_type == 'branch' }}
         key: ${{ runner.os }}-otr-ccache-${{ github.ref }}-${{ github.sha }}
         restore-keys: |
           ${{ runner.os }}-otr-ccache-${{ github.ref }}
@@ -86,7 +97,7 @@ jobs:
       uses: hendrikmuhs/ccache-action@v1.2
       with:
         create-symlink: true
-        save: ${{ github.ref_name == github.event.repository.default_branch }}
+        save: ${{ github.ref_type == 'branch' }}
         key: ${{ runner.os }}-14-ccache-${{ github.ref }}-${{ github.sha }}
         restore-keys: |
           ${{ runner.os }}-14-ccache-${{ github.ref }}
@@ -144,7 +155,7 @@ jobs:
           SoH.dmg
           readme.txt
     - name: Save Cache MacPorts
-      if: ${{ github.ref_name == github.event.repository.default_branch }}
+      if: ${{ github.ref_type == 'branch' }}
       uses: actions/cache/save@v5
       with:
         key: ${{ steps.restore-cache-macports.outputs.cache-primary-key }}
@@ -165,7 +176,7 @@ jobs:
     - name: Configure ccache
       uses: hendrikmuhs/ccache-action@v1.2
       with:
-        save: ${{ github.ref_name == github.event.repository.default_branch }}
+        save: ${{ github.ref_type == 'branch' }}
         key: ${{ runner.os }}-ccache-${{ github.ref }}-${{ github.sha }}
         restore-keys: |
           ${{ runner.os }}-ccache-${{ github.ref }}
@@ -258,7 +269,7 @@ jobs:
           soh.appimage
           readme.txt
     - name: Save Cache deps folder
-      if: ${{ github.ref_name == github.event.repository.default_branch }}
+      if: ${{ github.ref_type == 'branch' }}
       uses: actions/cache/save@v5
       with:
         key: ${{ steps.restore-cache-deps.outputs.cache-primary-key }}
@@ -282,7 +293,7 @@ jobs:
         variant: sccache
         max-size: "2G"
         evict-old-files: job
-        save: ${{ github.ref_name == github.event.repository.default_branch }}
+        save: ${{ github.ref_type == 'branch' }}
         key: ${{ runner.os }}-ccache-${{ github.ref }}-${{ github.sha }}
         restore-keys: |
           ${{ runner.os }}-ccache-${{ github.ref }}
@@ -322,8 +333,70 @@ jobs:
         name: soh-windows
         path: soh-windows
     - name: Save Cache VCPKG folder
-      if: ${{ github.ref_name == github.event.repository.default_branch }}
+      if: ${{ github.ref_type == 'branch' }}
       uses: actions/cache/save@v5
       with:
         key: ${{ steps.restore-cache-vcpkg.outputs.cache-primary-key }}
         path: vcpkg
+
+  # Fork-only: publish a GitHub Release when a product tag is pushed.
+  release:
+    needs: [build-macos, build-linux, build-windows]
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+    - name: Git Checkout
+      uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
+    - name: Identify product
+      id: product
+      run: |
+        TAG="${GITHUB_REF_NAME}"
+        case "$TAG" in
+          *unbound*)  PRODUCT=unbound;  TITLE="SoH: Unbound ${TAG}" ;;
+          *celshade*) PRODUCT=celshade; TITLE="SoH (cel-shading fork) ${TAG}" ;;
+          *) echo "tag ${TAG} names no product"; exit 1 ;;
+        esac
+        # Release notes are generated against the previous tag of the same product, not the other one.
+        PREV=$(git tag --sort=-creatordate | grep -- "$PRODUCT" | grep -vx -- "$TAG" | head -n 1 || true)
+        echo "product=$PRODUCT" >> "$GITHUB_OUTPUT"
+        echo "title=$TITLE" >> "$GITHUB_OUTPUT"
+        echo "prev=$PREV" >> "$GITHUB_OUTPUT"
+    - name: Download macOS build
+      uses: actions/download-artifact@v7
+      with:
+        name: soh-mac
+        path: rel/mac
+    - name: Download Linux build
+      uses: actions/download-artifact@v7
+      with:
+        name: soh-linux
+        path: rel/linux
+    - name: Download Windows build
+      uses: actions/download-artifact@v7
+      with:
+        name: soh-windows
+        path: rel/windows
+    - name: Package release assets
+      run: |
+        TAG="${GITHUB_REF_NAME}"
+        mkdir -p dist
+        cp "rel/mac/SoH.dmg" "dist/SoH-${TAG}-Mac.dmg"
+        cp "rel/linux/soh.appimage" "dist/SoH-${TAG}-Linux.appimage"
+        (cd rel/windows && zip -r "../../dist/SoH-${TAG}-Win64.zip" .)
+    - name: Publish GitHub Release
+      env:
+        GH_TOKEN: ${{ github.token }}
+        PRODUCT: ${{ steps.product.outputs.product }}
+        TITLE: ${{ steps.product.outputs.title }}
+        PREV: ${{ steps.product.outputs.prev }}
+      run: |
+        TAG="${GITHUB_REF_NAME}"
+        NOTES_FILE=".github/release-notes/${PRODUCT}.md"
+        ARGS=(--title "$TITLE" --generate-notes)
+        [ -n "$PREV" ] && ARGS+=(--notes-start-tag "$PREV")
+        [ -f "$NOTES_FILE" ] && ARGS+=(--notes-file "$NOTES_FILE")
+        gh release create "$TAG" dist/* "${ARGS[@]}"
