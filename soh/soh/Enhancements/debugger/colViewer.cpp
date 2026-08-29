@@ -423,16 +423,18 @@ void DrawDynapoly(std::vector<Gfx>& dl, CollisionHeader* col, int32_t bgId) {
         lastColorG = color.g;
         lastColorB = color.b;
 
+        // SOH [Unbound] collision vertices are f32; the debug overlay draws them as 16-bit Vtx (MSVC rejects the
+        // implicit narrowing in the brace initialiser).
         Vec3f* va = &col->vtxList[COLPOLY_VTX_INDEX(poly->flags_vIA)];
         Vec3f* vb = &col->vtxList[COLPOLY_VTX_INDEX(poly->flags_vIB)];
         Vec3f* vc = &col->vtxList[COLPOLY_VTX_INDEX(poly->vIC)];
-        vtxDl.push_back(gdSPDefVtxN(va->x, va->y, va->z, 0, 0, (signed char)(poly->normal.x / 0x100),
+        vtxDl.push_back(gdSPDefVtxN((s16)va->x, (s16)va->y, (s16)va->z, 0, 0, (signed char)(poly->normal.x / 0x100),
                                     (signed char)(poly->normal.y / 0x100), (signed char)(poly->normal.z / 0x100),
                                     0xFF));
-        vtxDl.push_back(gdSPDefVtxN(vb->x, vb->y, vb->z, 0, 0, (signed char)(poly->normal.x / 0x100),
+        vtxDl.push_back(gdSPDefVtxN((s16)vb->x, (s16)vb->y, (s16)vb->z, 0, 0, (signed char)(poly->normal.x / 0x100),
                                     (signed char)(poly->normal.y / 0x100), (signed char)(poly->normal.z / 0x100),
                                     0xFF));
-        vtxDl.push_back(gdSPDefVtxN(vc->x, vc->y, vc->z, 0, 0, (signed char)(poly->normal.x / 0x100),
+        vtxDl.push_back(gdSPDefVtxN((s16)vc->x, (s16)vc->y, (s16)vc->z, 0, 0, (signed char)(poly->normal.x / 0x100),
                                     (signed char)(poly->normal.y / 0x100), (signed char)(poly->normal.z / 0x100),
                                     0xFF));
 
