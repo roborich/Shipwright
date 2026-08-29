@@ -193,6 +193,7 @@ inline constexpr const char* kFormatVersion = "formatVersion";
 inline constexpr const char* kGame = "game";
 inline constexpr const char* kSourceInfo = "source";
 inline constexpr const char* kRomHash = "romHash";
+inline constexpr const char* kRomHashes = "romHashes";
 inline constexpr const char* kConverter = "converter";
 inline constexpr const char* kFeatures = "features";
 inline constexpr const char* kRequires = "requires";

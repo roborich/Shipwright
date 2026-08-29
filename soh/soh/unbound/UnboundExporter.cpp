@@ -16,12 +16,14 @@
 
 #include <algorithm>
 #include <cstring>
+#include <filesystem>
 #include <fstream>
 #include <set>
 #include <unordered_map>
 
 #include "variables.h" // gBuildVersion
 #include "soh/unbound/SceneDB.h"
+#include "soh/unbound/UnboundJson.h"
 #include "soh/unbound/UnboundSchema.h"
 #include "soh/resource/type/CollisionHeader.h"
 #include "soh/resource/type/Path.h"
@@ -953,19 +955,33 @@ void CopyUntouchedFiles(ExportContext& ctx, std::shared_ptr<Ship::Archive> base)
     }
 }
 
+// Provenance of a conversion: the converter build and every mounted ROM archive (SPEC.md §6 `source`).
+// A base whose provenance differs from the running game is stale and is converted again.
+json CurrentProvenance() {
+    auto archives = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager();
+    std::vector<uint32_t> versions = archives->GetGameVersions();
+    std::sort(versions.begin(), versions.end());
+    versions.erase(std::unique(versions.begin(), versions.end()), versions.end());
+    json source = json::object();
+    if (!versions.empty()) {
+        source[K::kRomHash] = Hex(versions.front());
+    }
+    json hashes = json::array();
+    for (uint32_t v : versions) {
+        hashes.push_back(Hex(v));
+    }
+    source[K::kRomHashes] = hashes;
+    source[K::kConverter] = std::string("soh ") + gBuildVersion;
+    return source;
+}
+
 void WriteManifest(ExportContext& ctx) {
     auto archives = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager();
     json doc;
     doc[K::kFormatName] = "unbound";
     doc[K::kFormatVersion] = K::kCurrentFormatVersion;
     doc[K::kGame] = "oot";
-    json source = json::object();
-    auto versions = archives->GetGameVersions();
-    if (!versions.empty()) {
-        source[K::kRomHash] = Hex(versions.front());
-    }
-    source[K::kConverter] = std::string("soh ") + gBuildVersion;
-    doc[K::kSourceInfo] = source;
+    doc[K::kSourceInfo] = CurrentProvenance();
     doc[K::kFeatures] = json::array({ "scenes", K::kCollision, K::kText, K::kPaths });
     doc[K::kRequires] = json::object({ { K::kFormatVersion, K::kCurrentFormatVersion } });
     ctx.zip.Add(K::kManifestPath, doc.dump(2));
@@ -1004,6 +1020,62 @@ ExportReport ExportArchive(const std::string& outPath) {
     }
     ctx.report.ok = true;
     return ctx.report;
+}
+
+// ---- boot-time base archive --------------------------------------------------------------------
+
+namespace {
+
+// The `source` object of the manifest in the topmost mounted archive that has one.
+json MountedManifestSource() {
+    auto file = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->LoadFile(K::kManifestPath);
+    if (file == nullptr || file->Buffer == nullptr) {
+        return json::object();
+    }
+    json doc = json::parse(file->Buffer->begin(), file->Buffer->end(), nullptr, false, true);
+    return Sub(doc, K::kSourceInfo);
+}
+
+bool ProvenanceMatches(const json& source, const json& current) {
+    if (PathField(source, K::kConverter) != PathField(current, K::kConverter)) {
+        return false;
+    }
+    return SubArray(source, K::kRomHashes) == SubArray(current, K::kRomHashes);
+}
+
+} // namespace
+
+bool EnsureBaseArchive(const std::string& gameArchiveDir) {
+    auto archives = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager();
+    if (archives->GetGameVersions().empty()) {
+        return false; // no ROM archive: nothing to convert
+    }
+    std::string path = (std::filesystem::path(gameArchiveDir) / kBaseArchiveName).string();
+    json current = CurrentProvenance();
+
+    if (std::filesystem::exists(path)) {
+        if (archives->AddArchive(path) != nullptr) {
+            if (ProvenanceMatches(MountedManifestSource(), current)) {
+                SPDLOG_INFO("[Unbound] {} is current; mounted", path);
+                return true;
+            }
+            archives->RemoveArchive(path);
+        }
+        SPDLOG_INFO("[Unbound] {} was made by another build or from other ROM archives; converting again", path);
+        std::error_code ec;
+        std::filesystem::remove(path, ec);
+    } else {
+        SPDLOG_INFO("[Unbound] {} not found; converting the vanilla archive", path);
+    }
+
+    ExportReport report = ExportArchive(path);
+    if (!report.ok) {
+        SPDLOG_ERROR("[Unbound] base archive not written: {}; vanilla scenes stay in vanilla format", report.error);
+        return false;
+    }
+    bool mounted = archives->AddArchive(path) != nullptr;
+    SPDLOG_INFO("[Unbound] {} converted and {}", path, mounted ? "mounted" : "NOT mounted");
+    return mounted;
 }
 
 } // namespace SOH::Unbound

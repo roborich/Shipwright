@@ -32,7 +32,8 @@ and other enhancements that assume the vanilla tables may break; that is accepte
 
 ## How it works, in one paragraph
 
-`oot.o2r` is converted once (`soh --export-unbound oot-unbound.o2r`) into the Unbound layout: every
+`oot.o2r` is converted on first launch (`SOH::Unbound::EnsureBaseArchive`; also `soh --export-unbound
+<out>`) into the Unbound layout: every
 scene/room header becomes `scenes/<name>/scene.json` + `rooms/<n>.json`, collision becomes
 `collision.json` + `collision.bin`, message tables become `text/<lang>/messages.json`, and every
 other resource is copied verbatim. Placed beside `oot.o2r`, the converted archive is mounted above
@@ -53,7 +54,7 @@ facts are in the cited SPEC sections.
 | **Counts** | Object bank 1024; actors per room and rooms per scene 16-bit; live-actor cap real and 8192; mesh entries unbounded; room numbers 16-bit with unbounded clear flags, waterbox rooms and transition actors. Object ids past the vanilla table are usable. | [`counts.md`](./counts.md) | §9 |
 | **Scene format** | Merging JSON loader, converter, entity-key scheme and the decisions behind them. | [`scene-format.md`](./scene-format.md) | §2–§4, §6 |
 | **World extent** | Positions are `f32` end to end: float `Mtx` (libultraship fork `GBI_FLOAT_MTX`), per-room mesh `origin`, f32 collision, spawns, paths, point lights, colliders. Fog and draw distance are per-scene world units. | [`extent.md`](./extent.md) | §4.2–4.4, §9 |
-| **Converter** | `soh --export-unbound <out.o2r>` / console `unbound-export`: vanilla → Unbound archive in ~1 s. `soh/soh/unbound/UnboundExporter.cpp`. | `scene-format.md` §3 | — |
+| **Converter** | Runs at boot when `oot-unbound.o2r` is missing or its manifest `source` (converter build, ROM hashes) differs; also `soh --export-unbound <out.o2r>` / console `unbound-export`. Vanilla → Unbound archive in ~1 s. `soh/soh/unbound/UnboundExporter.cpp`. | `scene-format.md` §3 | — |
 | **Loader** | libultraship gained a JSON resource format (`{` sniff, type from `$schema`, found in any layer) and `LoadFileFromAllLayers`; SoH's JSON factories (`soh/soh/unbound/`) build the same command objects the binary loaders build, so scene execution code is untouched. | `scene-format.md` §2 | §3 |
 | **Prelude** | Dated changelog of what Prelude must emit differently. | [`prelude-handoff.md`](./prelude-handoff.md) | — |
 
@@ -82,8 +83,8 @@ behind them and likely next targets:
 - Build: `cmake --build build-cmake --target soh -j8`. A change to `z64.h` or `z64bgcheck.h`
   rebuilds nearly everything (10+ min on a busy machine); run long builds in the background with a
   log.
-- Smoke test: put `oot-unbound.o2r` beside `oot.o2r` in `build-cmake/soh`, launch, and grep the
-  log for `[Unbound]` — the title screen loads Hyrule Field through `scene.json`.
+- Smoke test: launch with `oot.o2r` in `build-cmake/soh` (delete `oot-unbound.o2r` to force a
+  conversion) and grep the log for `[Unbound]` — the title screen loads Hyrule Field through `scene.json`.
 - Regenerate `soh.o2r` (`--target GenerateSohOtr`) if switching from a branch with different
   shaders; a stale one crashes at boot.
 - Prefer widening a field over adding a registry; prefer a registry over a static table; prefer

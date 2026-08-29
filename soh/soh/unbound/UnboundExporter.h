@@ -18,6 +18,14 @@ struct ExportReport {
 // Writes a complete oot-unbound.o2r (stored zip) to outPath from the currently mounted base archive.
 ExportReport ExportArchive(const std::string& outPath);
 
+// The converted base archive, kept beside oot.o2r.
+inline constexpr const char* kBaseArchiveName = "oot-unbound.o2r";
+
+// Mounts <gameArchiveDir>/oot-unbound.o2r above the vanilla archives, converting it first when it is missing
+// or was made from other ROM archives or by another SoH build. Call after the resource factories are
+// registered and before mods are mounted. Returns true when a base archive is mounted.
+bool EnsureBaseArchive(const std::string& gameArchiveDir);
+
 } // namespace SOH::Unbound
 
 // Console / CLI entry: returns 0 on success, logs progress through spdlog.

@@ -784,11 +784,6 @@ void OTRGlobals::Initialize() {
     if (std::filesystem::exists(ootPath)) {
         context->GetResourceManager()->GetArchiveManager()->AddArchive(ootPath);
     }
-    // SOH [Unbound] a converted archive mounts above oot.o2r; SceneDB switches to its scene.json paths
-    std::string unboundPath = Ship::Context::LocateFileAcrossAppDirs("oot-unbound.o2r", appShortName);
-    if (std::filesystem::exists(unboundPath)) {
-        context->GetResourceManager()->GetArchiveManager()->AddArchive(unboundPath);
-    }
 
     std::unordered_set<uint32_t> ValidHashes = {
         OOT_PAL_MQ,     OOT_NTSC_JP_MQ, OOT_NTSC_US_MQ, OOT_PAL_GC_MQ_DBG, OOT_NTSC_US_10,
@@ -870,7 +865,8 @@ void OTRGlobals::Initialize() {
     loader->RegisterResourceFactory(jsonCollision, RESOURCE_FORMAT_JSON, SOH::Unbound::Schema::kCollisionType,
                                     static_cast<uint32_t>(SOH::ResourceType::SOH_CollisionHeader), 2);
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryJsonPathV1>(), RESOURCE_FORMAT_JSON,
-                                    SOH::Unbound::Schema::kPathsType, static_cast<uint32_t>(SOH::ResourceType::SOH_Path), 1);
+                                    SOH::Unbound::Schema::kPathsType,
+                                    static_cast<uint32_t>(SOH::ResourceType::SOH_Path), 1);
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryCollisionHeaderV0>(),
                                     RESOURCE_FORMAT_BINARY, "CollisionHeader",
                                     static_cast<uint32_t>(SOH::ResourceType::SOH_CollisionHeader), 0);
@@ -973,6 +969,12 @@ void OTRGlobals::Initialize() {
                 break;
         }
     }
+
+    // SOH [Unbound] The converted base (oot-unbound.o2r) mounts above the vanilla archives; it is generated here on
+    // first launch and regenerated whenever the ROM archives or the build change. Needs the factories above.
+    std::string gameArchiveDir =
+        std::filesystem::path(std::filesystem::exists(ootPath) ? ootPath : mqPath).parent_path().string();
+    SOH::Unbound::EnsureBaseArchive(gameArchiveDir);
 }
 
 OTRGlobals::~OTRGlobals() {
