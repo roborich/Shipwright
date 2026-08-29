@@ -2025,12 +2025,12 @@ s32 Math3D_CylOutsideCylDist(Cylinder16* ca, Cylinder16* cb, f32* deadSpace, f32
     static Cylinderf caf;
     static Cylinderf cbf;
 
-    Math_Vec3s_ToVec3f(&caf.pos, &ca->pos);
+    caf.pos = ca->pos; // SOH [Unbound] Cylinder16.pos is f32 (world extent); a Vec3s read here is garbage
     caf.radius = ca->radius;
     caf.yShift = ca->yShift;
     caf.height = ca->height;
 
-    Math_Vec3s_ToVec3f(&cbf.pos, &cb->pos);
+    cbf.pos = cb->pos; // SOH [Unbound] Cylinder16.pos is f32 (world extent); a Vec3s read here is garbage
     cbf.radius = cb->radius;
     cbf.yShift = cb->yShift;
     cbf.height = cb->height;
