@@ -1,0 +1,1 @@
+**SoH (cel-shading fork)** — Ship of Harkinian with the Wind Waker-style rendering mod: cel shading, light casting, actor shadows and the sky. Everything is under the **Wind Waker Style** menu; see [`wind-waker-style-docs/README.md`](https://github.com/roborich/Shipwright/blob/wind-waker-style-cel-shading/wind-waker-style-docs/README.md).
