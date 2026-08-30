@@ -1,7 +1,6 @@
 #include "soh/resource/importer/ArrayFactory.h"
 #include "soh/resource/type/Array.h"
 #include "spdlog/spdlog.h"
-#include <libultraship/libultra/gbi.h> // full Vtx: Vertex.h only forward-declares it
 #include <fast/resource/type/Vertex.h>
 #include <fast/resource/factory/VertexFactory.h>
 
@@ -9,13 +8,6 @@ namespace SOH {
 namespace {
 
 // Layout after the resource header: u32 arrayType, u32 count, then the records.
-std::shared_ptr<Fast::Vertex> ReadVertexArray(Ship::BinaryReader& reader, uint32_t count,
-                                              std::shared_ptr<Ship::ResourceInitData> initData, bool s32Positions) {
-    auto vertex = std::make_shared<Fast::Vertex>(initData);
-    Fast::ReadVertexRecords(reader, *vertex, count, s32Positions);
-    return vertex;
-}
-
 std::shared_ptr<Array> ReadScalarArray(Ship::BinaryReader& reader, ArrayResourceType arrayType, uint32_t count,
                                        std::shared_ptr<Ship::ResourceInitData> initData) {
     auto array = std::make_shared<Array>(initData);
@@ -67,7 +59,7 @@ ResourceFactoryBinaryArrayV0::ReadResource(std::shared_ptr<Ship::File> file,
     uint32_t count = reader->ReadUInt32();
 
     if (arrayType == ArrayResourceType::Vertex) {
-        return ReadVertexArray(*reader, count, initData, false);
+        return Fast::ReadVertexResource(*reader, initData, count, false);
     }
     return ReadScalarArray(*reader, arrayType, count, initData);
 }
@@ -88,6 +80,6 @@ ResourceFactoryBinaryArrayV1::ReadResource(std::shared_ptr<Ship::File> file,
                      initData->Path, (uint32_t)arrayType);
         return nullptr;
     }
-    return ReadVertexArray(*reader, count, initData, true);
+    return Fast::ReadVertexResource(*reader, initData, count, true);
 }
 } // namespace SOH
