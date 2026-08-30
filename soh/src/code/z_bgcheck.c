@@ -2561,15 +2561,15 @@ void DynaPoly_AllocPolyList(PlayState* play, CollisionPoly** polyList, s32 numPo
 /**
  * NULL vtxList
  */
-void DynaPoly_NullVtxList(Vec3f** vtxList) {
+void DynaPoly_NullVtxList(Vec3i** vtxList) {
     *vtxList = NULL;
 }
 
 /**
  * Allocate dyna.vtxList
  */
-void DynaPoly_AllocVtxList(PlayState* play, Vec3f** vtxList, s32 numVtx) {
-    *vtxList = malloc(numVtx * sizeof(Vec3f)); // SOH [Unbound] heap; freed by BgCheck_Free
+void DynaPoly_AllocVtxList(PlayState* play, Vec3i** vtxList, s32 numVtx) {
+    *vtxList = malloc(numVtx * sizeof(Vec3i)); // SOH [Unbound] heap; freed by BgCheck_Free
     assert(*vtxList != NULL);
 }
 
@@ -2822,8 +2822,8 @@ void DynaPoly_ExpandSRT(PlayState* play, DynaCollisionContext* dyna, s32 bgId, s
     s32 i;
     Vec3f pos;
     Sphere16* sphere;
-    Vec3f* dVtxList;
-    Vec3f* point;
+    Vec3i* dVtxList; // SOH [Unbound] dyna->vtxList is Vec3i; a Vec3f alias reads it as garbage
+    Vec3i* point;
     Vec3f newCenterPoint;
     f32 newRadiusSq;
     CollisionHeader* pbgdata;
