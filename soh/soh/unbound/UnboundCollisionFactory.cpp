@@ -177,14 +177,13 @@ bool CollisionSchemaIsCurrent(const Json& doc, const std::string& docPath) {
 
 std::shared_ptr<CollisionHeader> ReadCollisionDocument(const Json& doc,
                                                        std::shared_ptr<Ship::ResourceInitData> initData) {
+    if (!CollisionSchemaIsCurrent(doc, initData->Path)) {
+        return nullptr;
+    }
     auto col = std::make_shared<CollisionHeader>(initData);
     const Json& bounds = Unbound::Sub(doc, K::kBounds);
     col->collisionHeaderData.minBounds = Unbound::ReadVec3i(Unbound::SubArray(bounds, K::kMin));
     col->collisionHeaderData.maxBounds = Unbound::ReadVec3i(Unbound::SubArray(bounds, K::kMax));
-
-    if (!CollisionSchemaIsCurrent(doc, initData->Path)) {
-        return nullptr;
-    }
     if (!ReadBulk(*col, Unbound::Sub(doc, K::kBulk), initData->Path)) {
         return nullptr;
     }
