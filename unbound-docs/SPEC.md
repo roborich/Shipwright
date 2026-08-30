@@ -454,6 +454,7 @@ Limits lifted relative to vanilla (the format imposes none of these):
 | Light settings per setup | 31 (surface field) | 255 |
 | Water-box room | ≤ 63 | any room |
 | World extent (any position) | ±32 760 | f32; positions within ±1 048 576 (2²⁰) keep a precision of 0.0625 or better |
+| One room mesh | every vertex within ±32 767 of the room `origin`; ≤ 65 535 units across | `s32` vertices; a room mesh may span the whole world extent |
 | Floor "none" sentinel | −32 000 | −2 147 483 648 |
 | Fog start / far plane | ~2 500 / 12 800 | world units, unbounded (lighting entry) |
 | Message ids | fixed table | unbounded; message ≤ 8 192 bytes |
@@ -464,7 +465,6 @@ Limits that remain (validation targets for tools):
 |---|---|---|
 | `cameraPositions` components | −32 768…32 767 | scene camera data is still 16-bit |
 | Cutscene camera points | −32 768…32 767 | cutscene command words |
-| One room mesh | every vertex within ±32 767 of the room `origin`; ≤ 65 535 units across | vertices are 16-bit |
 | Path points | ≤ 255 per path | the point count of a path is a byte |
 | Decoded textbox | ≤ 1 024 bytes | decode buffer; not guarded |
 | Light settings per setup | ≤ 255 | the light-setting count and index are bytes |

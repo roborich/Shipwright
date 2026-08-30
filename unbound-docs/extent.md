@@ -10,15 +10,15 @@ side. Overview in [`README.md`](./README.md).
 | Cap | Where | Lift |
 |---|---|---|
 | **Rendering: `Mtx` is s16.16** | `guMtxF2L` (`gu_pc.c`) packs every model/view matrix; a translation ≥ 32 768 wraps. This caps *actors and the camera*, not just scenes. | `Mtx` is float (`GBI_FLOAT_MTX`, libultraship fork `fast/types.h`). |
-| **Rendering: room `Vtx` is `short` under the identity matrix** | `z_room.c` draws room meshes with `gMtxClear`, so mesh vertices *are* world coordinates. | Per-room **origin** (SPEC §4.3): vertices are authored relative to it, `Room_Draw` loads a translate matrix. Vanilla rooms keep `[0,0,0]` and the identity. |
+| **Rendering: room `Vtx` is `short` under the identity matrix** | `z_room.c` draws room meshes with `gMtxClear`, so mesh vertices *are* world coordinates. | `Vtx.ob` is `s32` (`GBI_S32_VTX`, libultraship fork `fast/lus_gbi.h`), so a room mesh reaches the whole world on its own. Per-room **origin** (SPEC §4.3) predates this and is still honoured. |
 | **Data & engine: `s16` positions** | Collision vertices, `CollisionPoly.dist` (plane distance from the *world origin*), bounds, water boxes, spawn entries, transition actors, paths, point lights, mesh-type-2 cull centres, Epona's saved position, `BGCHECK_Y_MIN`/`BGCHECK_XYZ_ABSMAX`, dyna world-space vertex bake, `Sphere16`/`Cylinder16` colliders. | Widened to `f32`/`s32` (below). |
 
 ### Float matrices
 
 - `libultraship/include/fast/types.h`: `GBI_FLOAT_MTX` (a LUS CMake option, off by default; SoH's
   root `CMakeLists.txt` turns it on and `sys_matrix.c` `#error`s without it) makes `Mtx` an alias
-  of `MtxF`. `Vtx` stays `short` — that is what `GBI_FLOATS` would also change, and every vertex
-  producer (binary `Vtx` resources, static arrays, OTRExporter) would have to follow.
+  of `MtxF`. Vertices are widened separately by `GBI_S32_VTX` (below); `GBI_FLOATS` would make
+  both float at once, which is not what this fork does.
 - `interpreter.cpp` `GfxSpMatrix`: the fixed-point unpack is skipped and the matrix is `memcpy`'d;
   the frame-interpolation replacement path no longer quantises through an `int` (which overflowed
   past ±32 767 too).
@@ -32,6 +32,40 @@ side. Overview in [`README.md`](./README.md).
 Precision: f32 has ~7 significant digits, so at 10⁶ units positions resolve to ~0.06 units. The
 Unbound world is therefore ±2²⁰ (1 048 576) — `BGCHECK_XYZ_ABSMAX`.
 
+### s32 vertices
+
+- `GBI_S32_VTX` (a LUS CMake option, off by default; SoH's root `CMakeLists.txt` turns it on)
+  makes `Vtx.ob` `int32_t`. It is independent of `GBI_FLOAT_MTX`, and sits alongside `GBI_FLOATS`
+  rather than replacing it.
+- **`s32`, not `f32`.** Both are 12 bytes, so both hit the same `sizeof(Vtx)` change and the same
+  bugs; `s32` additionally keeps vertices integral, which is what the ~692 `.ob[` sites in the game
+  assume when they read one back (integer division stays integer, an `f32` assigned to a vertex
+  truncates as it did to `s16`), and lets an editor snap exactly. A float build needs a hand-written
+  cast in `z_en_jsjutan.c`; an `s32` build needs none.
+- **`sizeof(Vtx)` goes 16 → 24, and that is the whole difficulty.** "The size of a vertex" was two
+  concepts that had always been one number: the runtime struct, and the 16-byte record in an
+  archive that exported display lists carry **byte offsets** into. The archive's size is now
+  `OTR_EXPORTED_VTX_SIZE` in `fast/lus_gbi.h`. Three sites conflated them — all silent, all wrong
+  only at a non-zero offset, so geometry at offset 0 looked fine and the rest was noise:
+  - `gfx_vtx_hash_handler_custom` advanced with `(char*)vtx + offset`. The exporter rewrites every
+    `G_VTX` to `G_VTX_OTR_HASH` (`DisplayListExporter.cpp`), so this reached all static geometry.
+  - `SegAddr` resolves a segmented address in bytes. Skinned limbs point segment 8 at a per-frame
+    vertex buffer (`z_skin.c`), as do Ganon's cape, the Jsjutan carpet and the `z_fbdemo` wipes.
+    Vertex commands resolve through **`SegAddrVtx`**, which converts the byte offset to an element
+    index; identical to `SegAddr` when the two sizes agree.
+  - `gfx_vtx_handler_f3d` divided the packed byte length by `sizeof(F3DVtx)`.
+- **Archives are unchanged and need no re-export.** They still hold 16-byte s16 vertices;
+  `VertexFactory` widens them on load the way `MatrixFactory` unpacks s16.16 matrices, and the OTR
+  vertex opcodes carry a vertex *count*, not a byte length. ZAPD writes through its own `ZVtx`
+  (`GetRawDataSize()` is a literal 16), so the format cannot drift with the runtime struct.
+- Memory: every vertex costs 8 more bytes. Every allocation in the game is `n * sizeof(Vtx)`, so
+  nothing needed resizing.
+- `soh/CMakeLists.txt` deliberately does **not** pass `-Wno-incompatible-pointer-types` for C: it
+  is the only diagnostic that catches a widened field still read through its old pointer type, and
+  its absence hid a `Cylinder16.pos` misread that broke every cylinder-vs-cylinder hit test in the
+  game. Note the hole it cannot cover — `SEGMENTED_TO_VIRTUAL` returns `void*`, so a reader left on
+  `Vec3s*` still compiles clean.
+
 ### Room origin
 
 The room document's `origin` (SPEC §4.3) is carried on `SOH::SetMesh::origin` → `Room.origin` →
@@ -39,6 +73,13 @@ The room document's `origin` (SPEC §4.3) is carried on `SOH::SetMesh::origin` �
 (vanilla is 0). Prelude rebases a room whose geometry would leave the s16 range and writes the
 origin; collision, actor entries and everything else stay absolute — only the mesh vertices are
 relative.
+
+With `s32` vertices a room mesh reaches the whole world unaided, so `origin` is no longer needed
+for range. **It cannot simply be removed:** Prelude writes a non-zero origin even for scenes that
+fit in `s16` (`lake_hylia_hp` spans 18 280 × 11 794 units and still carries
+`origin: [-18236, 508, 4043]`), so every already-exported mod stores its mesh relative to one.
+Dropping engine support would misposition all of them. Removing it means a SPEC change and a
+re-export, or having Prelude stop emitting it first and retiring the engine path much later.
 
 ## Widened data
 
@@ -107,7 +148,6 @@ A big world is pointless if it fades out at 2 500 units. Vanilla had three coupl
   command words, so they stay `s16`.
 - Cosmetic `Vec3s` (`ColliderInfo.bumper.hitPos`, `EffectSpark`/`Blure`/`ShieldParticle`) and the
   `EffectSs` ±32 000 cull in `z_effect_soft_sprite.c` (raised to `BGCHECK_XYZ_ABSMAX`).
-- `Vtx` remains `short`; a single DL cannot span more than 65 535 units — split rooms.
 
 ## Verification
 
