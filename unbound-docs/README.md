@@ -85,6 +85,8 @@ behind them and likely next targets:
   log.
 - Smoke test: launch with `oot.o2r` in `build-cmake/soh` (delete `oot-unbound.o2r` to force a
   conversion) and grep the log for `[Unbound]` — the title screen loads Hyrule Field through `scene.json`.
+- Play test: [`testing.md`](./testing.md) — ten minutes that exercise every widened type; the title
+  screen exercises almost none of them.
 - Regenerate `soh.o2r` (`--target GenerateSohOtr`) if switching from a branch with different
   shaders; a stale one crashes at boot.
 - Prefer widening a field over adding a registry; prefer a registry over a static table; prefer
@@ -95,8 +97,11 @@ behind them and likely next targets:
   so a caller that still passes the *old* pointer type (a `Vec3s*` reader on f32 path points, a `Vec3f*`
   alias of the s32 dyna vertex list) compiles silently and reads the new bytes as the old type; three of
   those shipped in 0.3. The script re-checks every file with only `-Wincompatible-pointer-types` on and
-  lists what is left after the vanilla "asset name as pointer" hits are dropped — it should print nothing
-  but `z_bgcheck.c:3849` and `z_player_lib.c:2277`, which are vanilla.
+  keeps only diagnostics that name a widened type. Expected output is six vanilla lines — SoH passing a
+  resource to a `char*` name parameter (`z_bgcheck.c:3849`, `z_player_lib.c:2277`, `z_bg_spot03_taki.c:42`,
+  `z_en_ganon_mant.c:320`, `z_en_jsjutan.c:129-130`); anything else is drift. `--narrowing` lists the
+  ~90 places a widened value is stored narrower (world-extent limits, mostly vanilla `s16` positions).
+  The C++ resource mirrors are checked separately by `static_assert`s in their factories.
 - libultraship is a submodule on the fork branch `unbound`; commit there first, then update the
   pointer here.
 

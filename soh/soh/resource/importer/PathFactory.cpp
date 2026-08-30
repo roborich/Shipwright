@@ -3,8 +3,13 @@
 #include "soh/resource/logging/PathLogger.h"
 #include "spdlog/spdlog.h"
 #include <tinyxml2.h>
+#include <cstddef>
+#include "z64scene.h"
 
 namespace SOH {
+// SOH [Unbound] Scene_CommandPathList hands the mirror to the game as a ::Path
+static_assert(sizeof(PathData) == sizeof(::Path) && offsetof(PathData, points) == offsetof(::Path, points),
+              "SOH::PathData must mirror ::Path");
 std::shared_ptr<Ship::IResource>
 ResourceFactoryBinaryPathV0::ReadResource(std::shared_ptr<Ship::File> file,
                                           std::shared_ptr<Ship::ResourceInitData> initData) {

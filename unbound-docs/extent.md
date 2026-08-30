@@ -86,8 +86,8 @@ Unbound world is therefore ±2²⁰ (1 048 576) — `BGCHECK_XYZ_ABSMAX`.
 | `ColliderCylinder.dim` | `Cylinder16` | `Cylinderf` | `Collider_UpdateCylinder` + direct writers |
 | `ColliderJntSphElement.dim.worldSphere` | `Sphere16` | `Spheref` | per-overlay writers |
 
-`collision.bin` v2 (SPEC §4.4.1) is the on-disk form of the widened collision arrays; the loader
-still reads v1 when the schema says so, the converter emits v2.
+`collision.bin` (SPEC §4.4.1, schema `unbound/collision/3`) is the on-disk form of the widened collision
+arrays; the pre-release v1/v2 layouts are refused (SPEC §10).
 
 ## Fog and draw distance
 
