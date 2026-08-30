@@ -1,7 +1,7 @@
 # Handoff to Prelude: changelog
 
-For the Prelude of Light agent. A dated list of what changed in SoH: Unbound (branch `unbound`,
-work landed on `unbound-fixes`) that Prelude has to emit or read differently, and what it may now
+For the Prelude of Light agent. A dated list of what changed in SoH: Unbound (branch `unbound`)
+that Prelude has to emit or read differently, and what it may now
 let the user build. **The contract is [`SPEC.md`](./SPEC.md)**; every entry below cites the SPEC
 section that defines it, and when this page and SPEC disagree, SPEC wins. Everything in the code
 is tagged `SOH [Unbound]`.
@@ -50,12 +50,12 @@ Reader behaviour Prelude's writer and validator have to know; every row is norma
 | Water boxes are unpacked: `camera`, `lightSetting`, `room`, `notSwimmable`; `properties` is a legacy form. | §4.4 | Read/write the named fields. |
 | Lighting `fogNear` is the 0–1000 value only; the blend rate is `fogBlendRate`. | §4.2 | Split the packed word on import, write both keys. |
 | A positional list with a hole, or an unresolvable exit name, fails the document. | §3 | Validate before export. |
-| `unbound.json` `formatVersion` / `requires.formatVersion` are checked. | §6 | Write `formatVersion: 1`. |
+| `unbound.json` `formatVersion` / `requires.formatVersion` are checked. | §6 | ~~Write `formatVersion: 1`~~ — `2` as of 2026-08-29. |
 | The exporter writes numbers everywhere (message ids stay hex-string keys). | §2 | Accept both on read. |
 
 Mods written against the previous shapes (per-file registry, `unbound/text`, packed collision
-words) need re-exporting; SoH still loads packed collision words with a warning but does not read
-the old registry/text paths.
+words) need re-exporting; as of 2026-08-29 SoH rejects packed collision words outright and does not
+read the old registry/text paths.
 
 ## 2026-08-27 — world extent, rooms, dyna
 
@@ -80,15 +80,16 @@ growable message tables (§5), objects per setup 1 024, actors per room 65 535, 
 
 1. Registry writer: emit `unbound/scenes.json`; entrance references by name in exit lists.
 2. Text writer: per-language `messages.json` deltas; import the object form.
-3. Collision writer: schema `/2`, unpacked surface types and water boxes; reader: accept the
-   legacy forms too so old fixtures still import.
+3. Collision writer: schema `/3`, integral `s32` vertices/bounds/water boxes, unpacked surface
+   types and water boxes; vertex resource v1 where a mesh needs it. Importing old fixtures (packed
+   words, `/1`, `/2`, `origin`) is Prelude's concern alone — SoH does not read them.
 4. Lighting inspector: `fogBlendRate` and the world-fog keys.
 5. Validation updates per SPEC §9; keep the camera-data and per-room `Vtx` warnings.
 6. Regenerate test fixtures from a fresh `soh --export-unbound` (works headless).
 
 ## How to verify against this build
 
-- Build `unbound-fixes` (`cmake --build build-cmake --target soh -j8`), export `oot-unbound.o2r`,
+- Build `unbound` (`cmake --build build-cmake --target soh -j8`), export `oot-unbound.o2r`,
   place it beside `oot.o2r`. Loader errors are prefixed `[Unbound]` and name the document and key.
 - Float-matrix rendering parity has had a title-screen run only; the first thing to eyeball is
   that vanilla scenes look identical.

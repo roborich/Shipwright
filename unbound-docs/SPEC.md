@@ -301,8 +301,8 @@ Polygon fields: `type` indexes `surfaceTypes` (a header holds at most 65 535 sur
 `vB`: bit 29 = conveyor, bits 30–31 reserved, write 0; `vC`: reserved, write 0); `nx, ny, nz`
 the unit normal scaled by 32767; `dist` the plane distance from the world origin. Vertex and
 polygon counts are unbounded (indices are 29-bit); bytes past the declared counts are ignored.
-A `$schema` whose type is not `unbound/collision` or whose version is not 3 is **rejected**
-(1 and 2 were pre-release layouts; see §10).
+A `$schema` that is absent, whose type is not `unbound/collision`, or whose version is not 3 is
+**rejected** (1 and 2 were pre-release layouts; see §10).
 
 ### 4.5 `paths/<name>.json`
 
