@@ -238,8 +238,8 @@ void Math_Vec3i_ToVec3f(Vec3f* dest, Vec3i* src) {
     dest->z = src->z;
 }
 
-// SOH [Unbound] Rounds rather than truncating: the dyna bake writes transformed world positions back into an
-// integral list every frame, and truncation would bias every moving platform's collision toward zero.
+// SOH [Unbound] Rounds where vanilla's BgCheck_Vec3fToVec3s truncated: the dyna bake writes transformed world
+// positions back into an integral list every frame, and truncation biases every moving platform toward zero.
 void Math_Vec3f_ToVec3i(Vec3i* dest, Vec3f* src) {
     dest->x = (s32)lroundf(src->x);
     dest->y = (s32)lroundf(src->y);

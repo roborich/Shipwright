@@ -65,8 +65,8 @@ typedef struct {
                   // Value ranges from -0x7FFF to 0x7FFF, representing -1.0 to 1.0; 0x8000 is invalid
 
     s32 dist; // Plane distance from origin along the normal. // SOH [Unbound] s16 -> s32 (world extent).
-              // Derived from a unit normal, so it is fractional even when every vertex is integral; it is
-              // rounded, exactly as vanilla rounded it into an s16.
+              // Derived from a unit normal, so it is fractional even when every vertex is integral; the writer
+              // rounds it (vanilla truncated it into an s16).
 } CollisionPoly;
 
 typedef struct {

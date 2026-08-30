@@ -300,21 +300,19 @@ void PutU32(std::vector<uint8_t>& out, uint32_t v) {
     }
 }
 
-void PutF32(std::vector<uint8_t>& out, float v) {
-    uint32_t bits;
-    std::memcpy(&bits, &v, sizeof(bits));
-    PutU32(out, bits);
+void PutS32(std::vector<uint8_t>& out, int32_t v) {
+    PutU32(out, (uint32_t)v);
 }
 
-// collision.bin v3 (SPEC.md §4.4.1): s32 vertices, 28-byte polys with s32 dist. v1 and v2 stay readable.
+// collision.bin (SPEC.md §4.4.1): s32 vertices, 28-byte polys with s32 dist.
 std::vector<uint8_t> BuildCollisionBin(const SOH::CollisionHeader& col) {
     std::vector<uint8_t> bin;
     const auto& d = col.collisionHeaderData;
     bin.reserve(d.numVertices * 12 + d.numPolygons * 28);
     for (uint32_t i = 0; i < d.numVertices; i++) {
-        PutU32(bin, (uint32_t)d.vtxList[i].x);
-        PutU32(bin, (uint32_t)d.vtxList[i].y);
-        PutU32(bin, (uint32_t)d.vtxList[i].z);
+        PutS32(bin, d.vtxList[i].x);
+        PutS32(bin, d.vtxList[i].y);
+        PutS32(bin, d.vtxList[i].z);
     }
     for (uint32_t i = 0; i < d.numPolygons; i++) {
         const auto& p = d.polyList[i];
@@ -327,7 +325,7 @@ std::vector<uint8_t> BuildCollisionBin(const SOH::CollisionHeader& col) {
         PutS16(bin, p.normal.y);
         PutS16(bin, p.normal.z);
         PutS16(bin, 0); // pad
-        PutU32(bin, (uint32_t)p.dist);
+        PutS32(bin, p.dist);
     }
     return bin;
 }
@@ -385,11 +383,11 @@ json BuildCollisionJson(const SOH::CollisionHeader& col, const std::string& binP
     json water = json::object();
     for (size_t i = 0; i < col.waterBoxes.size(); i++) {
         const auto& w = col.waterBoxes[i];
-        water[Key(i)] = { { K::kXMin, Num(w.xMin) },
-                          { K::kYSurface, Num(w.ySurface) },
-                          { K::kZMin, Num(w.zMin) },
-                          { K::kXLength, Num(w.xLength) },
-                          { K::kZLength, Num(w.zLength) },
+        water[Key(i)] = { { K::kXMin, w.xMin },
+                          { K::kYSurface, w.ySurface },
+                          { K::kZMin, w.zMin },
+                          { K::kXLength, w.xLength },
+                          { K::kZLength, w.zLength },
                           { K::kCamera, w.camera },
                           { K::kLightSetting, w.lightSetting },
                           { K::kRoom, w.room },
