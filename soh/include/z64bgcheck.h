@@ -64,7 +64,9 @@ typedef struct {
     Vec3s normal; // Unit normal vector
                   // Value ranges from -0x7FFF to 0x7FFF, representing -1.0 to 1.0; 0x8000 is invalid
 
-    f32 dist; // Plane distance from origin along the normal. // SOH [Unbound] s16 -> f32 (world extent)
+    s32 dist; // Plane distance from origin along the normal. // SOH [Unbound] s16 -> s32 (world extent).
+              // Derived from a unit normal, so it is fractional even when every vertex is integral; it is
+              // rounded, exactly as vanilla rounded it into an s16.
 } CollisionPoly;
 
 typedef struct {
@@ -73,14 +75,14 @@ typedef struct {
     /* 0x04 */ Vec3s* camPosData;
 } CamData;
 
-// SOH [Unbound] Widened from the N64 0x10-byte layout: extents are f32 (world extent) and the packed
+// SOH [Unbound] Widened from the N64 0x10-byte layout: extents are s32 (world extent) and the packed
 // `properties` word is unpacked into fields (WaterBox_UnpackProperties for legacy data).
 typedef struct {
-    f32 xMin;
-    f32 ySurface;
-    f32 zMin;
-    f32 xLength;
-    f32 zLength;
+    s32 xMin;
+    s32 ySurface;
+    s32 zMin;
+    s32 xLength;
+    s32 zLength;
     s32 camera;       // CamData index (was 8 bits)
     s32 lightSetting; // lighting settings index (was 5 bits)
     s32 room;         // -1 = all rooms (was 6 bits, 0x3F)
@@ -118,12 +120,12 @@ void WaterBox_UnpackProperties(WaterBox* waterBox, u32 properties);
 }
 #endif
 
-// SOH [Unbound] Widened from the N64 layout: bounds and vertices are f32 (world extent), counts are u32
+// SOH [Unbound] Widened from the N64 layout: bounds and vertices are s32 (world extent), counts are u32
 typedef struct {
-    Vec3f minBounds; // minimum coordinates of poly bounding box
-    Vec3f maxBounds; // maximum coordinates of poly bounding box
+    Vec3i minBounds; // minimum coordinates of poly bounding box
+    Vec3i maxBounds; // maximum coordinates of poly bounding box
     u32 numVertices;
-    Vec3f* vtxList;
+    Vec3i* vtxList;
     u32 numPolygons;
     CollisionPoly* polyList;
     SurfaceType* surfaceTypeList;
@@ -193,7 +195,8 @@ typedef struct {
     void* retiredBuffers[DYNA_RETIRED_BUFFERS_MAX];
     s32 retiredCount;
     CollisionPoly* polyList;
-    Vec3f* vtxList; // s16 -> f32 (world extent)
+    Vec3i* vtxList; // s16 -> s32 (world extent). Baked world-space, so these quantise to whole units
+                    // each frame as they did in vanilla.
     DynaSSNodeList polyNodes;
     s32 polyNodesMax;
     s32 polyListMax;

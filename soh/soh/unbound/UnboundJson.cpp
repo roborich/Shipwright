@@ -1,5 +1,7 @@
 // SOH [Unbound] See UnboundJson.h.
 #include "UnboundJson.h"
+
+#include <cmath>
 #include "UnboundSchema.h"
 
 #include <libultraship/libultraship.h>
@@ -291,6 +293,16 @@ Vec3f ReadVec3f(const Json& v) {
         out.x = (f32)ToNumber(v[0]);
         out.y = (f32)ToNumber(v[1]);
         out.z = (f32)ToNumber(v[2]);
+    }
+    return out;
+}
+
+Vec3i ReadVec3i(const Json& v) {
+    Vec3i out{ 0, 0, 0 };
+    if (v.is_array() && v.size() >= 3) {
+        out.x = (s32)llround(ToNumber(v[0]));
+        out.y = (s32)llround(ToNumber(v[1]));
+        out.z = (s32)llround(ToNumber(v[2]));
     }
     return out;
 }

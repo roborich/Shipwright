@@ -14,6 +14,7 @@ inline constexpr const char* kTextType = "unbound/text";
 inline constexpr const char* kSceneV1 = "unbound/scene/1";
 inline constexpr const char* kRoomV1 = "unbound/room/1";
 inline constexpr const char* kCollisionV2 = "unbound/collision/2";
+inline constexpr const char* kCollisionV3 = "unbound/collision/3";
 inline constexpr const char* kPathsV1 = "unbound/paths/1";
 inline constexpr const char* kTextV1 = "unbound/text/1";
 

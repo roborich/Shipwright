@@ -423,18 +423,18 @@ void DrawDynapoly(std::vector<Gfx>& dl, CollisionHeader* col, int32_t bgId) {
         lastColorG = color.g;
         lastColorB = color.b;
 
-        // SOH [Unbound] collision vertices are f32; the debug overlay draws them as 16-bit Vtx (MSVC rejects the
-        // implicit narrowing in the brace initialiser).
-        Vec3f* va = &col->vtxList[COLPOLY_VTX_INDEX(poly->flags_vIA)];
-        Vec3f* vb = &col->vtxList[COLPOLY_VTX_INDEX(poly->flags_vIB)];
-        Vec3f* vc = &col->vtxList[COLPOLY_VTX_INDEX(poly->vIC)];
-        vtxDl.push_back(gdSPDefVtxN((s16)va->x, (s16)va->y, (s16)va->z, 0, 0, (signed char)(poly->normal.x / 0x100),
+        // SOH [Unbound] collision vertices are s32, and so is Vtx.ob (GBI_S32_VTX), so the overlay can draw a
+        // scene of any size. Casting to s16 here would wrap on exactly the large scenes this fork exists for.
+        Vec3i* va = &col->vtxList[COLPOLY_VTX_INDEX(poly->flags_vIA)];
+        Vec3i* vb = &col->vtxList[COLPOLY_VTX_INDEX(poly->flags_vIB)];
+        Vec3i* vc = &col->vtxList[COLPOLY_VTX_INDEX(poly->vIC)];
+        vtxDl.push_back(gdSPDefVtxN((s32)va->x, (s32)va->y, (s32)va->z, 0, 0, (signed char)(poly->normal.x / 0x100),
                                     (signed char)(poly->normal.y / 0x100), (signed char)(poly->normal.z / 0x100),
                                     0xFF));
-        vtxDl.push_back(gdSPDefVtxN((s16)vb->x, (s16)vb->y, (s16)vb->z, 0, 0, (signed char)(poly->normal.x / 0x100),
+        vtxDl.push_back(gdSPDefVtxN((s32)vb->x, (s32)vb->y, (s32)vb->z, 0, 0, (signed char)(poly->normal.x / 0x100),
                                     (signed char)(poly->normal.y / 0x100), (signed char)(poly->normal.z / 0x100),
                                     0xFF));
-        vtxDl.push_back(gdSPDefVtxN((s16)vc->x, (s16)vc->y, (s16)vc->z, 0, 0, (signed char)(poly->normal.x / 0x100),
+        vtxDl.push_back(gdSPDefVtxN((s32)vc->x, (s32)vc->y, (s32)vc->z, 0, 0, (signed char)(poly->normal.x / 0x100),
                                     (signed char)(poly->normal.y / 0x100), (signed char)(poly->normal.z / 0x100),
                                     0xFF));
 

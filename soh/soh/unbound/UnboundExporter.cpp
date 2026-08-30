@@ -258,6 +258,10 @@ json Vec(const Vec3s& v) {
     return json::array({ v.x, v.y, v.z });
 }
 
+json Vec(const Vec3i& v) {
+    return json::array({ v.x, v.y, v.z });
+}
+
 // SOH [Unbound] world positions are f32; emit integers when integral so converted vanilla data stays tidy.
 json Num(f32 v) {
     if (v == (f32)(int64_t)v) {
@@ -302,15 +306,15 @@ void PutF32(std::vector<uint8_t>& out, float v) {
     PutU32(out, bits);
 }
 
-// collision.bin v2 (SPEC.md §4.4.1): f32 vertices, 28-byte polys with f32 dist. v1 stays readable.
+// collision.bin v3 (SPEC.md §4.4.1): s32 vertices, 28-byte polys with s32 dist. v1 and v2 stay readable.
 std::vector<uint8_t> BuildCollisionBin(const SOH::CollisionHeader& col) {
     std::vector<uint8_t> bin;
     const auto& d = col.collisionHeaderData;
     bin.reserve(d.numVertices * 12 + d.numPolygons * 28);
     for (uint32_t i = 0; i < d.numVertices; i++) {
-        PutF32(bin, d.vtxList[i].x);
-        PutF32(bin, d.vtxList[i].y);
-        PutF32(bin, d.vtxList[i].z);
+        PutU32(bin, (uint32_t)d.vtxList[i].x);
+        PutU32(bin, (uint32_t)d.vtxList[i].y);
+        PutU32(bin, (uint32_t)d.vtxList[i].z);
     }
     for (uint32_t i = 0; i < d.numPolygons; i++) {
         const auto& p = d.polyList[i];
@@ -323,7 +327,7 @@ std::vector<uint8_t> BuildCollisionBin(const SOH::CollisionHeader& col) {
         PutS16(bin, p.normal.y);
         PutS16(bin, p.normal.z);
         PutS16(bin, 0); // pad
-        PutF32(bin, p.dist);
+        PutU32(bin, (uint32_t)p.dist);
     }
     return bin;
 }
@@ -349,7 +353,7 @@ json SurfaceTypeJson(const SurfaceType& t) {
 json BuildCollisionJson(const SOH::CollisionHeader& col, const std::string& binPath) {
     const auto& d = col.collisionHeaderData;
     json doc;
-    doc[K::kSchema] = K::kCollisionV2;
+    doc[K::kSchema] = K::kCollisionV3;
     doc[K::kBounds] = { { K::kMin, Vec(d.minBounds) }, { K::kMax, Vec(d.maxBounds) } };
     doc[K::kBulk] = { { K::kFile, binPath }, { K::kVertices, d.numVertices }, { K::kPolys, d.numPolygons } };
 

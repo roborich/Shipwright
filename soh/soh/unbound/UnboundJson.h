@@ -65,6 +65,9 @@ std::string PathField(const Json& obj, const char* key);
 // [x, y, z] arrays; rotations and camera positions stay s16, world positions are f32.
 Vec3s ReadVec3s(const Json& v);
 Vec3f ReadVec3f(const Json& v);
+// SOH [Unbound] the integral counterpart, for collision (whose vertices and bounds are s32). Rounds, so a
+// legacy document that wrote 99.9999 lands on 100 rather than 99.
+Vec3i ReadVec3i(const Json& v);
 
 // [r, g, b] (or any 3-component u8/s8 triple) into `out[3]`; leaves `out` alone when absent.
 template <typename T> void ReadRgb(const Json& v, T* out) {

@@ -866,6 +866,8 @@ void OTRGlobals::Initialize() {
                                     static_cast<uint32_t>(SOH::ResourceType::SOH_CollisionHeader), 1);
     loader->RegisterResourceFactory(jsonCollision, RESOURCE_FORMAT_JSON, SOH::Unbound::Schema::kCollisionType,
                                     static_cast<uint32_t>(SOH::ResourceType::SOH_CollisionHeader), 2);
+    loader->RegisterResourceFactory(jsonCollision, RESOURCE_FORMAT_JSON, SOH::Unbound::Schema::kCollisionType,
+                                    static_cast<uint32_t>(SOH::ResourceType::SOH_CollisionHeader), 3);
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryJsonPathV1>(), RESOURCE_FORMAT_JSON,
                                     SOH::Unbound::Schema::kPathsType,
                                     static_cast<uint32_t>(SOH::ResourceType::SOH_Path), 1);

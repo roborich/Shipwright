@@ -62,7 +62,7 @@ ResourceFactoryBinaryCollisionHeaderV0::ReadResource(std::shared_ptr<Ship::File>
     collisionHeader->collisionHeaderData.numVertices = reader->ReadInt32();
     collisionHeader->vertices.reserve(collisionHeader->collisionHeaderData.numVertices);
     for (uint32_t i = 0; i < collisionHeader->collisionHeaderData.numVertices; i++) {
-        Vec3f vtx;
+        Vec3i vtx; // SOH [Unbound] collision vertices are s32; the vanilla source is s16, so this is exact
         vtx.x = reader->ReadInt16();
         vtx.y = reader->ReadInt16();
         vtx.z = reader->ReadInt16();
@@ -189,7 +189,7 @@ ResourceFactoryXMLCollisionHeaderV0::ReadResource(std::shared_ptr<Ship::File> fi
     while (child != nullptr) {
         std::string childName = child->Name();
         if (childName == "Vertex") {
-            Vec3f vtx;
+            Vec3i vtx; // SOH [Unbound] collision vertices are s32; the attributes are integers already
             vtx.x = child->IntAttribute("X");
             vtx.y = child->IntAttribute("Y");
             vtx.z = child->IntAttribute("Z");

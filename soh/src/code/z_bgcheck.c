@@ -155,7 +155,7 @@ u32 DynaSSNodeList_GetNextNodeIdx(DynaSSNodeList* nodeList) {
 /**
  * Get CollisionPoly's lowest y point
  */
-f32 CollisionPoly_GetMinY(CollisionPoly* poly, Vec3f* vtxList) {
+f32 CollisionPoly_GetMinY(CollisionPoly* poly, Vec3i* vtxList) {
     s32 a;
     s32 b;
     s32 c;
@@ -255,10 +255,10 @@ f32 CollisionPoly_GetPointDistanceFromPlane(CollisionPoly* poly, Vec3f* point) {
 /**
  * Get Poly Vertices
  */
-void CollisionPoly_GetVertices(CollisionPoly* poly, Vec3f* vtxList, Vec3f* dest) {
-    dest[0] = vtxList[COLPOLY_VTX_INDEX(poly->flags_vIA)];
-    dest[1] = vtxList[COLPOLY_VTX_INDEX(poly->flags_vIB)];
-    dest[2] = vtxList[poly->vIC];
+void CollisionPoly_GetVertices(CollisionPoly* poly, Vec3i* vtxList, Vec3f* dest) {
+    Math_Vec3i_ToVec3f(&dest[0], &vtxList[COLPOLY_VTX_INDEX(poly->flags_vIA)]);
+    Math_Vec3i_ToVec3f(&dest[1], &vtxList[COLPOLY_VTX_INDEX(poly->flags_vIB)]);
+    Math_Vec3i_ToVec3f(&dest[2], &vtxList[poly->vIC]);
 }
 
 /**
@@ -266,7 +266,7 @@ void CollisionPoly_GetVertices(CollisionPoly* poly, Vec3f* vtxList, Vec3f* dest)
  * original name: T_Polygon_GetVertex_bg_ai
  */
 void CollisionPoly_GetVerticesByBgId(CollisionPoly* poly, s32 bgId, CollisionContext* colCtx, Vec3f* dest) {
-    Vec3f* vtxList;
+    Vec3i* vtxList;
 
     // SOH [Unbound] bgId is either the scene sentinel or a live dyna slot
     if (poly == NULL || (bgId != BGCHECK_SCENE && !DynaPoly_IsBgIdBgActor(bgId)) || dest == NULL) {
@@ -295,22 +295,15 @@ void CollisionPoly_GetVerticesByBgId(CollisionPoly* poly, s32 bgId, CollisionCon
  * Checks if point (`x`,`z`) is within `chkDist` of `poly`, computing `yIntersect` if true
  * Determinant max 300.0f
  */
-s32 CollisionPoly_CheckYIntersectApprox1(CollisionPoly* poly, Vec3f* vtxList, f32 x, f32 z, f32* yIntersect,
+s32 CollisionPoly_CheckYIntersectApprox1(CollisionPoly* poly, Vec3i* vtxList, f32 x, f32 z, f32* yIntersect,
                                          f32 chkDist) {
     static Vec3f polyVerts[3];
     f32 nx;
     f32 ny;
     f32 nz;
-    Vec3f* vA;
-    Vec3f* vB;
-    Vec3f* vC;
-
-    vA = &vtxList[COLPOLY_VTX_INDEX(poly->flags_vIA)];
-    polyVerts[0] = *vA;
-    vB = &vtxList[COLPOLY_VTX_INDEX(poly->flags_vIB)];
-    polyVerts[1] = *vB;
-    vC = &vtxList[poly->vIC];
-    polyVerts[2] = *vC;
+    Math_Vec3i_ToVec3f(&polyVerts[0], &vtxList[COLPOLY_VTX_INDEX(poly->flags_vIA)]);
+    Math_Vec3i_ToVec3f(&polyVerts[1], &vtxList[COLPOLY_VTX_INDEX(poly->flags_vIB)]);
+    Math_Vec3i_ToVec3f(&polyVerts[2], &vtxList[poly->vIC]);
 
     nx = COLPOLY_GET_NORMAL(poly->normal.x);
     ny = COLPOLY_GET_NORMAL(poly->normal.y);
@@ -324,7 +317,7 @@ s32 CollisionPoly_CheckYIntersectApprox1(CollisionPoly* poly, Vec3f* vtxList, f3
  * Checks if point (`x`,`z`) is within `chkDist` of `poly`, computing `yIntersect` if true
  * Determinant max 0.0f (checks if on or within poly)
  */
-s32 CollisionPoly_CheckYIntersect(CollisionPoly* poly, Vec3f* vtxList, f32 x, f32 z, f32* yIntersect, f32 chkDist) {
+s32 CollisionPoly_CheckYIntersect(CollisionPoly* poly, Vec3i* vtxList, f32 x, f32 z, f32* yIntersect, f32 chkDist) {
     static Vec3f polyVerts[3];
     f32 nx;
     f32 ny;
@@ -340,7 +333,7 @@ s32 CollisionPoly_CheckYIntersect(CollisionPoly* poly, Vec3f* vtxList, f32 x, f3
  * Checks if point (`x`,`z`) is within 1.0f of `poly`, computing `yIntersect` if true
  * Determinant max 300.0f
  */
-s32 CollisionPoly_CheckYIntersectApprox2(CollisionPoly* poly, Vec3f* vtxList, f32 x, f32 z, f32* yIntersect) {
+s32 CollisionPoly_CheckYIntersectApprox2(CollisionPoly* poly, Vec3i* vtxList, f32 x, f32 z, f32* yIntersect) {
     return CollisionPoly_CheckYIntersectApprox1(poly, vtxList, x, z, yIntersect, 1.0f);
 }
 
@@ -348,7 +341,7 @@ s32 CollisionPoly_CheckYIntersectApprox2(CollisionPoly* poly, Vec3f* vtxList, f3
  * Checks if point (`y`,`z`) is within 1.0f of `poly`, computing `xIntersect` if true
  * Determinant max 300.0f
  */
-s32 CollisionPoly_CheckXIntersectApprox(CollisionPoly* poly, Vec3f* vtxList, f32 y, f32 z, f32* xIntersect) {
+s32 CollisionPoly_CheckXIntersectApprox(CollisionPoly* poly, Vec3i* vtxList, f32 y, f32 z, f32* xIntersect) {
     static Vec3f polyVerts[3];
     f32 nx;
     f32 ny;
@@ -364,7 +357,7 @@ s32 CollisionPoly_CheckXIntersectApprox(CollisionPoly* poly, Vec3f* vtxList, f32
  * Checks if point (`x`,`y`) is within 1.0f of `poly`, computing `zIntersect` if true
  * Determinant max 300.0f
  */
-s32 CollisionPoly_CheckZIntersectApprox(CollisionPoly* poly, Vec3f* vtxList, f32 x, f32 y, f32* zIntersect) {
+s32 CollisionPoly_CheckZIntersectApprox(CollisionPoly* poly, Vec3i* vtxList, f32 x, f32 y, f32* zIntersect) {
     static Vec3f polyVerts[3];
     f32 nx;
     f32 ny;
@@ -383,7 +376,7 @@ s32 CollisionPoly_CheckZIntersectApprox(CollisionPoly* poly, Vec3f* vtxList, f32
  * if `chkOneFace` is true, return false (no intersection) when going through the poly from A to B is done in the
  * normal's direction
  */
-s32 CollisionPoly_LineVsPoly(CollisionPoly* poly, Vec3f* vtxList, Vec3f* posA, Vec3f* posB, Vec3f* planeIntersect,
+s32 CollisionPoly_LineVsPoly(CollisionPoly* poly, Vec3i* vtxList, Vec3f* posA, Vec3f* posB, Vec3f* planeIntersect,
                              s32 chkOneFace, f32 chkDist) {
     static Vec3f polyVerts[3];
     static Plane plane;
@@ -435,7 +428,7 @@ s32 CollisionPoly_LineVsPoly(CollisionPoly* poly, Vec3f* vtxList, Vec3f* posA, V
 /**
  * Tests if sphere `center` `radius` intersects `poly`
  */
-s32 CollisionPoly_SphVsPoly(CollisionPoly* poly, Vec3f* vtxList, Vec3f* center, f32 radius) {
+s32 CollisionPoly_SphVsPoly(CollisionPoly* poly, Vec3i* vtxList, Vec3f* center, f32 radius) {
     static Sphere16 sphere;
     static TriNorm tri;
     Vec3f intersect;
@@ -458,7 +451,7 @@ s32 CollisionPoly_SphVsPoly(CollisionPoly* poly, Vec3f* vtxList, Vec3f* center, 
  * `vtxList` is the vertex lookup list
  * `polyId` is the index of the poly in polyList to insert into the lookup table
  */
-void StaticLookup_AddPolyToSSList(CollisionContext* colCtx, SSList* ssList, CollisionPoly* polyList, Vec3f* vtxList,
+void StaticLookup_AddPolyToSSList(CollisionContext* colCtx, SSList* ssList, CollisionPoly* polyList, Vec3i* vtxList,
                                   s32 polyId) {
     SSNode* curNode;
     SSNode* nextNode;
@@ -516,7 +509,7 @@ void StaticLookup_AddPolyToSSList(CollisionContext* colCtx, SSList* ssList, Coll
 /**
  * Add CollisionPoly to StaticLookup list
  */
-void StaticLookup_AddPoly(StaticLookup* lookup, CollisionContext* colCtx, CollisionPoly* polyList, Vec3f* vtxList,
+void StaticLookup_AddPoly(StaticLookup* lookup, CollisionContext* colCtx, CollisionPoly* polyList, Vec3i* vtxList,
                           s32 index) {
     if (polyList[index].normal.y > COLPOLY_SNORMAL(0.5f)) {
         StaticLookup_AddPolyToSSList(colCtx, &lookup->floor, polyList, vtxList, index);
@@ -674,7 +667,7 @@ s32 BgCheck_SphVsStaticWall(StaticLookup* lookup, CollisionContext* colCtx, u16 
     f32 ny;
     f32 nz;
     f32 temp_f16;
-    Vec3f* vtxList;
+    Vec3i* vtxList;
     u16 pad;
 
     f32 zMin;
@@ -871,7 +864,7 @@ s32 BgCheck_CheckStaticCeiling(StaticLookup* lookup, u16 xpFlags, CollisionConte
     CollisionPoly* curPoly;
     CollisionPoly* polyList;
     f32 ceilingY;
-    Vec3f* vtxList;
+    Vec3i* vtxList;
     SSNode* curNode;
     s32 curPolyId;
 
@@ -1026,7 +1019,7 @@ s32 BgCheck_CheckLineInSubdivision(StaticLookup* lookup, CollisionContext* colCt
 s32 BgCheck_SphVsFirstStaticPolyList(SSNode* node, u16 xpFlags, CollisionContext* colCtx, Vec3f* center, f32 radius,
                                      CollisionPoly** outPoly) {
     CollisionPoly* polyList = colCtx->colHeader->polyList;
-    Vec3f* vtxList = colCtx->colHeader->vtxList;
+    Vec3i* vtxList = colCtx->colHeader->vtxList;
     CollisionPoly* curPoly;
     u32 nextId;
     s32 curPolyId;
@@ -1208,7 +1201,7 @@ void BgCheck_GetSubdivisionMaxBounds(CollisionContext* colCtx, Vec3f* pos, s32* 
  * `subdivMinX`, `subdivMinY`, `subdivMinZ` returns the minimum subdivision x, y, z indices
  * `subdivMaxX`, `subdivMaxY`, `subdivMaxZ` returns the maximum subdivision x, y, z indices
  */
-void BgCheck_GetPolySubdivisionBounds(CollisionContext* colCtx, Vec3f* vtxList, CollisionPoly* polyList,
+void BgCheck_GetPolySubdivisionBounds(CollisionContext* colCtx, Vec3i* vtxList, CollisionPoly* polyList,
                                       s32* subdivMinX, s32* subdivMinY, s32* subdivMinZ, s32* subdivMaxX,
                                       s32* subdivMaxY, s32* subdivMaxZ, s32 polyId) {
     u32* vtxDataTemp;
@@ -1219,10 +1212,10 @@ void BgCheck_GetPolySubdivisionBounds(CollisionContext* colCtx, Vec3f* vtxList, 
     f32 y;
     f32 z;
 
-    Vec3f* vtx;
+    Vec3i* vtx;
     s32 vtxId = COLPOLY_VTX_INDEX(polyList[polyId].vtxData[0]);
 
-    maxVtx = vtxList[vtxId];
+    Math_Vec3i_ToVec3f(&maxVtx, &vtxList[vtxId]);
     Math_Vec3f_Copy(&minVtx, &maxVtx);
 
     for (vtxDataTemp = polyList[polyId].vtxData + 1; vtxDataTemp < polyList[polyId].vtxData + 3; vtxDataTemp++) {
@@ -1258,7 +1251,7 @@ void BgCheck_GetPolySubdivisionBounds(CollisionContext* colCtx, Vec3f* vtxList, 
  * Test if poly `polyList`[`polyId`] intersects cube `min` `max`
  * returns true if the poly intersects the cube, else false
  */
-s32 BgCheck_PolyIntersectsSubdivision(Vec3f* min, Vec3f* max, CollisionPoly* polyList, Vec3f* vtxList, s32 polyId) {
+s32 BgCheck_PolyIntersectsSubdivision(Vec3f* min, Vec3f* max, CollisionPoly* polyList, Vec3i* vtxList, s32 polyId) {
     f32 intersect;
     Vec3f va2;
     Vec3f vb2;
@@ -1276,19 +1269,19 @@ s32 BgCheck_PolyIntersectsSubdivision(Vec3f* min, Vec3f* max, CollisionPoly* pol
     flags[0] = flags[1] = 0;
     poly = &polyList[polyId];
 
-    va = vtxList[COLPOLY_VTX_INDEX(poly->flags_vIA)];
+    Math_Vec3i_ToVec3f(&va, &vtxList[COLPOLY_VTX_INDEX(poly->flags_vIA)]);
     flags[0] = Math3D_PointRelativeToCubeFaces(&va, min, max);
     if (flags[0] == 0) {
         return true;
     }
 
-    vb = vtxList[COLPOLY_VTX_INDEX(poly->flags_vIB)];
+    Math_Vec3i_ToVec3f(&vb, &vtxList[COLPOLY_VTX_INDEX(poly->flags_vIB)]);
     flags[1] = Math3D_PointRelativeToCubeFaces(&vb, min, max);
     if (flags[1] == 0) {
         return true;
     }
 
-    vc = vtxList[poly->vIC];
+    Math_Vec3i_ToVec3f(&vc, &vtxList[poly->vIC]);
     flags[2] = Math3D_PointRelativeToCubeFaces(&vc, min, max);
     if (flags[2] == 0) {
         return true;
@@ -1346,9 +1339,9 @@ s32 BgCheck_PolyIntersectsSubdivision(Vec3f* min, Vec3f* max, CollisionPoly* pol
         return true;
     }
 
-    va2 = vtxList[COLPOLY_VTX_INDEX(poly->flags_vIA)];
-    vb2 = vtxList[COLPOLY_VTX_INDEX(poly->flags_vIB)];
-    vc2 = vtxList[poly->vIC];
+    Math_Vec3i_ToVec3f(&va2, &vtxList[COLPOLY_VTX_INDEX(poly->flags_vIA)]);
+    Math_Vec3i_ToVec3f(&vb2, &vtxList[COLPOLY_VTX_INDEX(poly->flags_vIB)]);
+    Math_Vec3i_ToVec3f(&vc2, &vtxList[poly->vIC]);
     if (Math3D_LineVsCube(min, max, &va2, &vb2) || Math3D_LineVsCube(min, max, &vb2, &vc2) ||
         Math3D_LineVsCube(min, max, &vc2, &va2)) {
         return true;
@@ -1361,7 +1354,7 @@ s32 BgCheck_PolyIntersectsSubdivision(Vec3f* min, Vec3f* max, CollisionPoly* pol
  * returns size of table, in bytes
  */
 u32 BgCheck_InitializeStaticLookup(CollisionContext* colCtx, PlayState* play, StaticLookup* lookupTbl) {
-    Vec3f* vtxList;
+    Vec3i* vtxList;
     CollisionPoly* polyList;
     s32 polyMax;
     s32 polyIdx;
@@ -1587,8 +1580,9 @@ void BgCheck_Allocate(CollisionContext* colCtx, PlayState* play, CollisionHeader
     if (colCtx->lookupTbl == NULL) {
         LOG_HUNGUP_THREAD();
     }
-    colCtx->minBounds = colCtx->colHeader->minBounds;
-    colCtx->maxBounds = colCtx->colHeader->maxBounds;
+    // SOH [Unbound] header bounds are s32; the subdivision maths below is f32
+    Math_Vec3i_ToVec3f(&colCtx->minBounds, &colCtx->colHeader->minBounds);
+    Math_Vec3i_ToVec3f(&colCtx->maxBounds, &colCtx->colHeader->maxBounds);
     BgCheck_SetSubdivisionDimension(colCtx->minBounds.x, colCtx->subdivAmount.x, &colCtx->maxBounds.x,
                                     &colCtx->subdivLength.x, &colCtx->subdivLengthInv.x);
     BgCheck_SetSubdivisionDimension(colCtx->minBounds.y, colCtx->subdivAmount.y, &colCtx->maxBounds.y,
@@ -2907,9 +2901,9 @@ void DynaPoly_ExpandSRT(PlayState* play, DynaCollisionContext* dyna, s32 bgId, s
         for (i = 0; i < pbgdata->numVertices; i++) {
             Vec3f vtx;
             Vec3f vtxT; // Vtx after mtx transform
-            vtx = pbgdata->vtxList[i];
+            Math_Vec3i_ToVec3f(&vtx, &pbgdata->vtxList[i]);
             SkinMatrix_Vec3fMtxFMultXYZ(&mtx, &vtx, &vtxT);
-            dyna->vtxList[*vtxStartIndex + i] = vtxT;
+            Math_Vec3f_ToVec3i(&dyna->vtxList[*vtxStartIndex + i], &vtxT);
 
             if (i == 0) {
                 dyna->bgActors[bgId].minY = dyna->bgActors[bgId].maxY = vtxT.y;
@@ -3153,7 +3147,7 @@ f32 BgCheck_RaycastFloorDyna(DynaRaycast* dynaRaycast) {
     CollisionPoly* polyMin;
     MtxF srpMtx;
     f32 magnitude;
-    Vec3f* vtxList;
+    Vec3i* vtxList;
     f32 polyDist;
     Vec3f vtx;
     f32 intersect;
@@ -3232,7 +3226,7 @@ f32 BgCheck_RaycastFloorDyna(DynaRaycast* dynaRaycast) {
             vtxList = dynaRaycast->dyna->bgActors[*dynaRaycast->bgId].colHeader->vtxList;
 
             for (i2 = 0; i2 < 3; i2++) {
-                vtx = vtxList[COLPOLY_VTX_INDEX(poly->vtxData[i2])];
+                Math_Vec3i_ToVec3f(&vtx, &vtxList[COLPOLY_VTX_INDEX(poly->vtxData[i2])]);
                 SkinMatrix_Vec3fMtxFMultXYZ(&srpMtx, &vtx, &polyVtx[i2]);
             }
             Math3D_SurfaceNorm(&polyVtx[0], &polyVtx[1], &polyVtx[2], &polyNorm);
@@ -4504,9 +4498,9 @@ void BgCheck_DrawDynaPolyList(PlayState* play, CollisionContext* colCtx, DynaCol
         while (true) {
             curPolyId = curNode->polyId;
             poly = &dyna->polyList[curPolyId];
-            vA = dyna->vtxList[COLPOLY_VTX_INDEX(poly->flags_vIA)];
-            vB = dyna->vtxList[COLPOLY_VTX_INDEX(poly->flags_vIB)];
-            vC = dyna->vtxList[poly->vIC];
+            Math_Vec3i_ToVec3f(&vA, &dyna->vtxList[COLPOLY_VTX_INDEX(poly->flags_vIA)]);
+            Math_Vec3i_ToVec3f(&vB, &dyna->vtxList[COLPOLY_VTX_INDEX(poly->flags_vIB)]);
+            Math_Vec3i_ToVec3f(&vC, &dyna->vtxList[poly->vIC]);
             if (AREG(26)) {
                 nx = COLPOLY_GET_NORMAL(poly->normal.x);
                 ny = COLPOLY_GET_NORMAL(poly->normal.y);
@@ -4573,9 +4567,9 @@ void BgCheck_DrawStaticPoly(PlayState* play, CollisionContext* colCtx, Collision
     f32 ny;
     f32 nz;
 
-    vA = colCtx->colHeader->vtxList[COLPOLY_VTX_INDEX(poly->flags_vIA)];
-    vB = colCtx->colHeader->vtxList[COLPOLY_VTX_INDEX(poly->flags_vIB)];
-    vC = colCtx->colHeader->vtxList[poly->vIC];
+    Math_Vec3i_ToVec3f(&vA, &colCtx->colHeader->vtxList[COLPOLY_VTX_INDEX(poly->flags_vIA)]);
+    Math_Vec3i_ToVec3f(&vB, &colCtx->colHeader->vtxList[COLPOLY_VTX_INDEX(poly->flags_vIB)]);
+    Math_Vec3i_ToVec3f(&vC, &colCtx->colHeader->vtxList[poly->vIC]);
     if (AREG(26) != 0) {
         nx = COLPOLY_GET_NORMAL(poly->normal.x);
         ny = COLPOLY_GET_NORMAL(poly->normal.y);

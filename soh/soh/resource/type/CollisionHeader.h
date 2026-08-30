@@ -22,16 +22,16 @@ typedef struct {
     Vec3s normal; // Unit normal vector
                   // Value ranges from -0x7FFF to 0x7FFF, representing -1.0 to 1.0; 0x8000 is invalid
 
-    f32 dist; // Plane distance from origin along the normal. // SOH [Unbound] s16 -> f32 (world extent)
+    s32 dist; // Plane distance from origin along the normal. // SOH [Unbound] s16 -> s32 (world extent)
 } CollisionPoly;
 
-// SOH [Unbound] Must mirror WaterBox in soh/include/z64bgcheck.h (f32 extents, unpacked properties)
+// SOH [Unbound] Must mirror WaterBox in soh/include/z64bgcheck.h (s32 extents, unpacked properties)
 typedef struct {
-    f32 xMin;
-    f32 ySurface;
-    f32 zMin;
-    f32 xLength;
-    f32 zLength;
+    s32 xMin;
+    s32 ySurface;
+    s32 zMin;
+    s32 xLength;
+    s32 zLength;
     s32 camera;
     s32 lightSetting;
     s32 room;
@@ -69,12 +69,12 @@ typedef struct {
 SurfaceType UnpackSurfaceType(uint32_t data0, uint32_t data1);
 void UnpackWaterBoxProperties(WaterBox& waterBox, uint32_t properties);
 
-// SOH [Unbound] Must mirror CollisionHeader in soh/include/z64bgcheck.h (f32 bounds/vertices, u32 counts)
+// SOH [Unbound] Must mirror CollisionHeader in soh/include/z64bgcheck.h (s32 bounds/vertices, u32 counts)
 typedef struct {
-    Vec3f minBounds; // minimum coordinates of poly bounding box
-    Vec3f maxBounds; // maximum coordinates of poly bounding box
+    Vec3i minBounds; // minimum coordinates of poly bounding box
+    Vec3i maxBounds; // maximum coordinates of poly bounding box
     u32 numVertices;
-    Vec3f* vtxList;
+    Vec3i* vtxList;
     u32 numPolygons;
     CollisionPoly* polyList;
     SurfaceType* surfaceTypeList;
@@ -96,7 +96,7 @@ class CollisionHeader : public Ship::Resource<CollisionHeaderData> {
 
     CollisionHeaderData collisionHeaderData;
 
-    std::vector<Vec3f> vertices;
+    std::vector<Vec3i> vertices;
 
     std::vector<CollisionPoly> polygons;
 

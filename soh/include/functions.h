@@ -964,6 +964,8 @@ void func_80077D10(f32* arg0, s16* arg1, Input* input);
 s16 Rand_S16Offset(s16 base, s16 range);
 void Math_Vec3f_Copy(Vec3f* dest, Vec3f* src);
 void Math_Vec3s_ToVec3f(Vec3f* dest, Vec3s* src);
+void Math_Vec3i_ToVec3f(Vec3f* dest, Vec3i* src); // SOH [Unbound]
+void Math_Vec3f_ToVec3i(Vec3i* dest, Vec3f* src); // SOH [Unbound] rounds
 void Math_Vec3f_Sum(Vec3f* a, Vec3f* b, Vec3f* dest);
 void Math_Vec3f_Diff(Vec3f* a, Vec3f* b, Vec3f* dest);
 void Math_Vec3s_DiffToVec3f(Vec3f* dest, Vec3s* a, Vec3s* b);

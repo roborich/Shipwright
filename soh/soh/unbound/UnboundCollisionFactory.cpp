@@ -6,6 +6,7 @@
 #include <spdlog/spdlog.h>
 #include <ship/utils/binarytools/BinaryReader.h>
 #include <cstdint>
+#include <cmath>
 
 #include "soh/resource/type/CollisionHeader.h"
 
@@ -22,6 +23,7 @@ namespace {
 //       poly { u16 type, u32 vA, vB, vC, s16 nx, ny, nz, s16 dist, s16 pad } (24 B)
 //   v2: vertex { f32 x, y, z } (12 B);
 //       poly { u16 type, u16 pad, u32 vA, vB, vC, s16 nx, ny, nz, s16 pad, f32 dist } (28 B)
+//   v3: as v2 but integral — vertex { s32 x, y, z }, poly dist s32. Same sizes, so only the reads differ.
 size_t BulkVertexBlockSize(int version, uint32_t numVertices) {
     size_t bytes = (size_t)numVertices * (version >= 2 ? 12 : 6);
     return version >= 2 ? bytes : (bytes + 3) & ~(size_t)3;
@@ -31,12 +33,17 @@ size_t BulkSize(int version, uint32_t numVertices, uint32_t numPolys) {
     return BulkVertexBlockSize(version, numVertices) + (size_t)numPolys * (version >= 2 ? 28 : 24);
 }
 
-Vec3f ReadVertex(Ship::BinaryReader& r, int version) {
-    Vec3f v;
-    if (version >= 2) {
-        v.x = r.ReadFloat();
-        v.y = r.ReadFloat();
-        v.z = r.ReadFloat();
+Vec3i ReadVertex(Ship::BinaryReader& r, int version) {
+    Vec3i v;
+    if (version >= 3) {
+        v.x = r.ReadInt32();
+        v.y = r.ReadInt32();
+        v.z = r.ReadInt32();
+    } else if (version == 2) {
+        // Legacy float form. Rounded, not truncated, so a value written as 99.9999 lands on 100.
+        v.x = (s32)lroundf(r.ReadFloat());
+        v.y = (s32)lroundf(r.ReadFloat());
+        v.z = (s32)lroundf(r.ReadFloat());
     } else {
         v.x = r.ReadInt16();
         v.y = r.ReadInt16();
@@ -57,9 +64,12 @@ CollisionPoly ReadPoly(Ship::BinaryReader& r, int version) {
     p.normal.x = r.ReadInt16();
     p.normal.y = r.ReadInt16();
     p.normal.z = r.ReadInt16();
-    if (version >= 2) {
+    if (version >= 3) {
         r.ReadInt16(); // pad
-        p.dist = r.ReadFloat();
+        p.dist = r.ReadInt32();
+    } else if (version == 2) {
+        r.ReadInt16(); // pad
+        p.dist = (s32)lroundf(r.ReadFloat());
     } else {
         p.dist = r.ReadInt16();
         r.ReadInt16(); // pad
@@ -203,14 +213,14 @@ void ReadWaterBoxes(CollisionHeader& col, const Json& list, const std::string& d
     col.collisionHeaderData.waterBoxes = col.waterBoxes.data();
 }
 
-// "$schema" selects the collision.bin layout: unbound/collision/1 or /2; missing = 1 (SPEC.md §4.4.1).
+// "$schema" selects the collision.bin layout: unbound/collision/1, /2 or /3; missing = 1 (SPEC.md §4.4.1).
 bool ReadCollisionVersion(const Json& doc, const std::string& docPath, int& version) {
     std::string schema = Unbound::SchemaOf(doc);
     std::string type;
     bool parsed = Unbound::ParseSchema(schema, type, version);
-    bool known = parsed && (type.empty() || type == K::kCollisionType) && (version == 1 || version == 2);
+    bool known = parsed && (type.empty() || type == K::kCollisionType) && (version >= 1 && version <= 3);
     if (!known) {
-        SPDLOG_ERROR("[Unbound] {}: unsupported $schema '{}' (this build reads {}/1 and /2)", docPath, schema,
+        SPDLOG_ERROR("[Unbound] {}: unsupported $schema '{}' (this build reads {}/1, /2 and /3)", docPath, schema,
                      K::kCollisionType);
     }
     return known;
@@ -220,8 +230,8 @@ std::shared_ptr<CollisionHeader> ReadCollisionDocument(const Json& doc,
                                                        std::shared_ptr<Ship::ResourceInitData> initData) {
     auto col = std::make_shared<CollisionHeader>(initData);
     const Json& bounds = Unbound::Sub(doc, K::kBounds);
-    col->collisionHeaderData.minBounds = Unbound::ReadVec3f(Unbound::SubArray(bounds, K::kMin));
-    col->collisionHeaderData.maxBounds = Unbound::ReadVec3f(Unbound::SubArray(bounds, K::kMax));
+    col->collisionHeaderData.minBounds = Unbound::ReadVec3i(Unbound::SubArray(bounds, K::kMin));
+    col->collisionHeaderData.maxBounds = Unbound::ReadVec3i(Unbound::SubArray(bounds, K::kMax));
 
     int version = 1;
     if (!ReadCollisionVersion(doc, initData->Path, version)) {

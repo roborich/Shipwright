@@ -100,7 +100,7 @@ merged, lowest layer first:
 ```
 scenes/<scene>/scene.json           $schema unbound/scene/1
 scenes/<scene>/rooms/<n>.json       $schema unbound/room/1      n = room number, decimal
-scenes/<scene>/collision.json       $schema unbound/collision/2 (1 accepted)
+scenes/<scene>/collision.json       $schema unbound/collision/3 (1, 2 accepted)
 scenes/<scene>/collision.bin        bulk, referenced from collision.json
 scenes/<scene>/paths/<name>.json    $schema unbound/paths/1
 ```
@@ -235,7 +235,7 @@ Type-0 entry count is unbounded. Any other `type` makes the document **rejected*
 
 ```json
 {
-  "$schema": "unbound/collision/2",
+  "$schema": "unbound/collision/3",
   "bounds": { "min": [x,y,z], "max": [x,y,z] },
   "bulk": { "file": "scenes/spot00/collision.bin", "vertices": 1832, "polys": 2410 },
   "surfaceTypes": { "0": { … } },
@@ -292,15 +292,26 @@ accompanying `collision.json` selects the layout:
 
 | Version | Vertex | Polygon |
 |---|---|---|
-| `unbound/collision/2` (current) | `f32 x, y, z` (12 bytes) | `u16 type; u16 pad; u32 vA; u32 vB; u32 vC; s16 nx; s16 ny; s16 nz; s16 pad; f32 dist` (28 bytes) |
+| `unbound/collision/3` (current) | `s32 x, y, z` (12 bytes) | `u16 type; u16 pad; u32 vA; u32 vB; u32 vC; s16 nx; s16 ny; s16 nz; s16 pad; s32 dist` (28 bytes) |
+| `unbound/collision/2` (accepted) | `f32 x, y, z` (12 bytes) | `u16 type; u16 pad; u32 vA; u32 vB; u32 vC; s16 nx; s16 ny; s16 nz; s16 pad; f32 dist` (28 bytes) |
 | `unbound/collision/1` (accepted) | `s16 x, y, z` (6 bytes), vertex block padded to a multiple of 4 | `u16 type; u32 vA; u32 vB; u32 vC; s16 nx; s16 ny; s16 nz; s16 dist; s16 pad` (24 bytes) |
+
+Version 3 is 2 with the two floating-point fields made integral; the record sizes are identical.
+Collision is integral so that a scene's geometry means exactly what its author placed — an editor
+snapping to whole units gets back what it wrote, with no seam where two surfaces that should meet
+are a fraction apart. A version-2 document still loads; its values are **rounded**, not truncated,
+so a vertex written as `99.9999` becomes `100`.
+
+`dist` is derived from a unit normal, so it is fractional even when every vertex is integral. It
+is rounded, which displaces a plane by at most half a unit — exactly what vanilla did when it
+stored `dist` in an `s16`.
 
 Polygon fields: `type` indexes `surfaceTypes` (a header holds at most 65 535 surface types);
 `vA`, `vB`, `vC` are vertex words: bits 0–28 the vertex index, bits 29–31 flags (`vA`: xpFlags;
 `vB`: bit 29 = conveyor, bits 30–31 reserved, write 0; `vC`: reserved, write 0); `nx, ny, nz`
 the unit normal scaled by 32767; `dist` the plane distance from the world origin. Vertex and
 polygon counts are unbounded (indices are 29-bit); bytes past the declared counts are ignored.
-A `$schema` whose type is not `unbound/collision` or whose version is not 1 or 2 is
+A `$schema` whose type is not `unbound/collision` or whose version is not 1, 2 or 3 is
 **rejected**.
 
 ### 4.5 `paths/<name>.json`
