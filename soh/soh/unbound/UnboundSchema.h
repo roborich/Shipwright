@@ -197,6 +197,6 @@ inline constexpr const char* kRomHashes = "romHashes";
 inline constexpr const char* kConverter = "converter";
 inline constexpr const char* kFeatures = "features";
 inline constexpr const char* kRequires = "requires";
-inline constexpr int kCurrentFormatVersion = 1;
+inline constexpr int kCurrentFormatVersion = 2;
 
 } // namespace SOH::Unbound::Schema

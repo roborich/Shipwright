@@ -356,18 +356,18 @@ top of it. The folder name for English is `eng` only.
 ```json
 {
   "format": "unbound",
-  "formatVersion": 1,
+  "formatVersion": 2,
   "game": "oot",
   "source": { "romHash": "0xEC7011B7", "converter": "soh Ackbar Delta (9.2.3)" },
   "features": ["scenes", "collision", "text", "paths"],
-  "requires": { "formatVersion": 1 }
+  "requires": { "formatVersion": 2 }
 }
 ```
 
 | Key | Required | Meaning |
 |---|---|---|
 | `format` | yes (writer) | the string `"unbound"`; a reader does not interpret it |
-| `formatVersion` | yes (writer) | integer; this document describes version **1**. A reader treats an absent value as 1. |
+| `formatVersion` | yes (writer) | integer; this document describes version **2**. A reader treats an absent value as 1. |
 | `game` | no | `"oot"` |
 | `source` | no | provenance of a converted archive; free-form |
 | `features` | base: yes | list of the document kinds the layer provides. A layer whose `features` contains `"scenes"` is a base archive (§1.3); a layer that does not provide every vanilla scene **must not** list it. |
@@ -435,6 +435,46 @@ Every vanilla resource type still loads. These vanilla encodings are reinterpret
 | Binary `SetMesh` | Mesh entry count stays an 8-bit field (≤ 255). The XML `PolyNum` count and JSON rooms are not limited by it. |
 | Binary/XML text tables | Unchanged; may be overridden per id by `override/…` as vanilla; superseded by §5 when present. |
 | Matrix resources | Stored fixed-point as vanilla; unpacked to float on load. |
+| Vertex resources (v0) | Stored as vanilla: 16-byte records with `s16` positions. Positions are widened to `s32` on load. See §8.1 for the wider v1 form. |
+
+### 8.1 Vertex resource v1 — `s32` positions
+
+Room meshes draw under the identity matrix, so their vertices are world coordinates. The vanilla
+vertex record stores them as `s16`, which caps one mesh at 65 535 units across however large the
+world is. Version 2 adds a second encoding of the same resource.
+
+A **vertex resource** is registered under two versions, selected by the version field of the
+resource header. A reader **must** support both.
+
+| Version | Record | Positions |
+|---|---|---|
+| 0 | 16 bytes | `s16` — the vanilla form; still what the converter passes through |
+| 1 | 22 bytes | `s32` |
+
+Version 1 record, in order, little-endian, **not padded**:
+
+| Field | Type | Bytes |
+|---|---|---|
+| `x`, `y`, `z` | `s32` × 3 | 12 |
+| `flag` | `u16` | 2 |
+| `s`, `t` | `s16` × 2 | 4 |
+| `r`, `g`, `b`, `a` | `u8` × 4 | 4 |
+
+Both versions are preceded by a `u32` vertex count, as in vanilla.
+
+**Offsets into a vertex resource are byte offsets, in units of that resource's own record size.**
+An exported display list addresses a vertex group by the byte distance from the start of the
+resource, so the divisor that recovers an element index is 16 for v0 and 22 for v1 — and is
+*never* the reader's in-memory vertex struct, which is padded and may be wider still. A writer
+must compute offsets against the record size of the version it is emitting.
+
+A writer **should** emit v1 only for a mesh that needs it; v0 is smaller and every vanilla mesh
+fits it. A layer that emits any v1 vertex resource **must** declare `formatVersion` 2.
+
+**Boundary.** This applies to vertices reached through a vertex resource, which is how room meshes
+and object display lists are addressed. Vertices reached through a *segment* — the Skin system's
+runtime buffer, and the display lists that read it — are always the vanilla 16-byte form, because
+there is no resource to carry a record size. A v1 mesh therefore cannot back a skinned limb.
 
 ## 9. Limits
 
@@ -483,7 +523,10 @@ Limits that remain (validation targets for tools):
 ## 10. Versioning
 
 - `formatVersion` in `unbound.json` and the `/<n>` suffix of every `$schema` are the version of
-  this specification. Version 1 is described here.
+  this specification. Version 2 is described here.
+- **Version 2** adds the v1 vertex resource (§8.1) and nothing else. No document changed, so every
+  `/1` `$schema` remains valid and version-1 archives read identically. The bump exists so that a
+  layer using the wider vertex form can say so in `requires.formatVersion`.
 - A change that makes a valid version-1 archive read differently, or makes a document this text
   calls accepted be rejected, is a breaking change and requires version 2.
 - Adding an optional key with a zero default, or accepting a new legacy form, is not breaking and
