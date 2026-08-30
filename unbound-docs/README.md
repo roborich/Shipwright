@@ -91,6 +91,12 @@ behind them and likely next targets:
   JSON that merges over binary that replaces; prefer a name over an allocated number. Keep the
   `SOH [Unbound]` marker on every edit. Key names live once, in `soh/soh/unbound/UnboundSchema.h`.
 - A change to what an archive may contain is a SPEC change first (SPEC §10), code second.
+- After widening a type, run `scripts/unbound-pointer-drift.sh`. The game's C files build with `-w`,
+  so a caller that still passes the *old* pointer type (a `Vec3s*` reader on f32 path points, a `Vec3f*`
+  alias of the s32 dyna vertex list) compiles silently and reads the new bytes as the old type; three of
+  those shipped in 0.3. The script re-checks every file with only `-Wincompatible-pointer-types` on and
+  lists what is left after the vanilla "asset name as pointer" hits are dropped — it should print nothing
+  but `z_bgcheck.c:3849` and `z_player_lib.c:2277`, which are vanilla.
 - libultraship is a submodule on the fork branch `unbound`; commit there first, then update the
   pointer here.
 

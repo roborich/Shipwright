@@ -1912,7 +1912,7 @@ void func_80B57AE0(EnZl3* this, PlayState* play) {
     s32 pad2;
     Vec3f* unk_354 = &this->unk_354;
     Vec3f* unk_348 = &this->unk_348;
-    Vec3s* temp_v0;
+    Vec3f* temp_v0; // SOH [Unbound] path points are f32
     f32 xDiff;
     f32 zDiff;
 

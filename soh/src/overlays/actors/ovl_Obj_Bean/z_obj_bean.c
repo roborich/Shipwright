@@ -272,8 +272,9 @@ void ObjBean_FollowPath(ObjBean* this, PlayState* play) {
             this->nextPointIndex++;
         }
         sp4C = &((Vec3f*)SEGMENTED_TO_VIRTUAL(path->points))[this->nextPointIndex];
-        Math_Vec3s_DiffToVec3f(&sp40, nextPathPoint, currentPoint);
-        Math_Vec3s_DiffToVec3f(&sp34, sp4C, nextPathPoint);
+        // SOH [Unbound] path points are f32; the Vec3s reader would decode their bytes as shorts
+        Math_Vec3f_Diff(nextPathPoint, currentPoint, &sp40);
+        Math_Vec3f_Diff(sp4C, nextPathPoint, &sp34);
         if (Math3D_CosOut(&sp40, &sp34, &sp30)) {
             this->dyna.actor.speedXZ = 0.0f;
         } else {

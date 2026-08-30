@@ -1403,7 +1403,8 @@ void Math3D_TriNorm(TriNorm* tri, Vec3f* va, Vec3f* vb, Vec3f* vc) {
  */
 s32 Math3D_PointInSph(Sphere16* sphere, Vec3f* point) {
 
-    if (Math3D_DistXYZ16toF(&sphere->center, point) < sphere->radius) {
+    // SOH [Unbound] Sphere16.center is f32 now; the 16-bit reader would decode its bytes as shorts
+    if (Math3D_Vec3f_DistXYZ(&sphere->center, point) < sphere->radius) {
         return true;
     }
     return false;
