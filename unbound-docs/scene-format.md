@@ -100,9 +100,8 @@ fflate-based reader. Compression can be added later without a format change.
    identically stacked on the converted base.
 4. Two delta mods touching the same room but different actors both apply.
 5. Format-pass checks: a `scene.json` whose exit is a name lands in the named scene; a positional
-   list with a hole fails to load with one log line; a `collision.json` carrying legacy
-   `data0`/`data1` loads with a warning and behaves identically; a `messages.json` with a `null`
-   id removes that message.
+   list with a hole fails to load with one log line; a `messages.json` with a `null` id removes
+   that message.
 
 Per-limit checks (from the lifts in `counts.md`, `collision.md`, `extent.md`):
 

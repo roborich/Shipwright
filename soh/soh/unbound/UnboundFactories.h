@@ -15,8 +15,8 @@ class ResourceFactoryJsonSceneV1 final : public Ship::ResourceFactoryJson {
                                                   std::shared_ptr<Ship::ResourceInitData> initData) override;
 };
 
-// "unbound/collision/1" and "unbound/collision/2" (+ collision.bin) -> SOH::CollisionHeader
-class ResourceFactoryJsonCollisionHeaderV1 final : public Ship::ResourceFactoryJson {
+// "unbound/collision/3" (+ collision.bin) -> SOH::CollisionHeader
+class ResourceFactoryJsonCollisionHeaderV3 final : public Ship::ResourceFactoryJson {
   public:
     std::shared_ptr<Ship::IResource> ReadResource(std::shared_ptr<Ship::File> file,
                                                   std::shared_ptr<Ship::ResourceInitData> initData) override;

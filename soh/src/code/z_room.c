@@ -16,18 +16,6 @@ void func_80095AB4(PlayState* play, Room* room, u32 flags);
 void func_80095D04(PlayState* play, Room* room, u32 flags);
 void func_80096F6C(PlayState* play, Room* room, u32 flags);
 
-// SOH [Unbound] Room meshes draw under the identity matrix, i.e. their s16 vertices are world coordinates. A room
-// with a non-zero origin (rooms/<n>.json "origin") authors its vertices relative to that point and is placed here.
-static Mtx* Room_OriginMtx(PlayState* play, Room* room) {
-    MtxF mf;
-
-    if (room->origin.x == 0.0f && room->origin.y == 0.0f && room->origin.z == 0.0f) {
-        return &gMtxClear;
-    }
-    SkinMatrix_SetTranslate(&mf, room->origin.x, room->origin.y, room->origin.z);
-    return Matrix_MtxFToNewMtx(&mf, play->state.gfxCtx);
-}
-
 Vec3f D_801270A0 = { 0.0f, 0.0f, 0.0f };
 
 // unused
@@ -69,14 +57,14 @@ void func_80095AB4(PlayState* play, Room* room, u32 flags) {
         func_800342EC(&D_801270A0, play);
         gSPSegment(POLY_OPA_DISP++, 0x03, room->segment);
         func_80093C80(play);
-        gSPMatrix(POLY_OPA_DISP++, Room_OriginMtx(play, room), G_MTX_MODELVIEW | G_MTX_LOAD);
+        gSPMatrix(POLY_OPA_DISP++, &gMtxClear, G_MTX_MODELVIEW | G_MTX_LOAD);
     }
 
     if (flags & 2) {
         func_8003435C(&D_801270A0, play);
         gSPSegment(POLY_XLU_DISP++, 0x03, room->segment);
         Gfx_SetupDL_25Xlu(play->state.gfxCtx);
-        gSPMatrix(POLY_XLU_DISP++, Room_OriginMtx(play, room), G_MTX_MODELVIEW | G_MTX_LOAD);
+        gSPMatrix(POLY_XLU_DISP++, &gMtxClear, G_MTX_MODELVIEW | G_MTX_LOAD);
     }
 
     polygon0 = &room->meshHeader->polygon0;
@@ -131,13 +119,13 @@ void func_80095D04(PlayState* play, Room* room, u32 flags) {
         func_800342EC(&D_801270A0, play);
         // gSPSegment(POLY_OPA_DISP++, 0x03, room->segment);
         func_80093C80(play);
-        gSPMatrix(POLY_OPA_DISP++, Room_OriginMtx(play, room), G_MTX_MODELVIEW | G_MTX_LOAD);
+        gSPMatrix(POLY_OPA_DISP++, &gMtxClear, G_MTX_MODELVIEW | G_MTX_LOAD);
     }
     if (flags & 2) {
         func_8003435C(&D_801270A0, play);
         // gSPSegment(POLY_XLU_DISP++, 0x03, room->segment);
         Gfx_SetupDL_25Xlu(play->state.gfxCtx);
-        gSPMatrix(POLY_XLU_DISP++, Room_OriginMtx(play, room), G_MTX_MODELVIEW | G_MTX_LOAD);
+        gSPMatrix(POLY_XLU_DISP++, &gMtxClear, G_MTX_MODELVIEW | G_MTX_LOAD);
     }
 
     polygon2 = &room->meshHeader->polygon2;
@@ -387,7 +375,7 @@ void func_80096680(PlayState* play, Room* room, u32 flags) {
 
         if (sp94) {
             Gfx_SetupDL_25Opa(play->state.gfxCtx);
-            gSPMatrix(POLY_OPA_DISP++, Room_OriginMtx(play, room), G_MTX_MODELVIEW | G_MTX_LOAD);
+            gSPMatrix(POLY_OPA_DISP++, &gMtxClear, G_MTX_MODELVIEW | G_MTX_LOAD);
             gSPDisplayList(POLY_OPA_DISP++, polygonDlist->opa);
         }
 
@@ -413,7 +401,7 @@ void func_80096680(PlayState* play, Room* room, u32 flags) {
     if (sp90) {
         gSPSegment(POLY_XLU_DISP++, 0x03, room->segment);
         Gfx_SetupDL_25Xlu(play->state.gfxCtx);
-        gSPMatrix(POLY_XLU_DISP++, Room_OriginMtx(play, room), G_MTX_MODELVIEW | G_MTX_LOAD);
+        gSPMatrix(POLY_XLU_DISP++, &gMtxClear, G_MTX_MODELVIEW | G_MTX_LOAD);
         gSPDisplayList(POLY_XLU_DISP++, polygonDlist->xlu);
     }
 
@@ -484,7 +472,7 @@ void func_80096B6C(PlayState* play, Room* room, u32 flags) {
 
         if (sp90) {
             Gfx_SetupDL_25Opa(play->state.gfxCtx);
-            gSPMatrix(POLY_OPA_DISP++, Room_OriginMtx(play, room), G_MTX_MODELVIEW | G_MTX_LOAD);
+            gSPMatrix(POLY_OPA_DISP++, &gMtxClear, G_MTX_MODELVIEW | G_MTX_LOAD);
             gSPDisplayList(POLY_OPA_DISP++, polygonDlist->opa);
         }
 
@@ -509,7 +497,7 @@ void func_80096B6C(PlayState* play, Room* room, u32 flags) {
     if (sp8C) {
         gSPSegment(POLY_XLU_DISP++, 0x03, room->segment);
         Gfx_SetupDL_25Xlu(play->state.gfxCtx);
-        gSPMatrix(POLY_XLU_DISP++, Room_OriginMtx(play, room), G_MTX_MODELVIEW | G_MTX_LOAD);
+        gSPMatrix(POLY_XLU_DISP++, &gMtxClear, G_MTX_MODELVIEW | G_MTX_LOAD);
         gSPDisplayList(POLY_XLU_DISP++, polygonDlist->xlu);
     }
 

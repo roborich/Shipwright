@@ -53,7 +53,7 @@ facts are in the cited SPEC sections.
 | **Text** | Message tables are growable and hash-indexed; `text/<lang>/messages.json` merges across layers and can add or delete ids; message buffers 8 KB. | [`text.md`](./text.md) | §5 |
 | **Counts** | Object bank 1024; actors per room and rooms per scene 16-bit; live-actor cap real and 8192; mesh entries unbounded; room numbers 16-bit with unbounded clear flags, waterbox rooms and transition actors. Object ids past the vanilla table are usable. | [`counts.md`](./counts.md) | §9 |
 | **Scene format** | Merging JSON loader, converter, entity-key scheme and the decisions behind them. | [`scene-format.md`](./scene-format.md) | §2–§4, §6 |
-| **World extent** | Positions are `f32` end to end: float `Mtx` (libultraship fork `GBI_FLOAT_MTX`), f32 collision, spawns, paths, point lights, colliders. Room meshes use `s32` vertices (`GBI_S32_VTX`), so one room is no longer capped at 65 535 units — the per-room mesh `origin` is retained but no longer needed for range. Fog and draw distance are per-scene world units. | [`extent.md`](./extent.md) | §4.2–4.4, §9 |
+| **World extent** | Actor-side positions are `f32`: float `Mtx` (libultraship fork `GBI_FLOAT_MTX`), spawns, paths, point lights, colliders. Geometry is integral and wide: room meshes use `s32` vertices (`GBI_S32_VTX`, vertex resource v1), so one room is no longer capped at 65 535 units, and collision is `s32` (vertices, bounds, plane distances, water boxes). Fog and draw distance are per-scene world units. | [`extent.md`](./extent.md) | §4.2–4.4, §9 |
 | **Converter** | Runs at boot when `oot-unbound.o2r` is missing or its manifest `source` (converter build, ROM hashes) differs; also `soh --export-unbound <out.o2r>` / console `unbound-export`. Vanilla → Unbound archive in ~1 s. `soh/soh/unbound/UnboundExporter.cpp`. | `scene-format.md` §3 | — |
 | **Loader** | libultraship gained a JSON resource format (`{` sniff, type from `$schema`, found in any layer) and `LoadFileFromAllLayers`; SoH's JSON factories (`soh/soh/unbound/`) build the same command objects the binary loaders build, so scene execution code is untouched. | `scene-format.md` §2 | §3 |
 | **Prelude** | Dated changelog of what Prelude must emit differently. | [`prelude-handoff.md`](./prelude-handoff.md) | — |
@@ -77,9 +77,6 @@ behind them and likely next targets:
 - MQ: the converter emits `_mq` scenes only when `oot-mq.o2r` is mounted at export time.
 - A newer-`formatVersion` layer is refused as a base but its files still merge (libultraship
   mounts whole archives).
-- Room `origin` is redundant now that vertices are `s32`, but Prelude writes one even for scenes
-  that fit in `s16`, so removing engine support would misposition every already-exported mod. It
-  needs Prelude to stop emitting it first, or a SPEC change plus a re-export.
 
 ## Working on the fork
 

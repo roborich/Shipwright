@@ -6,7 +6,6 @@
 #include <spdlog/spdlog.h>
 #include <ship/utils/binarytools/BinaryReader.h>
 #include <cstdint>
-#include <cmath>
 
 #include "soh/resource/type/CollisionHeader.h"
 
@@ -18,66 +17,40 @@ namespace K = SOH::Unbound::Schema;
 namespace SOH {
 namespace {
 
-// collision.bin layouts (SPEC.md §4.4.1): little-endian, vertices then polys, no header.
-//   v1: vertex { s16 x, y, z } (6 B), block padded to 4;
-//       poly { u16 type, u32 vA, vB, vC, s16 nx, ny, nz, s16 dist, s16 pad } (24 B)
-//   v2: vertex { f32 x, y, z } (12 B);
-//       poly { u16 type, u16 pad, u32 vA, vB, vC, s16 nx, ny, nz, s16 pad, f32 dist } (28 B)
-//   v3: as v2 but integral — vertex { s32 x, y, z }, poly dist s32. Same sizes, so only the reads differ.
-size_t BulkVertexBlockSize(int version, uint32_t numVertices) {
-    size_t bytes = (size_t)numVertices * (version >= 2 ? 12 : 6);
-    return version >= 2 ? bytes : (bytes + 3) & ~(size_t)3;
+// collision.bin layout (SPEC.md §4.4.1): little-endian, vertices then polys, no header.
+//   vertex { s32 x, y, z } (12 B)
+//   poly   { u16 type, u16 pad, u32 vA, vB, vC, s16 nx, ny, nz, s16 pad, s32 dist } (28 B)
+constexpr size_t kVertexBytes = 12;
+constexpr size_t kPolyBytes = 28;
+
+size_t BulkSize(uint32_t numVertices, uint32_t numPolys) {
+    return (size_t)numVertices * kVertexBytes + (size_t)numPolys * kPolyBytes;
 }
 
-size_t BulkSize(int version, uint32_t numVertices, uint32_t numPolys) {
-    return BulkVertexBlockSize(version, numVertices) + (size_t)numPolys * (version >= 2 ? 28 : 24);
-}
-
-Vec3i ReadVertex(Ship::BinaryReader& r, int version) {
+Vec3i ReadVertex(Ship::BinaryReader& r) {
     Vec3i v;
-    if (version >= 3) {
-        v.x = r.ReadInt32();
-        v.y = r.ReadInt32();
-        v.z = r.ReadInt32();
-    } else if (version == 2) {
-        // Legacy float form. Rounded, not truncated, so a value written as 99.9999 lands on 100.
-        v.x = (s32)lroundf(r.ReadFloat());
-        v.y = (s32)lroundf(r.ReadFloat());
-        v.z = (s32)lroundf(r.ReadFloat());
-    } else {
-        v.x = r.ReadInt16();
-        v.y = r.ReadInt16();
-        v.z = r.ReadInt16();
-    }
+    v.x = r.ReadInt32();
+    v.y = r.ReadInt32();
+    v.z = r.ReadInt32();
     return v;
 }
 
-CollisionPoly ReadPoly(Ship::BinaryReader& r, int version) {
+CollisionPoly ReadPoly(Ship::BinaryReader& r) {
     CollisionPoly p{};
     p.type = r.ReadUInt16();
-    if (version >= 2) {
-        r.ReadUInt16(); // pad
-    }
+    r.ReadUInt16(); // pad
     p.flags_vIA = r.ReadUInt32();
     p.flags_vIB = r.ReadUInt32();
     p.vIC = r.ReadUInt32();
     p.normal.x = r.ReadInt16();
     p.normal.y = r.ReadInt16();
     p.normal.z = r.ReadInt16();
-    if (version >= 3) {
-        r.ReadInt16(); // pad
-        p.dist = r.ReadInt32();
-    } else if (version == 2) {
-        r.ReadInt16(); // pad
-        p.dist = (s32)lroundf(r.ReadFloat());
-    } else {
-        p.dist = r.ReadInt16();
-        r.ReadInt16(); // pad
-    }
+    r.ReadInt16(); // pad
+    p.dist = r.ReadInt32();
     return p;
 }
 
-bool ReadBulk(CollisionHeader& col, const Json& bulk, int version, const std::string& docPath) {
+bool ReadBulk(CollisionHeader& col, const Json& bulk, const std::string& docPath) {
     std::string binPath = Unbound::PathField(bulk, K::kFile);
     std::vector<char> bytes = Unbound::LoadBulk(binPath);
     if (bytes.empty()) {
@@ -86,7 +59,7 @@ bool ReadBulk(CollisionHeader& col, const Json& bulk, int version, const std::st
     }
     uint32_t numVertices = (uint32_t)Unbound::Field(bulk, K::kVertices);
     uint32_t numPolys = (uint32_t)Unbound::Field(bulk, K::kPolys);
-    if (bytes.size() < BulkSize(version, numVertices, numPolys)) {
+    if (bytes.size() < BulkSize(numVertices, numPolys)) {
         SPDLOG_ERROR("[Unbound] {}: bulk file {} is shorter than its declared counts", docPath, binPath);
         return false;
     }
@@ -95,12 +68,11 @@ bool ReadBulk(CollisionHeader& col, const Json& bulk, int version, const std::st
     r.SetEndianness(Ship::Endianness::Little);
     col.vertices.reserve(numVertices);
     for (uint32_t i = 0; i < numVertices; i++) {
-        col.vertices.push_back(ReadVertex(r, version));
+        col.vertices.push_back(ReadVertex(r));
     }
-    r.Seek((int32_t)BulkVertexBlockSize(version, numVertices), Ship::SeekOffsetType::Start);
     col.polygons.reserve(numPolys);
     for (uint32_t i = 0; i < numPolys; i++) {
-        col.polygons.push_back(ReadPoly(r, version));
+        col.polygons.push_back(ReadPoly(r));
     }
     col.collisionHeaderData.numVertices = (u32)col.vertices.size();
     col.collisionHeaderData.vtxList = col.vertices.data();
@@ -131,19 +103,8 @@ SurfaceType ReadSurfaceType(const Json& e) {
 }
 
 void ReadSurfaceTypes(CollisionHeader& col, const Json& list, const std::string& docPath) {
-    bool legacy = false;
     for (const auto& k : PositionalKeys(list, docPath + " " + K::kSurfaceTypes)) {
-        const Json& e = list[k];
-        if (e.contains(K::kData0) || e.contains(K::kData1)) {
-            legacy = true;
-            col.surfaceTypes.push_back(
-                UnpackSurfaceType((u32)Unbound::Field(e, K::kData0), (u32)Unbound::Field(e, K::kData1)));
-        } else {
-            col.surfaceTypes.push_back(ReadSurfaceType(e));
-        }
-    }
-    if (legacy) {
-        SPDLOG_WARN("[Unbound] {}: legacy packed surface types (data0/data1); re-export the archive", docPath);
+        col.surfaceTypes.push_back(ReadSurfaceType(list[k]));
     }
     col.surfaceTypesCount = (uint32_t)col.surfaceTypes.size();
     col.collisionHeaderData.surfaceTypeList = col.surfaceTypes.data();
@@ -179,31 +140,19 @@ void ReadCameras(CollisionHeader& col, const Json& cameras, const Json& position
 }
 
 void ReadWaterBoxes(CollisionHeader& col, const Json& list, const std::string& docPath) {
-    bool legacy = false;
     for (const auto& k : PositionalKeys(list, docPath + " " + K::kWaterBoxes)) {
         const Json& w = list[k];
         WaterBox box{};
-        box.xMin = (f32)Unbound::NumberField(w, K::kXMin);
-        box.ySurface = (f32)Unbound::NumberField(w, K::kYSurface);
-        box.zMin = (f32)Unbound::NumberField(w, K::kZMin);
-        box.xLength = (f32)Unbound::NumberField(w, K::kXLength);
-        box.zLength = (f32)Unbound::NumberField(w, K::kZLength);
-        if (w.contains(K::kProperties)) {
-            legacy = true;
-            UnpackWaterBoxProperties(box, (u32)Unbound::Field(w, K::kProperties));
-        } else {
-            box.camera = (s32)Unbound::Field(w, K::kCamera);
-            box.lightSetting = (s32)Unbound::Field(w, K::kLightSetting);
-            box.room = -1;
-            box.notSwimmable = (u8)Unbound::Field(w, K::kNotSwimmable);
-        }
-        if (w.contains(K::kRoom)) {
-            box.room = (s32)ToInt(w[K::kRoom]);
-        }
+        box.xMin = Unbound::IntegralField(w, K::kXMin);
+        box.ySurface = Unbound::IntegralField(w, K::kYSurface);
+        box.zMin = Unbound::IntegralField(w, K::kZMin);
+        box.xLength = Unbound::IntegralField(w, K::kXLength);
+        box.zLength = Unbound::IntegralField(w, K::kZLength);
+        box.camera = (s32)Unbound::Field(w, K::kCamera);
+        box.lightSetting = (s32)Unbound::Field(w, K::kLightSetting);
+        box.room = w.contains(K::kRoom) ? (s32)ToInt(w[K::kRoom]) : -1;
+        box.notSwimmable = (u8)Unbound::Field(w, K::kNotSwimmable);
         col.waterBoxes.push_back(box);
-    }
-    if (legacy) {
-        SPDLOG_WARN("[Unbound] {}: legacy packed water box properties; re-export the archive", docPath);
     }
     if (col.waterBoxes.size() > UINT16_MAX) { // CollisionHeader.numWaterBoxes is a u16 (SPEC.md §9)
         throw Unbound::DocumentError(docPath + ": " + std::to_string(col.waterBoxes.size()) + " water boxes; at most " +
@@ -213,15 +162,15 @@ void ReadWaterBoxes(CollisionHeader& col, const Json& list, const std::string& d
     col.collisionHeaderData.waterBoxes = col.waterBoxes.data();
 }
 
-// "$schema" selects the collision.bin layout: unbound/collision/1, /2 or /3; missing = 1 (SPEC.md §4.4.1).
-bool ReadCollisionVersion(const Json& doc, const std::string& docPath, int& version) {
+// The only collision document this build reads is SPEC.md §4.4's; a missing $schema is not accepted.
+bool CollisionSchemaIsCurrent(const Json& doc, const std::string& docPath) {
     std::string schema = Unbound::SchemaOf(doc);
     std::string type;
-    bool parsed = Unbound::ParseSchema(schema, type, version);
-    bool known = parsed && (type.empty() || type == K::kCollisionType) && (version >= 1 && version <= 3);
+    int version = 0;
+    bool known =
+        Unbound::ParseSchema(schema, type, version) && type == K::kCollisionType && version == K::kCollisionVersion;
     if (!known) {
-        SPDLOG_ERROR("[Unbound] {}: unsupported $schema '{}' (this build reads {}/1, /2 and /3)", docPath, schema,
-                     K::kCollisionType);
+        SPDLOG_ERROR("[Unbound] {}: unsupported $schema '{}' (this build reads {})", docPath, schema, K::kCollisionV3);
     }
     return known;
 }
@@ -233,11 +182,10 @@ std::shared_ptr<CollisionHeader> ReadCollisionDocument(const Json& doc,
     col->collisionHeaderData.minBounds = Unbound::ReadVec3i(Unbound::SubArray(bounds, K::kMin));
     col->collisionHeaderData.maxBounds = Unbound::ReadVec3i(Unbound::SubArray(bounds, K::kMax));
 
-    int version = 1;
-    if (!ReadCollisionVersion(doc, initData->Path, version)) {
+    if (!CollisionSchemaIsCurrent(doc, initData->Path)) {
         return nullptr;
     }
-    if (!ReadBulk(*col, Unbound::Sub(doc, K::kBulk), version, initData->Path)) {
+    if (!ReadBulk(*col, Unbound::Sub(doc, K::kBulk), initData->Path)) {
         return nullptr;
     }
     ReadSurfaceTypes(*col, Unbound::Sub(doc, K::kSurfaceTypes), initData->Path);
@@ -249,7 +197,7 @@ std::shared_ptr<CollisionHeader> ReadCollisionDocument(const Json& doc,
 } // namespace
 
 std::shared_ptr<Ship::IResource>
-ResourceFactoryJsonCollisionHeaderV1::ReadResource(std::shared_ptr<Ship::File> file,
+ResourceFactoryJsonCollisionHeaderV3::ReadResource(std::shared_ptr<Ship::File> file,
                                                    std::shared_ptr<Ship::ResourceInitData> initData) {
     if (!FileHasValidFormatAndReader(file, initData)) {
         return nullptr;

@@ -2,8 +2,7 @@
 
 Removes every fixed cap on scene (static) collision and relaxes the actor (dyna) collision
 caps, so a Prelude-built scene can carry arbitrarily large collision. The on-disk form
-(`collision.json`, `collision.bin`, the unpacked surface-type and water-box fields, the legacy
-encodings) is defined in [`SPEC.md`](./SPEC.md) §4.4 and §8; this file covers the engine side.
+(`collision.json`, `collision.bin`, the unpacked surface-type and water-box fields) is defined in [`SPEC.md`](./SPEC.md) §4.4 and §8; this file covers the engine side.
 Overview and rationale in [`README.md`](./README.md).
 
 ## The caps, and why they exist
@@ -56,7 +55,7 @@ fields (`camera`, `exit`, `lightSetting` as `s32`; the thirteen small fields as 
 water-box `properties` word becomes `camera`, `lightSetting`, `room` (`-1` = all rooms) and
 `notSwimmable`. The field names are the SPEC §4.4 key names. The `SurfaceType_Get*` accessors in
 `z_bgcheck.c` read fields through one `SurfaceType_Get()` (which hands back an all-zero entry when
-a poly has none), so their ~200 callers are unchanged. Legacy data is converted once at the loader
+a poly has none), so their ~200 callers are unchanged. Vanilla packed data is converted once at the loader
 boundary by `SurfaceType_Unpack(data0, data1)` and `WaterBox_UnpackProperties()` (prototypes in
 `z64bgcheck.h`; `SOH::UnpackSurfaceType` / `SOH::UnpackWaterBoxProperties` in
 `CollisionHeaderFactory.cpp` wrap them for the C++ mirrors, next to `static_assert`s on size and
@@ -76,8 +75,7 @@ to mods because every collision header is materialised by the SoH importer.
 
 - `UnboundCollisionFactory.cpp` (JSON + bin): reads SPEC §4.4 through `Ship::BinaryReader` with an
   up-front size check; indexed lists (`surfaceTypes`, `cameras`, `cameraPositions`, `waterBoxes`)
-  go through `PositionalKeys`, so a hole fails the document; the legacy `data0/data1` and
-  `properties` forms are unpacked with one warning per document.
+  go through `PositionalKeys`, so a hole fails the document. Only `unbound/collision/3` is read.
 - `CollisionHeaderFactory.cpp` (binary v0 / XML): the vanilla encodings of SPEC §8 — packed `u16`
   vertex words unpacked (`index = v & 0x1FFF`, xpFlags `(v >> 13) << 29`, conveyor bit 13 → bit
   29), `dist` read signed, surface types and water boxes through the unpack helpers. The XML form

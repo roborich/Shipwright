@@ -1,7 +1,7 @@
 # Unbound: world extent
 
 Lifts the ±32 767-unit world limit that `s16` positions imposed everywhere. What a modder may
-write (number-typed positions, room `origin`, `collision.bin` v2, the world-unit fog keys) and
+write (number-typed positions, integral collision, the v1 vertex resource, the world-unit fog keys) and
 the resulting limits are in [`SPEC.md`](./SPEC.md) §2, §4.2–4.4 and §9; this file is the engine
 side. Overview in [`README.md`](./README.md).
 
@@ -10,7 +10,7 @@ side. Overview in [`README.md`](./README.md).
 | Cap | Where | Lift |
 |---|---|---|
 | **Rendering: `Mtx` is s16.16** | `guMtxF2L` (`gu_pc.c`) packs every model/view matrix; a translation ≥ 32 768 wraps. This caps *actors and the camera*, not just scenes. | `Mtx` is float (`GBI_FLOAT_MTX`, libultraship fork `fast/types.h`). |
-| **Rendering: room `Vtx` is `short` under the identity matrix** | `z_room.c` draws room meshes with `gMtxClear`, so mesh vertices *are* world coordinates. | `Vtx.ob` is `s32` (`GBI_S32_VTX`, libultraship fork `fast/lus_gbi.h`), so a room mesh reaches the whole world on its own. Per-room **origin** (SPEC §4.3) predates this and is still honoured. |
+| **Rendering: room `Vtx` is `short` under the identity matrix** | `z_room.c` draws room meshes with `gMtxClear`, so mesh vertices *are* world coordinates. | `Vtx.ob` is `s32` (`GBI_S32_VTX`, libultraship fork `fast/lus_gbi.h`), so a room mesh reaches the whole world on its own. |
 | **Data & engine: `s16` positions** | Collision vertices, `CollisionPoly.dist` (plane distance from the *world origin*), bounds, water boxes, spawn entries, transition actors, paths, point lights, mesh-type-2 cull centres, Epona's saved position, `BGCHECK_Y_MIN`/`BGCHECK_XYZ_ABSMAX`, dyna world-space vertex bake, `Sphere16`/`Cylinder16` colliders. | Widened to `f32`/`s32` (below). |
 
 ### Float matrices
@@ -40,8 +40,9 @@ Unbound world is therefore ±2²⁰ (1 048 576) — `BGCHECK_XYZ_ABSMAX`.
 - **`s32`, not `f32`.** Both are 12 bytes, so both hit the same `sizeof(Vtx)` change and the same
   bugs; `s32` additionally keeps vertices integral, which is what the ~692 `.ob[` sites in the game
   assume when they read one back (integer division stays integer, an `f32` assigned to a vertex
-  truncates as it did to `s16`), and lets an editor snap exactly. A float build needs a hand-written
-  cast in `z_en_jsjutan.c`; an `s32` build needs none.
+  truncates as it did to `s16`), and lets an editor snap exactly. Note that the corruption seen
+  while prototyping this was never caused by the value type — it was the `sizeof(Vtx)` byte-offset
+  conflation below, which `s32` and `f32` trigger identically.
 - **`sizeof(Vtx)` goes 16 → 24, and that is the whole difficulty.** "The size of a vertex" was two
   concepts that had always been one number: the runtime struct, and the 16-byte record in an
   archive that exported display lists carry **byte offsets** into. The archive's size is now
@@ -66,21 +67,6 @@ Unbound world is therefore ±2²⁰ (1 048 576) — `BGCHECK_XYZ_ABSMAX`.
   game. Note the hole it cannot cover — `SEGMENTED_TO_VIRTUAL` returns `void*`, so a reader left on
   `Vec3s*` still compiles clean.
 
-### Room origin
-
-The room document's `origin` (SPEC §4.3) is carried on `SOH::SetMesh::origin` → `Room.origin` →
-`Room_OriginMtx` in `z_room.c`, used by all three mesh draw paths. The converter emits nothing
-(vanilla is 0). Prelude rebases a room whose geometry would leave the s16 range and writes the
-origin; collision, actor entries and everything else stay absolute — only the mesh vertices are
-relative.
-
-With `s32` vertices a room mesh reaches the whole world unaided, so `origin` is no longer needed
-for range. **It cannot simply be removed:** Prelude writes a non-zero origin even for scenes that
-fit in `s16` (`lake_hylia_hp` spans 18 280 × 11 794 units and still carries
-`origin: [-18236, 508, 4043]`), so every already-exported mod stores its mesh relative to one.
-Dropping engine support would misposition all of them. Removing it means a SPEC change and a
-re-export, or having Prelude stop emitting it first and retiring the engine path much later.
-
 ## Widened data
 
 | Field | Was | Now | Loaders touched |
@@ -90,10 +76,10 @@ re-export, or having Prelude stop emitting it first and retiring the engine path
 | `Path.points` / `PathData.points` | `Vec3s*` | `Vec3f*` | `PathFactory`, `UnboundPathFactory`, exporter; every overlay reader (`z_path.c`, En_Kz, En_Md, En_Nb, En_Mb, En_Mm, En_Cs, En_Daiku_Kakariko and the `Math_Vec3s_ToVec3f` users) — `SEGMENTED_TO_VIRTUAL` returns `void*`, so a reader left on `Vec3s*` compiles and reads garbage |
 | `LightPoint.x/y/z` + `Lights_Point*SetInfo` (and the `SOH::LightPoint` mirror) | `s16` | `f32` | binary, XML, JSON, exporter |
 | `HorseData.pos` | `Vec3s` | `Vec3f` | JSON save (name-keyed) |
-| `CollisionHeader.vtxList`, `dyna.vtxList` | `Vec3s` | `Vec3f` | `collision.bin` v2, binary, XML |
-| `CollisionPoly.dist` | `s16` | `f32` | same |
-| `CollisionHeader.minBounds/maxBounds` | `Vec3s` | `Vec3f` | same |
-| `WaterBox` origin/lengths | `s16` | `f32` | same |
+| `CollisionHeader.vtxList`, `dyna.vtxList` | `Vec3s` | `Vec3i` | `collision.bin`, binary, XML |
+| `CollisionPoly.dist` | `s16` | `s32` | same |
+| `CollisionHeader.minBounds/maxBounds` | `Vec3s` | `Vec3i` | same |
+| `WaterBox` origin/lengths | `s16` | `s32` | same |
 | `BgActor.boundingSphere` | `Sphere16` | `Spheref` | — |
 | `BGCHECK_Y_MIN` | `-32000` | `-2147483648.0f` (exact in f32; still the "no floor" sentinel) | — |
 | `BGCHECK_XYZ_ABSMAX` | `32760` | `1048576` | — |
@@ -154,7 +140,8 @@ A big world is pointless if it fades out at 2 500 units. Vanilla had three coupl
 1. Vanilla parity after the float-`Mtx` step alone (must be pixel-identical): Hyrule Field,
    Kakariko, Forest Temple, Jabu-Jabu conveyor, Water Temple, Ganon's Tower collapse, Epona +
    save/load, Kokiri cutscene cameras, pause menu / file select (2D matrices).
-2. A Prelude scene with a room at `origin: [200000, 0, 0]` and a walkable floor at y = −60 000:
+2. A Prelude scene with a room mesh around x = 200 000 (v1 vertex resource) and a walkable floor at
+   y = −60 000:
    spawn there, walk, doors, water box, a Deku Baba on a moving platform, ride Epona and save.
 3. Path-following NPCs after the `Vec3f` sweep: Kakariko carpenters, King Zora, Mido, Nabooru,
    Moblins in the Lost Woods.

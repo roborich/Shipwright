@@ -95,11 +95,10 @@ ActorEntry ReadActor(const Json& a) {
     return e;
 }
 
-// Cross-setup references and the room origin, shared by every setup of one document.
+// Cross-setup references, shared by every setup of one document.
 struct SharedRefs {
-    Json rooms;                       // top-level "rooms" (scene docs)
-    std::string collision;            // top-level "collision" (scene docs)
-    Vec3f origin{ 0.0f, 0.0f, 0.0f }; // top-level "origin" (room docs): world position of the mesh's local origin
+    Json rooms;            // top-level "rooms" (scene docs)
+    std::string collision; // top-level "collision" (scene docs)
 };
 
 using Command = std::shared_ptr<ISceneCommand>;
@@ -489,13 +488,12 @@ void ReadMeshBackground(CommandBuilder& b, SetMesh& cmd, const Json& m) {
     p1.dlist = (Gfx*)cmd.dlists.data();
 }
 
-Command BuildMesh(CommandBuilder& b, const Json& m, const Vec3f& origin) {
+Command BuildMesh(CommandBuilder& b, const Json& m) {
     auto cmd = b.Make<SetMesh>(SceneCommandID::SetMesh);
     int64_t type = Field(m, K::kType);
     cmd->data = 0;
     cmd->meshHeaderType = (uint8_t)type;
     cmd->meshHeader.base.type = (uint8_t)type;
-    cmd->origin = origin;
     if (type == 0 || type == 2) {
         ReadMeshDlists(b, *cmd, Sub(m, K::kEntries), (uint8_t)type);
     } else if (type == 1) {
@@ -544,7 +542,7 @@ void BuildSetupCommands(CommandBuilder& b, const Json& setup, const SharedRefs& 
     add(K::kActors, BuildActorList);
     add(K::kExits, BuildExitList);
     if (has(K::kMesh)) {
-        out.push_back(BuildMesh(b, setup[K::kMesh], shared.origin));
+        out.push_back(BuildMesh(b, setup[K::kMesh]));
     }
     if (has(K::kCutscene) && setup[K::kCutscene].is_string()) {
         out.push_back(BuildCutscene(b, setup[K::kCutscene]));
@@ -580,7 +578,6 @@ std::shared_ptr<Scene> BuildScene(std::shared_ptr<Ship::ResourceInitData> initDa
     SharedRefs shared;
     shared.rooms = Sub(doc, K::kRooms);
     shared.collision = PathField(doc, K::kCollision);
-    shared.origin = ReadVec3f(SubArray(doc, K::kOrigin));
 
     const Json& setups = Sub(doc, K::kSetups);
     if (!setups.contains("0")) {

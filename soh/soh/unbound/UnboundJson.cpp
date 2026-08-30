@@ -237,6 +237,10 @@ double NumberField(const Json& obj, const char* key, double fallback) {
     return it == obj.end() ? fallback : ToNumber(*it, fallback);
 }
 
+s32 IntegralField(const Json& obj, const char* key, s32 fallback) {
+    return (s32)llround(NumberField(obj, key, fallback));
+}
+
 std::string PathField(const Json& obj, const char* key) {
     auto it = obj.find(key);
     return it != obj.end() && it->is_string() ? it->get<std::string>() : "";

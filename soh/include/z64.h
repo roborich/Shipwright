@@ -1081,9 +1081,6 @@ typedef struct {
     /* 0x08 */ MeshHeader* meshHeader; // original name: "ground_shape"
     /* 0x0C */ void* segment;
     /* 0x10 */ char unk_10[0x4];
-    // SOH [Unbound] World position of the room mesh's local origin (rooms/<n>.json "origin"); vanilla 0,0,0.
-    // Mesh vertices are s16, so a room placed beyond +/-32767 authors its geometry relative to this point.
-    Vec3f origin;
 } Room;
 
 typedef struct {

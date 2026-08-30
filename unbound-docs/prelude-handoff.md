@@ -6,6 +6,20 @@ let the user build. **The contract is [`SPEC.md`](./SPEC.md)**; every entry belo
 section that defines it, and when this page and SPEC disagree, SPEC wins. Everything in the code
 is tagged `SOH [Unbound]`.
 
+## 2026-08-29 — format version 2: integral geometry, no pre-release compatibility
+
+Format version 1 (everything Prelude exported before this date) is **not read** by this build.
+There is no migration path; re-export.
+
+| Change | SPEC | Prelude must |
+|---|---|---|
+| `unbound.json` `formatVersion` and `requires.formatVersion` are `2`; any other value refuses the layer. | §6 | Write `2` for both. |
+| `collision.json` `$schema` is `unbound/collision/3`; `/1` and `/2` are rejected. `collision.bin` holds `s32` vertices and `s32` `dist` (same 12/28-byte records as `/2`, integer fields). | §4.4.1 | Emit `/3`; write integers; round `dist`. |
+| Collision vertices, bounds and water-box extents are integers. A fractional JSON value is rounded by the reader, so the validator should flag one. | §2, §4.4 | Snap collision to whole units on export. |
+| Room `origin` is gone. Mesh vertices are absolute world coordinates. | §4.3 | Stop emitting `origin`; never rebase vertices. |
+| Vertex resource v1 (`s32` positions, 22-byte records; resource header version 1) for any mesh with a vertex outside ±32 767. Offsets in exported display lists are byte offsets in units of the emitting version's record size (16 for v0, 22 for v1). | §8.1 | Emit v1 only where needed; compute DL vertex offsets against 22 for v1 meshes. |
+| The packed `data0`/`data1` surface-type form and the packed water-box `properties` form are rejected. | §4.4 | Emit only the unpacked fields. |
+
 ## 2026-08-28 — review pass (after the format pass)
 
 Reader behaviour Prelude's writer and validator have to know; every row is normative in SPEC.
@@ -47,9 +61,9 @@ the old registry/text paths.
 
 | Change | SPEC | Prelude must |
 |---|---|---|
-| `collision.json` `$schema` `unbound/collision/2` and the f32 `collision.bin` v2 layout. | §4.4.1 | Emit v2; read both by schema. |
-| Every position / bounds / water-box extent may be a fractional number. | §2 | Float parse path. |
-| Room documents may carry a top-level `origin`. | §4.3 | Emit when geometry would leave the `Vtx` s16 range; rebase mesh vertices only. |
+| ~~`unbound/collision/2` and the f32 `collision.bin` v2 layout~~ — superseded above. | §4.4.1 | — |
+| Every actor/light/path position may be a fractional number (collision is integral as of 2026-08-29). | §2 | Float parse path. |
+| ~~Room documents may carry a top-level `origin`~~ — removed above. | §4.3 | — |
 | Water boxes accept an explicit `room` (`-1` = all). | §4.4 | Emit `room` always. |
 | Lighting entries accept `fogStart`, `fogEnd`, `drawDistance`, `nearPlane` (world units). | §4.2 | Expose in the lighting inspector; suggest `nearPlane` ≥ 50 when `drawDistance` > ~100 000. |
 | Mesh-type-2 `radius` may be fractional / > 32 767. | §4.3 | Float parse path. |

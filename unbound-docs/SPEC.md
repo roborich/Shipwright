@@ -1,6 +1,6 @@
 # SoH: Unbound — archive format specification
 
-**Format version 1.** This document is the contract. It lists every way the contents of an
+**Format version 2.** This document is the contract. It lists every way the contents of an
 `.o2r` archive read by SoH: Unbound may differ from a vanilla Ship of Harkinian archive, as seen
 from outside — by a tool that writes one (Prelude of Light), a tool that reads one, or a person
 inspecting the zip. It says *what* is accepted and *what it means*; it does not say how SoH
@@ -48,8 +48,9 @@ These apply to every JSON document in this specification.
 | Key of a **keyed list** | string | any unique string |
 | Key of a **positional list** | decimal index string `"0"`, `"1"`, … | decimal index strings; the set **must** be contiguous from `"0"` after merging (§3.2) |
 
-- Position vectors (`pos`, `origin`, vertices, bounds, water-box extents, path points, point
-  lights) are **numbers** and may be fractional. Rotation vectors (`rot`) are integers in the
+- Position vectors (`pos`, path points, point lights) are **numbers** and may be fractional.
+  Collision data — vertices, bounds, water-box extents — is **integral** (§4.4): the reader
+  rounds a fractional JSON value, and `collision.bin` holds integers. Rotation vectors (`rot`) are integers in the
   vanilla binary-angle unit (−32768…32767). Direction vectors (`dir`, `light1Dir`, `light2Dir`)
   are integers −128…127.
 - A missing scalar key takes the zero/empty default of its type unless this document states
@@ -100,7 +101,7 @@ merged, lowest layer first:
 ```
 scenes/<scene>/scene.json           $schema unbound/scene/1
 scenes/<scene>/rooms/<n>.json       $schema unbound/room/1      n = room number, decimal
-scenes/<scene>/collision.json       $schema unbound/collision/3 (1, 2 accepted)
+scenes/<scene>/collision.json       $schema unbound/collision/3
 scenes/<scene>/collision.bin        bulk, referenced from collision.json
 scenes/<scene>/paths/<name>.json    $schema unbound/paths/1
 ```
@@ -187,15 +188,16 @@ list; the index is not read from `params` for actors spawned from this list, and
 ```json
 {
   "$schema": "unbound/room/1",
-  "origin": [0, 0, 0],
   "setups": { "0": { … } }
 }
 ```
 
 | Key | Type | Meaning |
 |---|---|---|
-| `origin` | vector, optional, default `[0,0,0]` | The room's mesh vertices are relative to this world position. Everything else in the room (collision, actors, lights, paths) is absolute. |
 | `setups` | as in §4.2 | Every setup complete. |
+
+Room mesh vertices are absolute world coordinates (they draw under the identity matrix); a
+mesh that leaves the `s16` range uses the v1 vertex resource (§8.1).
 
 A room setup holds:
 
@@ -268,51 +270,39 @@ Type-0 entry count is unbounded. Any other `type` makes the document **rejected*
 | `isSoft` | 0/1 | `conveyorDirection` | 0–63 |
 | `isHorseBlocked` | 0/1 | `isWallDamage` | 0/1 |
 
-Legacy form, **accepted with a warning**: `{ "data0": int, "data1": int }` — the vanilla packed
-words, unpacked on read.
-
 **Water box**
 
 | Field | Type | Meaning |
 |---|---|---|
-| `xMin`, `ySurface`, `zMin`, `xLength`, `zLength` | number | world units, unbounded |
+| `xMin`, `ySurface`, `zMin`, `xLength`, `zLength` | integer | world units, unbounded (a fractional value is rounded) |
 | `camera` | int | index into `cameras` |
 | `lightSetting` | int 0–254 | index into `lighting`; 31 = none (the vanilla sentinel, read as 0) |
 | `room` | int | room number the box belongs to; `-1` = every room. Default when absent: `-1`. |
 | `notSwimmable` | 0/1 | vanilla property bit 19: the box is excluded from the swim-surface query and found only by the ripple-effect query |
 
-Legacy form, **accepted with a warning**: `"properties": int` (the vanilla packed word), unpacked
-on read; an explicit `room` beside it still wins, and any other explicit field beside it is
-ignored.
-
 #### 4.4.1 `collision.bin`
 
-Little-endian, no header, exactly two arrays back to back. The `$schema` version of the
-accompanying `collision.json` selects the layout:
+Little-endian, no header, exactly two arrays back to back, for `$schema` `unbound/collision/3`:
 
-| Version | Vertex | Polygon |
-|---|---|---|
-| `unbound/collision/3` (current) | `s32 x, y, z` (12 bytes) | `u16 type; u16 pad; u32 vA; u32 vB; u32 vC; s16 nx; s16 ny; s16 nz; s16 pad; s32 dist` (28 bytes) |
-| `unbound/collision/2` (accepted) | `f32 x, y, z` (12 bytes) | `u16 type; u16 pad; u32 vA; u32 vB; u32 vC; s16 nx; s16 ny; s16 nz; s16 pad; f32 dist` (28 bytes) |
-| `unbound/collision/1` (accepted) | `s16 x, y, z` (6 bytes), vertex block padded to a multiple of 4 | `u16 type; u32 vA; u32 vB; u32 vC; s16 nx; s16 ny; s16 nz; s16 dist; s16 pad` (24 bytes) |
+| Vertex | Polygon |
+|---|---|
+| `s32 x, y, z` (12 bytes) | `u16 type; u16 pad; u32 vA; u32 vB; u32 vC; s16 nx; s16 ny; s16 nz; s16 pad; s32 dist` (28 bytes) |
 
-Version 3 is 2 with the two floating-point fields made integral; the record sizes are identical.
 Collision is integral so that a scene's geometry means exactly what its author placed — an editor
 snapping to whole units gets back what it wrote, with no seam where two surfaces that should meet
-are a fraction apart. A version-2 document still loads; its values are **rounded**, not truncated,
-so a vertex written as `99.9999` becomes `100`.
+are a fraction apart.
 
-`dist` is derived from a unit normal, so it is fractional even when every vertex is integral. It
-is rounded, which displaces a plane by at most half a unit — exactly what vanilla did when it
-stored `dist` in an `s16`.
+`dist` is derived from a unit normal, so it is fractional even when every vertex is integral. The
+writer rounds it, which displaces a plane by at most half a unit — the same error vanilla accepted
+when it stored `dist` in an `s16`.
 
 Polygon fields: `type` indexes `surfaceTypes` (a header holds at most 65 535 surface types);
 `vA`, `vB`, `vC` are vertex words: bits 0–28 the vertex index, bits 29–31 flags (`vA`: xpFlags;
 `vB`: bit 29 = conveyor, bits 30–31 reserved, write 0; `vC`: reserved, write 0); `nx, ny, nz`
 the unit normal scaled by 32767; `dist` the plane distance from the world origin. Vertex and
 polygon counts are unbounded (indices are 29-bit); bytes past the declared counts are ignored.
-A `$schema` whose type is not `unbound/collision` or whose version is not 1, 2 or 3 is
-**rejected**.
+A `$schema` whose type is not `unbound/collision` or whose version is not 3 is **rejected**
+(1 and 2 were pre-release layouts; see §10).
 
 ### 4.5 `paths/<name>.json`
 
@@ -378,14 +368,14 @@ top of it. The folder name for English is `eng` only.
 | Key | Required | Meaning |
 |---|---|---|
 | `format` | yes (writer) | the string `"unbound"`; a reader does not interpret it |
-| `formatVersion` | yes (writer) | integer; this document describes version **2**. A reader treats an absent value as 1. |
+| `formatVersion` | yes (writer) | integer; this document describes version **2**, the only value a reader accepts. An absent value is read as 2. |
 | `game` | no | `"oot"` |
 | `source` | no | provenance of a converted archive; free-form |
 | `features` | base: yes | list of the document kinds the layer provides. A layer whose `features` contains `"scenes"` is a base archive (§1.3); a layer that does not provide every vanilla scene **must not** list it. |
 | `requires.formatVersion` | no | the minimum reader version the layer needs; default = `formatVersion` |
 
 Manifests are read per layer, not merged. A layer whose `formatVersion` or
-`requires.formatVersion` is greater than the reader's version, or whose manifest is not a JSON
+`requires.formatVersion` is not the reader's version, or whose manifest is not a JSON
 object, is logged as an error and does not count as an Unbound base archive; its files are **not**
 removed from the layer merge.
 
@@ -452,7 +442,7 @@ Every vanilla resource type still loads. These vanilla encodings are reinterpret
 
 Room meshes draw under the identity matrix, so their vertices are world coordinates. The vanilla
 vertex record stores them as `s16`, which caps one mesh at 65 535 units across however large the
-world is. Version 2 adds a second encoding of the same resource.
+world is. This format adds a second encoding of the same resource.
 
 A **vertex resource** is registered under two versions, selected by the version field of the
 resource header. A reader **must** support both.
@@ -480,7 +470,7 @@ resource, so the divisor that recovers an element index is 16 for v0 and 22 for 
 must compute offsets against the record size of the version it is emitting.
 
 A writer **should** emit v1 only for a mesh that needs it; v0 is smaller and every vanilla mesh
-fits it. A layer that emits any v1 vertex resource **must** declare `formatVersion` 2.
+fits it.
 
 **Boundary.** This applies to vertices reached through a vertex resource, which is how room meshes
 and object display lists are addressed. Vertices reached through a *segment* — the Skin system's
@@ -505,7 +495,7 @@ Limits lifted relative to vanilla (the format imposes none of these):
 | Light settings per setup | 31 (surface field) | 255 |
 | Water-box room | ≤ 63 | any room |
 | World extent (any position) | ±32 760 | f32; positions within ±1 048 576 (2²⁰) keep a precision of 0.0625 or better |
-| One room mesh | every vertex within ±32 767 of the room `origin`; ≤ 65 535 units across | `s32` vertices; a room mesh may span the whole world extent |
+| One room mesh | every vertex within ±32 767; ≤ 65 535 units across | `s32` vertices (§8.1); a room mesh may span the whole world extent |
 | Floor "none" sentinel | −32 000 | −2 147 483 648 |
 | Fog start / far plane | ~2 500 / 12 800 | world units, unbounded (lighting entry) |
 | Message ids | fixed table | unbounded; message ≤ 8 192 bytes |
@@ -534,12 +524,12 @@ Limits that remain (validation targets for tools):
 ## 10. Versioning
 
 - `formatVersion` in `unbound.json` and the `/<n>` suffix of every `$schema` are the version of
-  this specification. Version 2 is described here.
-- **Version 2** adds the v1 vertex resource (§8.1) and nothing else. No document changed, so every
-  `/1` `$schema` remains valid and version-1 archives read identically. The bump exists so that a
-  layer using the wider vertex form can say so in `requires.formatVersion`.
-- A change that makes a valid version-1 archive read differently, or makes a document this text
-  calls accepted be rejected, is a breaking change and requires version 2.
-- Adding an optional key with a zero default, or accepting a new legacy form, is not breaking and
-  is recorded here under version 1.
-- A reader **must** accept every earlier `$schema` version listed as accepted in this document.
+  this specification. Version 2 is described here and is the only version a reader accepts.
+- **Version 1** was a pre-release format (float collision as `unbound/collision/1` and `/2`, a
+  per-room mesh `origin`, packed `data0`/`data1` and `properties` legacy forms, `s16`-only vertex
+  resources). No archives of it are supported: a version-1 manifest, and the `/1` and `/2`
+  collision schemas, are **rejected**. The `$schema` numbers were not reset so that such an
+  archive fails loudly instead of being misread.
+- A change that makes a valid version-2 archive read differently, or makes a document this text
+  calls accepted be rejected, is a breaking change and requires version 3.
+- Adding an optional key with a zero default is not breaking and is recorded here under version 2.

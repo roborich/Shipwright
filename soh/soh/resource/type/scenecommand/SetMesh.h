@@ -102,7 +102,6 @@ class SetMesh : public SceneCommand<MeshHeader> {
     std::vector<std::string> imagePaths;
     std::vector<BgImage> images;
     MeshHeader meshHeader;
-    Vec3f origin{ 0.0f, 0.0f, 0.0f }; // SOH [Unbound] room mesh origin (see Room.origin)
 
     // SOH [Unbound] Shared by the loaders. The game treats the returned pointer as the display list / image; the
     // interpreter resolves "__OTR__<path>" when the room is drawn, so the string must outlive the command: it is

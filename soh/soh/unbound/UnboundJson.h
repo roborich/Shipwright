@@ -60,13 +60,15 @@ double ToNumber(const Json& value, double fallback = 0.0);
 // Field readers: the fallback when `key` is absent or unreadable.
 int64_t Field(const Json& obj, const char* key, int64_t fallback = 0);
 double NumberField(const Json& obj, const char* key, double fallback = 0.0);
+// SOH [Unbound] s32 field for integral world data (collision); a fractional value is rounded.
+s32 IntegralField(const Json& obj, const char* key, s32 fallback = 0);
 std::string PathField(const Json& obj, const char* key);
 
 // [x, y, z] arrays; rotations and camera positions stay s16, world positions are f32.
 Vec3s ReadVec3s(const Json& v);
 Vec3f ReadVec3f(const Json& v);
-// SOH [Unbound] the integral counterpart, for collision (whose vertices and bounds are s32). Rounds, so a
-// legacy document that wrote 99.9999 lands on 100 rather than 99.
+// SOH [Unbound] the integral counterpart, for collision (whose vertices and bounds are s32); a fractional
+// component is rounded.
 Vec3i ReadVec3i(const Json& v);
 
 // [r, g, b] (or any 3-component u8/s8 triple) into `out[3]`; leaves `out` alone when absent.

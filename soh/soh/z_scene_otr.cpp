@@ -131,7 +131,6 @@ bool Scene_CommandMeshHeader(PlayState* play, SOH::ISceneCommand* cmd) {
     // SOH::SetMesh* otrMesh = static_pointer_cast<SOH::SetMesh>(cmd);
     SOH::SetMesh* otrMesh = (SOH::SetMesh*)cmd;
     play->roomCtx.curRoom.meshHeader = (MeshHeader*)otrMesh->GetRawPointer();
-    play->roomCtx.curRoom.origin = otrMesh->origin; // SOH [Unbound]
 
     return false;
 }

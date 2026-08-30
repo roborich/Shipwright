@@ -331,14 +331,15 @@ constexpr int64_t kNextFree = INT64_MIN;
 // The manifest "features" entry that marks a base layer (SPEC.md §1.3).
 constexpr const char* kFeatureScenes = "scenes";
 
-// unbound.json (SPEC.md §6): every mounted layer's manifest must be a version this build reads. A layer is a
-// base — the one that provides vanilla scenes as scene.json — when its "features" list "scenes" (§1.3).
+// unbound.json (SPEC.md §6): a layer's manifest must name the one format version this build reads — older
+// (pre-release) and newer archives alike are refused. A layer is a base — the one that provides vanilla
+// scenes as scene.json — when its "features" list "scenes" (§1.3).
 bool ManifestVersionIsReadable(const Json& doc) {
     int64_t version = Field(doc, K::kFormatVersion, K::kCurrentFormatVersion);
     int64_t required = Field(SOH::Unbound::Sub(doc, K::kRequires), K::kFormatVersion, version);
-    if (version > K::kCurrentFormatVersion || required > K::kCurrentFormatVersion) {
-        SPDLOG_ERROR("[Unbound] {}: format version {} is newer than this build ({}); layer ignored", K::kManifestPath,
-                     std::max(version, required), K::kCurrentFormatVersion);
+    if (version != K::kCurrentFormatVersion || required != K::kCurrentFormatVersion) {
+        SPDLOG_ERROR("[Unbound] {}: format version {} (requires {}); this build reads only {}; layer ignored",
+                     K::kManifestPath, version, required, K::kCurrentFormatVersion);
         return false;
     }
     return true;

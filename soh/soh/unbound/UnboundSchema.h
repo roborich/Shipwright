@@ -13,8 +13,8 @@ inline constexpr const char* kPathsType = "unbound/paths";
 inline constexpr const char* kTextType = "unbound/text";
 inline constexpr const char* kSceneV1 = "unbound/scene/1";
 inline constexpr const char* kRoomV1 = "unbound/room/1";
-inline constexpr const char* kCollisionV2 = "unbound/collision/2";
 inline constexpr const char* kCollisionV3 = "unbound/collision/3";
+inline constexpr int kCollisionVersion = 3; // the only collision.json version this build reads
 inline constexpr const char* kPathsV1 = "unbound/paths/1";
 inline constexpr const char* kTextV1 = "unbound/text/1";
 
@@ -27,7 +27,6 @@ inline constexpr const char* kReplace = "$replace";
 inline constexpr const char* kSetups = "setups";
 inline constexpr const char* kRooms = "rooms";
 inline constexpr const char* kCollision = "collision";
-inline constexpr const char* kOrigin = "origin";
 
 // Setup keys, one per scene command (§4.2, §4.3)
 inline constexpr const char* kSpecialObjects = "specialObjects";
@@ -131,8 +130,6 @@ inline constexpr const char* kFile = "file";
 inline constexpr const char* kVertices = "vertices";
 inline constexpr const char* kPolys = "polys";
 inline constexpr const char* kSurfaceTypes = "surfaceTypes";
-inline constexpr const char* kData0 = "data0"; // legacy packed form
-inline constexpr const char* kData1 = "data1"; // legacy packed form
 inline constexpr const char* kCamera = "camera";
 inline constexpr const char* kExit = "exit";
 inline constexpr const char* kFloorType = "floorType";
@@ -160,7 +157,6 @@ inline constexpr const char* kYSurface = "ySurface";
 inline constexpr const char* kZMin = "zMin";
 inline constexpr const char* kXLength = "xLength";
 inline constexpr const char* kZLength = "zLength";
-inline constexpr const char* kProperties = "properties"; // legacy packed form
 
 // Paths (§4.5)
 inline constexpr const char* kPoints = "points";
