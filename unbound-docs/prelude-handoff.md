@@ -6,6 +6,14 @@ let the user build. **The contract is [`SPEC.md`](./SPEC.md)**; every entry belo
 section that defines it, and when this page and SPEC disagree, SPEC wins. Everything in the code
 is tagged `SOH [Unbound]`.
 
+## 2026-08-30 — vertex array v1 is `OARR`, not `OVTX`
+
+Fork-side fix, no Prelude change. Prelude's v1 vertex arrays (`OARR` arrayType 25, header
+version 1, 22-byte records) were unreadable because SoH registered the wide record only on the
+unused `OVTX` type; the first Lake Hylia export lost every batch that reached past ±32 767. A
+Vertex `OARR` of either version now loads as the vertex resource the interpreter sizes offsets by
+(§8.1 rewritten to name `OARR`).
+
 ## 2026-08-29 — format version 2: integral geometry, no pre-release compatibility
 
 Format version 1 (everything Prelude exported before this date) is **not read** by this build.
@@ -17,7 +25,7 @@ There is no migration path; re-export.
 | `collision.json` `$schema` is `unbound/collision/3`; `/1` and `/2` are rejected. `collision.bin` holds `s32` vertices and `s32` `dist` (same 12/28-byte records as `/2`, integer fields). | §4.4.1 | Emit `/3`; write integers; round `dist`. |
 | Collision vertices, bounds and water-box extents are integers. A fractional JSON value is rounded by the reader, so the validator should flag one. | §2, §4.4 | Snap collision to whole units on export. |
 | Room `origin` is gone. Mesh vertices are absolute world coordinates. | §4.3 | Stop emitting `origin`; never rebase vertices. |
-| Vertex resource v1 (`s32` positions, 22-byte records; resource header version 1) for any mesh with a vertex outside ±32 767. Offsets in exported display lists are byte offsets in units of the emitting version's record size (16 for v0, 22 for v1). | §8.1 | Emit v1 only where needed; compute DL vertex offsets against 22 for v1 meshes. |
+| Vertex array v1 (`OARR`, arrayType 25, resource header version 1; `s32` positions, 22-byte records) for any mesh with a vertex outside ±32 767. Offsets in exported display lists are byte offsets in units of the emitting version's record size (16 for v0, 22 for v1). | §8.1 | Emit v1 only where needed; compute DL vertex offsets against 22 for v1 meshes. |
 | The packed `data0`/`data1` surface-type form and the packed water-box `properties` form are rejected. | §4.4 | Emit only the unpacked fields. |
 
 ## 2026-08-28 — review pass (after the format pass)

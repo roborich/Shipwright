@@ -436,7 +436,7 @@ Every vanilla resource type still loads. These vanilla encodings are reinterpret
 | Binary `SetMesh` | Mesh entry count stays an 8-bit field (≤ 255). The XML `PolyNum` count and JSON rooms are not limited by it. |
 | Binary/XML text tables | Unchanged; may be overridden per id by `override/…` as vanilla; superseded by §5 when present. |
 | Matrix resources | Stored fixed-point as vanilla; unpacked to float on load. |
-| Vertex resources (v0) | Stored as vanilla: 16-byte records with `s16` positions. Positions are widened to `s32` on load. See §8.1 for the wider v1 form. |
+| Vertex arrays (v0) | Stored as vanilla: an `OARR` array of type 25 (Vertex) holding 16-byte records with `s16` positions. Positions are widened to `s32` on load. See §8.1 for the wider v1 form. |
 
 ### 8.1 Vertex resource v1 — `s32` positions
 
@@ -444,8 +444,11 @@ Room meshes draw under the identity matrix, so their vertices are world coordina
 vertex record stores them as `s16`, which caps one mesh at 65 535 units across however large the
 world is. This format adds a second encoding of the same resource.
 
-A **vertex resource** is registered under two versions, selected by the version field of the
-resource header. A reader **must** support both.
+A **vertex array** is an `OARR` resource (type `0x4F415252`, SoH's generic array) whose first
+word is arrayType 25 (Vertex), followed by a `u32` count — that is how every vertex in the game is
+stored; the dedicated `OVTX` vertex resource is unused by OoT but accepts the same two versions.
+The record encoding is selected by the version field of the resource header. A reader **must**
+support both.
 
 | Version | Record | Positions |
 |---|---|---|
@@ -461,7 +464,8 @@ Version 1 record, in order, little-endian, **not padded**:
 | `s`, `t` | `s16` × 2 | 4 |
 | `r`, `g`, `b`, `a` | `u8` × 4 | 4 |
 
-Both versions are preceded by a `u32` vertex count, as in vanilla.
+Both versions are preceded by `u32 arrayType = 25` and the `u32` vertex count, as in vanilla. An
+`OARR` of any other arrayType at version 1 is **rejected** (only the Vertex type is defined at v1).
 
 **Offsets into a vertex resource are byte offsets, in units of that resource's own record size.**
 An exported display list addresses a vertex group by the byte distance from the start of the
