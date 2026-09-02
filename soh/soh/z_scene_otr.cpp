@@ -14,6 +14,7 @@
 #include <memory>
 #include <cassert>
 #include "soh/resource/type/scenecommand/SetCameraSettings.h"
+#include "soh/unbound/UnboundAudio.h"
 #include "soh/resource/type/scenecommand/SetCutscenes.h"
 #include "soh/resource/type/scenecommand/SetStartPositionList.h"
 #include "soh/resource/type/scenecommand/SetActorList.h"
@@ -319,7 +320,7 @@ bool Scene_CommandSoundSettings(PlayState* play, SOH::ISceneCommand* cmd) {
 
     play->sequenceCtx.seqId = cmdSnd->settings.seqId;
     play->sequenceCtx.natureAmbienceId = cmdSnd->settings.natureAmbienceId;
-    play->sequenceCtx.unboundSongSeqId = cmdSnd->unboundSongSeqId;
+    Unbound_BindSceneSong(play, cmdSnd->unboundSongSeqId); // SOH [Unbound]
 
     if (gSaveContext.seqId == 0xFF) {
         Audio_QueueSeqCmd(cmdSnd->settings.reverb | 0xF0000000);

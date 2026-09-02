@@ -6,6 +6,12 @@ let the user build. **The contract is [`SPEC.md`](./SPEC.md)**; every entry belo
 section that defines it, and when this page and SPEC disagree, SPEC wins. Everything in the code
 is tagged `SOH [Unbound]`.
 
+## 2026-09-02 — a setup may bind a custom song: `sound.song`
+
+| Change | SPEC | Prelude must |
+|---|---|---|
+| Optional `sound.song` on a setup's `sound`: the archive path of a custom sequence (`custom/music/<Name>`) that plays in place of the setup's `seq`. `seq` stays a vanilla id — the theme heard when no mounted layer provides the song (the reader logs the miss). `null` unbinds. An older reader ignores the key (§2) and plays `seq`. | §4.2 | Emit the path only when a song is bound; ship the song's `custom/music/*` entries in the same export; keep `seq` a real vanilla theme, not `NA_BGM_NO_MUSIC` — the engine goes silent before the song is resolved. |
+
 ## 2026-08-30 — vertex array v1 is `OARR`, not `OVTX`
 
 Fork-side fix, no Prelude change. Prelude's v1 vertex arrays (`OARR` arrayType 25, header

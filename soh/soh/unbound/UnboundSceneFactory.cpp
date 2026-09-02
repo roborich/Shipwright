@@ -164,12 +164,13 @@ Command BuildSound(CommandBuilder& b, const Json& s) {
     cmd->settings.seqId = (uint8_t)Field(s, K::kSeq);
     cmd->settings.natureAmbienceId = (uint8_t)Field(s, K::kNatureAmbience);
     cmd->settings.reverb = (uint8_t)Field(s, K::kReverb);
-    // The scene keeps its vanilla `seq` as the theme the game QUEUES; a bound song replaces it at the queue
-    // (AudioEditor_GetReplacementSeq), which is the same u16 path the Audio Editor's replacements take —
-    // so the u8 seqId, the sSeqFlags table and the sequence-command word never see a custom id.
+    // The scene keeps its vanilla `seq` as the theme the game QUEUES; a bound song replaces it when the
+    // theme is resolved for playback (AudioCollection::GetReplacementSequence) — so the u8 seqId, the
+    // sSeqFlags table and the sequence-command word never see a custom id.
     const std::string song = PathField(s, K::kSong);
     if (!song.empty()) {
-        cmd->unboundSongSeqId = ::Unbound::SequenceIdForPath(song);
+        cmd->unboundSongPath = song;
+        cmd->unboundSongSeqId = SOH::Unbound::SequenceIdForPath(song);
         if (cmd->unboundSongSeqId == 0) {
             SPDLOG_ERROR("[Unbound] {}: song {} is not a loaded sequence (no mounted archive provides it)", b.docPath, song);
         }

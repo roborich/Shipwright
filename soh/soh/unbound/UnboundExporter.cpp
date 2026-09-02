@@ -646,9 +646,14 @@ json ExitsJson(const SOH::SetExitList& c) {
 }
 
 json SoundJson(const SOH::SetSoundSettings& c) {
-    return { { K::kSeq, c.settings.seqId },
-             { K::kNatureAmbience, c.settings.natureAmbienceId },
-             { K::kReverb, c.settings.reverb } };
+    json j = { { K::kSeq, c.settings.seqId },
+               { K::kNatureAmbience, c.settings.natureAmbienceId },
+               { K::kReverb, c.settings.reverb } };
+    // A bound song round-trips by the path it was bound with; the resolved id is runtime-only.
+    if (!c.unboundSongPath.empty()) {
+        j[K::kSong] = c.unboundSongPath;
+    }
+    return j;
 }
 
 json CameraSettingsJson(const SOH::SetCameraSettings& c) {

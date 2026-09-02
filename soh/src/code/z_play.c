@@ -413,6 +413,10 @@ void Play_Init(GameState* thisx) {
 
     enableBetaQuest();
 
+    // SOH [Unbound] PlayState is not zero-initialized and an Unbound scene document may omit its sound
+    // command; never carry the previous scene's bound song (or heap garbage) into this one.
+    play->sequenceCtx.unboundSongSeqId = 0;
+
     // Properly initialize the frame counter so it doesn't use garbage data
     if (!firstInit) {
         play->gameplayFrames = 0;
