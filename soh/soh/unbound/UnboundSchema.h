@@ -74,6 +74,8 @@ inline constexpr const char* kUnk = "unk";
 inline constexpr const char* kSeq = "seq";
 inline constexpr const char* kNatureAmbience = "natureAmbience";
 inline constexpr const char* kReverb = "reverb";
+// SOH [Unbound] `sound.song`: the archive path of a custom (`custom/music/*`) sequence bound to the scene.
+inline constexpr const char* kSong = "song";
 inline constexpr const char* kCameraMovement = "cameraMovement";
 inline constexpr const char* kWorldMapArea = "worldMapArea";
 inline constexpr const char* kGameplayFlags = "gameplayFlags";

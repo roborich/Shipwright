@@ -139,7 +139,7 @@ A setup object holds:
 |---|---|---|
 | `specialObjects` | `{ elfMessage: int, globalObject: int }` | Navi hint id, global object id |
 | `skybox` | `{ id, weather, indoors, unk }` ints | vanilla skybox settings |
-| `sound` | `{ seq, natureAmbience, reverb }` ints | vanilla sound settings |
+| `sound` | `{ seq, natureAmbience, reverb }` ints, optional `song`: path | vanilla sound settings. `song` names a custom sequence (`custom/music/<Name>`, a streamed or `.seq` sequence any mounted archive provides) to play in place of `seq`: the engine still queues `seq`, and resolves the song at the queue the way an Audio Editor replacement is resolved, so `seq` stays a vanilla id (the theme the scene falls back to when the song is absent — the loader logs the miss) and a song never needs a numeric id, which custom sequences do not have stably. `null` unbinds. |
 | `cameraSettings` | `{ cameraMovement, worldMapArea }` ints | vanilla camera settings |
 | `cutscene` | path | cutscene resource |
 | `paths` | array of paths | pathway documents (§4.5); their `paths` lists are concatenated in array order, and a path index is a position in that concatenation |

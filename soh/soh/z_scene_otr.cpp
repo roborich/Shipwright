@@ -319,6 +319,7 @@ bool Scene_CommandSoundSettings(PlayState* play, SOH::ISceneCommand* cmd) {
 
     play->sequenceCtx.seqId = cmdSnd->settings.seqId;
     play->sequenceCtx.natureAmbienceId = cmdSnd->settings.natureAmbienceId;
+    play->sequenceCtx.unboundSongSeqId = cmdSnd->unboundSongSeqId;
 
     if (gSaveContext.seqId == 0xFF) {
         Audio_QueueSeqCmd(cmdSnd->settings.reverb | 0xF0000000);

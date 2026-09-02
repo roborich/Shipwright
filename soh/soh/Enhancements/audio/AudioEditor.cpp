@@ -433,7 +433,15 @@ void Draw_SfxTab(const std::string& tabId, SeqType type, const std::string& tabN
     ImGui::EndTable();
 }
 
+extern PlayState* gPlayState;
+
 extern "C" u16 AudioEditor_GetReplacementSeq(u16 seqId) {
+    // SOH [Unbound] A scene document's `sound.song` binds a custom sequence to the scene: whenever the scene's
+    // own theme is queued, play the song instead. It rides the replacement path because that is the one route
+    // from a queued u8 id to a u16 sequence, and it outranks the Audio Editor's map for that scene only.
+    if (gPlayState != NULL && gPlayState->sequenceCtx.unboundSongSeqId != 0 && seqId == gPlayState->sequenceCtx.seqId) {
+        return gPlayState->sequenceCtx.unboundSongSeqId;
+    }
     return AudioCollection::Instance->GetReplacementSequence(seqId);
 }
 

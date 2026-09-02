@@ -414,6 +414,7 @@ void Scene_CommandUndefined9(PlayState* play, SceneCmd* cmd) {
 void Scene_CommandSoundSettings(PlayState* play, SceneCmd* cmd) {
     play->sequenceCtx.seqId = cmd->soundSettings.seqId;
     play->sequenceCtx.natureAmbienceId = cmd->soundSettings.natureAmbienceId;
+    play->sequenceCtx.unboundSongSeqId = 0; // SOH [Unbound] a binary scene binds no song
 
     if (gSaveContext.seqId == (u8)NA_BGM_DISABLED) {
         Audio_QueueSeqCmd(cmd->soundSettings.specId | 0xF0000000);
