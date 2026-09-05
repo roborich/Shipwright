@@ -416,6 +416,9 @@ void Play_Init(GameState* thisx) {
     // SOH [Unbound] PlayState is not zero-initialized and an Unbound scene document may omit its sound
     // command; never carry the previous scene's bound song (or heap garbage) into this one.
     play->sequenceCtx.unboundSongSeqId = 0;
+    // SOH [Unbound] likewise the previous scene's animated-material list (its command resource is gone with the scene)
+    play->sceneMaterialAnims = NULL;
+    play->sceneMaterialAnimCount = 0;
 
     // Properly initialize the frame counter so it doesn't use garbage data
     if (!firstInit) {

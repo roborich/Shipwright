@@ -1,0 +1,8 @@
+{ "setups": {
+  "0": { "materialAnims": { "0": { "segment": 8, "pass": "opa", "type": "twoTexScroll",
+    "layers": [ { "xStep": 0, "yStep": -4, "width": 32, "height": 32 },
+                { "xStep": 0, "yStep": -4, "width": 32, "height": 32 } ] } } },
+  "2": { "materialAnims": { "0": { "segment": 8, "pass": "opa", "type": "twoTexScroll",
+    "layers": [ { "xStep": 0, "yStep": -4, "width": 32, "height": 32 },
+                { "xStep": 0, "yStep": -4, "width": 32, "height": 32 } ] } } }
+} }

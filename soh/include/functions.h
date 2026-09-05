@@ -1260,6 +1260,7 @@ s32 Scene_ExecuteCommands(PlayState* play, SceneCmd* sceneCmd);
 void TransitionActor_InitContext(GameState* state, TransitionActorContext* transiActorCtx);
 void Scene_SetTransitionForNextEntrance(PlayState* play);
 void Scene_Draw(PlayState* play);
+void Scene_DrawMaterialAnims(PlayState* play); // SOH [Unbound] z_scene_proc.c
 void SkelAnime_DrawLod(PlayState* play, void** skeleton, Vec3s* jointTable,
                        OverrideLimbDrawOpa overrideLimbDraw, PostLimbDrawOpa postLimbDraw, void* arg, s32 dListIndex);
 void SkelAnime_DrawFlexLod(PlayState* play, void** skeleton, Vec3s* jointTable, s32 dListCount,

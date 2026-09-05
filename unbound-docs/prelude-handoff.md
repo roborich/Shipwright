@@ -6,6 +6,26 @@ let the user build. **The contract is [`SPEC.md`](./SPEC.md)**; every entry belo
 section that defines it, and when this page and SPEC disagree, SPEC wins. Everything in the code
 is tagged `SOH [Unbound]`.
 
+## 2026-09-05 — animated materials from data: `materialAnims`
+
+Vanilla animates water by a per-scene C draw config that rebinds runtime segments 8–13 every
+frame; a custom scene had no way to ask for one. A scene setup may now carry `materialAnims`, the
+Majora's Mask AnimatedMaterial list in JSON: per entry a segment (8–13, absolute), a display pass
+(`opa`/`xlu`/`both`), and one of six recipes — `texScroll`, `twoTexScroll`, `color`,
+`colorLerp`, `colorNonLinear`, `texCycle`. The engine binds them after the scene's draw config,
+so a custom scene keeps `drawConfig` 0. Version-2 addition, no manifest change; an older reader
+ignores the key and draws the material still.
+
+| Change | SPEC | Prelude must |
+|---|---|---|
+| Optional `materialAnims` on a scene setup: a positional list of entries; the lists *inside* an entry (`layers`, `keyFrames`, colours, `textures`, `frames`) are plain JSON arrays. | §4.2 | Add a material-level authoring field (segment, pass, per-layer `xStep`/`yStep`/`width`/`height`); write the list only when a material uses one. Fast64's glTF extension carries no scroll settings, so this is a Prelude field. |
+| The scroll list only sets tile sizes: the material's display list must load its texture with wrap addressing, set its tile(s) up, then call the segment right before its triangles. | §4.2 | Emit `G_DL` (0xDE) with `w1 = (segment << 24) \| 1` after the texture load and before the triangles; for `twoTexScroll` load render tiles 0 and 1; validate wrap addressing at export. The emitter already preserves such calls in vanilla lists. |
+| Six segments per pass; materials may share one. | §9 | Assign segments per pass; two materials with the same motion share an entry. Report when a scene wants a seventh. |
+| Older readers degrade silently. | §10 | Note in the export summary that animated materials need Unbound 0.6+. Do **not** raise `requires.formatVersion`. |
+| Preview. | — | Feed scroll entries into the existing `ScrollLayers` seam (the same one MM's list and OoT's draw configs ride); colour and cycle entries may stay parsed-but-static as they are for MM today. |
+
+Test data: `examples/lake-hylia-reversed-water/` rebinds a vanilla scene's water through the key.
+
 ## 2026-09-02 — a setup may bind a custom song: `sound.song`
 
 | Change | SPEC | Prelude must |

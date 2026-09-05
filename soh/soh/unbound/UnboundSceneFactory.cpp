@@ -23,6 +23,7 @@
 #include "soh/resource/type/scenecommand/EndMarker.h"
 #include "soh/resource/type/scenecommand/SetActorList.h"
 #include "soh/resource/type/scenecommand/SetAlternateHeaders.h"
+#include "soh/resource/type/scenecommand/SetAnimatedMaterialList.h"
 #include "soh/resource/type/scenecommand/SetCameraSettings.h"
 #include "soh/resource/type/scenecommand/SetCollisionHeader.h"
 #include "soh/resource/type/scenecommand/SetCutscenes.h"
@@ -172,7 +173,8 @@ Command BuildSound(CommandBuilder& b, const Json& s) {
         cmd->unboundSongPath = song;
         cmd->unboundSongSeqId = SOH::Unbound::SequenceIdForPath(song);
         if (cmd->unboundSongSeqId == 0) {
-            SPDLOG_ERROR("[Unbound] {}: song {} is not a loaded sequence (no mounted archive provides it)", b.docPath, song);
+            SPDLOG_ERROR("[Unbound] {}: song {} is not a loaded sequence (no mounted archive provides it)", b.docPath,
+                         song);
         }
     }
     return cmd;
@@ -404,6 +406,182 @@ Command BuildLighting(CommandBuilder& b, const Json& list) {
     return cmd;
 }
 
+// ---- material animations (SPEC.md §4.2 `materialAnims`) --------------------------------------
+//
+// One entry -> one AnimatedMaterial. A malformed entry is logged and dropped (EntryError); the
+// document still loads, so a single bad water material never takes a scene down with it.
+
+struct EntryError : std::runtime_error {
+    using std::runtime_error::runtime_error;
+};
+
+int64_t RangedField(const Json& obj, const char* key, int64_t min, int64_t max, int64_t fallback = 0) {
+    int64_t v = Field(obj, key, fallback);
+    if (v < min || v > max) {
+        throw EntryError(std::string(key) + " " + std::to_string(v) + " is outside " + std::to_string(min) + ".." +
+                         std::to_string(max));
+    }
+    return v;
+}
+
+u8 ReadAnimPass(const Json& e) {
+    if (!e.contains(K::kPass)) {
+        return ANIM_MAT_PASS_OPA | ANIM_MAT_PASS_XLU;
+    }
+    const std::string pass = e[K::kPass].is_string() ? e[K::kPass].get<std::string>() : "";
+    if (pass == K::kPassOpa) {
+        return ANIM_MAT_PASS_OPA;
+    }
+    if (pass == K::kPassXlu) {
+        return ANIM_MAT_PASS_XLU;
+    }
+    if (pass == K::kPassBoth) {
+        return ANIM_MAT_PASS_OPA | ANIM_MAT_PASS_XLU;
+    }
+    throw EntryError("pass '" + pass + "' is not opa, xlu or both");
+}
+
+u8 ReadAnimType(const Json& e) {
+    static const std::pair<const char*, AnimatedMaterialType> kTypes[] = {
+        { K::kAnimTexScroll, ANIM_MAT_TEX_SCROLL },
+        { K::kAnimTwoTexScroll, ANIM_MAT_TWO_TEX_SCROLL },
+        { K::kAnimColor, ANIM_MAT_COLOR },
+        { K::kAnimColorLerp, ANIM_MAT_COLOR_LERP },
+        { K::kAnimColorNonLinear, ANIM_MAT_COLOR_NON_LINEAR },
+        { K::kAnimTexCycle, ANIM_MAT_TEX_CYCLE },
+    };
+    const std::string type = e.contains(K::kType) && e[K::kType].is_string() ? e[K::kType].get<std::string>() : "";
+    for (const auto& [name, id] : kTypes) {
+        if (type == name) {
+            return (u8)id;
+        }
+    }
+    throw EntryError("type '" + type + "' is not an animated-material type");
+}
+
+AnimatedMatTexScrollParams ReadScrollLayer(const Json& l) {
+    AnimatedMatTexScrollParams p{};
+    p.xStep = (s8)RangedField(l, K::kXStep, INT8_MIN, INT8_MAX);
+    p.yStep = (s8)RangedField(l, K::kYStep, INT8_MIN, INT8_MAX);
+    p.width = (u8)RangedField(l, K::kWidth, 1, UINT8_MAX);
+    p.height = (u8)RangedField(l, K::kHeight, 1, UINT8_MAX);
+    return p;
+}
+
+// The lists inside an entry (layers, key frames, colours, textures, frames) are JSON arrays: they
+// replace whole across layers (SPEC.md §3.3) — a key-frame list patched one index at a time would
+// not be a key-frame list. Only the entry list itself is positional.
+
+SetAnimatedMaterialList::ScrollStorage ReadScroll(const Json& e, u8 type) {
+    const size_t want = type == ANIM_MAT_TWO_TEX_SCROLL ? 2 : 1;
+    const Json& layers = SubArray(e, K::kLayers);
+    if (layers.size() != want) {
+        throw EntryError("layers has " + std::to_string(layers.size()) + " entries; this type takes " +
+                         std::to_string(want));
+    }
+    SetAnimatedMaterialList::ScrollStorage s{};
+    for (size_t i = 0; i < want; i++) {
+        if (!layers[i].is_object()) {
+            throw EntryError("layers[" + std::to_string(i) + "] is not an object");
+        }
+        s.layers[i] = ReadScrollLayer(layers[i]);
+    }
+    return s;
+}
+
+// An array of fixed-width byte tuples ([r,g,b,a,lodFrac] / [r,g,b,a]) into `out`.
+template <typename T, size_t N> void ReadByteTuples(const Json& list, const char* key, std::vector<T>& out) {
+    static_assert(sizeof(T) == N, "colour tuples are read byte-wise");
+    for (size_t k = 0; k < list.size(); k++) {
+        const Json& tuple = list[k];
+        if (!tuple.is_array() || tuple.size() < N) {
+            throw EntryError(std::string(key) + "[" + std::to_string(k) + "] is not a " + std::to_string(N) +
+                             "-component array");
+        }
+        T value{};
+        u8* bytes = reinterpret_cast<u8*>(&value);
+        for (size_t i = 0; i < N; i++) {
+            bytes[i] = (u8)ToInt(tuple[i]);
+        }
+        out.push_back(value);
+    }
+}
+
+SetAnimatedMaterialList::ColorStorage ReadColor(const Json& e) {
+    SetAnimatedMaterialList::ColorStorage c{};
+    c.params.keyFrameLength = (u16)RangedField(e, K::kLength, 1, UINT16_MAX);
+    for (const Json& f : SubArray(e, K::kKeyFrames)) {
+        int64_t frame = ToInt(f, -1);
+        if (frame < 0 || frame > UINT16_MAX || (!c.keyFrames.empty() && frame <= c.keyFrames.back())) {
+            throw EntryError("keyFrames must be ascending frame numbers");
+        }
+        c.keyFrames.push_back((u16)frame);
+    }
+    if (c.keyFrames.empty() || c.keyFrames.size() > ANIM_MAT_MAX_KEY_FRAMES || c.keyFrames[0] != 0) {
+        throw EntryError("keyFrames needs 1.." + std::to_string(ANIM_MAT_MAX_KEY_FRAMES) + " entries starting at 0");
+    }
+    ReadByteTuples<F3DPrimColor, 5>(SubArray(e, K::kPrimColors), K::kPrimColors, c.primColors);
+    ReadByteTuples<F3DEnvColor, 4>(SubArray(e, K::kEnvColors), K::kEnvColors, c.envColors);
+    if (c.primColors.size() != c.keyFrames.size() ||
+        (!c.envColors.empty() && c.envColors.size() != c.keyFrames.size())) {
+        throw EntryError("primColors / envColors must have one entry per key frame");
+    }
+    return c;
+}
+
+SetAnimatedMaterialList::CycleStorage ReadCycle(const Json& e) {
+    SetAnimatedMaterialList::CycleStorage c{};
+    for (const Json& t : SubArray(e, K::kTextures)) {
+        if (!t.is_string() || t.get<std::string>().empty()) {
+            throw EntryError("textures holds a value that is not a path");
+        }
+        c.texturePaths.push_back("__OTR__" + t.get<std::string>());
+    }
+    for (const Json& f : SubArray(e, K::kFrames)) {
+        int64_t index = ToInt(f, -1);
+        if (index < 0 || index >= (int64_t)c.texturePaths.size()) {
+            throw EntryError("frames holds " + std::to_string(index) + ", which is not a textures index");
+        }
+        c.frames.push_back((u8)index);
+    }
+    if (c.frames.empty() || c.frames.size() > UINT16_MAX) {
+        throw EntryError("frames needs 1..65535 entries");
+    }
+    return c;
+}
+
+void ReadMaterialAnim(CommandBuilder& b, SetAnimatedMaterialList& cmd, const Json& e) {
+    const u8 segment = (u8)RangedField(e, K::kSegment, ANIM_MAT_SEGMENT_MIN, ANIM_MAT_SEGMENT_MAX, -1);
+    const u8 pass = ReadAnimPass(e);
+    const u8 type = ReadAnimType(e);
+    switch (type) {
+        case ANIM_MAT_TEX_SCROLL:
+        case ANIM_MAT_TWO_TEX_SCROLL:
+            cmd.AddScroll(segment, pass, type, ReadScroll(e, type));
+            break;
+        case ANIM_MAT_COLOR:
+        case ANIM_MAT_COLOR_LERP:
+        case ANIM_MAT_COLOR_NON_LINEAR:
+            cmd.AddColor(segment, pass, type, ReadColor(e));
+            break;
+        default:
+            cmd.AddCycle(segment, pass, ReadCycle(e));
+            break;
+    }
+}
+
+Command BuildMaterialAnims(CommandBuilder& b, const Json& list) {
+    auto cmd = b.Make<SetAnimatedMaterialList>(SceneCommandID::SetAnimatedMaterialList);
+    for (const auto& k : b.Positional(list, K::kMaterialAnims)) {
+        try {
+            ReadMaterialAnim(b, *cmd, list[k]);
+        } catch (const EntryError& err) {
+            SPDLOG_ERROR("[Unbound] {} {}[{}]: {}; entry dropped", b.docPath, K::kMaterialAnims, k, err.what());
+        }
+    }
+    return cmd;
+}
+
 // ---- keyed list --------------------------------------------------------------------------------
 
 Command BuildActorList(CommandBuilder& b, const Json& list) {
@@ -543,6 +721,7 @@ void BuildSetupCommands(CommandBuilder& b, const Json& setup, const SharedRefs& 
     add(K::kSound, BuildSound);
     add(K::kCameraSettings, BuildCameraSettings);
     add(K::kLighting, BuildLighting);
+    add(K::kMaterialAnims, BuildMaterialAnims);
     if (has(K::kPaths) && setup[K::kPaths].is_array()) {
         out.push_back(BuildPathways(b, setup[K::kPaths]));
     }

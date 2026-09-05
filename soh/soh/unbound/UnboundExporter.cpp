@@ -31,6 +31,7 @@
 #include "soh/resource/type/Text.h"
 #include "soh/resource/type/scenecommand/SetActorList.h"
 #include "soh/resource/type/scenecommand/SetAlternateHeaders.h"
+#include "soh/resource/type/scenecommand/SetAnimatedMaterialList.h"
 #include "soh/resource/type/scenecommand/SetCameraSettings.h"
 #include "soh/resource/type/scenecommand/SetCollisionHeader.h"
 #include "soh/resource/type/scenecommand/SetCutscenes.h"
@@ -656,6 +657,91 @@ json SoundJson(const SOH::SetSoundSettings& c) {
     return j;
 }
 
+// SOH [Unbound] `materialAnims` (SPEC.md §4.2) round-trips from the command's owned storage. Vanilla scenes never
+// carry one; this is for a document-loaded scene exported again.
+const char* AnimTypeName(u8 type) {
+    switch (type) {
+        case ANIM_MAT_TEX_SCROLL:
+            return K::kAnimTexScroll;
+        case ANIM_MAT_TWO_TEX_SCROLL:
+            return K::kAnimTwoTexScroll;
+        case ANIM_MAT_COLOR:
+            return K::kAnimColor;
+        case ANIM_MAT_COLOR_LERP:
+            return K::kAnimColorLerp;
+        case ANIM_MAT_COLOR_NON_LINEAR:
+            return K::kAnimColorNonLinear;
+        default:
+            return K::kAnimTexCycle;
+    }
+}
+
+json ScrollLayerJson(const AnimatedMatTexScrollParams& l) {
+    return { { K::kXStep, l.xStep }, { K::kYStep, l.yStep }, { K::kWidth, l.width }, { K::kHeight, l.height } };
+}
+
+json MaterialAnimJson(const AnimatedMaterial& a) {
+    json j = { { K::kSegment, a.segment }, { K::kType, AnimTypeName(a.type) } };
+    j[K::kPass] = a.pass == ANIM_MAT_PASS_OPA ? K::kPassOpa : a.pass == ANIM_MAT_PASS_XLU ? K::kPassXlu : K::kPassBoth;
+    switch (a.type) {
+        case ANIM_MAT_TEX_SCROLL:
+        case ANIM_MAT_TWO_TEX_SCROLL: {
+            const auto* layers = (const AnimatedMatTexScrollParams*)a.params;
+            j[K::kLayers] = json::array({ ScrollLayerJson(layers[0]) });
+            if (a.type == ANIM_MAT_TWO_TEX_SCROLL) {
+                j[K::kLayers].push_back(ScrollLayerJson(layers[1]));
+            }
+            break;
+        }
+        case ANIM_MAT_COLOR:
+        case ANIM_MAT_COLOR_LERP:
+        case ANIM_MAT_COLOR_NON_LINEAR: {
+            const auto* c = (const AnimatedMatColorParams*)a.params;
+            j[K::kLength] = c->keyFrameLength;
+            json keyFrames = json::array();
+            json prim = json::array();
+            json env = json::array();
+            for (u16 i = 0; i < c->keyFrameCount; i++) {
+                keyFrames.push_back(c->keyFrames[i]);
+                const F3DPrimColor& pc = c->primColors[i];
+                prim.push_back({ pc.r, pc.g, pc.b, pc.a, pc.lodFrac });
+                if (c->envColors != nullptr) {
+                    const F3DEnvColor& ec = c->envColors[i];
+                    env.push_back({ ec.r, ec.g, ec.b, ec.a });
+                }
+            }
+            j[K::kKeyFrames] = keyFrames;
+            j[K::kPrimColors] = prim;
+            if (c->envColors != nullptr) {
+                j[K::kEnvColors] = env;
+            }
+            break;
+        }
+        default: {
+            const auto* c = (const AnimatedMatTexCycleParams*)a.params;
+            json textures = json::array();
+            json frames = json::array();
+            size_t textureCount = 0;
+            for (u16 i = 0; i < c->keyFrameLength; i++) {
+                frames.push_back(c->textureIndexList[i]);
+                textureCount = std::max<size_t>(textureCount, (size_t)c->textureIndexList[i] + 1);
+            }
+            for (size_t i = 0; i < textureCount; i++) {
+                std::string path = (const char*)c->textureList[i];
+                textures.push_back(path.rfind("__OTR__", 0) == 0 ? path.substr(7) : path);
+            }
+            j[K::kTextures] = textures;
+            j[K::kFrames] = frames;
+            break;
+        }
+    }
+    return j;
+}
+
+json MaterialAnimsJson(const SOH::SetAnimatedMaterialList& c) {
+    return PositionalList(c.entries, [](const auto& a) { return MaterialAnimJson(a); });
+}
+
 json CameraSettingsJson(const SOH::SetCameraSettings& c) {
     return { { K::kCameraMovement, c.settings.cameraMovement }, { K::kWorldMapArea, c.settings.worldMapArea } };
 }
@@ -736,6 +822,9 @@ std::vector<std::shared_ptr<SOH::Scene>> BuildSetup(ExportContext& ctx, json& se
                 break;
             case SceneCommandID::SetSoundSettings:
                 setup[K::kSound] = SoundJson(As<SOH::SetSoundSettings>(cmd));
+                break;
+            case SceneCommandID::SetAnimatedMaterialList: // SOH [Unbound]
+                setup[K::kMaterialAnims] = MaterialAnimsJson(As<SOH::SetAnimatedMaterialList>(cmd));
                 break;
             case SceneCommandID::SetEchoSettings:
                 setup[K::kEcho] = As<SOH::SetEchoSettings>(cmd).settings.echo;

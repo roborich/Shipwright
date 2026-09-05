@@ -49,6 +49,28 @@ inline constexpr const char* kObjects = "objects";
 inline constexpr const char* kLights = "lights";
 inline constexpr const char* kActors = "actors";
 inline constexpr const char* kMesh = "mesh";
+inline constexpr const char* kMaterialAnims = "materialAnims";
+
+// Material-animation entry (§4.2). `kType`, `kWidth`, `kHeight` and `kLayers` are shared with other entries.
+inline constexpr const char* kSegment = "segment";
+inline constexpr const char* kPass = "pass";
+inline constexpr const char* kPassOpa = "opa";
+inline constexpr const char* kPassXlu = "xlu";
+inline constexpr const char* kPassBoth = "both";
+inline constexpr const char* kXStep = "xStep";
+inline constexpr const char* kYStep = "yStep";
+inline constexpr const char* kLength = "length";
+inline constexpr const char* kKeyFrames = "keyFrames";
+inline constexpr const char* kPrimColors = "primColors";
+inline constexpr const char* kEnvColors = "envColors";
+inline constexpr const char* kTextures = "textures";
+inline constexpr const char* kFrames = "frames";
+inline constexpr const char* kAnimTexScroll = "texScroll";
+inline constexpr const char* kAnimTwoTexScroll = "twoTexScroll";
+inline constexpr const char* kAnimColor = "color";
+inline constexpr const char* kAnimColorLerp = "colorLerp";
+inline constexpr const char* kAnimColorNonLinear = "colorNonLinear";
+inline constexpr const char* kAnimTexCycle = "texCycle";
 
 // Entity fields
 inline constexpr const char* kId = "id";

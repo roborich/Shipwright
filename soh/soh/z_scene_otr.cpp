@@ -14,6 +14,7 @@
 #include <memory>
 #include <cassert>
 #include "soh/resource/type/scenecommand/SetCameraSettings.h"
+#include "soh/resource/type/scenecommand/SetAnimatedMaterialList.h"
 #include "soh/unbound/UnboundAudio.h"
 #include "soh/resource/type/scenecommand/SetCutscenes.h"
 #include "soh/resource/type/scenecommand/SetStartPositionList.h"
@@ -393,6 +394,14 @@ bool Scene_CommandCutsceneData(PlayState* play, SOH::ISceneCommand* cmd) {
 }
 
 // Camera & World Map Area
+// SOH [Unbound] `materialAnims` (SPEC.md §4.2): the list lives in the command resource for as long as the scene does.
+bool Scene_CommandAnimatedMaterials(PlayState* play, SOH::ISceneCommand* cmd) {
+    SOH::SetAnimatedMaterialList* list = (SOH::SetAnimatedMaterialList*)cmd;
+    play->sceneMaterialAnims = list->GetPointer();
+    play->sceneMaterialAnimCount = (u32)list->entries.size();
+    return false;
+}
+
 bool Scene_CommandMiscSettings(PlayState* play, SOH::ISceneCommand* cmd) {
     // SOH::SetCameraSettings* cmdCam = std::static_pointer_cast<SOH::SetCameraSettings>(cmd);
     SOH::SetCameraSettings* cmdCam = (SOH::SetCameraSettings*)cmd;
@@ -444,6 +453,7 @@ bool (*sceneCommands[])(PlayState*, SOH::ISceneCommand*) = {
     Scene_CommandCutsceneData,        // SCENE_CMD_ID_CUTSCENE_DATA
     Scene_CommandAlternateHeaderList, // SCENE_CMD_ID_ALTERNATE_HEADER_LIST
     Scene_CommandMiscSettings,        // SCENE_CMD_ID_MISC_SETTINGS
+    Scene_CommandAnimatedMaterials,   // SOH [Unbound] SceneCommandID::SetAnimatedMaterialList (0x1A)
 };
 
 s32 OTRScene_ExecuteCommands(PlayState* play, SOH::Scene* scene) {
@@ -463,7 +473,8 @@ s32 OTRScene_ExecuteCommands(PlayState* play, SOH::Scene* scene) {
             break;
         }
 
-        if ((int)cmdCode <= 0x19) {
+        // SOH [Unbound] the table grew past the vanilla 0x19 (materialAnims); bound it by its size
+        if ((size_t)cmdCode < sizeof(sceneCommands) / sizeof(sceneCommands[0])) {
             if (sceneCommands[(int)cmdCode](play, sceneCmd.get()))
                 break;
         } else {

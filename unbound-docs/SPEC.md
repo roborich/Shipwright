@@ -148,6 +148,7 @@ A setup object holds:
 | `spawns` | positional list of `{ id: int, pos: vec, rot: vec, params: int }` | player spawn entries; `params` is the vanilla packed word |
 | `exits` | positional list of exit values (below) | referenced 1-based by surface types (§4.4) |
 | `transitionActors` | positional list of transition-actor entries (below) | |
+| `materialAnims` | positional list of material-animation entries (below) | Per-frame recipes bound to runtime segments before the rooms draw (animated water, lava, colour cycles, flipbooks). Entries apply in list order: a later entry on the same segment and pass wins, and an entry wins over what the scene's draw config bound to that segment. A reader without this key (Unbound 0.5 and earlier) ignores it and the geometry draws unanimated. |
 
 The vanilla `SetCsCamera` command (0x02) carries no data in SoH and has no JSON form.
 
@@ -182,6 +183,52 @@ Any other JSON type makes the document **rejected**.
 `room` is a room number, `-1` = none. Transition actors are identified by their position in this
 list; the index is not read from `params` for actors spawned from this list, and `params` bits
 10–15 **must** be 0. `id` is 13-bit. There is no limit of 64.
+
+**Material-animation entry**
+
+The data-driven form of what a vanilla scene draw config does in C (and what Majora's Mask
+declares in its scene header): every frame, a small display list is generated from the entry and
+bound to a runtime segment; a room display list that calls that segment
+(`gsSPDisplayList(0x08000000 | 1)`) right before its triangles inherits the result.
+
+```json
+"materialAnims": {
+  "0": { "segment": 8, "pass": "opa", "type": "texScroll",
+         "layers": [ { "xStep": 0, "yStep": 1, "width": 32, "height": 32 } ] },
+  "1": { "segment": 9, "pass": "xlu", "type": "twoTexScroll",
+         "layers": [ { "xStep": 0, "yStep": 1, "width": 32, "height": 32 },
+                     { "xStep": 0, "yStep": 1, "width": 32, "height": 32 } ] },
+  "2": { "segment": 10, "pass": "both", "type": "colorLerp",
+         "length": 64, "keyFrames": [0, 32, 64],
+         "primColors": [[255,255,255,255,0], [200,80,0,255,128], [255,255,255,255,0]],
+         "envColors":  [[0,0,0,255], [60,0,0,255], [0,0,0,255]] },
+  "3": { "segment": 11, "pass": "opa", "type": "texCycle",
+         "textures": ["textures/mymod/lava_a", "textures/mymod/lava_b"],
+         "frames": [0, 0, 0, 1, 1, 1] }
+}
+```
+
+The entry list is positional (a layer may patch one entry); the lists *inside* an entry
+(`layers`, `keyFrames`, `primColors`, `envColors`, `textures`, `frames`) are JSON arrays and
+replace whole (§3.3).
+
+| Key | Type | Meaning |
+|---|---|---|
+| `segment` | int 8–13 | The runtime segment bound. Outside the range the entry is **rejected** (logged and dropped); the document still loads. |
+| `pass` | `"opa"`, `"xlu"` or `"both"` | Which display buffer the bind is written to; default `"both"`. Any other value rejects the entry. |
+| `type` | one of `texScroll`, `twoTexScroll`, `color`, `colorLerp`, `colorNonLinear`, `texCycle` | Any other value rejects the entry. |
+| `layers` | array of `{ xStep, yStep, width, height }` ints | Scroll types only: exactly 1 layer for `texScroll`, exactly 2 for `twoTexScroll` (render tile 0, then tile 1). `xStep`/`yStep` −128…127 are quarter-texels per gameplay frame; `width`/`height` 1–255 are the tile size the generated list sets. At gameplay frame *f* the tile offset is (`xStep·f`, `−yStep·f`) modulo 2048, as in Majora's Mask. |
+| `length` | int ≥ 1 | Colour types: the cycle length in frames; the frame counter is taken modulo it. |
+| `keyFrames` | array of ints | Colour types: ascending frame numbers, the first `0`, 1–50 entries (the non-linear path holds 50). |
+| `primColors` | array of `[r, g, b, a, lodFrac]` | Colour types: one per key frame; `lodFrac` feeds the primitive LOD fraction. `color` steps between them, `colorLerp` interpolates linearly, `colorNonLinear` interpolates with a Lagrange polynomial. |
+| `envColors` | array of `[r, g, b, a]`, or absent | Colour types: one per key frame; absent leaves the environment colour alone. A count that differs from `keyFrames` rejects the entry. |
+| `textures` | array of texture paths | `texCycle` only. |
+| `frames` | array of ints | `texCycle` only: one index into `textures` per frame; its length is the cycle length. An index out of range rejects the entry. |
+
+A material that uses a scroll entry **must** load its texture with wrap addressing and set up its
+tile(s) before calling the segment: the generated list only sets tile sizes. A two-layer scroll
+expects render tiles 0 and 1 both loaded (a two-cycle blend). Vanilla water display lists have
+exactly this shape.
 
 ### 4.3 `rooms/<n>.json`
 
@@ -524,6 +571,7 @@ Limits that remain (validation targets for tools):
 | Minimap / pause map for custom scenes | none | |
 | Binary `SetMesh` entries | ≤ 255 | legacy encoding only |
 | Room numbers in a vanilla-format scene | −1…127 | signed byte |
+| Material-animation segments | 6 per display pass (`segment` 8–13) | the runtime segment table; materials may share a segment. The window is a libultraship table size, not a format limit |
 
 ## 10. Versioning
 
@@ -537,3 +585,4 @@ Limits that remain (validation targets for tools):
 - A change that makes a valid version-2 archive read differently, or makes a document this text
   calls accepted be rejected, is a breaking change and requires version 3.
 - Adding an optional key with a zero default is not breaking and is recorded here under version 2.
+  Version-2 additions so far: `sound.song` (§4.2, 2026-09-02); `materialAnims` (§4.2, 2026-09-05).

@@ -1427,6 +1427,10 @@ typedef struct PlayState {
     /* 0x000A6 */ u8 sceneConfig;
     /* 0x000A7 */ char unk_A7[0x9];
     /* 0x000B0 */ void* sceneSegment;
+    // SOH [Unbound] the current setup's `materialAnims` list (SPEC.md §4.2), drawn by Scene_DrawMaterialAnims after
+    // the scene draw config every frame; count 0 = none. Owned by the SetAnimatedMaterialList command resource.
+    /*         */ AnimatedMaterial* sceneMaterialAnims;
+    /*         */ u32 sceneMaterialAnimCount;
     /* 0x000B8 */ View view;
     /* 0x001E0 */ Camera mainCamera;
     /* 0x0034C */ Camera subCameras[NUM_CAMS - SUBCAM_FIRST];
