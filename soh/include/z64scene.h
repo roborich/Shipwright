@@ -430,8 +430,9 @@ typedef struct {
 
 typedef struct {
     /* 0x0 */ u16 keyFrameLength;
-    /* 0x4 */ void** textureList;   // resource paths ("__OTR__<path>"), bound straight into the segment
-    /* 0x8 */ u8* textureIndexList; // one index into textureList per frame
+    /* 0x2 */ u16 textureCount;      // entries in textureList (the exporter round-trips the whole list)
+    /* 0x4 */ void** textureList;    // resource paths ("__OTR__<path>"), bound straight into the segment
+    /* 0x8 */ u16* textureIndexList; // one index into textureList per frame (MM's is a byte; a list may be longer)
 } AnimatedMatTexCycleParams;
 
 typedef enum {

@@ -57,7 +57,16 @@ base is untouched and every existing archive is unaffected.
   same buffer. There is no new draw-config index.
 - **Per-entry rejection.** A bad entry (segment out of range, unknown type, wrong layer count,
   mismatched colour counts, a flipbook index past its texture list) is logged and dropped; the
-  document still loads. One broken water material should not take a scene down.
+  document still loads. One broken water material should not take a scene down. Every rejection
+  is a rule SPEC §4.2 states and each guards the draw path (a modulus, the fixed key-frame arrays,
+  the 16-bit flipbook index); everything else out of range wraps, as §2 says.
+- **One colour per key frame.** MM's `color` type carries one colour per *frame*; the format
+  carries one per key frame for every colour type and `color` holds each until the next. Past the
+  last key frame the colour holds (`color`, `colorLerp`), so `length` beyond it is a pause. The
+  Lagrange path runs in double: its basis products overflow a float at legal key-frame counts.
+- **Replacing a vanilla bind replaces all of it.** A draw config may write more than a scroll into
+  a segment's list (Lake Hylia's water list also carries an env colour for the water level). An
+  entry on that segment substitutes its whole generated list; what the config put there is gone.
 
 ### What the material must do
 
@@ -80,6 +89,7 @@ needs more.
 
 ## Testing
 
-`examples/lake-hylia-reversed-water/` rebinds Lake Hylia's water (segment 8, OPA) with `yStep`
-−4 in the child and adult setups. With the mod the lake flows backwards four times faster;
+`examples/lake-hylia-reversed-water/` rebinds Lake Hylia's water (segment 8, OPA) in the child
+and adult setups: layer 0 steps (−4, +4) where the draw config scrolls tile 0 by (+1, +1) per
+frame, layer 1 stays still as vanilla. With the mod the lake flows backwards four times faster;
 without it, vanilla; on Unbound 0.5, vanilla with no error. See `testing.md`.

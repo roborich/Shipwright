@@ -413,13 +413,6 @@ void Play_Init(GameState* thisx) {
 
     enableBetaQuest();
 
-    // SOH [Unbound] PlayState is not zero-initialized and an Unbound scene document may omit its sound
-    // command; never carry the previous scene's bound song (or heap garbage) into this one.
-    play->sequenceCtx.unboundSongSeqId = 0;
-    // SOH [Unbound] likewise the previous scene's animated-material list (its command resource is gone with the scene)
-    play->sceneMaterialAnims = NULL;
-    play->sceneMaterialAnimCount = 0;
-
     // Properly initialize the frame counter so it doesn't use garbage data
     if (!firstInit) {
         play->gameplayFrames = 0;
@@ -1893,6 +1886,10 @@ void Play_InitScene(PlayState* play, s32 spawn) {
     play->setupExitList = NULL;
     play->cUpElfMsgs = NULL;
     play->setupPathList = NULL;
+    // SOH [Unbound] mirrors OTRPlay_InitScene: the Unbound command-populated fields reset with the vanilla ones
+    play->sequenceCtx.unboundSongSeqId = 0;
+    play->sceneMaterialAnims = NULL;
+    play->sceneMaterialAnimCount = 0;
 
     play->numSetupActors = 0;
 

@@ -3,6 +3,10 @@
 // and the exporter (both in soh/soh/unbound/). The spec is unbound-docs/SPEC.md; a key that is not listed
 // here is not part of the format. Section numbers below refer to it.
 
+#include <cstddef>
+#include <string_view>
+#include "z64scene.h" // AnimatedMaterialType / ANIM_MAT_PASS_* for the material-animation tables below
+
 namespace SOH::Unbound::Schema {
 
 // "$schema" is "<type>/<version>"; the type half is the LUS resource type name the factory registers under.
@@ -71,6 +75,44 @@ inline constexpr const char* kAnimColor = "color";
 inline constexpr const char* kAnimColorLerp = "colorLerp";
 inline constexpr const char* kAnimColorNonLinear = "colorNonLinear";
 inline constexpr const char* kAnimTexCycle = "texCycle";
+
+// The `type` and `pass` vocabularies as name<->id tables, so the reader and the exporter scan the same list
+// in opposite directions and a new type is added in one place.
+struct NamedId {
+    const char* name;
+    int id;
+};
+inline constexpr NamedId kAnimTypes[] = {
+    { kAnimTexScroll, ANIM_MAT_TEX_SCROLL },
+    { kAnimTwoTexScroll, ANIM_MAT_TWO_TEX_SCROLL },
+    { kAnimColor, ANIM_MAT_COLOR },
+    { kAnimColorLerp, ANIM_MAT_COLOR_LERP },
+    { kAnimColorNonLinear, ANIM_MAT_COLOR_NON_LINEAR },
+    { kAnimTexCycle, ANIM_MAT_TEX_CYCLE },
+};
+inline constexpr NamedId kAnimPasses[] = {
+    { kPassOpa, ANIM_MAT_PASS_OPA },
+    { kPassXlu, ANIM_MAT_PASS_XLU },
+    { kPassBoth, ANIM_MAT_PASS_OPA | ANIM_MAT_PASS_XLU },
+};
+// -1 when `name` is not in the table.
+template <size_t N> constexpr int IdOf(const NamedId (&table)[N], std::string_view name) {
+    for (const NamedId& e : table) {
+        if (name == e.name) {
+            return e.id;
+        }
+    }
+    return -1;
+}
+// nullptr when `id` is not in the table.
+template <size_t N> constexpr const char* NameOf(const NamedId (&table)[N], int id) {
+    for (const NamedId& e : table) {
+        if (id == e.id) {
+            return e.name;
+        }
+    }
+    return nullptr;
+}
 
 // Entity fields
 inline constexpr const char* kId = "id";

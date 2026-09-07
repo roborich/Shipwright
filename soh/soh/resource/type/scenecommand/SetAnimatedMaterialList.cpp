@@ -45,6 +45,7 @@ AnimatedMaterial& SetAnimatedMaterialList::AddCycle(u8 segment, u8 pass, CycleSt
         c.textureList.push_back((void*)path.c_str());
     }
     c.params.keyFrameLength = (u16)c.frames.size();
+    c.params.textureCount = (u16)c.texturePaths.size();
     c.params.textureList = c.textureList.data();
     c.params.textureIndexList = c.frames.data();
     entries.push_back(MakeEntry(segment, pass, ANIM_MAT_TEX_CYCLE, &c.params));

@@ -1,9 +1,14 @@
 # Example: animated water from data
 
 Rebinds the Lake Hylia (`spot06`) water scroll through `materialAnims` (`SPEC.md` §4.2) in the
-child (`"0"`) and adult (`"2"`) setups: segment 8 on the opaque pass, two layers, `yStep` −4 where
-the scene's compiled draw config uses +1. The lake surface flows **backwards, four times faster**.
-Nothing else in the scene changes; the room meshes and their segment calls are vanilla.
+child (`"0"`) and adult (`"2"`) setups: segment 8 on the opaque pass, two layers. The compiled
+draw config scrolls render tile 0 by (+1, +1) texels per frame and leaves tile 1 still; the entry
+steps tile 0 by (`xStep` −4, `yStep` +4), which the §4.2 sign rule turns into (−4, −4) per frame,
+and keeps tile 1 still. The lake surface flows **backwards, four times faster**. The room meshes
+and their segment calls are vanilla. One side effect to expect: the vanilla list also set the
+water's env colour (its alpha tracks the lake level); a scroll entry replaces the whole list, so
+the water takes the env colour the config sets afterwards (255, 255, 255, 128) and looks a little
+lighter than vanilla in the adult setup before the lake is refilled.
 
 It is the whole feature's test on vanilla geometry, with no editor involved:
 

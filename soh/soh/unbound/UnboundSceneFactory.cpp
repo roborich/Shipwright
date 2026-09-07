@@ -424,47 +424,38 @@ int64_t RangedField(const Json& obj, const char* key, int64_t min, int64_t max, 
     return v;
 }
 
+std::string StringField(const Json& e, const char* key) {
+    return e.contains(key) && e[key].is_string() ? e[key].get<std::string>() : "";
+}
+
 u8 ReadAnimPass(const Json& e) {
     if (!e.contains(K::kPass)) {
         return ANIM_MAT_PASS_OPA | ANIM_MAT_PASS_XLU;
     }
-    const std::string pass = e[K::kPass].is_string() ? e[K::kPass].get<std::string>() : "";
-    if (pass == K::kPassOpa) {
-        return ANIM_MAT_PASS_OPA;
+    const std::string pass = StringField(e, K::kPass);
+    const int id = K::IdOf(K::kAnimPasses, pass);
+    if (id < 0) {
+        throw EntryError("pass '" + pass + "' is not opa, xlu or both");
     }
-    if (pass == K::kPassXlu) {
-        return ANIM_MAT_PASS_XLU;
-    }
-    if (pass == K::kPassBoth) {
-        return ANIM_MAT_PASS_OPA | ANIM_MAT_PASS_XLU;
-    }
-    throw EntryError("pass '" + pass + "' is not opa, xlu or both");
+    return (u8)id;
 }
 
 u8 ReadAnimType(const Json& e) {
-    static const std::pair<const char*, AnimatedMaterialType> kTypes[] = {
-        { K::kAnimTexScroll, ANIM_MAT_TEX_SCROLL },
-        { K::kAnimTwoTexScroll, ANIM_MAT_TWO_TEX_SCROLL },
-        { K::kAnimColor, ANIM_MAT_COLOR },
-        { K::kAnimColorLerp, ANIM_MAT_COLOR_LERP },
-        { K::kAnimColorNonLinear, ANIM_MAT_COLOR_NON_LINEAR },
-        { K::kAnimTexCycle, ANIM_MAT_TEX_CYCLE },
-    };
-    const std::string type = e.contains(K::kType) && e[K::kType].is_string() ? e[K::kType].get<std::string>() : "";
-    for (const auto& [name, id] : kTypes) {
-        if (type == name) {
-            return (u8)id;
-        }
+    const std::string type = StringField(e, K::kType);
+    const int id = K::IdOf(K::kAnimTypes, type);
+    if (id < 0) {
+        throw EntryError("type '" + type + "' is not an animated-material type");
     }
-    throw EntryError("type '" + type + "' is not an animated-material type");
+    return (u8)id;
 }
 
+// Step and tile-size ranges are writer requirements (SPEC.md §2): an out-of-range value wraps in the byte.
 AnimatedMatTexScrollParams ReadScrollLayer(const Json& l) {
     AnimatedMatTexScrollParams p{};
-    p.xStep = (s8)RangedField(l, K::kXStep, INT8_MIN, INT8_MAX);
-    p.yStep = (s8)RangedField(l, K::kYStep, INT8_MIN, INT8_MAX);
-    p.width = (u8)RangedField(l, K::kWidth, 1, UINT8_MAX);
-    p.height = (u8)RangedField(l, K::kHeight, 1, UINT8_MAX);
+    p.xStep = (s8)Field(l, K::kXStep);
+    p.yStep = (s8)Field(l, K::kYStep);
+    p.width = (u8)Field(l, K::kWidth);
+    p.height = (u8)Field(l, K::kHeight);
     return p;
 }
 
@@ -507,15 +498,18 @@ template <typename T, size_t N> void ReadByteTuples(const Json& list, const char
     }
 }
 
+// The rejections here are the ones SPEC.md §4.2 states, and each guards the draw path: `length` is a modulus,
+// the key-frame walk needs an ascending list starting at 0 with a colour per key frame, and the non-linear
+// path works in fixed arrays of ANIM_MAT_MAX_KEY_FRAMES.
 SetAnimatedMaterialList::ColorStorage ReadColor(const Json& e) {
     SetAnimatedMaterialList::ColorStorage c{};
     c.params.keyFrameLength = (u16)RangedField(e, K::kLength, 1, UINT16_MAX);
     for (const Json& f : SubArray(e, K::kKeyFrames)) {
-        int64_t frame = ToInt(f, -1);
-        if (frame < 0 || frame > UINT16_MAX || (!c.keyFrames.empty() && frame <= c.keyFrames.back())) {
+        const u16 frame = (u16)ToInt(f);
+        if (!c.keyFrames.empty() && frame <= c.keyFrames.back()) {
             throw EntryError("keyFrames must be ascending frame numbers");
         }
-        c.keyFrames.push_back((u16)frame);
+        c.keyFrames.push_back(frame);
     }
     if (c.keyFrames.empty() || c.keyFrames.size() > ANIM_MAT_MAX_KEY_FRAMES || c.keyFrames[0] != 0) {
         throw EntryError("keyFrames needs 1.." + std::to_string(ANIM_MAT_MAX_KEY_FRAMES) + " entries starting at 0");
@@ -529,20 +523,24 @@ SetAnimatedMaterialList::ColorStorage ReadColor(const Json& e) {
     return c;
 }
 
+// `frames` is the cycle modulus (1..65535 entries) and each index is stored 16-bit; both are SPEC.md §4.2 rules.
 SetAnimatedMaterialList::CycleStorage ReadCycle(const Json& e) {
     SetAnimatedMaterialList::CycleStorage c{};
     for (const Json& t : SubArray(e, K::kTextures)) {
-        if (!t.is_string() || t.get<std::string>().empty()) {
+        if (!t.is_string()) {
             throw EntryError("textures holds a value that is not a path");
         }
         c.texturePaths.push_back("__OTR__" + t.get<std::string>());
+    }
+    if (c.texturePaths.size() > UINT16_MAX + 1) {
+        throw EntryError("textures holds more than 65536 entries");
     }
     for (const Json& f : SubArray(e, K::kFrames)) {
         int64_t index = ToInt(f, -1);
         if (index < 0 || index >= (int64_t)c.texturePaths.size()) {
             throw EntryError("frames holds " + std::to_string(index) + ", which is not a textures index");
         }
-        c.frames.push_back((u8)index);
+        c.frames.push_back((u16)index);
     }
     if (c.frames.empty() || c.frames.size() > UINT16_MAX) {
         throw EntryError("frames needs 1..65535 entries");

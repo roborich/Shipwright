@@ -217,13 +217,13 @@ replace whole (§3.3).
 | `segment` | int 8–13 | The runtime segment bound. Outside the range the entry is **rejected** (logged and dropped); the document still loads. |
 | `pass` | `"opa"`, `"xlu"` or `"both"` | Which display buffer the bind is written to; default `"both"`. Any other value rejects the entry. |
 | `type` | one of `texScroll`, `twoTexScroll`, `color`, `colorLerp`, `colorNonLinear`, `texCycle` | Any other value rejects the entry. |
-| `layers` | array of `{ xStep, yStep, width, height }` ints | Scroll types only: exactly 1 layer for `texScroll`, exactly 2 for `twoTexScroll` (render tile 0, then tile 1). `xStep`/`yStep` −128…127 are quarter-texels per gameplay frame; `width`/`height` 1–255 are the tile size the generated list sets. At gameplay frame *f* the tile offset is (`xStep·f`, `−yStep·f`) modulo 2048, as in Majora's Mask. |
-| `length` | int ≥ 1 | Colour types: the cycle length in frames; the frame counter is taken modulo it. |
-| `keyFrames` | array of ints | Colour types: ascending frame numbers, the first `0`, 1–50 entries (the non-linear path holds 50). |
-| `primColors` | array of `[r, g, b, a, lodFrac]` | Colour types: one per key frame; `lodFrac` feeds the primitive LOD fraction. `color` steps between them, `colorLerp` interpolates linearly, `colorNonLinear` interpolates with a Lagrange polynomial. |
+| `layers` | array of `{ xStep, yStep, width, height }` ints | Scroll types only: exactly 1 layer for `texScroll`, exactly 2 for `twoTexScroll` (render tile 0, then tile 1); any other count rejects the entry. `xStep`/`yStep` −128…127 are quarter-texels per gameplay frame; `width`/`height` 1–255 are the tile size the generated list sets. These ranges are writer requirements (§2): a value outside wraps in the byte. At gameplay frame *f* the tile offset is (`xStep·f`, `−yStep·f`) modulo 2048, as in Majora's Mask. |
+| `length` | int 1–65 535 | Colour types: the cycle length in frames; the frame counter is taken modulo it. A value outside the range rejects the entry. |
+| `keyFrames` | array of ints | Colour types: ascending frame numbers, the first `0`, 1–50 entries (the non-linear path holds 50). A list that is empty, longer than 50, not ascending, or not starting at `0` rejects the entry. Each value is stored 16-bit (§2). |
+| `primColors` | array of `[r, g, b, a, lodFrac]` | Colour types: one per key frame; `lodFrac` feeds the primitive LOD fraction. `color` holds each colour until the next key frame, `colorLerp` interpolates linearly between neighbouring key frames, `colorNonLinear` evaluates the Lagrange polynomial through all of them. Frames at or after the last key frame hold its colour (`color`, `colorLerp`) or continue the polynomial (`colorNonLinear`); `length` past the last key frame is a pause. A count that differs from `keyFrames` rejects the entry. |
 | `envColors` | array of `[r, g, b, a]`, or absent | Colour types: one per key frame; absent leaves the environment colour alone. A count that differs from `keyFrames` rejects the entry. |
-| `textures` | array of texture paths | `texCycle` only. |
-| `frames` | array of ints | `texCycle` only: one index into `textures` per frame; its length is the cycle length. An index out of range rejects the entry. |
+| `textures` | array of texture paths | `texCycle` only; every element a string (any other JSON type rejects the entry), at most 65 536 entries. |
+| `frames` | array of ints | `texCycle` only: one index into `textures` per frame; its length is the cycle length, 1–65 535 entries. An index out of range, or a list that is empty or too long, rejects the entry. |
 
 A material that uses a scroll entry **must** load its texture with wrap addressing and set up its
 tile(s) before calling the segment: the generated list only sets tile sizes. A two-layer scroll
@@ -586,3 +586,8 @@ Limits that remain (validation targets for tools):
   calls accepted be rejected, is a breaking change and requires version 3.
 - Adding an optional key with a zero default is not breaking and is recorded here under version 2.
   Version-2 additions so far: `sound.song` (§4.2, 2026-09-02); `materialAnims` (§4.2, 2026-09-05).
+- Version-2 clarifications (2026-09-06, `materialAnims`): the per-entry **rejected** rules for
+  `length`, `keyFrames`, `primColors`, `textures` and `frames` are now stated in §4.2; each guards
+  the reader's storage (a modulus, fixed arrays, 16-bit indices). No document within the ranges
+  §4.2 already gave is affected. The scroll `layers` ranges wrap as §2 always said (an earlier
+  reader rejected them). The hold-past-the-last-key-frame behaviour of the colour types is stated.

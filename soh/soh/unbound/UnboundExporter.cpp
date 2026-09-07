@@ -658,31 +658,16 @@ json SoundJson(const SOH::SetSoundSettings& c) {
 }
 
 // SOH [Unbound] `materialAnims` (SPEC.md §4.2) round-trips from the command's owned storage. Vanilla scenes never
-// carry one; this is for a document-loaded scene exported again.
-const char* AnimTypeName(u8 type) {
-    switch (type) {
-        case ANIM_MAT_TEX_SCROLL:
-            return K::kAnimTexScroll;
-        case ANIM_MAT_TWO_TEX_SCROLL:
-            return K::kAnimTwoTexScroll;
-        case ANIM_MAT_COLOR:
-            return K::kAnimColor;
-        case ANIM_MAT_COLOR_LERP:
-            return K::kAnimColorLerp;
-        case ANIM_MAT_COLOR_NON_LINEAR:
-            return K::kAnimColorNonLinear;
-        default:
-            return K::kAnimTexCycle;
-    }
-}
-
+// carry one; this is for a document-loaded scene exported again. Type and pass names come from the same tables
+// the reader scans (UnboundSchema.h); the loader never stores an id outside them.
 json ScrollLayerJson(const AnimatedMatTexScrollParams& l) {
     return { { K::kXStep, l.xStep }, { K::kYStep, l.yStep }, { K::kWidth, l.width }, { K::kHeight, l.height } };
 }
 
 json MaterialAnimJson(const AnimatedMaterial& a) {
-    json j = { { K::kSegment, a.segment }, { K::kType, AnimTypeName(a.type) } };
-    j[K::kPass] = a.pass == ANIM_MAT_PASS_OPA ? K::kPassOpa : a.pass == ANIM_MAT_PASS_XLU ? K::kPassXlu : K::kPassBoth;
+    json j = { { K::kSegment, a.segment },
+               { K::kType, K::NameOf(K::kAnimTypes, a.type) },
+               { K::kPass, K::NameOf(K::kAnimPasses, a.pass) } };
     switch (a.type) {
         case ANIM_MAT_TEX_SCROLL:
         case ANIM_MAT_TWO_TEX_SCROLL: {
@@ -721,14 +706,12 @@ json MaterialAnimJson(const AnimatedMaterial& a) {
             const auto* c = (const AnimatedMatTexCycleParams*)a.params;
             json textures = json::array();
             json frames = json::array();
-            size_t textureCount = 0;
+            // the whole texture list, referenced or not, so a later layer may patch `frames` alone
+            for (u16 i = 0; i < c->textureCount; i++) {
+                textures.push_back(StripOtrPrefix((const char*)c->textureList[i]));
+            }
             for (u16 i = 0; i < c->keyFrameLength; i++) {
                 frames.push_back(c->textureIndexList[i]);
-                textureCount = std::max<size_t>(textureCount, (size_t)c->textureIndexList[i] + 1);
-            }
-            for (size_t i = 0; i < textureCount; i++) {
-                std::string path = (const char*)c->textureList[i];
-                textures.push_back(path.rfind("__OTR__", 0) == 0 ? path.substr(7) : path);
             }
             j[K::kTextures] = textures;
             j[K::kFrames] = frames;

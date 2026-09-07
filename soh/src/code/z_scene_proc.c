@@ -13,22 +13,23 @@
 #include "global.h"
 
 typedef struct {
-    PlayState* play;
+    GraphicsContext* gfxCtx;
     s32 step; // gameplay frame counter
     u8 pass;  // ANIM_MAT_PASS_* bits of the entry being drawn
 } MatAnimDraw;
 
+/**
+ * Writes the bind into the pass buffers the entry names. Scene_DrawMaterialAnims holds the DISPS
+ * open for the whole list (one open/close per frame, as a vanilla draw config does), so this
+ * appends to the buffer heads directly.
+ */
 static void MatAnim_BindSegment(MatAnimDraw* d, s32 segment, void* data) {
-    OPEN_DISPS(d->play->state.gfxCtx);
-
     if (d->pass & ANIM_MAT_PASS_OPA) {
-        gSPSegment(POLY_OPA_DISP++, segment, data);
+        gSPSegment(d->gfxCtx->polyOpa.p++, segment, data);
     }
     if (d->pass & ANIM_MAT_PASS_XLU) {
-        gSPSegment(POLY_XLU_DISP++, segment, data);
+        gSPSegment(d->gfxCtx->polyXlu.p++, segment, data);
     }
-
-    CLOSE_DISPS(d->play->state.gfxCtx);
 }
 
 /**
@@ -36,8 +37,8 @@ static void MatAnim_BindSegment(MatAnimDraw* d, s32 segment, void* data) {
  */
 static void MatAnim_DrawTexScroll(MatAnimDraw* d, s32 segment, void* params) {
     AnimatedMatTexScrollParams* p = params;
-    Gfx* dl = Gfx_TexScrollEx(d->play->state.gfxCtx, p->xStep * d->step, -(p->yStep * d->step), p->width, p->height,
-                              p->xStep, -p->yStep);
+    Gfx* dl =
+        Gfx_TexScrollEx(d->gfxCtx, p->xStep * d->step, -(p->yStep * d->step), p->width, p->height, p->xStep, -p->yStep);
 
     MatAnim_BindSegment(d, segment, dl);
 }
@@ -47,9 +48,9 @@ static void MatAnim_DrawTexScroll(MatAnimDraw* d, s32 segment, void* params) {
  */
 static void MatAnim_DrawTwoTexScroll(MatAnimDraw* d, s32 segment, void* params) {
     AnimatedMatTexScrollParams* p = params;
-    Gfx* dl = Gfx_TwoTexScrollEx(d->play->state.gfxCtx, 0, p[0].xStep * d->step, -(p[0].yStep * d->step), p[0].width,
-                                 p[0].height, 1, p[1].xStep * d->step, -(p[1].yStep * d->step), p[1].width, p[1].height,
-                                 p[0].xStep, -p[0].yStep, p[1].xStep, -p[1].yStep);
+    Gfx* dl = Gfx_TwoTexScrollEx(d->gfxCtx, 0, p[0].xStep * d->step, -(p[0].yStep * d->step), p[0].width, p[0].height,
+                                 1, p[1].xStep * d->step, -(p[1].yStep * d->step), p[1].width, p[1].height, p[0].xStep,
+                                 -p[0].yStep, p[1].xStep, -p[1].yStep);
 
     MatAnim_BindSegment(d, segment, dl);
 }
@@ -58,7 +59,7 @@ static void MatAnim_DrawTwoTexScroll(MatAnimDraw* d, s32 segment, void* params) 
  * Generates a display list that sets the prim colour (and env colour when given) and binds it.
  */
 static void MatAnim_SetColor(MatAnimDraw* d, s32 segment, F3DPrimColor* prim, F3DEnvColor* env) {
-    Gfx* gfx = Graph_Alloc(d->play->state.gfxCtx, 3 * sizeof(Gfx));
+    Gfx* gfx = Graph_Alloc(d->gfxCtx, 3 * sizeof(Gfx));
     Gfx* head = gfx;
 
     gDPSetPrimColor(gfx++, 0, prim->lodFrac, prim->r, prim->g, prim->b, prim->a);
@@ -71,13 +72,27 @@ static void MatAnim_SetColor(MatAnimDraw* d, s32 segment, F3DPrimColor* prim, F3
 }
 
 /**
- * Type 2: colour key frames without interpolation.
+ * Index of the last key frame at or before curFrame. The reader guarantees keyFrames[0] == 0 and an
+ * ascending list, so this is always a valid index; frames past the last key frame map to it.
+ */
+static s32 MatAnim_CurKeyFrame(AnimatedMatColorParams* p, s32 curFrame) {
+    s32 k = 0;
+
+    while ((k + 1 < p->keyFrameCount) && (curFrame >= p->keyFrames[k + 1])) {
+        k++;
+    }
+    return k;
+}
+
+/**
+ * Type 2: colour key frames without interpolation. Each key frame's colour holds until the next one
+ * (SPEC.md §4.2: one colour per key frame, not per frame as in MM).
  */
 static void MatAnim_DrawColor(MatAnimDraw* d, s32 segment, void* params) {
     AnimatedMatColorParams* p = params;
-    s32 curFrame = d->step % p->keyFrameLength;
-    F3DPrimColor* prim = p->primColors + curFrame;
-    F3DEnvColor* env = (p->envColors != NULL) ? p->envColors + curFrame : NULL;
+    s32 k = MatAnim_CurKeyFrame(p, d->step % p->keyFrameLength);
+    F3DPrimColor* prim = p->primColors + k;
+    F3DEnvColor* env = (p->envColors != NULL) ? p->envColors + k : NULL;
 
     MatAnim_SetColor(d, segment, prim, env);
 }
@@ -87,36 +102,22 @@ static s32 MatAnim_Lerp(s32 min, s32 max, f32 norm) {
 }
 
 /**
- * Type 3: colour key frames with linear interpolation.
+ * Type 3: colour key frames with linear interpolation. Past the last key frame the last colour holds
+ * (the pair collapses to a single key frame and norm is 0), so the lookup never runs off the lists.
  */
 static void MatAnim_DrawColorLerp(MatAnimDraw* d, s32 segment, void* params) {
     AnimatedMatColorParams* p = params;
-    u16* keyFrames = p->keyFrames;
     s32 curFrame = d->step % p->keyFrameLength;
-    s32 i = 1;
-    s32 startFrame;
-    s32 endFrame;
-    f32 norm;
-    F3DPrimColor* primMin;
-    F3DPrimColor* primMax;
+    s32 k = MatAnim_CurKeyFrame(p, curFrame);
+    s32 next = (k + 1 < p->keyFrameCount) ? k + 1 : k;
+    s32 startFrame = p->keyFrames[k];
+    s32 endFrame = p->keyFrames[next] - startFrame;
+    f32 norm = (endFrame != 0) ? (f32)(curFrame - startFrame) / (f32)endFrame : 0.0f;
+    F3DPrimColor* primMin = p->primColors + k;
+    F3DPrimColor* primMax = p->primColors + next;
     F3DPrimColor primResult;
     F3DEnvColor envResult;
 
-    keyFrames++;
-    while (p->keyFrameCount > i) {
-        if (curFrame < *keyFrames) {
-            break;
-        }
-        i++;
-        keyFrames++;
-    }
-
-    startFrame = keyFrames[-1];
-    endFrame = keyFrames[0] - startFrame;
-    norm = (endFrame != 0) ? (f32)(curFrame - startFrame) / (f32)endFrame : 0.0f;
-
-    primMax = p->primColors + i;
-    primMin = primMax - 1;
     primResult.r = MatAnim_Lerp(primMin->r, primMax->r, norm);
     primResult.g = MatAnim_Lerp(primMin->g, primMax->g, norm);
     primResult.b = MatAnim_Lerp(primMin->b, primMax->b, norm);
@@ -124,8 +125,8 @@ static void MatAnim_DrawColorLerp(MatAnimDraw* d, s32 segment, void* params) {
     primResult.lodFrac = MatAnim_Lerp(primMin->lodFrac, primMax->lodFrac, norm);
 
     if (p->envColors != NULL) {
-        F3DEnvColor* envMax = p->envColors + i;
-        F3DEnvColor* envMin = envMax - 1;
+        F3DEnvColor* envMin = p->envColors + k;
+        F3DEnvColor* envMax = p->envColors + next;
 
         envResult.r = MatAnim_Lerp(envMin->r, envMax->r, norm);
         envResult.g = MatAnim_Lerp(envMin->g, envMax->g, norm);
@@ -137,16 +138,18 @@ static void MatAnim_DrawColorLerp(MatAnimDraw* d, s32 segment, void* params) {
 }
 
 /**
- * Lagrange interpolation of n samples (x[i], fx[i]) at xp.
+ * Lagrange interpolation of n samples (x[i], fx[i]) at xp. Evaluated in double: the basis products
+ * run over up to ANIM_MAT_MAX_KEY_FRAMES - 1 frame differences (each up to 65535), which overflows
+ * f32 long before the key-frame limit and would turn the result into NaN.
  */
-static f32 MatAnim_LagrangeInterp(s32 n, f32 x[], f32 fx[], f32 xp) {
-    f32 weights[ANIM_MAT_MAX_KEY_FRAMES];
-    f32 intp = 0.0f;
+static f64 MatAnim_LagrangeInterp(s32 n, f64 x[], f64 fx[], f64 xp) {
+    f64 weights[ANIM_MAT_MAX_KEY_FRAMES];
+    f64 intp = 0.0;
     s32 i;
     s32 j;
 
     for (i = 0; i < n; i++) {
-        f32 m = 1.0f;
+        f64 m = 1.0;
 
         for (j = 0; j < n; j++) {
             if (j != i) {
@@ -157,7 +160,7 @@ static f32 MatAnim_LagrangeInterp(s32 n, f32 x[], f32 fx[], f32 xp) {
     }
 
     for (i = 0; i < n; i++) {
-        f32 m = 1.0f;
+        f64 m = 1.0;
 
         for (j = 0; j < n; j++) {
             if (j != i) {
@@ -170,10 +173,11 @@ static f32 MatAnim_LagrangeInterp(s32 n, f32 x[], f32 fx[], f32 xp) {
     return intp;
 }
 
-static u8 MatAnim_LagrangeInterpColor(s32 n, f32 x[], f32 fx[], f32 xp) {
-    s32 intp = MatAnim_LagrangeInterp(n, x, fx, xp);
+static u8 MatAnim_LagrangeInterpColor(s32 n, f64 x[], f64 fx[], f64 xp) {
+    f64 intp = MatAnim_LagrangeInterp(n, x, fx, xp);
 
-    return CLAMP(intp, 0, 255);
+    // clamp in floating point: a value outside s32 (or NaN) is undefined behaviour to convert
+    return (intp >= 255.0) ? 255 : (intp > 0.0) ? (u8)intp : 0;
 }
 
 /**
@@ -181,11 +185,11 @@ static u8 MatAnim_LagrangeInterpColor(s32 n, f32 x[], f32 fx[], f32 xp) {
  */
 static void MatAnim_DrawColorNonLinearInterp(MatAnimDraw* d, s32 segment, void* params) {
     AnimatedMatColorParams* p = params;
-    f32 curFrame = d->step % p->keyFrameLength;
+    f64 curFrame = d->step % p->keyFrameLength;
     s32 n = p->keyFrameCount;
-    f32 x[ANIM_MAT_MAX_KEY_FRAMES];
-    f32 fxPrim[5][ANIM_MAT_MAX_KEY_FRAMES];
-    f32 fxEnv[4][ANIM_MAT_MAX_KEY_FRAMES];
+    f64 x[ANIM_MAT_MAX_KEY_FRAMES];
+    f64 fxPrim[5][ANIM_MAT_MAX_KEY_FRAMES];
+    f64 fxEnv[4][ANIM_MAT_MAX_KEY_FRAMES];
     F3DPrimColor primResult;
     F3DEnvColor envResult;
     s32 i;
@@ -249,7 +253,9 @@ void Scene_DrawMaterialAnims(PlayState* play) {
         return;
     }
 
-    d.play = play;
+    OPEN_DISPS(play->state.gfxCtx);
+
+    d.gfxCtx = play->state.gfxCtx;
     d.step = play->gameplayFrames;
 
     for (i = 0; i < play->sceneMaterialAnimCount; i++) {
@@ -261,4 +267,6 @@ void Scene_DrawMaterialAnims(PlayState* play) {
         d.pass = anim->pass;
         sHandlers[anim->type](&d, anim->segment, anim->params);
     }
+
+    CLOSE_DISPS(play->state.gfxCtx);
 }

@@ -63,6 +63,12 @@ void OTRPlay_InitScene(PlayState* play, s32 spawn) {
     play->cUpElfMsgs = nullptr;
     play->setupPathList = nullptr;
     play->numSetupActors = 0;
+    // SOH [Unbound] the fields an Unbound scene document's commands fill are reset here with the vanilla ones:
+    // PlayState is not zero-initialized, a document may omit the command, and the previous scene's command
+    // resources are gone with it.
+    play->sequenceCtx.unboundSongSeqId = 0;
+    play->sceneMaterialAnims = nullptr;
+    play->sceneMaterialAnimCount = 0;
     Object_InitBank(play, &play->objectCtx);
     LightContext_Init(play, &play->lightCtx);
     TransitionActor_InitContext(&play->state, &play->transiActorCtx);

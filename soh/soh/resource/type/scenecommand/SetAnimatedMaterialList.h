@@ -36,7 +36,7 @@ class SetAnimatedMaterialList : public SceneCommand<AnimatedMaterial> {
         AnimatedMatTexCycleParams params;
         std::vector<std::string> texturePaths; // "__OTR__<path>"; the interpreter resolves the name at draw
         std::vector<void*> textureList;        // c_str() of the above
-        std::vector<u8> frames;
+        std::vector<u16> frames;
     };
 
     AnimatedMaterial& AddScroll(u8 segment, u8 pass, u8 type, const ScrollStorage& storage);
