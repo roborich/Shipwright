@@ -32,10 +32,12 @@ typedef struct {
     s32 x, y, z;
 } Vec3i; // size = 0x0C
 
+// SOH [Unbound] Fields are f32 (world extent); the "16" suffix is historical. Every Math3D_/Collider_ consumer
+// already promoted to float, so the API is unchanged.
 typedef struct {
-    Vec3s center;
-    s16 radius;
-} Sphere16; // size = 0x08
+    Vec3f center;
+    f32 radius;
+} Sphere16;
 
 typedef struct {
     Vec3f center;
@@ -52,12 +54,13 @@ typedef struct {
     Plane plane;
 } TriNorm; // size = 0x34
 
+// SOH [Unbound] Fields are f32 (world extent); see Sphere16.
 typedef struct {
-    /* 0x0000 */ s16 radius;
-    /* 0x0002 */ s16 height;
-    /* 0x0004 */ s16 yShift;
-    /* 0x0006 */ Vec3s pos;
-} Cylinder16; // size = 0x0C
+    f32 radius;
+    f32 height;
+    f32 yShift;
+    Vec3f pos;
+} Cylinder16;
 
 typedef struct {
     /* 0x00 */ f32 radius;

@@ -1,4 +1,5 @@
 #include "SaveManager.h"
+#include "soh/unbound/SceneDB.h"
 #include "OTRGlobals.h"
 #include "Enhancements/game-interactor/GameInteractor.h"
 #include "Enhancements/randomizer/SeedContext.h"
@@ -121,6 +122,8 @@ SaveManager::SaveManager() {
 
     AddLoadFunction("randomizer", 1, LoadRandomizer);
     AddSaveFunction("randomizer", 1, SaveRandomizer, true, SECTION_PARENT_NONE);
+
+    SceneDB_RegisterSaveFunctions(*this); // SOH [Unbound] custom-scene flags, keyed by scene name
 
     AddInitFunction(InitFileImpl);
 

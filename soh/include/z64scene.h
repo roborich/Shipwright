@@ -12,15 +12,6 @@ typedef struct {
 } RomFile; // size = 0x8
 
 typedef struct {
-    /* 0x00 */ RomFile sceneFile;
-    /* 0x08 */ RomFile titleFile;
-    /* 0x10 */ u8  unk_10;
-    /* 0x11 */ u8  config;
-    /* 0x12 */ u8  unk_12;
-    /* 0x13 */ u8  unk_13;
-} SceneTableEntry; // size = 0x14
-
-typedef struct {
     /* 0x00 */ u8  code;
     /* 0x01 */ u8  data1;
     /* 0x04 */ u32 data2;
@@ -273,7 +264,7 @@ typedef struct {
 
 typedef struct {
     /* 0x00 */ u8 count; // number of points in the path
-    /* 0x04 */ Vec3s* points; // Segment Address to the array of points
+    /* 0x04 */ Vec3f* points; // Segment Address to the array of points. // SOH [Unbound] s16 -> f32 (world extent)
 } Path; // size = 0x8
 
 typedef union {
@@ -400,6 +391,72 @@ typedef enum {
     /* 52 */ SDC_INSIDE_GANONS_CASTLE_COLLAPSE,
     /* 53 */ SDC_MAX
 } SceneDrawConfig;
+
+// SOH [Unbound] Data-driven animated materials (SPEC.md §4.2 `materialAnims`), the Majora's Mask
+// AnimatedMaterial system. A scene document lists entries; every frame each one generates a small
+// display list and binds it to a runtime segment (8-13) on the passes it names, after the scene's
+// draw config has run, so a room display list that calls the segment inherits the result.
+// The param structs mirror MM's (z64scene.h in 2Ship) so z_scene_proc.c is a straight port.
+
+typedef struct {
+    /* 0x0 */ u8 r;
+    /* 0x1 */ u8 g;
+    /* 0x2 */ u8 b;
+    /* 0x3 */ u8 a;
+    /* 0x4 */ u8 lodFrac;
+} F3DPrimColor; // size = 0x5
+
+typedef struct {
+    /* 0x0 */ u8 r;
+    /* 0x1 */ u8 g;
+    /* 0x2 */ u8 b;
+    /* 0x3 */ u8 a;
+} F3DEnvColor; // size = 0x4
+
+typedef struct {
+    /* 0x0 */ u16 keyFrameLength;
+    /* 0x2 */ u16 keyFrameCount;
+    /* 0x4 */ F3DPrimColor* primColors;
+    /* 0x8 */ F3DEnvColor* envColors; // NULL leaves the env color alone
+    /* 0xC */ u16* keyFrames;
+} AnimatedMatColorParams;
+
+typedef struct {
+    /* 0x0 */ s8 xStep;
+    /* 0x1 */ s8 yStep;
+    /* 0x2 */ u8 width;
+    /* 0x3 */ u8 height;
+} AnimatedMatTexScrollParams; // size = 0x4; the two-layer form is an array of two
+
+typedef struct {
+    /* 0x0 */ u16 keyFrameLength;
+    /* 0x2 */ u16 textureCount;      // entries in textureList (the exporter round-trips the whole list)
+    /* 0x4 */ void** textureList;    // resource paths ("__OTR__<path>"), bound straight into the segment
+    /* 0x8 */ u16* textureIndexList; // one index into textureList per frame (MM's is a byte; a list may be longer)
+} AnimatedMatTexCycleParams;
+
+typedef enum {
+    /* 0 */ ANIM_MAT_TEX_SCROLL,
+    /* 1 */ ANIM_MAT_TWO_TEX_SCROLL,
+    /* 2 */ ANIM_MAT_COLOR,
+    /* 3 */ ANIM_MAT_COLOR_LERP,
+    /* 4 */ ANIM_MAT_COLOR_NON_LINEAR,
+    /* 5 */ ANIM_MAT_TEX_CYCLE,
+    /* 6 */ ANIM_MAT_TYPE_MAX
+} AnimatedMaterialType;
+
+#define ANIM_MAT_PASS_OPA (1 << 0)
+#define ANIM_MAT_PASS_XLU (1 << 1)
+#define ANIM_MAT_SEGMENT_MIN 0x08
+#define ANIM_MAT_SEGMENT_MAX 0x0D
+#define ANIM_MAT_MAX_KEY_FRAMES 50 // the non-linear (Lagrange) path works in fixed arrays of this size
+
+typedef struct {
+    /* 0x0 */ u8 segment; // absolute runtime segment, ANIM_MAT_SEGMENT_MIN..MAX
+    /* 0x1 */ u8 pass;    // ANIM_MAT_PASS_* bits
+    /* 0x2 */ u8 type;    // AnimatedMaterialType
+    /* 0x4 */ void* params;
+} AnimatedMaterial;
 
 // Scene commands
 

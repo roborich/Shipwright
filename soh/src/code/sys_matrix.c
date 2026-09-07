@@ -3,12 +3,18 @@
 #include "soh/frame_interpolation.h"
 #include <assert.h>
 
+// SOH [Unbound] every Mtx writer below assumes the libultraship GBI_FLOAT_MTX option (float Mtx, no s16.16 packing)
+#ifndef GBI_FLOAT_MTX
+#error "SoH: Unbound requires libultraship built with GBI_FLOAT_MTX (see unbound-docs/extent.md)"
+#endif
+
 // clang-format off
+// SOH [Unbound] Mtx is float (GBI_FLOAT_MTX); this is the identity, not the s16.16 packing of it.
 Mtx gMtxClear = {
-    65536,     0,     1,     0,
-        0, 65536,     0,     1,
-        0,     0,     0,     0,
-        0,     0,     0,     0,
+    1.0f, 0.0f, 0.0f, 0.0f,
+    0.0f, 1.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, 1.0f, 0.0f,
+    0.0f, 0.0f, 0.0f, 1.0f,
 };
 
 MtxF gMtxFClear = {
@@ -937,109 +943,20 @@ void Matrix_SetTranslateUniformScaleMtx(Mtx* mtx, f32 scale, f32 translateX, f32
     guMtxF2L(&mf, mtx);
 }
 
+// SOH [Unbound] Mtx is float; the vanilla hand-packed s16.16 writers become plain float fills.
 void Matrix_SetTranslateUniformScaleMtx2(Mtx* mtx, f32 scale, f32 translateX, f32 translateY, f32 translateZ) {
-    u16* intPart = (u16*)&mtx->m[0][0];
-    u16* fracPart = (u16*)&mtx->m[2][0];
-    u32 fixedPoint;
-
-    fixedPoint = (s32)(scale * 0x10000);
-    fracPart[0] = fixedPoint & 0xFFFF;
-    intPart[0] = (fixedPoint >> 16) & 0xFFFF;
-
-    fixedPoint = (s32)(scale * 0x10000);
-    intPart[5] = (fixedPoint >> 16) & 0xFFFF;
-    fracPart[5] = fixedPoint & 0xFFFF;
-
-    fixedPoint = (s32)(scale * 0x10000);
-    intPart[10] = (fixedPoint >> 16) & 0xFFFF;
-    fracPart[10] = fixedPoint & 0xFFFF;
-
-    fixedPoint = (s32)(translateX * 0x10000);
-    intPart[12] = (fixedPoint >> 16) & 0xFFFF;
-    fracPart[12] = fixedPoint & 0xFFFF;
-
-    fixedPoint = (s32)(translateY * 0x10000);
-    intPart[13] = (fixedPoint >> 16) & 0xFFFF;
-    fracPart[13] = fixedPoint & 0xFFFF;
-
-    fixedPoint = (s32)(translateZ * 0x10000);
-    intPart[14] = (fixedPoint >> 16) & 0xFFFF;
-    fracPart[14] = fixedPoint & 0xFFFF;
-
-    intPart[1] = 0;
-    intPart[2] = 0;
-    intPart[3] = 0;
-    intPart[4] = 0;
-    intPart[6] = 0;
-    intPart[7] = 0;
-    intPart[8] = 0;
-    intPart[9] = 0;
-    intPart[11] = 0;
-    intPart[15] = 1;
-
-    fracPart[1] = 0;
-    fracPart[2] = 0;
-    fracPart[3] = 0;
-    fracPart[4] = 0;
-    fracPart[6] = 0;
-    fracPart[7] = 0;
-    fracPart[8] = 0;
-    fracPart[9] = 0;
-    fracPart[11] = 0;
-    fracPart[15] = 0;
+    MtxF mtxf = {
+        { { scale, 0, 0, 0 }, { 0, scale, 0, 0 }, { 0, 0, scale, 0 }, { translateX, translateY, translateZ, 1 } }
+    };
+    guMtxF2L(&mtxf, mtx);
 }
 
 void Matrix_SetTranslateScaleMtx1(Mtx* mtx, f32 scaleX, f32 scaleY, f32 scaleZ, f32 translateX, f32 translateY,
                                   f32 translateZ) {
-    u16* intPart = (u16*)&mtx->m[0][0];
-    u16* fracPart = (u16*)&mtx->m[2][0];
-    u32 fixedPoint;
-
-    fixedPoint = (s32)(scaleX * 0x10000);
-    intPart[0] = (fixedPoint >> 16) & 0xFFFF;
-    fracPart[0] = fixedPoint & 0xFFFF;
-
-    fixedPoint = (s32)(scaleY * 0x10000);
-    intPart[5] = (fixedPoint >> 16) & 0xFFFF;
-    fracPart[5] = fixedPoint & 0xFFFF;
-
-    fixedPoint = (s32)(scaleZ * 0x10000);
-    intPart[10] = (fixedPoint >> 16) & 0xFFFF;
-    fracPart[10] = fixedPoint & 0xFFFF;
-
-    fixedPoint = (s32)(translateX * 0x10000);
-    intPart[12] = (fixedPoint >> 16) & 0xFFFF;
-    fracPart[12] = fixedPoint & 0xFFFF;
-
-    fixedPoint = (s32)(translateY * 0x10000);
-    intPart[13] = (fixedPoint >> 16) & 0xFFFF;
-    fracPart[13] = fixedPoint & 0xFFFF;
-
-    fixedPoint = (s32)(translateZ * 0x10000);
-    intPart[14] = (fixedPoint >> 16) & 0xFFFF;
-    fracPart[14] = fixedPoint & 0xFFFF;
-
-    intPart[1] = 0;
-    intPart[2] = 0;
-    intPart[3] = 0;
-    intPart[4] = 0;
-    intPart[6] = 0;
-    intPart[7] = 0;
-    intPart[8] = 0;
-    intPart[9] = 0;
-    intPart[11] = 0;
-    intPart[15] = 1;
-
-    fracPart[1] = 0;
-    fracPart[2] = 0;
-    fracPart[3] = 0;
-    fracPart[4] = 0;
-    fracPart[6] = 0;
-    fracPart[7] = 0;
-    fracPart[8] = 0;
-    fracPart[9] = 0;
-    fracPart[11] = 0;
-    fracPart[15] = 0;
+    MtxF mtxf = {
+        { { scaleX, 0, 0, 0 }, { 0, scaleY, 0, 0 }, { 0, 0, scaleZ, 0 }, { translateX, translateY, translateZ, 1 } }
+    };
+    guMtxF2L(&mtxf, mtx);
 }
 
 void Matrix_SetTranslateScaleMtx2(Mtx* mtx, f32 scaleX, f32 scaleY, f32 scaleZ, f32 translateX, f32 translateY,

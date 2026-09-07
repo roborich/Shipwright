@@ -84,7 +84,7 @@ void func_80095AB4(PlayState* play, Room* room, u32 flags) {
     CLOSE_DISPS(play->state.gfxCtx);
 }
 
-#define SHAPE_SORT_MAX 64
+#define SHAPE_SORT_MAX 1024 // SOH [Unbound] was 64
 
 typedef struct struct_80095D04 {
     /* 0x00 */ PolygonDlist2* unk_00;
@@ -104,6 +104,7 @@ void func_80095D04(PlayState* play, Room* room, u32 flags) {
     s32 pad;
     struct_80095D04* spA4;
     s32 phi_v1;
+    s32 numEntries; // SOH [Unbound] entries actually sorted/drawn (SHAPE_SORT_MAX cap)
     s32 sp9C;
     Vec3f sp90;
     Vec3f sp84;
@@ -131,17 +132,21 @@ void func_80095D04(PlayState* play, Room* room, u32 flags) {
     polygonDlist = SEGMENTED_TO_VIRTUAL(polygon2->start);
     spA4 = spB8;
 
-    assert(polygon2->num <= SHAPE_SORT_MAX);
+    if (polygon2->num > SHAPE_SORT_MAX) { // SOH [Unbound] SPEC.md §9: type-2 mesh entries are capped
+        osSyncPrintf("[Unbound] room %d: %d mesh entries exceed SHAPE_SORT_MAX (%d); extra entries are not drawn\n",
+                     room->num, polygon2->num, SHAPE_SORT_MAX);
+    }
+    numEntries = MIN(polygon2->num, SHAPE_SORT_MAX);
     sp78 = polygonDlist;
 
-    for (sp9C = 0; sp9C < polygon2->num; sp9C++, polygonDlist++) {
+    for (sp9C = 0; sp9C < numEntries; sp9C++, polygonDlist++) {
         sp90.x = polygonDlist->pos.x;
         sp90.y = polygonDlist->pos.y;
         sp90.z = polygonDlist->pos.z;
         SkinMatrix_Vec3fMtxFMultXYZW(&play->viewProjectionMtxF, &sp90, &sp84, &sp80);
-        if (-(f32)polygonDlist->unk_06 < sp84.z) {
+        if (-polygonDlist->unk_06 < sp84.z) {
             temp_f2 = sp84.z - polygonDlist->unk_06;
-            if (temp_f2 < play->lightCtx.fogFar) {
+            if (temp_f2 < play->lightCtx.zFar) { // SOH [Unbound] was fogFar (<= 12800)
                 phi_v0 = spB4;
                 spA4->unk_00 = polygonDlist;
                 spA4->unk_04 = temp_f2;
@@ -185,7 +190,7 @@ void func_80095D04(PlayState* play, Room* room, u32 flags) {
         polygonDlist = spB4->unk_00;
         if (iREG(86) != 0) {
             temp = sp78;
-            for (phi_v1 = 0; phi_v1 < polygon2->num; phi_v1++, temp++) {
+            for (phi_v1 = 0; phi_v1 < numEntries; phi_v1++, temp++) {
                 if (polygonDlist == temp) {
                     break; // This loop does nothing?
                 }

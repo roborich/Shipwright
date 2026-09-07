@@ -1,3 +1,4 @@
+#include "soh/unbound/SceneDB.h"
 #include "CrashHandlerExt.h"
 #include "variables.h"
 #include "z64.h"
@@ -20,14 +21,6 @@ extern "C" PlayState* gPlayState;
 static std::array<const char*, ACTORCAT_MAX> sCatToStrArray{
     "SWITCH", "BG", "PLAYER", "EXPLOSIVE", "NPC", "ENEMY", "PROP", "ITEMACTION", "MISC", "BOSS", "DOOR", "CHEST",
 };
-
-#define DEFINE_SCENE(_1, _2, enumName, _4, _5, _6) #enumName,
-
-static std::array<const char*, SCENE_ID_MAX> sSceneIdToStrArray{
-#include "tables/scene_table.h"
-};
-
-#undef DEFINE_SCENE
 
 static void append_str(char* buf, size_t* len, const char* str) {
     while (*str != '\0')
@@ -74,7 +67,8 @@ extern "C" void CrashHandler_PrintSohData(char* buffer, size_t* pos) {
     WRITE_VAR_LINE(buffer, pos, "  Build Date: ", (const char*)gBuildDate);
 
     if (gPlayState != nullptr) {
-        WRITE_VAR_LINE(buffer, pos, "Scene: ", sSceneIdToStrArray[gPlayState->sceneNum]);
+        // SOH [Unbound] the registry names vanilla and custom scenes alike
+        WRITE_VAR_LINE(buffer, pos, "Scene: ", SceneDB_GetDisplayName(gPlayState->sceneNum));
 
         snprintf(intCharBuffer, sizeof(intCharBuffer), "%i", gPlayState->roomCtx.curRoom.num);
         WRITE_VAR_LINE(buffer, pos, "Room: ", intCharBuffer);

@@ -398,7 +398,7 @@ void EnDaiku_InitEscape(EnDaiku* this, PlayState* play) {
     f32 dxz;
     f32 dx;
     f32 dz;
-    Vec3s* pointPos;
+    Vec3f* pointPos;
     s32 exitLoop;
 
     Audio_PlayFanfare(NA_BGM_APPEAR);
@@ -417,7 +417,7 @@ void EnDaiku_InitEscape(EnDaiku* this, PlayState* play) {
     exitLoop = false;
     path = &play->setupPathList[this->actor.params >> 4 & 0xF];
     while (!exitLoop) {
-        pointPos = (Vec3s*)SEGMENTED_TO_VIRTUAL(path->points) + this->waypoint;
+        pointPos = (Vec3f*)SEGMENTED_TO_VIRTUAL(path->points) + this->waypoint;
         dx = pointPos->x - this->actor.world.pos.x;
         dz = pointPos->z - this->actor.world.pos.z;
         this->rotYtowardsPath = Math_FAtan2F(dx, dz) * (0x8000 / M_PI);
@@ -535,10 +535,10 @@ void EnDaiku_EscapeRun(EnDaiku* this, PlayState* play) {
     f32 dz;
     s32 pad2;
     f32 dxz;
-    Vec3s* pointPos;
+    Vec3f* pointPos;
 
     path = &play->setupPathList[this->actor.params >> 4 & 0xF];
-    pointPos = (Vec3s*)SEGMENTED_TO_VIRTUAL(path->points) + this->waypoint;
+    pointPos = (Vec3f*)SEGMENTED_TO_VIRTUAL(path->points) + this->waypoint;
     dx = pointPos->x - this->actor.world.pos.x;
     dz = pointPos->z - this->actor.world.pos.z;
     ry = Math_FAtan2F(dx, dz) * (0x8000 / M_PI);

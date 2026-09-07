@@ -2,10 +2,6 @@
 
 #include <ship/resource/Resource.h>
 
-namespace Fast {
-union F3DVtx;
-}
-
 namespace SOH {
 typedef union ScalarData {
     uint8_t u8;
@@ -69,6 +65,7 @@ enum class ArrayResourceType {
     Audio
 };
 
+// Scalar and Vector arrays. A Vertex array loads as a Fast::Vertex instead (ArrayFactory).
 class Array : public Ship::Resource<void> {
   public:
     using Resource::Resource;
@@ -83,6 +80,5 @@ class Array : public Ship::Resource<void> {
     size_t ArrayCount;
     // OTRTODO: Should be a vector of resource pointers...
     std::vector<ScalarData> Scalars;
-    std::vector<Fast::F3DVtx> Vertices;
 };
 } // namespace SOH

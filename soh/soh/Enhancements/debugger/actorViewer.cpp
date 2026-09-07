@@ -691,6 +691,8 @@ void CreateActorSpecificData() {
          * Text id - 0x0200     0000000000111111    For use with the `DOOR_CHECKABLE` type
          *
          */
+        // SOH [Unbound] doors spawned from a scene's transition list take their index from the list entry
+        // (TRANSITION_ACTOR_INDEX); only a hand-spawned door still packs it into these six bits.
         u8 transitionIndex = params >> 10;
         ImGui::InputScalar("Transition Index", ImGuiDataType_U8, &transitionIndex);
         if (transitionIndex > 0x3F) {

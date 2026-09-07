@@ -1,9 +1,52 @@
 #include "soh/resource/importer/ArrayFactory.h"
 #include "soh/resource/type/Array.h"
 #include "spdlog/spdlog.h"
-#include <fast/lus_gbi.h>
+#include <fast/resource/type/Vertex.h>
+#include <fast/resource/factory/VertexFactory.h>
 
 namespace SOH {
+namespace {
+
+// Layout after the resource header: u32 arrayType, u32 count, then the records.
+std::shared_ptr<Array> ReadScalarArray(Ship::BinaryReader& reader, ArrayResourceType arrayType, uint32_t count,
+                                       std::shared_ptr<Ship::ResourceInitData> initData) {
+    auto array = std::make_shared<Array>(initData);
+    array->ArrayType = arrayType;
+    array->ArrayCount = count;
+
+    for (uint32_t i = 0; i < count; i++) {
+        array->ArrayScalarType = (ScalarType)reader.ReadUInt32();
+
+        int iter = 1;
+
+        if (array->ArrayType == ArrayResourceType::Vector) {
+            iter = reader.ReadUInt32();
+        }
+
+        for (int k = 0; k < iter; k++) {
+            ScalarData data;
+
+            switch (array->ArrayScalarType) {
+                case ScalarType::ZSCALAR_S16:
+                    data.s16 = reader.ReadInt16();
+                    break;
+                case ScalarType::ZSCALAR_U16:
+                    data.u16 = reader.ReadUInt16();
+                    break;
+                default:
+                    // OTRTODO: IMPLEMENT OTHER TYPES!
+                    break;
+            }
+
+            array->Scalars.push_back(data);
+        }
+    }
+
+    return array;
+}
+
+} // namespace
+
 std::shared_ptr<Ship::IResource>
 ResourceFactoryBinaryArrayV0::ReadResource(std::shared_ptr<Ship::File> file,
                                            std::shared_ptr<Ship::ResourceInitData> initData) {
@@ -11,56 +54,32 @@ ResourceFactoryBinaryArrayV0::ReadResource(std::shared_ptr<Ship::File> file,
         return nullptr;
     }
 
-    auto array = std::make_shared<Array>(initData);
     auto reader = std::get<std::shared_ptr<Ship::BinaryReader>>(file->Reader);
+    auto arrayType = (ArrayResourceType)reader->ReadUInt32();
+    uint32_t count = reader->ReadUInt32();
 
-    array->ArrayType = (ArrayResourceType)reader->ReadUInt32();
-    array->ArrayCount = reader->ReadUInt32();
+    if (arrayType == ArrayResourceType::Vertex) {
+        return Fast::ReadVertexResource(*reader, initData, count, false);
+    }
+    return ReadScalarArray(*reader, arrayType, count, initData);
+}
 
-    for (uint32_t i = 0; i < array->ArrayCount; i++) {
-        if (array->ArrayType == ArrayResourceType::Vertex) {
-            // OTRTODO: Implement Vertex arrays as just a vertex resource.
-            Fast::F3DVtx data;
-            data.v.ob[0] = reader->ReadInt16();
-            data.v.ob[1] = reader->ReadInt16();
-            data.v.ob[2] = reader->ReadInt16();
-            data.v.flag = reader->ReadUInt16();
-            data.v.tc[0] = reader->ReadInt16();
-            data.v.tc[1] = reader->ReadInt16();
-            data.v.cn[0] = reader->ReadUByte();
-            data.v.cn[1] = reader->ReadUByte();
-            data.v.cn[2] = reader->ReadUByte();
-            data.v.cn[3] = reader->ReadUByte();
-            array->Vertices.push_back(data);
-        } else {
-            array->ArrayScalarType = (ScalarType)reader->ReadUInt32();
-
-            int iter = 1;
-
-            if (array->ArrayType == ArrayResourceType::Vector) {
-                iter = reader->ReadUInt32();
-            }
-
-            for (int k = 0; k < iter; k++) {
-                ScalarData data;
-
-                switch (array->ArrayScalarType) {
-                    case ScalarType::ZSCALAR_S16:
-                        data.s16 = reader->ReadInt16();
-                        break;
-                    case ScalarType::ZSCALAR_U16:
-                        data.u16 = reader->ReadUInt16();
-                        break;
-                    default:
-                        // OTRTODO: IMPLEMENT OTHER TYPES!
-                        break;
-                }
-
-                array->Scalars.push_back(data);
-            }
-        }
+std::shared_ptr<Ship::IResource>
+ResourceFactoryBinaryArrayV1::ReadResource(std::shared_ptr<Ship::File> file,
+                                           std::shared_ptr<Ship::ResourceInitData> initData) {
+    if (!FileHasValidFormatAndReader(file, initData)) {
+        return nullptr;
     }
 
-    return array;
+    auto reader = std::get<std::shared_ptr<Ship::BinaryReader>>(file->Reader);
+    auto arrayType = (ArrayResourceType)reader->ReadUInt32();
+    uint32_t count = reader->ReadUInt32();
+
+    if (arrayType != ArrayResourceType::Vertex) {
+        SPDLOG_ERROR("[Unbound] {}: Array version 1 defines only the Vertex type (25); this array is type {}",
+                     initData->Path, (uint32_t)arrayType);
+        return nullptr;
+    }
+    return Fast::ReadVertexResource(*reader, initData, count, true);
 }
 } // namespace SOH

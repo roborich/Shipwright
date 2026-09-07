@@ -38,7 +38,7 @@ void Anchor::HandlePacket_TeleportTo(nlohmann::json payload) {
     }
 
     s32 entranceIndex = payload["entranceIndex"].get<s32>();
-    s8 roomIndex = payload["roomIndex"].get<s8>();
+    s16 roomIndex = payload["roomIndex"].get<s16>(); // SOH [Unbound]
     PosRot posRot = payload["posRot"].get<PosRot>();
 
     gPlayState->nextEntranceIndex = entranceIndex;

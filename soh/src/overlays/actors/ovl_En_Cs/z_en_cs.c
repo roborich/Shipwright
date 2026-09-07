@@ -271,10 +271,10 @@ s32 EnCs_GetwaypointCount(Path* pathList, s32 pathIndex) {
 
 s32 EnCs_GetPathPoint(Path* pathList, Vec3f* dest, s32 pathIndex, s32 waypoint) {
     Path* path = pathList;
-    Vec3s* pathPos;
+    Vec3f* pathPos; // SOH [Unbound] path points are f32
 
     path += pathIndex;
-    pathPos = &((Vec3s*)SEGMENTED_TO_VIRTUAL(path->points))[waypoint];
+    pathPos = &((Vec3f*)SEGMENTED_TO_VIRTUAL(path->points))[waypoint];
 
     dest->x = pathPos->x;
     dest->y = pathPos->y;

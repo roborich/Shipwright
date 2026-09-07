@@ -84,7 +84,8 @@ void Map_SetFloorPalettesData(PlayState* play, s16 floor) {
         case SCENE_SHADOW_TEMPLE_BOSS:
             for (i = 0; i < gMapData->maxPaletteCount[mapIndex]; i++) {
                 room = gMapData->paletteRoom[mapIndex][floor][i];
-                if ((room != 0xFF) && (gSaveContext.sceneFlags[mapIndex].rooms & gBitFlags[room])) {
+                // SOH [Unbound] rooms >= 32 have no minimap bit
+                if ((room != 0xFF) && (room < 32) && (gSaveContext.sceneFlags[mapIndex].rooms & gBitFlags[room])) {
                     Map_SetPaletteData(play, room);
                 }
             }
@@ -490,7 +491,9 @@ void Map_InitRoomData(PlayState* play, s16 room) {
             case SCENE_WATER_TEMPLE_BOSS:
             case SCENE_SPIRIT_TEMPLE_BOSS:
             case SCENE_SHADOW_TEMPLE_BOSS:
-                gSaveContext.sceneFlags[mapIndex].rooms |= gBitFlags[room];
+                if (room < 32) { // SOH [Unbound] rooms >= 32 have no minimap bit
+                    gSaveContext.sceneFlags[mapIndex].rooms |= gBitFlags[room];
+                }
                 osSyncPrintf("ＲＯＯＭ＿ＩＮＦ＝%d\n", gSaveContext.sceneFlags[mapIndex].rooms);
                 interfaceCtx->mapRoomNum = room;
                 interfaceCtx->unk_25A = mapIndex;
@@ -605,7 +608,7 @@ void Map_Init(PlayState* play) {
 void Minimap_DrawCompassIcons(PlayState* play) {
     s32 pad;
     Player* player = GET_PLAYER(play);
-    s16 tempX, tempZ;
+    f32 tempX, tempZ; // SOH [Unbound] was s16: wrapped past +/-32767 before the compass scale divide
     Color_RGB8 lastEntranceColor = { 200, 0, 0 };
     if (CVarGetInteger(CVAR_COSMETIC("HUD.MinimapEntrance.Changed"), 0)) {
         lastEntranceColor = CVarGetColor24(CVAR_COSMETIC("HUD.MinimapEntrance.Value"), lastEntranceColor);

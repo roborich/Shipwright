@@ -8,7 +8,7 @@ void func_800430A0(CollisionContext* colCtx, s32 bgId, Actor* actor) {
     Vec3f pos;
     Vec3f tempPos;
 
-    if (DynaPoly_IsBgIdBgActor(bgId)) {
+    if (DynaPoly_IsBgIdInTable(&colCtx->dyna, bgId)) {
         SkinMatrix_SetTranslateRotateYXZScale(
             &prevTransform, colCtx->dyna.bgActors[bgId].prevTransform.scale.x,
             colCtx->dyna.bgActors[bgId].prevTransform.scale.y, colCtx->dyna.bgActors[bgId].prevTransform.scale.z,
@@ -44,7 +44,7 @@ void func_800430A0(CollisionContext* colCtx, s32 bgId, Actor* actor) {
  * Rotate actor
  */
 void func_800432A0(CollisionContext* colCtx, s32 bgId, Actor* actor) {
-    if (DynaPoly_IsBgIdBgActor(bgId)) {
+    if (DynaPoly_IsBgIdInTable(&colCtx->dyna, bgId)) {
         s16 rot = colCtx->dyna.bgActors[bgId].curTransform.rot.y - colCtx->dyna.bgActors[bgId].prevTransform.rot.y;
 
         if (actor->id == ACTOR_PLAYER) {
@@ -57,7 +57,7 @@ void func_800432A0(CollisionContext* colCtx, s32 bgId, Actor* actor) {
 }
 
 void func_80043334(CollisionContext* colCtx, Actor* actor, s32 bgId) {
-    if (DynaPoly_IsBgIdBgActor(bgId)) {
+    if (DynaPoly_IsBgIdInTable(&colCtx->dyna, bgId)) {
         DynaPolyActor* dynaActor = DynaPoly_GetActor(colCtx, bgId);
         if (dynaActor != NULL) {
             DynaPolyActor_SetActorOnTop(dynaActor);
@@ -77,7 +77,7 @@ s32 func_800433A4(CollisionContext* colCtx, s32 bgId, Actor* actor) {
     s32 result = false;
     DynaPolyActor* dynaActor;
 
-    if (DynaPoly_IsBgIdBgActor(bgId) == false) {
+    if (DynaPoly_IsBgIdInTable(&colCtx->dyna, bgId) == false) {
         return false;
     }
 

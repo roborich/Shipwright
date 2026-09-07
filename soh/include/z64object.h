@@ -2,7 +2,7 @@
 #define Z64OBJECT_H
 
 //#define OBJECT_EXCHANGE_BANK_MAX 19
-#define OBJECT_EXCHANGE_BANK_MAX 128
+#define OBJECT_EXCHANGE_BANK_MAX 1024 // SOH [Unbound] was 128 (N64: 19)
 
 #define DEFINE_OBJECT(_0, enum) enum,
 #define DEFINE_OBJECT_NULL(_0, enum) enum,

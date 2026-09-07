@@ -65,7 +65,24 @@ typedef struct {
     /* 0x0F */ u8 fogColor[3];
     /* 0x12 */ s16 fogNear;
     /* 0x14 */ s16 fogFar;
-} EnvLightSettings; // size = 0x16
+    // SOH [Unbound] World-unit fog and draw distance (unbound-docs/extent.md "Fog and draw distance").
+    // worldFog == 0: vanilla behaviour from fogNear/fogFar. worldFog != 0: fog ramps from fogStart to fogEnd
+    // (units from the camera), the far plane is drawDistance, and nearPlane (if > 0) replaces the view's zNear.
+    // Mirrored in soh/soh/resource/type/scenecommand/SetLightingSettings.h — keep both identical.
+    f32 fogStart;
+    f32 fogEnd;
+    f32 drawDistance;
+    f32 nearPlane;
+    u8 worldFog;
+} EnvLightSettings;
+
+// SOH [Unbound] World-unit distance at which vanilla fog starts: fogNear is on the 0..1000 scale (zNear 10) with
+// the blend rate in its high bits. Shared by the blend code (z_kankyo.c) and the JSON scene loader.
+static inline f32 Environment_LegacyFogStart(s16 fogNear, f32 fogFar) {
+    s32 fogNearScaled = fogNear & 0x3FF;
+
+    return fogNearScaled >= 997 ? fogFar : 10000.0f / (f32)(1000 - fogNearScaled);
+}
 
 // 1.0: 801D8EC4
 // dbg: 80222A44

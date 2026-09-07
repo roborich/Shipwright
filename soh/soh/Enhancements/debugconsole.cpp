@@ -1,3 +1,5 @@
+#include "soh/unbound/UnboundExporter.h"
+#include "soh/unbound/SceneDB.h"
 #include "debugconsole.h"
 #include <ship/utils/Utils.h>
 #include "savestates.h"
@@ -403,6 +405,27 @@ static bool GiveItemHandler(std::shared_ptr<Ship::Console> Console, const std::v
     return 0;
 }
 
+// SOH [Unbound]
+static bool UnboundExportHandler(std::shared_ptr<Ship::Console> Console, const std::vector<std::string>& args,
+                                 std::string* output) {
+    std::string out = args.size() >= 2 ? args[1] : "oot-unbound.o2r";
+    if (Unbound_Export(out.c_str()) != 0) {
+        ERROR_MESSAGE("[Unbound] export failed; see the log");
+        return 1;
+    }
+    INFO_MESSAGE("[Unbound] wrote %s", out.c_str());
+    return 0;
+}
+
+// SOH [Unbound] hex parse that rejects trailing garbage; -1 when the whole string is not a hex number
+static int32_t ParseWholeHex(const std::string& text) {
+    try {
+        size_t consumed = 0;
+        int32_t value = std::stoi(text, &consumed, 16);
+        return (consumed == text.size() && value >= 0) ? value : -1;
+    } catch (std::exception const&) { return -1; }
+}
+
 static bool EntranceHandler(std::shared_ptr<Ship::Console> Console, const std::vector<std::string>& args,
                             std::string* output) {
     if (args.size() < 2) {
@@ -410,12 +433,14 @@ static bool EntranceHandler(std::shared_ptr<Ship::Console> Console, const std::v
         return 1;
     }
 
-    unsigned int entrance;
-
-    try {
-        entrance = std::stoi(args[1], nullptr, 16);
-    } catch (std::invalid_argument const& ex) {
-        ERROR_MESSAGE("[SOH] Entrance value must be a Hex number.");
+    // SOH [Unbound] a registered entrance name (vanilla ENTR_* or "<scene id>/<entrance id>") wins over hex,
+    // since stoi would otherwise accept the hex-looking prefix of a name such as "ENTR_DEKU_TREE_0".
+    int32_t entrance = EntranceDB_RetrieveIndex(args[1].c_str());
+    if (entrance < 0) {
+        entrance = ParseWholeHex(args[1]);
+    }
+    if (entrance < 0) {
+        ERROR_MESSAGE("[SOH] Entrance value must be a Hex number or a registered entrance name.");
         return 1;
     }
 
@@ -1532,6 +1557,12 @@ void DebugConsole_Init(void) {
                          {
                              { "clear|warp|backup", Ship::ArgumentType::TEXT },
                          } });
+    CMD_REGISTER("unbound-export", { UnboundExportHandler,
+                                     "Writes the mounted vanilla archive in the Unbound layout (SOH: Unbound)",
+                                     {
+                                         { "out.o2r", Ship::ArgumentType::TEXT },
+                                     } });
+
     CMD_REGISTER("entrance", { EntranceHandler,
                                "Sends player to the entered entrance (hex)",
                                {

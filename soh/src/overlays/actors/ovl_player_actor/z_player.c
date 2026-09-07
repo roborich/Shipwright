@@ -5386,7 +5386,7 @@ s32 Player_ActionHandler_1(Player* this, PlayState* play) {
 
                 if (doorShutter->dyna.actor.category == ACTORCAT_DOOR) {
                     this->cv.slidingDoorBgCamIndex =
-                        play->transiActorCtx.list[(u16)doorShutter->dyna.actor.params >> 10]
+                        play->transiActorCtx.list[TRANSITION_ACTOR_INDEX(&doorShutter->dyna.actor)]
                             .sides[(doorDirection > 0) ? 0 : 1]
                             .effects;
 
@@ -5460,7 +5460,7 @@ s32 Player_ActionHandler_1(Player* this, PlayState* play) {
                         }
                     } else {
                         Camera_ChangeDoorCam(Play_GetCamera(play, 0), doorActor,
-                                             play->transiActorCtx.list[(u16)doorActor->params >> 10]
+                                             play->transiActorCtx.list[TRANSITION_ACTOR_INDEX(doorActor)]
                                                  .sides[(doorDirection > 0) ? 0 : 1]
                                                  .effects,
                                              0, 38.0f * sInvWaterSpeedFactor, 26.0f * sInvWaterSpeedFactor,
@@ -5470,8 +5470,9 @@ s32 Player_ActionHandler_1(Player* this, PlayState* play) {
             }
 
             if ((this->doorType != PLAYER_DOORTYPE_FAKE) && (doorActor->category == ACTORCAT_DOOR)) {
-                frontRoom =
-                    play->transiActorCtx.list[(u16)doorActor->params >> 10].sides[(doorDirection > 0) ? 0 : 1].room;
+                frontRoom = play->transiActorCtx.list[TRANSITION_ACTOR_INDEX(doorActor)]
+                                .sides[(doorDirection > 0) ? 0 : 1]
+                                .room;
 
                 if ((frontRoom >= 0) && (frontRoom != play->roomCtx.curRoom.num)) {
                     func_8009728C(play, &play->roomCtx, frontRoom);
@@ -10806,8 +10807,6 @@ static Vec3f D_80854778 = { 0.0f, 50.0f, 0.0f };
 void Player_Init(Actor* thisx, PlayState* play2) {
     Player* this = (Player*)thisx;
     PlayState* play = play2;
-    SceneTableEntry* scene = play->loadedScene;
-    u32 titleFileSize;
     s32 startMode;
     s32 respawnFlag;
     s32 respawnMode;
@@ -10873,7 +10872,6 @@ void Player_Init(Actor* thisx, PlayState* play2) {
     }
 
     if ((respawnFlag == 0) || (respawnFlag < -1)) {
-        titleFileSize = scene->titleFile.vromEnd - scene->titleFile.vromStart;
         if (GameInteractor_Should(VB_SHOW_TITLE_CARD, gSaveContext.showTitleCard)) {
             if ((gSaveContext.sceneSetupIndex < 4) &&
                 (gEntranceTable[((void)0, gSaveContext.entranceIndex) + ((void)0, gSaveContext.sceneSetupIndex)].field &

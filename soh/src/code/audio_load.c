@@ -1343,6 +1343,10 @@ void AudioLoad_Init(void* heap, size_t heapSize) {
     char** customSeqList = ResourceMgr_ListFiles("custom/music/*", &customSeqListSize);
     sequenceMapSize = (size_t)(seqListSize + customSeqListSize);
     sequenceMap = malloc((sequenceMapSize + 0xF) * sizeof(char*));
+    // SOH [Unbound] zero the table: custom-id assignment skips ids AudioCollection already owns and can
+    // overflow past sequenceMapSize into the 0xF slack, so unwritten in-range slots must read as NULL,
+    // not heap garbage (readers test `sequenceMap[id]` for validity).
+    memset(sequenceMap, 0, (sequenceMapSize + 0xF) * sizeof(char*));
 
     gAudioContext.seqLoadStatus = malloc(sequenceMapSize);
     memset(gAudioContext.seqLoadStatus, 5, sequenceMapSize);

@@ -292,7 +292,10 @@ typedef enum {
 typedef struct {
     /* 0x00 */ u8   seqId;
     /* 0x01 */ u8   natureAmbienceId;
-} SequenceContext; // size = 0x2
+    // SOH [Unbound] the custom sequence bound to the scene by its document (`sound.song`); 0 = none.
+    // Consumed by AudioEditor_GetReplacementSeq whenever `seqId` is queued.
+    /* 0x02 */ u16  unboundSongSeqId;
+} SequenceContext; // size = 0x4
 
 typedef struct {
     /* 0x00 */ s32 enabled;
@@ -352,7 +355,7 @@ typedef struct {
     /* 0x0002 */ u8     unk_02;
     /* 0x0003 */ u8     lensActive;
     /* 0x0004 */ char   unk_04[0x04];
-    /* 0x0008 */ u8     total; // total number of actors loaded
+    /*        */ u16    total; // total number of actors loaded. SOH [Unbound] widened from u8 (it wrapped at 256)
     /* 0x000C */ ActorListEntry actorLists[ACTORCAT_MAX];
     /* 0x006C */ TargetContext targetCtx;
     struct {
@@ -629,6 +632,9 @@ typedef enum {
 
 // Increased char buffer because texture paths could be bigger than (16 * 16 / 2)
 #define FONT_CHAR_MULTIPLIER 256
+// SOH [Unbound] raw and decoded message buffer sizes (bytes)
+#define MESSAGE_BUF_SIZE 8192
+#define MESSAGE_DECODED_BUF_SIZE 1024
 
 typedef struct {
     /* 0x0000 */ uintptr_t    msgOffset;
@@ -637,8 +643,8 @@ typedef struct {
     /* 0x3C08 */ u8           iconBuf[FONT_CHAR_TEX_SIZE * FONT_CHAR_MULTIPLIER];
     /* 0x3C88 */ u8           fontBuf[FONT_CHAR_TEX_SIZE * FONT_CHAR_MULTIPLIER];
     union {
-         /* 0xDC88 */ char   msgBuf[1280];
-         /* 0xDC88 */ u16    msgBufWide[640];
+         /* 0xDC88 */ char   msgBuf[MESSAGE_BUF_SIZE];      // SOH [Unbound] widened from 1280
+         /* 0xDC88 */ u16    msgBufWide[MESSAGE_BUF_SIZE / 2];
     };
 } Font; // size = 0xE188
 
@@ -666,8 +672,8 @@ typedef struct {
     /* 0xE304 */ u8     msgMode; // original name: "msg_mode"
     /* 0xE305 */ char   unk_E305[0x1];
     /* 0xE306 */ union {
-                    u8  msgBufDecoded[200];
-                    u16 msgBufDecodedWide[100];
+                    u8  msgBufDecoded[MESSAGE_DECODED_BUF_SIZE]; // SOH [Unbound] widened from 200
+                    u16 msgBufDecodedWide[MESSAGE_DECODED_BUF_SIZE / 2];
                  }; // decoded message buffer, may be smaller than this
     /* 0xE3CE */ u16    msgBufPos; // original name : "rdp"
     /* 0xE3D0 */ u16    unk_E3D0; // unused, only ever set to 0
@@ -958,10 +964,10 @@ typedef struct {
 typedef struct {
     /* 0x0000 */ void*  spaceStart;
     /* 0x0004 */ void*  spaceEnd; // original name: "endSegment"
-    /* 0x0008 */ u8     num; // number of objects in bank
-    /* 0x0009 */ u8     unk_09;
-    /* 0x000A */ u8     mainKeepIndex; // "gameplay_keep" index in bank
-    /* 0x000B */ u8     subKeepIndex; // "gameplay_field_keep" or "gameplay_dangeon_keep" index in bank
+    /*        */ u16    num; // number of objects in bank. SOH [Unbound] widened from u8
+    /*        */ u16    unk_09;
+    /*        */ u16    mainKeepIndex; // "gameplay_keep" index in bank
+    /*        */ u16    subKeepIndex; // "gameplay_field_keep" or "gameplay_dangeon_keep" index in bank
     /* 0x000C */ ObjectStatus status[OBJECT_EXCHANGE_BANK_MAX];
 } ObjectContext; // size = 0x518
 
@@ -981,10 +987,10 @@ typedef struct {
 
 typedef struct {
     /* 0x00 */ PolygonBase base;
-    /* 0x01 */ u8    num; // number of dlist entries
-    /* 0x04 */ void* start;
-    /* 0x08 */ void* end;
-} PolygonType0; // size = 0xC
+    /*      */ u32   num; // number of dlist entries. SOH [Unbound] widened from u8
+    /*      */ void* start;
+    /*      */ void* end;
+} PolygonType0;
 
 typedef struct {
     /* 0x00 */ u16   unk_00;
@@ -1024,18 +1030,18 @@ typedef struct {
 } PolygonType1;
 
 typedef struct {
-    /* 0x00 */ Vec3s pos;
-    /* 0x06 */ s16   unk_06;
+    /*      */ Vec3f pos; // SOH [Unbound] s16 -> f32 (world extent)
+    /*      */ f32   unk_06; // SOH [Unbound] cull radius, s16 -> f32
     /* 0x08 */ Gfx*  opa;
     /* 0x0C */ Gfx*  xlu;
 } PolygonDlist2; // size = 0x8
 
 typedef struct {
     /* 0x00 */ PolygonBase base;
-    /* 0x01 */ u8    num; // number of dlist entries
-    /* 0x04 */ void* start;
-    /* 0x08 */ void* end;
-} PolygonType2; // size = 0xC
+    /*      */ u32   num; // number of dlist entries. SOH [Unbound] widened from u8
+    /*      */ void* start;
+    /*      */ void* end;
+} PolygonType2;
 
 typedef union {
     PolygonBase  base;
@@ -1069,7 +1075,7 @@ typedef enum {
 } RoomBehaviorType2;
 
 typedef struct {
-    /* 0x00 */ s8   num;
+    /*      */ s16  num; // SOH [Unbound] s8 -> s16 (rooms > 127)
     /* 0x01 */ u8   unk_01;
     /* 0x02 */ u8   behaviorType2;
     /* 0x03 */ u8   behaviorType1;
@@ -1078,7 +1084,7 @@ typedef struct {
     /* 0x08 */ MeshHeader* meshHeader; // original name: "ground_shape"
     /* 0x0C */ void* segment;
     /* 0x10 */ char unk_10[0x4];
-} Room; // size = 0x14
+} Room;
 
 typedef struct {
     /* 0x00 */ Room  curRoom;
@@ -1231,25 +1237,25 @@ typedef struct {
 
 typedef struct {
     /* 0x00 */ s16   id;
-    /* 0x02 */ Vec3s pos;
+    /*      */ Vec3f pos; // SOH [Unbound] s16 -> f32 (world extent)
     /* 0x08 */ Vec3s rot;
     /* 0x0E */ s16   params;
 } ActorEntry; // size = 0x10
 
 typedef struct {
     struct {
-        s8 room;    // Room to switch to
+        s16 room;   // Room to switch to. SOH [Unbound] s8 -> s16
         s8 effects; // How the camera reacts during the transition
     } /* 0x00 */ sides[2]; // 0 = front, 1 = back
     /* 0x04 */ s16   id;
-    /* 0x06 */ Vec3s pos;
+    /*      */ Vec3f pos; // SOH [Unbound] s16 -> f32 (world extent)
     /* 0x0C */ s16   rotY;
     /* 0x0E */ s16   params;
 } TransitionActorEntry; // size = 0x10
 
 typedef struct {
     /* 0x00 */ u8 spawn;
-    /* 0x01 */ u8 room;
+    /*      */ s16 room; // SOH [Unbound] u8 -> s16
 } EntranceEntry;
 
 #define SRAM_SIZE 0x8000
@@ -1362,7 +1368,7 @@ typedef struct {
 typedef struct {
     /*      */ s32 entranceIndex;
     /*      */ s32 returnEntranceIndex;
-    /*      */ s8 roomIndex;
+    /*      */ s16 roomIndex; // SOH [Unbound]
     /*      */ s8 data;
     /*      */ s8 exitScene;
     /*      */ Vec3f pos;
@@ -1410,7 +1416,7 @@ typedef struct {
 } ElfMessage; // size = 0x4
 
 typedef struct {
-    /* 0x00 */ u8 numActors;
+    /*      */ u16 numActors; // SOH [Unbound] u8 -> u16
     /* 0x04 */ TransitionActorEntry* list;
 } TransitionActorContext;
 
@@ -1421,6 +1427,10 @@ typedef struct PlayState {
     /* 0x000A6 */ u8 sceneConfig;
     /* 0x000A7 */ char unk_A7[0x9];
     /* 0x000B0 */ void* sceneSegment;
+    // SOH [Unbound] the current setup's `materialAnims` list (SPEC.md §4.2), drawn by Scene_DrawMaterialAnims after
+    // the scene draw config every frame; count 0 = none. Owned by the SetAnimatedMaterialList command resource.
+    /*         */ AnimatedMaterial* sceneMaterialAnims;
+    /*         */ u32 sceneMaterialAnimCount;
     /* 0x000B8 */ View view;
     /* 0x001E0 */ Camera mainCamera;
     /* 0x0034C */ Camera subCameras[NUM_CAMS - SUBCAM_FIRST];
@@ -1463,8 +1473,8 @@ typedef struct PlayState {
     /* 0x11DE8 */ u8 linkAgeOnLoad;
     /* 0x11DE9 */ u8 unk_11DE9;
     /* 0x11DEA */ u8 curSpawn;
-    /* 0x11DEB */ u8 numSetupActors;
-    /* 0x11DEC */ u8 numRooms;
+    /*         */ u16 numSetupActors; // SOH [Unbound] widened from u8
+    /*         */ u16 numRooms;       // SOH [Unbound] widened from u8
     /* 0x11DF0 */ RomFile* roomList;
     /* 0x11DF4 */ ActorEntry* linkActorEntry;
     /* 0x11DF8 */ ActorEntry* setupActorList;
@@ -1494,7 +1504,6 @@ typedef struct PlayState {
     /* 0x1241C */ TransitionFade transitionFade;
     /* 0x12428 */ char unk_12428[0x3];
     /* 0x1242B */ u8 unk_1242B;
-    /* 0x1242C */ SceneTableEntry* loadedScene;
     /* 0x12430 */ char unk_12430[0xE8];
     // SOH [Custom Models] MTX tracker for flex based skeletons
     Mtx** flexLimbOverrideMTX;
@@ -1660,10 +1669,10 @@ typedef struct {
 } AnimationMinimalInfo; // size = 0xC
 
 typedef struct {
-    /* 0x00 */ s8  scene;
-    /* 0x01 */ s8  spawn;
-    /* 0x02 */ u16 field;
-} EntranceInfo; // size = 0x4
+    /* 0x00 */ s16 scene; // SOH [Unbound] widened from s8
+    /* 0x02 */ s8  spawn;
+    /* 0x04 */ u16 field;
+} EntranceInfo; // size = 0x6
 
 typedef struct {
     /* 0x00 */ void*     loadedRamAddr;

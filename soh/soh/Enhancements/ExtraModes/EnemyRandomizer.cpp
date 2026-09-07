@@ -159,7 +159,7 @@ static int enemiesToRandomize[] = {
     // ACTOR_EN_REEBA,      // Leever (reliant on spawner (z_en_encount1.c))
 };
 
-bool IsEnemyAllowedToSpawn(int16_t sceneNum, int8_t roomNum, EnemyEntry enemy) {
+bool IsEnemyAllowedToSpawn(int16_t sceneNum, int16_t roomNum, EnemyEntry enemy) {
     uint32_t isMQ = ResourceMgr_IsSceneMasterQuest(sceneNum);
 
     // Freezard - Child Link can only kill this with Deku Stick jumpslash or other equipment like bombs.
@@ -315,7 +315,7 @@ EnemyEntry GetRandomizedEnemyEntry(uint32_t seed, PlayState* play) {
     }
 }
 
-bool IsEnemyFoundToRandomize(int16_t sceneNum, int8_t roomNum, int16_t actorId, int16_t params, float posX) {
+bool IsEnemyFoundToRandomize(int16_t sceneNum, int16_t roomNum, int16_t actorId, int16_t params, float posX) {
 
     uint32_t isMQ = ResourceMgr_IsSceneMasterQuest(sceneNum);
 

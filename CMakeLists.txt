@@ -157,6 +157,14 @@ set(GFX_DEBUG_DISASSEMBLER ON)
 
 # Tell LUS we're using F3DEX_GBI_2 (in a way that doesn't break libgfxd)
 set(GBI_UCODE F3DEX_GBI_2)
+
+# SOH [Unbound] float matrices: world positions past +/-32767 need a Mtx that does not wrap (unbound-docs/extent.md)
+set(GBI_FLOAT_MTX ON)
+
+# SOH [Unbound] s32 vertex positions: a room mesh draws under the identity matrix, so its s16 vertices are world
+# coordinates and cap one room at 65535 units across. s32 (not f32) keeps the integer semantics the game assumes
+# wherever it reads a vertex back, and lets Prelude snap exactly (unbound-docs/extent.md)
+set(GBI_S32_VTX ON)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
 
 # Enable MPQ and OTR support

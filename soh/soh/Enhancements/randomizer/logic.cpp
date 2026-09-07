@@ -1,3 +1,4 @@
+#include "soh/unbound/SceneDB.h"
 #include "logic.h"
 #include "../debugger/performanceTimer.h"
 
@@ -2405,10 +2406,7 @@ const std::vector<uint8_t>& GetDungeonSmallKeyDoors(SceneID sceneId) {
     dungeonSmallKeyDoors[key] = {};
 
     // Get the scene path
-    SceneTableEntry* sceneTableEntry = &gSceneTable[sceneId];
-    std::string scenePath =
-        StringHelper::Sprintf("scenes/%s/%s/%s", masterQuest ? "mq" : "nonmq", sceneTableEntry->sceneFile.fileName,
-                              sceneTableEntry->sceneFile.fileName);
+    std::string scenePath = SceneDB::Instance->GetScenePath(sceneId, masterQuest); // SOH [Unbound]
 
     // Load the scene
     std::shared_ptr<SOH::Scene> scene = std::dynamic_pointer_cast<SOH::Scene>(

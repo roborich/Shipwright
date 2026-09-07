@@ -804,7 +804,7 @@ void EnItem00_Update(Actor* thisx, PlayState* play) {
             if (*temp != play->gameplayFrames) {
                 D_80157D90 = play->gameplayFrames;
                 D_80157D94[0] = 0;
-                for (i = 0; i < 50; i++) {
+                for (i = 0; i < play->colCtx.dyna.bgActorMax; i++) { // SOH [Unbound] was a hardcoded 50
                     if (play->colCtx.dyna.bgActorFlags[i] & 1) {
                         dynaActor = play->colCtx.dyna.bgActors[i].actor;
                         if ((dynaActor != NULL) && (dynaActor->update != NULL)) {

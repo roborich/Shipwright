@@ -725,7 +725,7 @@ void EnHy_InitSetProperties(EnHy* this) {
 }
 
 void EnHy_UpdateCollider(EnHy* this, PlayState* play) {
-    Vec3s pos;
+    Vec3f pos; // SOH [Unbound] collider dims are f32
 
     pos.x = this->actor.world.pos.x;
     pos.y = this->actor.world.pos.y;

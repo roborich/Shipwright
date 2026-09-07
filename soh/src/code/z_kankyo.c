@@ -9,6 +9,62 @@
 #include "soh/Enhancements/game-interactor/GameInteractor.h"
 #include "soh/Enhancements/game-interactor/GameInteractor_Hooks.h"
 
+// SOH [Unbound] World-unit fog / draw distance (extent.md). A lighting entry without world fog resolves to its
+// vanilla equivalent so mixed setups (day world-fog, night legacy) blend without reading unset fields.
+typedef struct {
+    f32 start;
+    f32 end;
+    f32 zFar;
+    f32 zNear;
+} WorldFogParams;
+
+static WorldFogParams Environment_ResolveWorldFog(const EnvLightSettings* s) {
+    WorldFogParams p;
+
+    if (s->worldFog) {
+        p.start = s->fogStart;
+        p.end = s->fogEnd;
+        p.zFar = s->drawDistance;
+        p.zNear = s->nearPlane;
+    } else {
+        p.zFar = s->fogFar;
+        p.start = Environment_LegacyFogStart(s->fogNear, p.zFar);
+        p.end = p.zFar;
+        p.zNear = 0.0f;
+    }
+    return p;
+}
+
+static WorldFogParams Environment_LerpWorldFogParams(WorldFogParams a, WorldFogParams b, f32 t) {
+    WorldFogParams p;
+
+    p.start = LERP(a.start, b.start, t);
+    p.end = LERP(a.end, b.end, t);
+    p.zFar = LERP(a.zFar, b.zFar, t);
+    p.zNear = LERP(a.zNear, b.zNear, t);
+    return p;
+}
+
+static void Environment_SetWorldFog(EnvLightSettings* out, WorldFogParams p, u8 worldFog) {
+    out->worldFog = worldFog;
+    out->fogStart = p.start;
+    out->fogEnd = p.end;
+    out->drawDistance = p.zFar;
+    out->nearPlane = p.zNear;
+}
+
+static void Environment_CopyWorldFog(EnvLightSettings* out, const EnvLightSettings* src) {
+    Environment_SetWorldFog(out, Environment_ResolveWorldFog(src), src->worldFog);
+}
+
+static void Environment_LerpWorldFog(EnvLightSettings* out, const EnvLightSettings* a, const EnvLightSettings* b,
+                                     f32 t) {
+    WorldFogParams pa = Environment_ResolveWorldFog(a);
+    WorldFogParams pb = Environment_ResolveWorldFog(b);
+
+    Environment_SetWorldFog(out, Environment_LerpWorldFogParams(pa, pb, t), a->worldFog || b->worldFog);
+}
+
 typedef enum {
     /* 0 */ LENS_FLARE_CIRCLE0,
     /* 1 */ LENS_FLARE_CIRCLE1,
@@ -1058,6 +1114,21 @@ void Environment_Update(PlayState* play, EnvironmentContext* envCtx, LightContex
 
                         envCtx->lightSettings.fogFar = LERP16(blend16[0], blend16[1], sp88);
 
+                        // SOH [Unbound] world-unit fog / draw distance follow the same two-level blend
+                        {
+                            const EnvLightSettings* a0 = &lightSettingsList[TIME_ENTRY_1F.unk_04];
+                            const EnvLightSettings* a1 = &lightSettingsList[TIME_ENTRY_1F.unk_05];
+                            const EnvLightSettings* b0 = &lightSettingsList[TIME_ENTRY_20.unk_04];
+                            const EnvLightSettings* b1 = &lightSettingsList[TIME_ENTRY_20.unk_05];
+                            WorldFogParams a = Environment_LerpWorldFogParams(Environment_ResolveWorldFog(a0),
+                                                                              Environment_ResolveWorldFog(a1), sp8C);
+                            WorldFogParams b = Environment_LerpWorldFogParams(Environment_ResolveWorldFog(b0),
+                                                                              Environment_ResolveWorldFog(b1), sp8C);
+
+                            Environment_SetWorldFog(&envCtx->lightSettings, Environment_LerpWorldFogParams(a, b, sp88),
+                                                    a0->worldFog || a1->worldFog || b0->worldFog || b1->worldFog);
+                        }
+
                         if (TIME_ENTRY_20.unk_05 >= envCtx->numLightSettings) {
                             // "The color palette setting seems to be wrong!"
                             osSyncPrintf(VT_COL(RED, WHITE) "\nカラーパレットの設定がおかしいようです！" VT_RST);
@@ -1082,6 +1153,8 @@ void Environment_Update(PlayState* play, EnvironmentContext* envCtx, LightContex
 
                     envCtx->lightSettings.fogNear = lightSettingsList[envCtx->unk_BD].fogNear & 0x3FF;
                     envCtx->lightSettings.fogFar = lightSettingsList[envCtx->unk_BD].fogFar;
+                    // SOH [Unbound]
+                    Environment_CopyWorldFog(&envCtx->lightSettings, &lightSettingsList[envCtx->unk_BD]);
                     envCtx->unk_D8 = 1.0f;
                 } else {
                     u8 blendRate = (lightSettingsList[envCtx->unk_BD].fogNear >> 0xA) * 4;
@@ -1127,6 +1200,8 @@ void Environment_Update(PlayState* play, EnvironmentContext* envCtx, LightContex
                                lightSettingsList[envCtx->unk_BD].fogNear & 0x3FF, envCtx->unk_D8);
                     envCtx->lightSettings.fogFar = LERP16(lightSettingsList[envCtx->unk_BE].fogFar,
                                                           lightSettingsList[envCtx->unk_BD].fogFar, envCtx->unk_D8);
+                    Environment_LerpWorldFog(&envCtx->lightSettings, &lightSettingsList[envCtx->unk_BE],
+                                             &lightSettingsList[envCtx->unk_BD], envCtx->unk_D8); // SOH [Unbound]
                 }
 
                 if (envCtx->unk_BD >= envCtx->numLightSettings) {
@@ -1203,6 +1278,31 @@ void Environment_Update(PlayState* play, EnvironmentContext* envCtx, LightContex
             lightCtx->fogFar = adjustment;
         } else {
             lightCtx->fogFar = 12800;
+        }
+
+        // SOH [Unbound] World-unit fog and draw distance (extent.md). Vanilla scenes keep zNear 10 / zFar = fogFar.
+        lightCtx->worldFog = envCtx->lightSettings.worldFog;
+        if (lightCtx->worldFog) {
+            f32 start = envCtx->lightSettings.fogStart;
+            f32 zFar = envCtx->lightSettings.drawDistance + envCtx->adjFogFar;
+
+            // Effects that pull the fog in (Nayru's Love, game over, fairies) speak the 0..1000 scale through
+            // adjFogNear; apply it by converting the start distance to that scale and back (zNear 10).
+            if (envCtx->adjFogNear != 0 && start > 10.0f) {
+                f32 nearEq = 1000.0f - 10000.0f / start + envCtx->adjFogNear;
+                if (nearEq < 996.0f) {
+                    start = 10000.0f / (1000.0f - nearEq);
+                }
+            }
+            lightCtx->fogStart = start;
+            lightCtx->fogEnd = envCtx->lightSettings.fogEnd;
+            lightCtx->zFar = zFar < 100.0f ? 100.0f : zFar;
+            lightCtx->zNear = envCtx->lightSettings.nearPlane > 0.0f ? envCtx->lightSettings.nearPlane : 10.0f;
+            // Legacy readers (audio, the env debug regs) still see an s16 far distance.
+            lightCtx->fogFar = lightCtx->zFar > 32767.0f ? 32767 : (s16)lightCtx->zFar;
+        } else {
+            lightCtx->zNear = 10.0f;
+            lightCtx->zFar = lightCtx->fogFar;
         }
 
         // When environment debug is enabled, various environment related variables can be configured via the reg editor
@@ -1741,7 +1841,8 @@ void Environment_DrawRain(PlayState* play, View* view, GraphicsContext* gfxCtx) 
 
 void func_80074CE8(PlayState* play, u32 arg1) {
     if ((play->envCtx.unk_BD != arg1) && (play->envCtx.unk_D8 >= 1.0f) && (play->envCtx.unk_BF == 0xFF)) {
-        if (arg1 > 30) {
+        // SOH [Unbound] The setting list is no longer capped at 31 entries; bound by the scene's count instead.
+        if (arg1 >= play->envCtx.numLightSettings) {
             arg1 = 0;
         }
 

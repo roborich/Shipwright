@@ -3,8 +3,13 @@
 #include "soh/resource/logging/PathLogger.h"
 #include "spdlog/spdlog.h"
 #include <tinyxml2.h>
+#include <cstddef>
+#include "z64scene.h"
 
 namespace SOH {
+// SOH [Unbound] Scene_CommandPathList hands the mirror to the game as a ::Path
+static_assert(sizeof(PathData) == sizeof(::Path) && offsetof(PathData, points) == offsetof(::Path, points),
+              "SOH::PathData must mirror ::Path");
 std::shared_ptr<Ship::IResource>
 ResourceFactoryBinaryPathV0::ReadResource(std::shared_ptr<Ship::File> file,
                                           std::shared_ptr<Ship::ResourceInitData> initData) {
@@ -18,11 +23,11 @@ ResourceFactoryBinaryPathV0::ReadResource(std::shared_ptr<Ship::File> file,
     path->numPaths = reader->ReadUInt32();
     path->paths.reserve(path->numPaths);
     for (uint32_t k = 0; k < path->numPaths; k++) {
-        std::vector<Vec3s> points;
+        std::vector<Vec3f> points;
         uint32_t pointCount = reader->ReadUInt32();
         points.reserve(pointCount);
         for (uint32_t i = 0; i < pointCount; i++) {
-            Vec3s point;
+            Vec3f point;
             point.x = reader->ReadInt16();
             point.y = reader->ReadInt16();
             point.z = reader->ReadInt16();
@@ -64,14 +69,14 @@ ResourceFactoryXMLPathV0::ReadResource(std::shared_ptr<Ship::File> file,
     auto pathDataElement = pathElement->FirstChildElement();
 
     while (pathDataElement != nullptr) {
-        std::vector<Vec3s> points;
+        std::vector<Vec3f> points;
         // uint32_t pointCount = pathDataElement->IntAttribute("NumPoints");
         // points.reserve(pointCount);
 
         auto pointElement = pathDataElement->FirstChildElement();
 
         while (pointElement != nullptr) {
-            Vec3s point;
+            Vec3f point;
             point.x = pointElement->IntAttribute("X");
             point.y = pointElement->IntAttribute("Y");
             point.z = pointElement->IntAttribute("Z");

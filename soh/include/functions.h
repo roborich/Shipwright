@@ -575,7 +575,7 @@ s32 func_80037D98(PlayState* play, Actor* actor, s16 arg2, s32* arg3);
 s32 func_80038290(PlayState* play, Actor* actor, Vec3s* arg2, Vec3s* arg3, Vec3f arg4);
 
 // ? func_80038600(?);
-u16 DynaSSNodeList_GetNextNodeIdx(DynaSSNodeList*);
+u32 DynaSSNodeList_GetNextNodeIdx(DynaSSNodeList*);
 void func_80038A28(CollisionPoly* poly, f32 tx, f32 ty, f32 tz, MtxF* dest);
 f32 CollisionPoly_GetPointDistanceFromPlane(CollisionPoly* poly, Vec3f* point);
 CollisionHeader* BgCheck_GetCollisionHeader(CollisionContext* colCtx, s32 bgId);
@@ -587,6 +587,7 @@ s32 BgCheck_CheckLineAgainstSSList(SSList* headNodeId, CollisionContext* colCtx,
                                    f32 chkDist, s32 bccFlags);
 void BgCheck_GetStaticLookupIndicesFromPos(CollisionContext* colCtx, Vec3f* pos, Vec3i* arg2);
 void BgCheck_Allocate(CollisionContext* colCtx, PlayState* play, CollisionHeader* colHeader);
+void BgCheck_Free(CollisionContext* colCtx); // SOH [Unbound]
 s32 BgCheck_PosInStaticBoundingBox(CollisionContext* colCtx, Vec3f* pos);
 f32 BgCheck_EntityRaycastFloor1(CollisionContext* colCtx, CollisionPoly** outPoly, Vec3f* pos);
 f32 BgCheck_EntityRaycastFloor2(PlayState* play, CollisionContext* colCtx, CollisionPoly** outPoly,
@@ -644,8 +645,9 @@ s32 BgCheck_AnyLineTest3(CollisionContext* colCtx, Vec3f* posA, Vec3f* posB, Vec
 s32 BgCheck_SphVsFirstPoly(CollisionContext* colCtx, Vec3f* center, f32 radius);
 void SSNodeList_Initialize(SSNodeList*);
 void SSNodeList_Alloc(PlayState* play, SSNodeList* this, s32 tblMax, s32 numPolys);
-u16 SSNodeList_GetNextNodeIdx(SSNodeList* this);
+u32 SSNodeList_GetNextNodeIdx(SSNodeList* this);
 s32 DynaPoly_IsBgIdBgActor(s32 bgId);
+s32 DynaPoly_IsBgIdInTable(DynaCollisionContext* dyna, s32 bgId); // SOH [Unbound]
 void DynaPoly_Init(PlayState* play, DynaCollisionContext* dyna);
 void DynaPoly_Alloc(PlayState* play, DynaCollisionContext* dyna);
 void func_8003EBF8(PlayState* play, DynaCollisionContext* dyna, s32 bgId);
@@ -962,6 +964,8 @@ void func_80077D10(f32* arg0, s16* arg1, Input* input);
 s16 Rand_S16Offset(s16 base, s16 range);
 void Math_Vec3f_Copy(Vec3f* dest, Vec3f* src);
 void Math_Vec3s_ToVec3f(Vec3f* dest, Vec3s* src);
+void Math_Vec3i_ToVec3f(Vec3f* dest, Vec3i* src); // SOH [Unbound]
+void Math_Vec3f_ToVec3i(Vec3i* dest, Vec3f* src); // SOH [Unbound] rounds
 void Math_Vec3f_Sum(Vec3f* a, Vec3f* b, Vec3f* dest);
 void Math_Vec3f_Diff(Vec3f* a, Vec3f* b, Vec3f* dest);
 void Math_Vec3s_DiffToVec3f(Vec3f* dest, Vec3s* a, Vec3s* b);
@@ -989,9 +993,9 @@ void HealthMeter_Update(PlayState* play);
 void HealthMeter_Draw(PlayState* play);
 void HealthMeter_HandleCriticalAlarm(PlayState* play);
 u32 HealthMeter_IsCritical(void);
-void Lights_PointSetInfo(LightInfo* info, s16 x, s16 y, s16 z, u8 r, u8 g, u8 b, s16 radius, s32 type);
-void Lights_PointNoGlowSetInfo(LightInfo* info, s16 x, s16 y, s16 z, u8 r, u8 g, u8 b, s16 radius);
-void Lights_PointGlowSetInfo(LightInfo* info, s16 x, s16 y, s16 z, u8 r, u8 g, u8 b, s16 radius);
+void Lights_PointSetInfo(LightInfo* info, f32 x, f32 y, f32 z, u8 r, u8 g, u8 b, s16 radius, s32 type);
+void Lights_PointNoGlowSetInfo(LightInfo* info, f32 x, f32 y, f32 z, u8 r, u8 g, u8 b, s16 radius);
+void Lights_PointGlowSetInfo(LightInfo* info, f32 x, f32 y, f32 z, u8 r, u8 g, u8 b, s16 radius);
 void Lights_PointSetColorAndRadius(LightInfo* info, u8 r, u8 g, u8 b, s16 radius);
 void Lights_DirectionalSetInfo(LightInfo* info, s8 x, s8 y, s8 z, u8 r, u8 g, u8 b);
 void Lights_Reset(Lights* lights, u8 ambentR, u8 ambentG, u8 ambentB);
@@ -1256,6 +1260,7 @@ s32 Scene_ExecuteCommands(PlayState* play, SceneCmd* sceneCmd);
 void TransitionActor_InitContext(GameState* state, TransitionActorContext* transiActorCtx);
 void Scene_SetTransitionForNextEntrance(PlayState* play);
 void Scene_Draw(PlayState* play);
+void Scene_DrawMaterialAnims(PlayState* play); // SOH [Unbound] z_scene_proc.c
 void SkelAnime_DrawLod(PlayState* play, void** skeleton, Vec3s* jointTable,
                        OverrideLimbDrawOpa overrideLimbDraw, PostLimbDrawOpa postLimbDraw, void* arg, s32 dListIndex);
 void SkelAnime_DrawFlexLod(PlayState* play, void** skeleton, Vec3s* jointTable, s32 dListCount,

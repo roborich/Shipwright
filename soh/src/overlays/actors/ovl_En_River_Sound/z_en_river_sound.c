@@ -94,7 +94,7 @@ s32 func_80AE6A54(Vec3f* arg0, Vec3f* arg1, Vec3f* arg2, Vec3f* arg3) {
  * player.
  * Returns true if the distance between the `hearPos` and `soundPos` is less than 10000, false if not.
  */
-s32 EnRiverSound_GetSoundPos(Vec3s* points, s32 numPoints, Vec3f* hearPos, Vec3f* soundPos) {
+s32 EnRiverSound_GetSoundPos(Vec3f* points, s32 numPoints, Vec3f* hearPos, Vec3f* soundPos) {
     s32 i;
     s32 pointIdx;
     s32 sp78[2] = { 0, 0 };
@@ -103,7 +103,7 @@ s32 EnRiverSound_GetSoundPos(Vec3s* points, s32 numPoints, Vec3f* hearPos, Vec3f
     Vec3f sp54;
     Vec3f vec;
     f32 pointDist = 10000.0f;
-    Vec3s* point;
+    Vec3f* point; // SOH [Unbound] f32 path points
 
     for (i = 0; i < numPoints; i++) {
         f32 dist;

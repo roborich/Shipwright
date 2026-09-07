@@ -92,7 +92,6 @@ void InitOTR(int argc, char* argv[]);
 void DeinitOTR(void);
 void VanillaItemTable_Init();
 void OTRAudio_Init();
-void OTRMessage_Init();
 void InitAudio();
 void Graph_StartFrame();
 void Graph_ProcessGfxCommands(Gfx* commands);

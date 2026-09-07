@@ -1594,20 +1594,20 @@ s32 func_80B56F8C(EnZl3* this, s32 arg1) {
     return 0;
 }
 
-Vec3s* func_80B56FAC(EnZl3* this, s32 arg1) {
-    Vec3s* point;
+Vec3f* func_80B56FAC(EnZl3* this, s32 arg1) {
+    Vec3f* point;
     Path* pathList = this->unk_30C;
 
     if ((pathList != NULL) && func_80B56F8C(this, arg1)) {
-        point = &((Vec3s*)SEGMENTED_TO_VIRTUAL(pathList->points))[arg1];
+        point = &((Vec3f*)SEGMENTED_TO_VIRTUAL(pathList->points))[arg1];
         return point;
     }
     return NULL;
 }
 
 s32 func_80B57034(EnZl3* this, s32 arg1, s32 arg2) {
-    Vec3s* vec1 = func_80B56FAC(this, arg1);
-    Vec3s* vec2 = func_80B56FAC(this, arg2);
+    Vec3f* vec1 = func_80B56FAC(this, arg1);
+    Vec3f* vec2 = func_80B56FAC(this, arg2);
 
     if ((vec2 != NULL) && (vec1 != NULL)) {
         f32 xDiff = vec2->x - vec1->x;
@@ -1619,7 +1619,7 @@ s32 func_80B57034(EnZl3* this, s32 arg1, s32 arg2) {
 }
 
 s16 func_80B57104(EnZl3* this, s32 arg1) {
-    Vec3s* point = func_80B56FAC(this, arg1);
+    Vec3f* point = func_80B56FAC(this, arg1);
 
     if (point != NULL) {
         f32 xDiff = point->x - this->actor.world.pos.x;
@@ -1912,7 +1912,7 @@ void func_80B57AE0(EnZl3* this, PlayState* play) {
     s32 pad2;
     Vec3f* unk_354 = &this->unk_354;
     Vec3f* unk_348 = &this->unk_348;
-    Vec3s* temp_v0;
+    Vec3f* temp_v0; // SOH [Unbound] path points are f32
     f32 xDiff;
     f32 zDiff;
 

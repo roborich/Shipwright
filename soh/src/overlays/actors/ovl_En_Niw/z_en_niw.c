@@ -588,7 +588,7 @@ void func_80AB6570(EnNiw* this, PlayState* play) {
 
 void func_80AB6A38(EnNiw* this, PlayState* play) {
     Path* path;
-    Vec3s* pointPos;
+    Vec3f* pointPos;
     f32 pathDiffX;
     f32 pathDiffZ;
     s16 pathIndex = this->path - 1;

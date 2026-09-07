@@ -17,7 +17,7 @@ typedef struct {
 
 typedef struct {
     s16 entranceIndex;
-    s8 room;
+    s16 room; // SOH [Unbound]
     s16 angle;
     Vec3f pos;
 } GrottoReturnInfo;

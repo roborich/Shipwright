@@ -50,7 +50,7 @@ void func_808B3420(BgSpot12Saku* this, PlayState* play, CollisionHeader* collisi
     DynaPolyActor_Init(&this->dyna, flags);
     CollisionHeader_GetVirtual(collision, &colHeader);
     this->dyna.bgId = DynaPoly_SetBgActor(play, &play->colCtx.dyna, &this->dyna.actor, colHeader);
-    if (this->dyna.bgId == BG_ACTOR_MAX) {
+    if (this->dyna.bgId == BGACTOR_INVALID) {
         osSyncPrintf("Warning : move BG 登録失敗(%s %d)(name %d)(arg_data 0x%04x)\n", __FILE__, __LINE__,
                      this->dyna.actor.id, this->dyna.actor.params);
     }

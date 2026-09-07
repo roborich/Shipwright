@@ -1,4 +1,5 @@
 #include "global.h"
+#include "soh/unbound/SceneDB.h"
 #include "vt.h"
 
 #include <string.h>
@@ -192,9 +193,37 @@ void func_800BC88C(PlayState* play) {
     play->transitionCtx.transitionType = -1;
 }
 
+// SOH [Unbound] N64 fog "u" coordinate of an eye-space distance under guPerspective: u = 1000 * f/(f-n) * (1 - n/d).
+// The vanilla fogNear is a point on this scale, which is why fog could never start past zNear*1000/4 = 2500 units.
+static f32 Play_FogU(f32 d, f32 n, f32 f) {
+    if (d < n) {
+        d = n;
+    }
+    return 1000.0f * (f / (f - n)) * (1.0f - n / d);
+}
+
 Gfx* Play_SetFog(PlayState* play, Gfx* gfx) {
-    return Gfx_SetFog2(gfx, play->lightCtx.fogColor[0], play->lightCtx.fogColor[1], play->lightCtx.fogColor[2], 0,
-                       play->lightCtx.fogNear, 1000);
+    LightContext* lightCtx = &play->lightCtx;
+
+    if (lightCtx->worldFog) {
+        // Fog factor in the interpreter is fog = ndcZ * mul + offset with u = 500 * (ndcZ + 1), so a ramp from u0 to
+        // u1 is mul = 128000 / (u1 - u0), offset = (500 - u0) * 256 / (u1 - u0): the gSPFogPosition formula
+        // in float.
+        f32* factor = Graph_Alloc(play->state.gfxCtx, 2 * sizeof(f32));
+        f32 u0 = Play_FogU(lightCtx->fogStart, lightCtx->zNear, lightCtx->zFar);
+        f32 u1 = Play_FogU(lightCtx->fogEnd, lightCtx->zNear, lightCtx->zFar);
+
+        if (u1 - u0 < 0.0001f) {
+            u1 = u0 + 0.0001f;
+        }
+        factor[0] = 128000.0f / (u1 - u0);
+        factor[1] = (500.0f - u0) * 256.0f / (u1 - u0);
+        gDPSetFogColor(gfx++, lightCtx->fogColor[0], lightCtx->fogColor[1], lightCtx->fogColor[2], 0);
+        gSPFogFactorF(gfx++, factor);
+        return gfx;
+    }
+    return Gfx_SetFog2(gfx, lightCtx->fogColor[0], lightCtx->fogColor[1], lightCtx->fogColor[2], 0, lightCtx->fogNear,
+                       1000);
 }
 
 void Play_Destroy(GameState* thisx) {
@@ -235,6 +264,7 @@ void Play_Destroy(GameState* thisx) {
     }
 
     func_80031C3C(&play->actorCtx, play);
+    BgCheck_Free(&play->colCtx); // SOH [Unbound] collision tables live on the heap; after actor cleanup (dyna)
     func_80110990(play);
     KaleidoScopeCall_Destroy(play);
     KaleidoManager_Destroy();
@@ -488,6 +518,15 @@ void Play_Init(GameState* thisx) {
     } else if ((gEntranceTable[((void)0, gSaveContext.entranceIndex)].scene == SCENE_KOKIRI_FOREST) && LINK_IS_ADULT &&
                !IS_CUTSCENE_LAYER) {
         gSaveContext.sceneSetupIndex = (Flags_GetEventChkInf(EVENTCHKINF_USED_FOREST_TEMPLE_BLUE_WARP)) ? 3 : 2;
+    }
+
+    // SOH [Unbound] a save or mod can reference an entrance no loaded archive registers; fail to a known place
+    if (gSaveContext.entranceIndex < 0 ||
+        gSaveContext.entranceIndex + gSaveContext.sceneSetupIndex >= EntranceDB_GetEntryCount()) {
+        osSyncPrintf("[Unbound] entrance %d + layer %d is out of range (%d entries); using Hyrule Field\n",
+                     gSaveContext.entranceIndex, gSaveContext.sceneSetupIndex, EntranceDB_GetEntryCount());
+        gSaveContext.entranceIndex = ENTR_HYRULE_FIELD_PAST_BRIDGE_SPAWN;
+        gSaveContext.sceneSetupIndex = baseSceneLayer = 0;
     }
 
     Play_SpawnScene(
@@ -1403,7 +1442,8 @@ void Play_Draw(PlayState* play) {
         POLY_OPA_DISP = Play_SetFog(play, POLY_OPA_DISP);
         POLY_XLU_DISP = Play_SetFog(play, POLY_XLU_DISP);
 
-        func_800AA460(&play->view, play->view.fovy, play->view.zNear, play->lightCtx.fogFar);
+        // SOH [Unbound] near/far planes come from lightCtx (vanilla: 10 / fogFar; world-fog scenes set their own)
+        func_800AA460(&play->view, play->view.fovy, play->lightCtx.zNear, play->lightCtx.zFar);
         func_800AAA50(&play->view, 15);
 
         // Flip the projections and invert culling for the OPA and XLU display buffers
@@ -1846,6 +1886,10 @@ void Play_InitScene(PlayState* play, s32 spawn) {
     play->setupExitList = NULL;
     play->cUpElfMsgs = NULL;
     play->setupPathList = NULL;
+    // SOH [Unbound] mirrors OTRPlay_InitScene: the Unbound command-populated fields reset with the vanilla ones
+    play->sequenceCtx.unboundSongSeqId = 0;
+    play->sceneMaterialAnims = NULL;
+    play->sceneMaterialAnimCount = 0;
 
     play->numSetupActors = 0;
 
@@ -2095,12 +2139,13 @@ s16 func_800C09D8(PlayState* play, s16 camId, s16 arg2) {
 }
 
 void Play_SaveSceneFlags(PlayState* play) {
-    SavedSceneFlags* savedSceneFlags = &gSaveContext.sceneFlags[play->sceneNum];
+    SavedSceneFlags* savedSceneFlags = SceneFlags_Get(play->sceneNum); // SOH [Unbound]
 
     savedSceneFlags->chest = play->actorCtx.flags.chest;
     savedSceneFlags->swch = play->actorCtx.flags.swch;
     savedSceneFlags->clear = play->actorCtx.flags.clear;
     savedSceneFlags->collect = play->actorCtx.flags.collect;
+    SceneFlagsExt_SaveClear(play->sceneNum); // SOH [Unbound] rooms >= 32
 }
 
 void Play_SetRespawnData(PlayState* play, s32 respawnMode, s16 entranceIndex, s32 roomIndex, s32 playerParams,
@@ -2119,7 +2164,7 @@ void Play_SetRespawnData(PlayState* play, s32 respawnMode, s16 entranceIndex, s3
 void Play_SetupRespawnPoint(PlayState* play, s32 respawnMode, s32 playerParams) {
     Player* player = GET_PLAYER(play);
     s32 entranceIndex;
-    s8 roomIndex;
+    s16 roomIndex; // SOH [Unbound]
 
     if ((play->sceneNum != SCENE_FAIRYS_FOUNTAIN) && (play->sceneNum != SCENE_GROTTOS)) {
         roomIndex = play->roomCtx.curRoom.num;
@@ -2181,7 +2226,7 @@ s32 func_800C0D34(PlayState* play, Actor* actor, s16* yaw) {
         return 0;
     }
 
-    transitionActor = &play->transiActorCtx.list[(u16)actor->params >> 10];
+    transitionActor = &play->transiActorCtx.list[TRANSITION_ACTOR_INDEX(actor)];
     frontRoom = transitionActor->sides[0].room;
 
     if (frontRoom == transitionActor->sides[1].room) {

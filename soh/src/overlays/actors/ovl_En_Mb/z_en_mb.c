@@ -351,7 +351,7 @@ void EnMb_FaceWaypoint(EnMb* this, PlayState* play) {
 
 void EnMb_NextWaypoint(EnMb* this, PlayState* play) {
     Path* path;
-    Vec3s* waypointPos;
+    Vec3f* waypointPos; // SOH [Unbound] path points are f32
 
     path = &play->setupPathList[this->path];
 
@@ -362,10 +362,8 @@ void EnMb_NextWaypoint(EnMb* this, PlayState* play) {
     }
 
     this->waypoint += this->direction;
-    waypointPos = (Vec3s*)SEGMENTED_TO_VIRTUAL(path->points) + this->waypoint;
-    this->waypointPos.x = waypointPos->x;
-    this->waypointPos.y = waypointPos->y;
-    this->waypointPos.z = waypointPos->z;
+    waypointPos = (Vec3f*)SEGMENTED_TO_VIRTUAL(path->points) + this->waypoint;
+    this->waypointPos = *waypointPos;
 }
 
 /**
@@ -412,16 +410,14 @@ void EnMb_FindWaypointTowardsPlayer(EnMb* this, PlayState* play) {
     Path* path = &play->setupPathList[this->path];
     s16 yawToWaypoint;
     Vec3f waypointPosF;
-    Vec3s* waypointPosS;
+    Vec3f* waypointPosS; // SOH [Unbound] path points are f32
     s16 yawPlayerToWaypoint;
     s32 i;
     s32 waypoint;
 
     for (waypoint = 0, i = path->count - 1; i >= 0; i--, waypoint++) {
-        waypointPosS = (Vec3s*)SEGMENTED_TO_VIRTUAL(path->points) + waypoint;
-        waypointPosF.x = waypointPosS->x;
-        waypointPosF.y = waypointPosS->y;
-        waypointPosF.z = waypointPosS->z;
+        waypointPosS = (Vec3f*)SEGMENTED_TO_VIRTUAL(path->points) + waypoint;
+        waypointPosF = *waypointPosS;
         yawToWaypoint = Math_Vec3f_Yaw(&this->actor.world.pos, &waypointPosF);
         yawPlayerToWaypoint = yawToWaypoint - this->actor.yawTowardsPlayer;
         if (ABS(yawPlayerToWaypoint) <= 0x1770) {

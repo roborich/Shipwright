@@ -765,7 +765,7 @@ void func_80AEC2C0(EnRu1* this, PlayState* play) {
 }
 
 void func_80AEC320(EnRu1* this, PlayState* play) {
-    s8 actorRoom;
+    s16 actorRoom;
 
     if (!Flags_GetInfTable(INFTABLE_RUTO_IN_JJ_MEET_RUTO)) {
         func_80AEB264(this, &gRutoChildWait2Anim, 0, 0, 0);
@@ -1179,7 +1179,7 @@ void func_80AED414(EnRu1* this, PlayState* play) {
 }
 
 void func_80AED44C(EnRu1* this, PlayState* play) {
-    s8 actorRoom;
+    s16 actorRoom;
 
     if (Flags_GetInfTable(INFTABLE_RUTO_IN_JJ_MEET_RUTO) &&
         GameInteractor_Should(VB_RUTO_BE_CONSIDERED_NOT_KIDNAPPED, !Flags_GetInfTable(INFTABLE_145), this) &&
@@ -1231,7 +1231,7 @@ void func_80AED600(EnRu1* this) {
 }
 
 s32 func_80AED624(EnRu1* this, PlayState* play) {
-    s8 curRoomNum = play->roomCtx.curRoom.num;
+    s16 curRoomNum = play->roomCtx.curRoom.num;
 
     if (this->roomNum2 != curRoomNum) {
         Actor_Kill(&this->actor);
@@ -1247,14 +1247,14 @@ s32 func_80AED624(EnRu1* this, PlayState* play) {
 }
 
 void func_80AED6DC(EnRu1* this, PlayState* play) {
-    s8 curRoomNum = play->roomCtx.curRoom.num;
+    s16 curRoomNum = play->roomCtx.curRoom.num;
 
     this->roomNum2 = curRoomNum;
     this->unk_288 = 0.0f;
 }
 
 void func_80AED6F8(PlayState* play) {
-    s8 curRoomNum;
+    s16 curRoomNum;
 
     if ((!Flags_GetInfTable(INFTABLE_147))) {
         curRoomNum = play->roomCtx.curRoom.num;
@@ -1568,7 +1568,7 @@ s32 func_80AEE394(EnRu1* this, PlayState* play) {
 }
 
 void func_80AEE488(EnRu1* this, PlayState* play) {
-    s8 curRoomNum;
+    s16 curRoomNum;
 
     if (Actor_HasParent(&this->actor, play)) {
         curRoomNum = play->roomCtx.curRoom.num;
@@ -1598,7 +1598,7 @@ void func_80AEE568(EnRu1* this, PlayState* play) {
 
 void func_80AEE628(EnRu1* this, PlayState* play) {
     s32 pad[2];
-    s8 curRoomNum = play->roomCtx.curRoom.num;
+    s16 curRoomNum = play->roomCtx.curRoom.num;
 
     if (EnRu1_IsCsStateIdle(play)) {
         Animation_Change(&this->skelAnime, &gRutoChildSittingAnim, 1.0f, 0,
@@ -1611,7 +1611,7 @@ void func_80AEE628(EnRu1* this, PlayState* play) {
 
 s32 func_80AEE6D0(EnRu1* this, PlayState* play) {
     s32 pad;
-    s8 curRoomNum = play->roomCtx.curRoom.num;
+    s16 curRoomNum = play->roomCtx.curRoom.num;
 
     if (GameInteractor_Should(VB_RUTO_WANT_TO_BE_TOSSED_TO_SAPPHIRE,
                               !Flags_GetInfTable(INFTABLE_RUTO_IN_JJ_WANTS_TO_BE_TOSSED_TO_SAPPHIRE) &&
@@ -2016,7 +2016,7 @@ void func_80AEF820(EnRu1* this, UNK_TYPE arg1) {
 
 void func_80AEF890(EnRu1* this, PlayState* play) {
     s32 pad[2];
-    s8 curRoomNum;
+    s16 curRoomNum;
 
     if ((gSaveContext.sceneSetupIndex < 4) && (EnRu1_IsCsStateIdle(play))) {
         curRoomNum = play->roomCtx.curRoom.num;
@@ -2193,7 +2193,7 @@ void func_80AEFF40(EnRu1* this, PlayState* play) {
 }
 
 void func_80AEFF94(EnRu1* this, PlayState* play) {
-    s8 actorRoom;
+    s16 actorRoom;
 
     if (Flags_GetInfTable(INFTABLE_RUTO_IN_JJ_MEET_RUTO) && Flags_GetInfTable(INFTABLE_140) &&
         GameInteractor_Should(VB_RUTO_BE_CONSIDERED_NOT_KIDNAPPED, !Flags_GetInfTable(INFTABLE_145), this) &&

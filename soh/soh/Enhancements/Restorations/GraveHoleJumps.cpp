@@ -49,8 +49,7 @@ CollisionHeader* getGraveyardCollisionHeader() {
      */
     static SurfaceType newSurfaceTypes[33];
     memcpy(newSurfaceTypes, graveyardColHeader->surfaceTypeList, sizeof(SurfaceType) * surfaceTypesCount);
-    newSurfaceTypes[CUSTOM_SURFACE_TYPE].data[0] = 0x24000004;
-    newSurfaceTypes[CUSTOM_SURFACE_TYPE].data[1] = 0xFC8;
+    newSurfaceTypes[CUSTOM_SURFACE_TYPE] = SurfaceType_Unpack(0x24000004, 0xFC8); // SOH [Unbound] unpacked storage
     graveyardColHeader->surfaceTypeList = newSurfaceTypes;
 
     return graveyardColHeader;
