@@ -16,7 +16,8 @@ static_assert(offsetof(SurfaceType, lightSetting) == offsetof(::SurfaceType, lig
 static_assert(offsetof(WaterBox, room) == offsetof(::WaterBox, room),
               "SOH::WaterBox field order must mirror ::WaterBox");
 // SOH [Unbound] The widened structs too: a mirror that lags a widening reads every field after it as garbage.
-static_assert(sizeof(CollisionPoly) == sizeof(::CollisionPoly) && offsetof(CollisionPoly, dist) == offsetof(::CollisionPoly, dist),
+static_assert(sizeof(CollisionPoly) == sizeof(::CollisionPoly) &&
+                  offsetof(CollisionPoly, dist) == offsetof(::CollisionPoly, dist),
               "SOH::CollisionPoly must mirror ::CollisionPoly");
 static_assert(sizeof(CamData) == sizeof(::CamData), "SOH::CamData must mirror ::CamData");
 static_assert(sizeof(CollisionHeaderData) == sizeof(::CollisionHeader) &&

@@ -8,7 +8,8 @@
 
 namespace SOH {
 // SOH [Unbound] Scene_CommandLightList casts the mirror to ::LightPoint
-static_assert(sizeof(LightPoint) == sizeof(::LightPoint) && offsetof(LightPoint, radius) == offsetof(::LightPoint, radius),
+static_assert(sizeof(LightPoint) == sizeof(::LightPoint) &&
+                  offsetof(LightPoint, radius) == offsetof(::LightPoint, radius),
               "SOH::LightPoint must mirror ::LightPoint");
 std::shared_ptr<Ship::IResource> SetLightListFactory::ReadResource(std::shared_ptr<Ship::ResourceInitData> initData,
                                                                    std::shared_ptr<Ship::BinaryReader> reader) {

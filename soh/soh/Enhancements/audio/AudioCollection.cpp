@@ -404,9 +404,8 @@ uint16_t AudioCollection::GetReplacementSequence(uint16_t seqId) {
         // The field theme circulates as two ids; treat them as one so a song bound over either keeps
         // playing through the morning variant.
         uint16_t resolved = (seqId == NA_BGM_FIELD_MORNING) ? (uint16_t)NA_BGM_FIELD_LOGIC : seqId;
-        uint16_t sceneTheme = (gPlayState->sequenceCtx.seqId == NA_BGM_FIELD_MORNING)
-                                  ? (uint16_t)NA_BGM_FIELD_LOGIC
-                                  : gPlayState->sequenceCtx.seqId;
+        uint16_t sceneTheme = (gPlayState->sequenceCtx.seqId == NA_BGM_FIELD_MORNING) ? (uint16_t)NA_BGM_FIELD_LOGIC
+                                                                                      : gPlayState->sequenceCtx.seqId;
         if (resolved == sceneTheme && sequenceMap.contains(resolved) &&
             (sequenceMap.at(resolved).category & SEQ_BGM_CUSTOM)) {
             return gPlayState->sequenceCtx.unboundSongSeqId;
