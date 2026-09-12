@@ -827,8 +827,20 @@ if(EMSCRIPTEN)
     target_link_options(${PROJECT_NAME} PRIVATE
         "SHELL:--preload-file ${SOH_WASM_ASSET_DIR}/soh.o2r@/soh.o2r"
         -sFORCE_FILESYSTEM=1
-        # The host page writes game files into MEMFS during preRun.
-        "SHELL:-sEXPORTED_RUNTIME_METHODS=FS,callMain,ccall,cwrap"
+        # The host page writes game files into MEMFS during preRun. HEAPU8 lets it read
+        # the wasm heap size (memtrace); Emscripten keeps Module.HEAPU8 current across
+        # memory growth only when it is exported.
+        "SHELL:-sEXPORTED_RUNTIME_METHODS=FS,callMain,ccall,cwrap,HEAPU8"
+        # Keep function names in the wasm so a browser stack trace reads
+        # Menu::Draw rather than $func11146. Costs a name section, nothing at runtime.
+        --profiling-funcs
+        # Binaryen inlines any function that has exactly one caller, whatever its size.
+        # That folded the 35 RegionTable_Init_* area builders into one 3.3 MB
+        # RegionTable_Init, and V8's optimising compiler died on it a few minutes into
+        # every session (the check tracker runs it on each game load). Cap the size of
+        # single-caller functions that get inlined; the biggest ones are table builders
+        # that gain nothing from it.
+        "SHELL:-sBINARYEN_EXTRA_PASSES=--one-caller-inline-max-function-size=1000"
         -sALLOW_MEMORY_GROWTH=1
         -sINITIAL_MEMORY=536870912
         -sSTACK_SIZE=4194304
@@ -885,4 +897,6 @@ if(EMSCRIPTEN)
 
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wasm/index.html
                    ${CMAKE_CURRENT_BINARY_DIR}/index.html COPYONLY)
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wasm/host.html
+                   ${CMAKE_CURRENT_BINARY_DIR}/host.html COPYONLY)
 endif()
