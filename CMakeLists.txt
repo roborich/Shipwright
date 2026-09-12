@@ -152,8 +152,39 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 # Set LUS vars
 ################################################################################
 
+# SOH [WASM] Provision dependencies from source; see CMake/emscripten-deps.cmake.
+if(EMSCRIPTEN)
+    include(CMake/emscripten-deps.cmake)
+
+    # Emscripten ships official ports for these; they must be on the compile line as well
+    # as the link line, since a port supplies its headers too. Applied globally so LUS and
+    # soh agree -- mixing a port header with a host library is a silent-corruption bug.
+    set(SOH_EMSCRIPTEN_PORTS --use-port=sdl2 --use-port=ogg --use-port=vorbis --use-port=zlib)
+    add_compile_options(${SOH_EMSCRIPTEN_PORTS})
+    add_link_options(${SOH_EMSCRIPTEN_PORTS})
+
+    # The decomp and the port layer both throw; without this every throw aborts.
+    add_compile_options(-fwasm-exceptions)
+    add_link_options(-fwasm-exceptions)
+
+    # spdlog's bundled fmt uses consteval in a way this clang rejects. Same workaround the
+    # macOS desktop build needs; harmless, it only relaxes a compile-time format check.
+    add_compile_definitions(FMT_CONSTEVAL=constexpr)
+
+    # LUS renders through its GLES3 path, which is WebGL2. Without this the GLES3 entry
+    # points (glBlitFramebuffer, glReadBuffer, glRenderbufferStorageMultisample) do not
+    # link, since Emscripten defaults to a WebGL1 target.
+    add_link_options(-sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2)
+endif()
+
 # Enable the Gfx debugger in LUS to use libgfxd from ZAPDTR
-set(GFX_DEBUG_DISASSEMBLER ON)
+# SOH [WASM] Off for the first pass: it is a debug aid, and every dependency we do not
+# build is one less thing standing between here and a link.
+if(EMSCRIPTEN)
+    set(GFX_DEBUG_DISASSEMBLER OFF)
+else()
+    set(GFX_DEBUG_DISASSEMBLER ON)
+endif()
 
 # Tell LUS we're using F3DEX_GBI_2 (in a way that doesn't break libgfxd)
 set(GBI_UCODE F3DEX_GBI_2)
@@ -173,13 +204,20 @@ add_compile_definitions(CONTROLLERBUTTONS_T=uint32_t)
 add_subdirectory(libultraship ${CMAKE_BINARY_DIR}/libultraship)
 target_compile_options(libultraship PRIVATE "${WARNING_OVERRIDE}")
 target_compile_definitions(libultraship PUBLIC INCLUDE_MPQ_SUPPORT)
-add_subdirectory(ZAPDTR/ZAPD ${CMAKE_BINARY_DIR}/ZAPD)
-add_subdirectory(OTRExporter)
+# SOH [WASM] ZAPD and OTRExporter are host tools that turn a ROM into .o2r archives. A
+# wasm build consumes the archives someone else already produced, so they are not part of
+# the cross build (see wasm-port.md, "Assets are provided, never extracted").
+if(NOT EMSCRIPTEN)
+    add_subdirectory(ZAPDTR/ZAPD ${CMAKE_BINARY_DIR}/ZAPD)
+    add_subdirectory(OTRExporter)
+endif()
 add_subdirectory(soh)
 
+if(NOT EMSCRIPTEN)
 set_property(TARGET soh PROPERTY APPIMAGE_DESKTOP_FILE_TERMINAL YES)
 set_property(TARGET soh PROPERTY APPIMAGE_DESKTOP_FILE "${CMAKE_SOURCE_DIR}/scripts/linux/appimage/soh.desktop")
 set_property(TARGET soh PROPERTY APPIMAGE_ICON_FILE "${CMAKE_BINARY_DIR}/sohIcon.png")
+endif()
 
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
 install(FILES "${CMAKE_BINARY_DIR}/soh/soh.o2r" DESTINATION . COMPONENT ship)
@@ -194,6 +232,11 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}/soh/assets/xml/" DESTINATION ./assets/xml
 endif()
 
 find_package(Python3 COMPONENTS Interpreter)
+
+# SOH [WASM] The asset-generation targets all shell out to ZAPD, which is not part of the
+# cross build. Generate the .o2r archives with a desktop build and hand them to the wasm
+# build instead.
+if(NOT EMSCRIPTEN)
 
 # Target to generate OTRs
 add_custom_target(
@@ -236,6 +279,8 @@ add_custom_target(
     COMMENT "Generating soh.o2r..."
     DEPENDS ZAPD
 )
+
+endif() # NOT EMSCRIPTEN
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
     find_package(ImageMagick COMPONENTS convert)

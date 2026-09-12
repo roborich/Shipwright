@@ -44,7 +44,8 @@
 #include "Enhancements/custom-message/CustomMessageManager.h"
 #include "util.h"
 
-#if not defined(__SWITCH__) && not defined(__WIIU__)
+// SOH [WASM] Emscripten joins the consoles in not building the ROM extractor.
+#if not defined(__SWITCH__) && not defined(__WIIU__) && not defined(__EMSCRIPTEN__)
 #include "Extractor/Extract.h"
 #endif
 
@@ -388,6 +389,14 @@ extern std::shared_ptr<SohGui::SohMenu> mSohMenu;
 }
 
 void OTRGlobals::RunExtract(int argc, char* argv[]) {
+#ifdef __EMSCRIPTEN__
+    // SOH [WASM] There is no ROM to extract from in a browser tab: oot.o2r and soh.o2r are
+    // mounted into the filesystem before main() runs. Compiling this body out also removes
+    // its `while (!extractDone)` frame-pump, which would hang a browser tab outright -- it
+    // draws popups in a loop that never returns to the event loop, so the click that would
+    // dismiss one could never arrive. See wasm-port.md.
+    return;
+#else
     bool extractDone = false;
     ExtractSteps extractStep = ES_PORT_ARCHIVE;
     WindowsSteps windowsStep = WS_TEMP;
@@ -761,6 +770,7 @@ void OTRGlobals::RunExtract(int argc, char* argv[]) {
 #elif defined(__WIIU__)
     Ship::WiiU::Init(appShortName);
 #endif
+#endif // __EMSCRIPTEN__
 }
 
 void OTRGlobals::Initialize() {
@@ -1445,7 +1455,12 @@ OTRVersion DetectOTRVersion(std::string fileName, bool isMQ) {
 }
 
 extern "C" void Messagebox_ShowErrorBox(char* title, char* body) {
+#ifdef __EMSCRIPTEN__
+    // SOH [WASM] ShowErrorBox lives in the extractor, which is not built here.
+    SPDLOG_ERROR("{}: {}", title, body);
+#else
     Extractor::ShowErrorBox(title, body);
+#endif
 }
 
 bool VerifyArchiveVersion(OTRVersion version) {

@@ -93,7 +93,8 @@ if (NOT TARGET libultraship)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../libultraship ${CMAKE_BINARY_DIR}/libultraship)
 endif()
 
-if (NOT TARGET ZAPDLib)
+# SOH [WASM] ZAPD is a host tool; a wasm build consumes pre-built .o2r archives.
+if (NOT TARGET ZAPDLib AND NOT EMSCRIPTEN)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../ZAPDTR/ZAPD ${CMAKE_BINARY_DIR}/ZAPD)
 endif()
 
@@ -164,7 +165,16 @@ endif()
 # soh/Extractor {{{
 list(FILTER ship__ EXCLUDE REGEX "soh/Extractor/*")
 
-if(NOT CMAKE_SYSTEM_NAME MATCHES "NintendoSwitch|CafeOS")
+# SOH [WASM] The ROM extractor links against ZAPD, which is not in the cross build. The
+# filter above targets `ship__`, a variable that does not exist here, so the Extractor
+# sources still arrive through the recursive `soh__` glob -- exclude them explicitly.
+if(EMSCRIPTEN)
+    list(FILTER soh__ EXCLUDE REGEX "soh/Extractor/")
+endif()
+
+# SOH [WASM] Emscripten joins the consoles in taking headers only: the ROM extractor
+# links against ZAPD, which is not part of the cross build.
+if(NOT CMAKE_SYSTEM_NAME MATCHES "NintendoSwitch|CafeOS" AND NOT EMSCRIPTEN)
     file(GLOB_RECURSE soh__Extractor RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
         "soh/Extractor/*.c"
         "soh/Extractor/*.cpp"
@@ -579,12 +589,14 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
             >
             $<$<COMPILE_LANGUAGE:CXX>:-fpermissive>
             $<$<COMPILE_LANGUAGE:CXX>:-Wno-deprecated-enum-enum-conversion>
-            -pthread
+            # SOH [WASM] -pthread under Emscripten requests a shared-memory build, which
+            # needs SharedArrayBuffer and COOP/COEP. The wasm target is single-threaded.
+            $<$<NOT:$<BOOL:${EMSCRIPTEN}>>:-pthread>
         ${CPU_OPTION}
         )
 
         target_link_options(${PROJECT_NAME} PRIVATE
-            -pthread
+            $<$<NOT:$<BOOL:${EMSCRIPTEN}>>:-pthread>
                 #-fsanitize=address
             -Wl,-export-dynamic
         )
@@ -618,7 +630,8 @@ endif()
 add_dependencies(${PROJECT_NAME}
     libultraship
 )
-if(NOT CMAKE_SYSTEM_NAME MATCHES "NintendoSwitch|CafeOS")
+# SOH [WASM] Emscripten joins the consoles in not building ZAPD.
+if(NOT CMAKE_SYSTEM_NAME MATCHES "NintendoSwitch|CafeOS" AND NOT EMSCRIPTEN)
 add_dependencies(${PROJECT_NAME}
     ZAPDLib
 )
@@ -689,6 +702,14 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "CafeOS")
     )
     target_include_directories(${PROJECT_NAME} PRIVATE
         ${DEVKITPRO}/portlibs/wiiu/include/
+    )
+elseif(EMSCRIPTEN)
+    # SOH [WASM] SDL2, Ogg and Vorbis come from Emscripten ports (requested globally in
+    # the root CMakeLists), so there is nothing to find_package here and no ZAPDLib.
+    # Opus and OpusFile have no Emscripten port; the two functions that use them are
+    # stubbed in soh/mixer.c, which costs custom streamed Opus audio and nothing else.
+    set(ADDITIONAL_LIBRARY_DEPENDENCIES
+        "libultraship;"
     )
 else()
     find_package(SDL2)
