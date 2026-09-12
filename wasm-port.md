@@ -163,7 +163,7 @@ download size.
 The one dependency with no answer: **Opus and OpusFile**, stubbed to silence rather than
 built from source. That costs custom streamed Opus audio and nothing else.
 
-### Milestone 2 — single-threaded shims
+### Milestone 2 — single-threaded shims ✅ DONE (2026-09-11, 04d4691be)
 
 - ~~**Bypass `RunExtract`.**~~ **Done in Milestone 1.** Its body (`OTRGlobals.cpp:391-757`)
   is compiled out under `__EMSCRIPTEN__`, because removing every `Extractor::` reference
@@ -171,15 +171,21 @@ built from source. That costs custom streamed Opus audio and nothing else.
   which would have hung the tab: it draws ImGui popups in a loop that never returns to the
   event loop, so the click to dismiss one could never arrive — and it runs *before*
   `Main()`, so it would have blocked everything else.
-- **Rewrite the audio handshake, don't just move the thread.** `Graph_ProcessGfxCommands`
+- ~~**Rewrite the audio handshake, don't just move the thread.**~~ Done — the update body
+  is split out as `OTRAudio_FillBuffer`, shared by the thread (desktop) and the frame
+  callback (wasm). `Graph_ProcessGfxCommands`
   sets `audio.processing = true` and notifies (`OTRGlobals.cpp:1730-1734`), then blocks at
   the end on `while (audio.processing) audio.cv_from_thread.wait(Lock)`
   (`OTRGlobals.cpp:1780-1785`). With no audio thread this **deadlocks on frame one**.
   Both sites change, not just `OTRAudio_Thread`.
-- `emscripten_set_main_loop` in place of the `while (WindowIsRunning())` loop, with the
-  tick pacing from §1b — guarded by `#ifdef __EMSCRIPTEN__`.
-- Synchronous executors for all four always-on threads in the table above.
-- Skip `SyncFramerateWithTime()` only *together with* installing replacement pacing.
+- ~~`emscripten_set_main_loop`~~ Done. Pacing is **20 callbacks/second via setTimeout**
+  (`emscripten_set_main_loop(cb, 20, 1)`), not rAF: the tick rate is the game's, so this is
+  correct on every display, where rAF would be 3x fast at 60 Hz. Not vsync-aligned — an
+  acceptable trade at 20 fps, revisit if it judders.
+- ~~Synchronous executors for all four always-on threads.~~ Done, plus the two on-demand
+  ones (randomizer generation, streamed-sample decoding), which abort rather than degrade
+  if left alone. Both now block while they work.
+- ~~Skip `SyncFramerateWithTime()`.~~ Done, together with the replacement pacing above.
 - Preload `gamecontrollerdb.txt`: `osContInit`
   (`libultraship/src/libultraship/libultra/os.cpp:14-23`) loads it off disk. Emscripten's
   SDL2 does have a working Gamepad-API joystick backend, so `SDL_Init` succeeds and a
