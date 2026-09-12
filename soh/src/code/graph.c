@@ -536,7 +536,7 @@ static void Graph_EmscriptenFrame(void) {
         emscripten_cancel_main_loop();
         return;
     }
-    RunFrame();
+    Soh_RunFrameGuarded(RunFrame);
 
     // SOH [WASM] R_UPDATE_RATE is the N64's vsync divisor: the game runs at 60/R_UPDATE_RATE
     // Hz and synthesises R_UPDATE_RATE audio buffers per frame, so the two cancel and audio

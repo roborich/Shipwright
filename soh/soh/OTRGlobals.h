@@ -152,6 +152,10 @@ uint8_t Randomizer_GenerateRandomizer();
 void Randomizer_ShowRandomizerMenu();
 GetItemEntry ItemTable_Retrieve(int16_t getItemID);
 GetItemEntry ItemTable_RetrieveEntry(s16 modIndex, s16 getItemID);
+#ifdef __EMSCRIPTEN__
+// SOH [WASM] Runs one frame, logging the message of any exception that escapes it.
+void Soh_RunFrameGuarded(void (*runFrame)(void));
+#endif
 #ifdef SOH_WASM_GUI_ONLY
 // SOH [WASM] Milestone 2b entry point: window + GUI only, no game. Does not return.
 void Soh_RunGuiOnly(void);

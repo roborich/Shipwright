@@ -1535,6 +1535,24 @@ extern "C" void Soh_RunGuiOnly(void) {
 }
 #endif // SOH_WASM_GUI_ONLY
 
+#ifdef __EMSCRIPTEN__
+// SOH [WASM] An exception escaping the frame callback reaches Emscripten's handleException,
+// which calls quit_ and stops the main loop: the tab stays alive, the game freezes, and the
+// console shows only "Uncaught Exception {stack: undefined}" with no message. Name it, so
+// the next one is diagnosable rather than mysterious.
+extern "C" void Soh_RunFrameGuarded(void (*runFrame)(void)) {
+    try {
+        runFrame();
+    } catch (const std::exception& e) {
+        SPDLOG_ERROR("Unhandled exception in frame: {}", e.what());
+        throw;
+    } catch (...) {
+        SPDLOG_ERROR("Unhandled non-standard exception in frame");
+        throw;
+    }
+}
+#endif
+
 extern "C" void InitOTR(int argc, char* argv[]) {
     OTRGlobals::Instance = new OTRGlobals();
     OTRGlobals::Instance->RunExtract(argc, argv);
