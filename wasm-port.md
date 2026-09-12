@@ -216,12 +216,32 @@ Two harmless leftovers seen in the console, noted so they are not re-investigate
 for a favicon, and one `emscripten_set_main_loop_timing: ... a main loop does not exist`
 warning emitted during window setup, before the loop is installed.
 
-### Milestone 3 — boots to title
+### Milestone 3 — boots to title ✅ DONE (2026-09-11, f08107159)
 
 Pre-mount `oot.o2r` **and `soh.o2r`** (the port's own asset archive, still produced by a
 host ZAPD and version-pinned to the build — `OTRGlobals.cpp:300` initializes the
 ResourceManager with `portArchivePath`, and `:322-336` drops fonts on a version mismatch).
 Render through the existing `USE_OPENGLES` path, which Emscripten maps to WebGL2.
+
+**Outcome.** Better than the milestone asked for: it boots past the title into the attract
+demo, loading scenes `0x51` and `0x17` and drawing textured geometry (verified by
+screenshot, not inference — an early flat-gradient frame was a transition fade, not proof
+of rendering). Audio initialises, `InitOTR` completes, no crashes, no WebGL errors.
+
+Two fixes were needed:
+
+- **The `oot.o2r` preload was silently dropped.** CMake de-duplicates repeated identical
+  link-option tokens and `--preload-file` appeared twice, so only the first archive
+  survived. `SHELL:` keeps each flag and its path together.
+- **Browser logging dominated boot time.** One boot emitted 7,670 console lines, 7,479 of
+  them ResourceManager traces; each spdlog call crosses into JS and lands in devtools.
+  Compiling trace/debug out took the same boot to 28 lines. Note this means the "is the
+  synchronous ResourceManager fast enough" question was never really tested before — it is
+  still unanswered, now without the logging confound.
+
+Still slow: first scene load lands ~27s after boot in a `-O0` debug build. Attribution
+between the synchronous loader and the unoptimised build is the open question for
+Milestone 4.
 
 Known rough edges in `libultraship/src/fast/backends/gfx_opengl.cpp`:
 
