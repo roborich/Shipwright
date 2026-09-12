@@ -79,7 +79,9 @@ speed. What matters is what *not* to turn on:
 | `gSettings.VsyncEnabled` | either | Now inert here (see below). Historically, turning it off fast-forwarded the game. |
 
 MSAA and the internal resolution multiplier are the levers with real cost if tuning is ever
-needed; both scale fragment work directly.
+needed; both scale fragment work directly. The multiplier is also how you get a sharper
+picture on a high-DPI display: the canvas deliberately renders at CSS resolution here (see
+below), so supersampling is opt-in rather than automatic.
 
 Note that a config copied from a desktop install carries everything with it, cheats
 included — `gCheats.FreezeTime` in particular will freeze the in-game clock here too.
@@ -93,6 +95,11 @@ included — `gCheats.FreezeTime` in particular will freeze the in-game clock he
   boot is a separate feature, and needs SoH: Unbound's `SceneDB` to resolve a scene by name.
 - **20 fps.** The game's logic tick is 20 Hz and the frame loop yields once per tick. See
   `wasm-port.md` §1.
+- **The canvas renders at CSS resolution, not device resolution.**
+  `SDL_WINDOW_ALLOW_HIGHDPI` is deliberately not requested. With it, SDL sizes the canvas
+  backing store by `devicePixelRatio` while ImGui keeps reporting CSS pixels, and the two
+  get mixed — every internal resolution except 100% rendered at double size and cropped on
+  a 2x display. Raise the internal resolution multiplier for a sharper picture instead.
 - **VSync is inert.** Emscripten's SDL implements the swap interval by retiming the main
   loop, so the setting used to fast-forward the game. Both call sites are now compiled out
   and pacing is owned by `emscripten_set_main_loop`; the toggle does nothing either way.
