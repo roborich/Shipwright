@@ -822,7 +822,18 @@ void OTRGlobals::Initialize() {
                                               CVarGetInteger(CVAR_SETTING("AutoCaptureMouse"), 1));
     context->GetWindow()->SetForceCursorVisibility(CVarGetInteger(CVAR_SETTING("CursorVisibility"), 0));
 
+#ifdef __EMSCRIPTEN__
+    // SOH [WASM] A much deeper buffer than desktop's 1680. Audio is synthesised once per
+    // frame on the single thread (OTRAudio_FillBuffer in Graph_ProcessGfxCommands) rather
+    // than by an audio thread that refills independently, so the buffer has to cover a
+    // whole frame interval plus any spike. At 32 kHz, 1680 samples is 52ms against a 50ms
+    // frame -- around 2ms of headroom, so anything that stalls a frame (the pause screen's
+    // framebuffer capture, a synchronous resource load) is audible. 6400 samples is 200ms,
+    // about four frames of slack.
+    context->InitAudio({ .SampleRate = 32000, .SampleLength = 1024, .DesiredBuffered = 6400 });
+#else
     context->InitAudio({ .SampleRate = 32000, .SampleLength = 1024, .DesiredBuffered = 1680 });
+#endif
 
     SPDLOG_INFO("Starting Ship of Harkinian version {} (Branch: {} | Commit: {})", (char*)gBuildVersion,
                 (char*)gGitBranch, (char*)gGitCommitHash);
