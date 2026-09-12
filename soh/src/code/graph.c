@@ -524,22 +524,37 @@ static void RunFrame() {
 // input, so the game cannot own an infinite loop. RunFrame() is already a resumable state
 // machine (see RunFrameContext above), which makes it usable as a callback directly.
 //
-// The tick rate is the game's, not the display's: logic runs at 20 Hz, and one RunFrame
-// produces one presented frame, so we ask for 20 callbacks per second. That is
-// setTimeout-driven rather than vsync-aligned -- the trade is correct speed on every
-// display, where a requestAnimationFrame tick would run 3x fast on a 60 Hz panel and
-// differently wrong on 120 Hz. See wasm-port.md.
+// The tick rate is the game's, not the display's. It is not constant: the game runs at
+// 60/R_UPDATE_RATE Hz and changes R_UPDATE_RATE per game state, so the callback rate is
+// re-derived after every frame (see below). setTimeout-driven rather than
+// requestAnimationFrame, which would run at the display's rate and desynchronise both the
+// game speed and the audio. See wasm-port.md.
 static void Graph_EmscriptenFrame(void) {
+    static s32 sLastUpdateRate = 0;
+
     if (!WindowIsRunning()) {
         emscripten_cancel_main_loop();
         return;
     }
     RunFrame();
+
+    // SOH [WASM] R_UPDATE_RATE is the N64's vsync divisor: the game runs at 60/R_UPDATE_RATE
+    // Hz and synthesises R_UPDATE_RATE audio buffers per frame, so the two cancel and audio
+    // always comes out at 32 kHz. Game states change it -- 3 while playing, 2 in the pause
+    // menu (z_kaleido_setup.c), 1 on the title and map-select screens -- and a loop pinned
+    // to one rate breaks that cancellation: at a fixed 20 Hz, pausing produced 2/3 of the
+    // samples per second and the music played slow, map select 1/3.
+    if (R_UPDATE_RATE != sLastUpdateRate && R_UPDATE_RATE > 0) {
+        sLastUpdateRate = R_UPDATE_RATE;
+        emscripten_set_main_loop_timing(EM_TIMING_SETTIMEOUT, 1000 / (60 / R_UPDATE_RATE));
+    }
 }
 #endif
 
 void Graph_ThreadEntry(void* arg0) {
 #ifdef __EMSCRIPTEN__
+    // 20 Hz is the R_UPDATE_RATE == 3 case; Graph_EmscriptenFrame re-derives the rate from
+    // R_UPDATE_RATE after each frame, so this is only the starting value.
     // simulate_infinite_loop = 1: unwinds this stack without running destructors, so
     // everything Main() set up stays alive for the callbacks. It does not return.
     emscripten_set_main_loop(Graph_EmscriptenFrame, 20, 1);
