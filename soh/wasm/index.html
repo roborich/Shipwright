@@ -38,6 +38,20 @@
   // the binary, so a host cannot pair a stale port archive with a newer build.
   function writeHostFiles() {
     const files = Module.shipFiles;
+    // A build made with -DSOH_WASM_HOST_FILES=ON carries no game archive, so without
+    // shipFiles the game boots into a black screen with nothing to render. Say so, rather
+    // than leaving the reader to guess.
+    if (!files && !Module.FS.analyzePath('/oot.o2r').exists) {
+      const msg = 'No game archive.\n\n' +
+        'This build expects the page to supply oot.o2r (it was built with\n' +
+        'SOH_WASM_HOST_FILES=ON). Set Module.shipFiles before loading soh.js:\n\n' +
+        "  Module.shipFiles = { '/oot.o2r': bytes };\n\n" +
+        'See soh/wasm/EMBEDDING.md, or host.html for a worked example.';
+      statusEl.style.display = '';
+      statusEl.textContent = msg;
+      console.error(msg);
+      throw new Error('shipFiles: no /oot.o2r provided');
+    }
     if (!files) return;
     for (const [path, bytes] of Object.entries(files)) {
       const dir = path.slice(0, path.lastIndexOf('/'));
