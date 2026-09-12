@@ -32,6 +32,7 @@ Module.shipFiles = {
   '/shipofharkinian.json': bytes,  // optional: config (CVars)
   '/Save/file1.sav':       bytes,  // optional: a save file
   '/Save/global.sav':      bytes,  // optional
+  '/mods/my-scene.o2r':    bytes,  // optional: a mod layer, see below
 };
 ```
 
@@ -46,6 +47,20 @@ Parent directories are created as needed. The files are written during `preRun`,
 `gBuildVersion`; a host supplying it could only pair a stale port archive with a newer
 binary. Leave it alone.
 
+## Mods
+
+Write a mod archive to `/mods/<name>.o2r` and it is loaded at boot, after the game archive,
+so its files win. No extra call and no SoH change: `InitMods()` (during `InitOTR`) scans
+that directory, auto-enables anything it has not seen before, and adds each archive.
+Verified with a real Prelude export passed through `shipFiles`.
+
+Prefer this over merging mod content into `oot.o2r`. Both work — SoH resolves files through
+one flat namespace with last-archive-wins, so a merged file and a stacked layer are
+indistinguishable to the game — but merging means rebuilding and handing over a ~33 MB
+archive on every iteration, where a layer is only the delta.
+
+Load order within `/mods` is the archives' sorted filename order.
+
 ## Paths, and why they look like that
 
 Under Emscripten `Ship::Context::GetAppDirectoryPath()` falls through to `"."`, so the game
@@ -57,10 +72,7 @@ looks for its config and saves at the filesystem root — `./shipofharkinian.jso
 - **Writes do not persist.** The filesystem is in-memory: a save the game writes is gone on
   reload. Handing saves back to the host is not implemented yet; it needs a hook at
   SaveManager's write site.
-- **Mods are not loaded from the VFS.** Putting a mod `.o2r` in `shipFiles` places the bytes
-  but nothing reads them: SoH adds mod archives through the Mod Menu
-  (`soh/soh/Enhancements/mod_menu.cpp`), not by scanning at boot. Loading a host-supplied
-  mod needs a small change here first.
+- Nothing below concerns mods: see "Mods" above — they work as-is.
 - **No boot-to-scene.** The game starts at the title screen. Warping to a named scene at
   boot is a separate feature, and needs SoH: Unbound's `SceneDB` to resolve a scene by name.
 - **20 fps.** The game's logic tick is 20 Hz and the frame loop yields once per tick. See
