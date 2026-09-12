@@ -72,7 +72,6 @@ looks for its config and saves at the filesystem root — `./shipofharkinian.jso
 - **Writes do not persist.** The filesystem is in-memory: a save the game writes is gone on
   reload. Handing saves back to the host is not implemented yet; it needs a hook at
   SaveManager's write site.
-- Nothing below concerns mods: see "Mods" above — they work as-is.
 - **No boot-to-scene.** The game starts at the title screen. Warping to a named scene at
   boot is a separate feature, and needs SoH: Unbound's `SceneDB` to resolve a scene by name.
 - **20 fps.** The game's logic tick is 20 Hz and the frame loop yields once per tick. See
