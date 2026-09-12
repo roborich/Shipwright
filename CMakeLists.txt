@@ -175,6 +175,12 @@ if(EMSCRIPTEN)
     # points (glBlitFramebuffer, glReadBuffer, glRenderbufferStorageMultisample) do not
     # link, since Emscripten defaults to a WebGL1 target.
     add_link_options(-sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2)
+
+    # ...and the GLES3 path has to actually be switched on, or LUS generates desktop GLSL
+    # and every shader fails to compile against the WebGL2 context. IMGUI_IMPL_OPENGL_ES3
+    # is the same fix for ImGui's backend, which otherwise emits "#version 120".
+    set(USE_OPENGLES ON)
+    add_compile_definitions(IMGUI_IMPL_OPENGL_ES3)
 endif()
 
 # Enable the Gfx debugger in LUS to use libgfxd from ZAPDTR

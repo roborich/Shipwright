@@ -152,6 +152,10 @@ uint8_t Randomizer_GenerateRandomizer();
 void Randomizer_ShowRandomizerMenu();
 GetItemEntry ItemTable_Retrieve(int16_t getItemID);
 GetItemEntry ItemTable_RetrieveEntry(s16 modIndex, s16 getItemID);
+#ifdef SOH_WASM_GUI_ONLY
+// SOH [WASM] Milestone 2b entry point: window + GUI only, no game. Does not return.
+void Soh_RunGuiOnly(void);
+#endif
 void EntranceTracker_SetCurrentGrottoID(s16 entranceIndex);
 void EntranceTracker_SetLastEntranceOverride(s16 entranceIndex);
 void Gfx_RegisterBlendedTexture(const char* name, u8* mask, u8* replacement);

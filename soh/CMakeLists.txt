@@ -794,3 +794,43 @@ wut_create_wuhb(${PROJECT_NAME}
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/soh.rpx ${CMAKE_CURRENT_BINARY_DIR}/soh.wuhb DESTINATION . COMPONENT ship)
 
 endif()
+
+################################################################################
+# SOH [WASM] Emscripten packaging
+################################################################################
+if(EMSCRIPTEN)
+    # Where the pre-built .o2r archives live. They are produced by a desktop build
+    # (ZAPD is a host tool), then baked into the module's virtual filesystem at the
+    # paths LocateFileAcrossAppDirs searches. Override to point at your own copies.
+    set(SOH_WASM_ASSET_DIR "${CMAKE_SOURCE_DIR}/build-cmake/soh" CACHE PATH
+        "Directory holding pre-built soh.o2r / oot.o2r for the wasm build")
+
+    option(SOH_WASM_GUI_ONLY "Boot only the window, WebGL2 and ImGui -- no game, no oot.o2r" OFF)
+
+    if(NOT EXISTS "${SOH_WASM_ASSET_DIR}/soh.o2r")
+        message(FATAL_ERROR
+            "soh.o2r not found in ${SOH_WASM_ASSET_DIR}. Build it from a desktop build "
+            "(`make GenerateSohOtr`) and point -DSOH_WASM_ASSET_DIR at it.")
+    endif()
+
+    target_link_options(${PROJECT_NAME} PRIVATE
+        --preload-file "${SOH_WASM_ASSET_DIR}/soh.o2r@/soh.o2r"
+        -sFORCE_FILESYSTEM=1
+        -sALLOW_MEMORY_GROWTH=1
+        -sINITIAL_MEMORY=536870912
+        -sSTACK_SIZE=4194304
+        -sEXIT_RUNTIME=0
+    )
+
+    if(SOH_WASM_GUI_ONLY)
+        target_compile_definitions(${PROJECT_NAME} PRIVATE SOH_WASM_GUI_ONLY)
+    else()
+        # The game needs the asset archive too.
+        target_link_options(${PROJECT_NAME} PRIVATE
+            --preload-file "${SOH_WASM_ASSET_DIR}/oot.o2r@/oot.o2r"
+        )
+    endif()
+
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wasm/index.html
+                   ${CMAKE_CURRENT_BINARY_DIR}/index.html COPYONLY)
+endif()

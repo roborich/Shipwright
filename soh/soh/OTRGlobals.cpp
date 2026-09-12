@@ -49,6 +49,10 @@
 #include "Extractor/Extract.h"
 #endif
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 #include <fast/interpreter.h>
 
 #ifdef __APPLE__
@@ -1478,6 +1482,43 @@ extern "C" void Messagebox_ShowErrorBox(char* title, char* body) {
 bool VerifyArchiveVersion(OTRVersion version) {
     return version.major != INT16_MAX && version.major != gBuildVersionMajor;
 }
+
+#ifdef SOH_WASM_GUI_ONLY
+// SOH [WASM] Milestone 2b: bring up SDL, WebGL2 and ImGui with no game and no oot.o2r, so a
+// failure in the window/render/GUI stack has one cause instead of three. OTRGlobals'
+// constructor alone initialises the resource manager (soh.o2r only), the window and the
+// GUI -- everything below that line is the game. Frame sequence mirrors the one RunExtract
+// used before the game loop existed. See wasm-port.md.
+static void Soh_GuiOnlyFrame(void) {
+    auto wnd = Ship::Context::GetInstance()->GetWindow();
+    if (!WindowIsRunning()) {
+        emscripten_cancel_main_loop();
+        return;
+    }
+
+    wnd->HandleEvents();
+    if (!wnd->IsFrameReady()) {
+        return;
+    }
+
+    auto gui = wnd->GetGui();
+    gui->StartDraw();
+    sohFast3dWindow->StartFrame();
+    sohFast3dWindow->RunGuiOnly();
+    ImGui::Begin("Milestone 2b");
+    ImGui::Text("SDL + WebGL2 + ImGui are up.");
+    ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
+    ImGui::End();
+    gui->EndDraw();
+    sohFast3dWindow->EndFrame();
+}
+
+extern "C" void Soh_RunGuiOnly(void) {
+    OTRGlobals::Instance = new OTRGlobals();
+    SPDLOG_INFO("GUI-only boot: window and GUI are up, entering frame loop");
+    emscripten_set_main_loop(Soh_GuiOnlyFrame, 0, 1);
+}
+#endif // SOH_WASM_GUI_ONLY
 
 extern "C" void InitOTR(int argc, char* argv[]) {
     OTRGlobals::Instance = new OTRGlobals();

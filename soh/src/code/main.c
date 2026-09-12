@@ -60,6 +60,11 @@ int SDL_main(int argc, char* argv[]) {
 int main(int argc, char* argv[]) {
 #endif
     GameConsole_Init();
+#ifdef SOH_WASM_GUI_ONLY
+    // SOH [WASM] Milestone 2b: window/GL/GUI only, no game. Does not return.
+    Soh_RunGuiOnly();
+    return 0;
+#endif
     InitOTR(argc, argv);
     // TODO: Was moved to below InitOTR because it requires window to be setup. But will be late to catch crashes.
     CrashHandlerRegisterCallback(CrashHandler_PrintSohData);
