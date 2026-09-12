@@ -20,10 +20,13 @@ Deliberately narrow, so the port is a port and not a rewrite:
 - **Enhancements and GUI stay compiled in.** See "What not to strip" — removing them is
   more work than keeping them.
 - **Single-threaded.** No pthreads, no SharedArrayBuffer, no COOP/COEP. See below.
-- **20 fps, and that is accepted** (decided 2026-09-11). The game's logic tick is 20 Hz
-  and the frame loop yields only once per tick. Rendering faster needs a second yield
-  point inside the sub-frame loop (§1); it is explicitly **out of scope** — "look at my
-  scene edit" does not need 60 fps.
+- **20 fps during gameplay, and that is accepted** (decided 2026-09-11). Gameplay's logic
+  tick is 20 Hz and the frame loop yields once per tick. Rendering gameplay faster needs a
+  second yield point inside the sub-frame loop (§1); explicitly **out of scope**.
+  **Correction (2026-09-12):** 20 Hz is not global. `R_UPDATE_RATE` is the vsync divisor
+  and the game runs at `60/R_UPDATE_RATE` Hz — 3 while playing, 2 in the pause menu, 1 on
+  the title and map-select screens. The loop now tracks it (§1c); pinning it to 20 Hz made
+  audio play slow in every state but gameplay.
 
 ## What the survey found
 
@@ -58,6 +61,27 @@ Emscripten `SDL_GL_SwapWindow` is a no-op and the canvas presents only when the 
 returns, so N sub-frames per callback display only the last one. Rendering above the game
 tick rate needs a *second* yield point inside that loop, which the state machine does not
 have. **Plan on 20 fps through Milestone 4 and treat 60 fps as its own work item.**
+
+### 1c. The frame rate is not constant — audio depends on it
+
+`R_UPDATE_RATE` is the N64's vsync divisor. The game runs at `60/R_UPDATE_RATE` Hz *and*
+synthesises `R_UPDATE_RATE` audio buffers per frame (`OTRAudio_FillBuffer`), so the two
+cancel and audio always lands at 32 kHz. Game states change it:
+
+| State | `R_UPDATE_RATE` | Rate |
+|---|---|---|
+| Gameplay (`game.c:437`) | 3 | 20 Hz |
+| Pause menu (`z_kaleido_setup.c:60`) | 2 | 30 Hz |
+| Title, map select (`z_title.c:159`, `z_select.c:1896`) | 1 | 60 Hz |
+
+A loop pinned to one rate breaks the cancellation and audio comes out at
+`rate * R_UPDATE_RATE * ~533` samples/sec — at a fixed 20 Hz that is two thirds speed when
+paused and one third in map select. `Graph_EmscriptenFrame` re-derives the callback rate
+from `R_UPDATE_RATE` after every frame.
+
+This also explains a number that was mistaken for the game's own timing for a whole
+session: boot to the first attract-demo scene measured ~24s because the title screen was
+running at a third of its intended rate. Corrected, it is 8.1s.
 
 ### 1b. Frame pacing is not free — this is the trap
 

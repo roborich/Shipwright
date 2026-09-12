@@ -93,8 +93,9 @@ included — `gCheats.FreezeTime` in particular will freeze the in-game clock he
   SaveManager's write site.
 - **No boot-to-scene.** The game starts at the title screen. Warping to a named scene at
   boot is a separate feature, and needs SoH: Unbound's `SceneDB` to resolve a scene by name.
-- **20 fps.** The game's logic tick is 20 Hz and the frame loop yields once per tick. See
-  `wasm-port.md` §1.
+- **20 fps during gameplay**, but not everywhere: the loop follows `R_UPDATE_RATE`, so the
+  pause menu runs at 30 Hz and the title and map-select screens at 60. See `wasm-port.md`
+  §1 and §1c.
 - **The canvas renders at CSS resolution, not device resolution.**
   `SDL_WINDOW_ALLOW_HIGHDPI` is deliberately not requested. With it, SDL sizes the canvas
   backing store by `devicePixelRatio` while ImGui keeps reporting CSS pixels, and the two
