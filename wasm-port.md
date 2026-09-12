@@ -191,12 +191,30 @@ built from source. That costs custom streamed Opus audio and nothing else.
   SDL2 does have a working Gamepad-API joystick backend, so `SDL_Init` succeeds and a
   missing file only logs an error — an annoyance, not a blocker.
 
-### Milestone 2b — boots to an ImGui frame
+### Milestone 2b — boots to an ImGui frame ✅ DONE (2026-09-11, 6ed5b4414)
 
 Before touching the game: stand up SDL + WebGL2 + ImGui alone via
 `Fast3dWindow::RunGuiOnly()` (`libultraship/src/fast/Fast3dWindow.cpp:174`). This isolates
 the window/render/GUI stack from both the game loop and the o2r, so failures in Milestone 3
 have one cause instead of three.
+
+**Outcome.** Verified in headless Chrome: module instantiates, canvas reports a `webgl2`
+context, `soh.o2r` is read out of MEMFS, ImGui draws at a steady frame rate, zero WebGL
+errors. Built with `-DSOH_WASM_GUI_ONLY=ON`; `OTRGlobals`' constructor turned out to be the
+exact seam (resource manager with soh.o2r only, then window, then GUI — everything after is
+game).
+
+**The finding that mattered: `USE_OPENGLES` defaults to OFF**
+(`libultraship/src/CMakeLists.txt:10`), so this build had been compiling LUS's *desktop* GL
+path the whole time, generating desktop GLSL against a WebGL2 context. Every shader failed
+to compile; ImGui reported it first as `#version 120`. The tell was visible back in
+Milestone 1 — `glewInit()` being compiled in — and was misread as a stray platform guard
+rather than the signal that the whole GLES3 path was off. Fixed by setting `USE_OPENGLES`
+for this target plus `IMGUI_IMPL_OPENGL_ES3` for ImGui's backend.
+
+Two harmless leftovers seen in the console, noted so they are not re-investigated: a 404
+for a favicon, and one `emscripten_set_main_loop_timing: ... a main loop does not exist`
+warning emitted during window setup, before the loop is installed.
 
 ### Milestone 3 — boots to title
 
