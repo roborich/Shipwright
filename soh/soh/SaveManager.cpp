@@ -127,7 +127,9 @@ SaveManager::SaveManager() {
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnExitGame>(
         [this](uint32_t fileNum) { ThreadPoolWait(); });
 
+#ifndef __EMSCRIPTEN__
     smThreadPool = std::make_shared<BS::thread_pool>(1);
+#endif // SOH [WASM] no pool: saves run inline, see SaveSection below
 
     for (SaveFileMetaInfo& info : fileMetaInfo) {
         info.valid = false;
@@ -1221,7 +1223,9 @@ void SaveManager::SaveSection(int fileNum, int sectionID, bool threaded) {
     }
     auto saveContext = new SaveContext;
     memcpy(saveContext, &gSaveContext, sizeof(gSaveContext));
-    if (threaded) {
+    // SOH [WASM] smThreadPool is null in a single-threaded build, so saves take the
+    // synchronous path that already exists here. ThreadPoolWait() is already null-guarded.
+    if (threaded && smThreadPool) {
         smThreadPool->detach_task(std::bind(&SaveManager::SaveFileThreaded, this, fileNum, saveContext, sectionID));
     } else {
         SaveFileThreaded(fileNum, saveContext, sectionID);

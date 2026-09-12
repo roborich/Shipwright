@@ -10,6 +10,10 @@
 #include "soh/OTRGlobals.h"
 #include "libultraship/bridge.h"
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 #define GFXPOOL_HEAD_MAGIC 0x1234
 #define GFXPOOL_TAIL_MAGIC 0x5678
 
@@ -515,10 +519,35 @@ static void RunFrame() {
     exit(0);
 }
 
+#ifdef __EMSCRIPTEN__
+// SOH [WASM] A browser tab must return to its event loop to draw anything or receive
+// input, so the game cannot own an infinite loop. RunFrame() is already a resumable state
+// machine (see RunFrameContext above), which makes it usable as a callback directly.
+//
+// The tick rate is the game's, not the display's: logic runs at 20 Hz, and one RunFrame
+// produces one presented frame, so we ask for 20 callbacks per second. That is
+// setTimeout-driven rather than vsync-aligned -- the trade is correct speed on every
+// display, where a requestAnimationFrame tick would run 3x fast on a 60 Hz panel and
+// differently wrong on 120 Hz. See wasm-port.md.
+static void Graph_EmscriptenFrame(void) {
+    if (!WindowIsRunning()) {
+        emscripten_cancel_main_loop();
+        return;
+    }
+    RunFrame();
+}
+#endif
+
 void Graph_ThreadEntry(void* arg0) {
+#ifdef __EMSCRIPTEN__
+    // simulate_infinite_loop = 1: unwinds this stack without running destructors, so
+    // everything Main() set up stays alive for the callbacks. It does not return.
+    emscripten_set_main_loop(Graph_EmscriptenFrame, 20, 1);
+#else
     while (WindowIsRunning()) {
         RunFrame();
     }
+#endif
 }
 
 void* Graph_Alloc(GraphicsContext* gfxCtx, size_t size) {

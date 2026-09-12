@@ -1015,19 +1015,10 @@ extern "C" int AudioPlayer_Buffered(void);
 extern "C" int AudioPlayer_GetDesiredBuffered(void);
 std::unordered_map<std::string, ExtensionEntry> ExtensionCache;
 
-void OTRAudio_Thread() {
-    while (audio.running) {
-        {
-            std::unique_lock<std::mutex> Lock(audio.mutex);
-            while (!audio.processing && audio.running) {
-                audio.cv_to_thread.wait(Lock);
-            }
-
-            if (!audio.running) {
-                break;
-            }
-        }
-        std::unique_lock<std::mutex> Lock(audio.mutex);
+// SOH [WASM] The body of one audio update, lifted out of the thread loop so the wasm build
+// can call it straight from the frame callback. Desktop still runs it on the audio thread;
+// see OTRAudio_Thread below.
+static void OTRAudio_FillBuffer() {
 // AudioMgr_ThreadEntry(&gAudioMgr);
 //  528 and 544 relate to 60 fps at 32 kHz 32000/60 = 533.333..
 //  in an ideal world, one third of the calls should use num_samples=544 and two thirds num_samples=528
@@ -1047,8 +1038,25 @@ void OTRAudio_Thread() {
                                            num_audio_samples);
         }
 
-        AudioPlayer_Play((u8*)audio_buffer,
-                         num_audio_samples * (sizeof(int16_t) * NUM_AUDIO_CHANNELS * AUDIO_FRAMES_PER_UPDATE));
+    AudioPlayer_Play((u8*)audio_buffer,
+                     num_audio_samples * (sizeof(int16_t) * NUM_AUDIO_CHANNELS * AUDIO_FRAMES_PER_UPDATE));
+}
+
+void OTRAudio_Thread() {
+    while (audio.running) {
+        {
+            std::unique_lock<std::mutex> Lock(audio.mutex);
+            while (!audio.processing && audio.running) {
+                audio.cv_to_thread.wait(Lock);
+            }
+
+            if (!audio.running) {
+                break;
+            }
+        }
+        std::unique_lock<std::mutex> Lock(audio.mutex);
+
+        OTRAudio_FillBuffer();
 
         audio.processing = false;
         audio.cv_from_thread.notify_one();
@@ -1062,7 +1070,9 @@ extern "C" void OTRAudio_Init() {
 
     if (!audio.running) {
         audio.running = true;
+#ifndef __EMSCRIPTEN__
         audio.thread = std::thread(OTRAudio_Thread);
+#endif
     }
 }
 
@@ -1080,8 +1090,10 @@ extern "C" void OTRAudio_Exit() {
     }
     audio.cv_to_thread.notify_all();
 
+#ifndef __EMSCRIPTEN__
     // Wait until the audio thread quit
     audio.thread.join();
+#endif
 #if 0
     for (size_t i = 0; i < sequenceMapSize; i++) {
         free(sequenceMap[i]);
@@ -1741,12 +1753,18 @@ void RunCommands(Gfx* Commands, const std::vector<std::unordered_map<Mtx*, MtxF>
 
 // C->C++ Bridge
 extern "C" void Graph_ProcessGfxCommands(Gfx* commands) {
+#ifdef __EMSCRIPTEN__
+    // SOH [WASM] Single-threaded: synthesise this update's audio inline. The handshake
+    // below would otherwise block forever on an audio thread that is never started.
+    OTRAudio_FillBuffer();
+#else
     {
         std::unique_lock<std::mutex> Lock(audio.mutex);
         audio.processing = true;
     }
 
     audio.cv_to_thread.notify_one();
+#endif
     std::vector<std::unordered_map<Mtx*, MtxF>> mtx_replacements;
     int target_fps = OTRGlobals::Instance->GetInterpolationFPS();
     static int last_fps;
@@ -1793,12 +1811,14 @@ extern "C" void Graph_ProcessGfxCommands(Gfx* commands) {
     last_fps = fps;
     last_update_rate = R_UPDATE_RATE;
 
+#ifndef __EMSCRIPTEN__
     {
         std::unique_lock<std::mutex> Lock(audio.mutex);
         while (audio.processing) {
             audio.cv_from_thread.wait(Lock);
         }
     }
+#endif
 
     bool curAltAssets = CVarGetInteger(CVAR_SETTING("AltAssets"), 1);
     if (prevAltAssets != curAltAssets) {

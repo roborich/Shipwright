@@ -3456,6 +3456,14 @@ RandomizerCheck Randomizer::GetCheckFromRandomizerInf(RandomizerInf randomizerIn
 
 std::thread randoThread;
 
+// SOH [WASM] `generated` is set by GenerateRandomizerImgui whether it ran on randoThread or
+// inline, so the flag alone no longer implies there is a thread to join.
+static void JoinRandoThread() {
+    if (randoThread.joinable()) {
+        randoThread.join();
+    }
+}
+
 void GenerateRandomizerImgui(std::string seed = "") {
     CVarSetInteger(CVAR_GENERAL("RandoGenerating"), 1);
     Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
@@ -3506,10 +3514,18 @@ void GenerateRandomizerImgui(std::string seed = "") {
 bool GenerateRandomizer(std::string seed /*= ""*/) {
     if (generated) {
         generated = 0;
-        randoThread.join();
+        JoinRandoThread();
     }
     if (CVarGetInteger(CVAR_GENERAL("RandoGenerating"), 0) == 0) {
+#ifdef __EMSCRIPTEN__
+        // SOH [WASM] Single-threaded: generate inline. This blocks the browser tab until
+        // the seed is done, where desktop keeps drawing a progress UI -- but blocking beats
+        // the alternative, since constructing a std::thread aborts in a build without
+        // pthreads.
+        GenerateRandomizerImgui(seed);
+#else
         randoThread = std::thread(&GenerateRandomizerImgui, seed);
+#endif
 
         return true;
     }
@@ -3522,7 +3538,7 @@ static bool tricksTabOpen = false;
 void JoinRandoGenerationThread() {
     if (generated) {
         generated = 0;
-        randoThread.join();
+        JoinRandoThread();
     }
 }
 
