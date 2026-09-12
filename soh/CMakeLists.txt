@@ -825,6 +825,37 @@ if(EMSCRIPTEN)
         -sEXIT_RUNTIME=0
     )
 
+    # A profile directory (config + saves) baked into the VFS. Under Emscripten
+    # Context::GetAppDirectoryPath() falls through to ".", so SoH looks for
+    # ./shipofharkinian.json and ./Save/*.sav at the filesystem root.
+    #
+    # This is a stopgap: MEMFS is in-memory, so anything the game writes is lost on
+    # reload. Real persistence means IDBFS + syncfs, or handing these to Prelude along
+    # with the archives. Files are staged into the build tree first because
+    # --preload-file cannot cope with spaces in a source path.
+    set(SOH_WASM_PROFILE_DIR "" CACHE PATH
+        "Optional directory holding shipofharkinian.json and Save/ to bake into the wasm VFS")
+
+    if(SOH_WASM_PROFILE_DIR AND EXISTS "${SOH_WASM_PROFILE_DIR}/shipofharkinian.json")
+        set(_soh_wasm_profile "${CMAKE_CURRENT_BINARY_DIR}/wasm-profile")
+        file(REMOVE_RECURSE "${_soh_wasm_profile}")
+        file(MAKE_DIRECTORY "${_soh_wasm_profile}")
+        file(COPY "${SOH_WASM_PROFILE_DIR}/shipofharkinian.json" DESTINATION "${_soh_wasm_profile}")
+        if(EXISTS "${SOH_WASM_PROFILE_DIR}/Save")
+            file(COPY "${SOH_WASM_PROFILE_DIR}/Save" DESTINATION "${_soh_wasm_profile}"
+                 FILES_MATCHING PATTERN "*.sav")
+        endif()
+        target_link_options(${PROJECT_NAME} PRIVATE
+            "SHELL:--preload-file ${_soh_wasm_profile}/shipofharkinian.json@/shipofharkinian.json"
+        )
+        if(EXISTS "${_soh_wasm_profile}/Save")
+            target_link_options(${PROJECT_NAME} PRIVATE
+                "SHELL:--preload-file ${_soh_wasm_profile}/Save@/Save"
+            )
+        endif()
+        message(STATUS "WASM profile baked in from ${SOH_WASM_PROFILE_DIR}")
+    endif()
+
     if(SOH_WASM_GUI_ONLY)
         target_compile_definitions(${PROJECT_NAME} PRIVATE SOH_WASM_GUI_ONLY)
     else()
