@@ -18,10 +18,39 @@
 <div id="status">loading…</div>
 <script>
   const statusEl = document.getElementById('status');
+
+  // --- Host file contract -------------------------------------------------------------
+  // The game reads its files from a plain in-memory filesystem; it has no knowledge of
+  // IndexedDB, the network, or whoever is embedding it. A host supplies them as bytes:
+  //
+  //   Module.shipFiles = {
+  //     '/oot.o2r':              Uint8Array,   // the game archive
+  //     '/shipofharkinian.json': Uint8Array,   // config (optional)
+  //     '/Save/file1.sav':       Uint8Array,   // a save file (optional)
+  //   };
+  //
+  // Set it before soh.js loads. Paths are absolute; parent directories are created as
+  // needed. An embedder (Prelude of Light) can therefore hand over an archive it already
+  // holds without a copy or a download, and this build stays agnostic about where the
+  // bytes came from.
+  //
+  // soh.o2r is NOT in this list on purpose: it ships inside the module, version-locked to
+  // the binary, so a host cannot pair a stale port archive with a newer build.
+  function writeHostFiles() {
+    const files = Module.shipFiles;
+    if (!files) return;
+    for (const [path, bytes] of Object.entries(files)) {
+      const dir = path.slice(0, path.lastIndexOf('/'));
+      if (dir) Module.FS.mkdirTree(dir);
+      Module.FS.writeFile(path, bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes));
+    }
+    console.log(`shipFiles: wrote ${Object.keys(files).length} file(s) into the VFS`);
+  }
+
   var Module = {
     canvas: document.getElementById('canvas'),
     // Keyboard input only reaches SDL when the canvas has focus.
-    preRun: [() => { Module.canvas.focus(); }],
+    preRun: [() => { Module.canvas.focus(); }, writeHostFiles],
     setStatus: (text) => { statusEl.textContent = text; if (!text) statusEl.style.display = 'none'; },
     print: (...args) => console.log(...args),
     printErr: (...args) => console.error(...args),

@@ -807,6 +807,14 @@ if(EMSCRIPTEN)
 
     option(SOH_WASM_GUI_ONLY "Boot only the window, WebGL2 and ImGui -- no game, no oot.o2r" OFF)
 
+    # When ON, oot.o2r / config / saves are NOT baked into the module. The host page
+    # supplies them as bytes instead (Module.shipFiles; see soh/wasm/index.html), which is
+    # how an embedder such as Prelude of Light hands over an archive it already holds
+    # without a second copy or a download. soh.o2r stays baked in either way: it is built
+    # from this repo and version-checked against gBuildVersion, so letting a host supply it
+    # only invites version-mismatch bugs.
+    option(SOH_WASM_HOST_FILES "Take oot.o2r, config and saves from the host page at boot" OFF)
+
     if(NOT EXISTS "${SOH_WASM_ASSET_DIR}/soh.o2r")
         message(FATAL_ERROR
             "soh.o2r not found in ${SOH_WASM_ASSET_DIR}. Build it from a desktop build "
@@ -819,6 +827,8 @@ if(EMSCRIPTEN)
     target_link_options(${PROJECT_NAME} PRIVATE
         "SHELL:--preload-file ${SOH_WASM_ASSET_DIR}/soh.o2r@/soh.o2r"
         -sFORCE_FILESYSTEM=1
+        # The host page writes game files into MEMFS during preRun.
+        "SHELL:-sEXPORTED_RUNTIME_METHODS=FS,callMain,ccall,cwrap"
         -sALLOW_MEMORY_GROWTH=1
         -sINITIAL_MEMORY=536870912
         -sSTACK_SIZE=4194304
@@ -836,7 +846,7 @@ if(EMSCRIPTEN)
     set(SOH_WASM_PROFILE_DIR "" CACHE PATH
         "Optional directory holding shipofharkinian.json and Save/ to bake into the wasm VFS")
 
-    if(SOH_WASM_PROFILE_DIR AND EXISTS "${SOH_WASM_PROFILE_DIR}/shipofharkinian.json")
+    if(SOH_WASM_PROFILE_DIR AND NOT SOH_WASM_HOST_FILES AND EXISTS "${SOH_WASM_PROFILE_DIR}/shipofharkinian.json")
         set(_soh_wasm_profile "${CMAKE_CURRENT_BINARY_DIR}/wasm-profile")
         file(REMOVE_RECURSE "${_soh_wasm_profile}")
         file(MAKE_DIRECTORY "${_soh_wasm_profile}")
@@ -858,6 +868,9 @@ if(EMSCRIPTEN)
 
     if(SOH_WASM_GUI_ONLY)
         target_compile_definitions(${PROJECT_NAME} PRIVATE SOH_WASM_GUI_ONLY)
+    elseif(SOH_WASM_HOST_FILES)
+        # Nothing to bake: the host page writes the game archive into the VFS at boot.
+        message(STATUS "WASM: oot.o2r, config and saves come from the host page")
     else()
         # The game needs the asset archive too.
         if(NOT EXISTS "${SOH_WASM_ASSET_DIR}/oot.o2r")

@@ -1,0 +1,49 @@
+<!doctype html>
+<!-- Stand-in for an embedder such as Prelude of Light: it obtains the game files by
+     whatever means it likes (here, fetch; there, its own IndexedDB) and hands them to the
+     module as bytes. The module is told nothing about where they came from. -->
+<html lang="en">
+<head><meta charset="utf-8"><title>SoH — host-supplied files</title>
+<style>
+  html,body{margin:0;height:100%;background:#1a1a1a;color:#ddd;font:13px ui-monospace,Menlo,monospace}
+  #canvas{display:block;width:100vw;height:100vh;border:0;outline:none}
+  #status{position:fixed;left:8px;top:8px;white-space:pre;text-shadow:0 1px 2px #000}
+</style></head>
+<body>
+<canvas id="canvas" tabindex="-1" oncontextmenu="event.preventDefault()"></canvas>
+<div id="status">fetching host files…</div>
+<script>
+const statusEl = document.getElementById('status');
+function writeHostFiles() {
+  const files = Module.shipFiles;
+  if (!files) return;
+  for (const [path, bytes] of Object.entries(files)) {
+    const dir = path.slice(0, path.lastIndexOf('/'));
+    if (dir) Module.FS.mkdirTree(dir);
+    Module.FS.writeFile(path, new Uint8Array(bytes));
+  }
+  console.log(`shipFiles: wrote ${Object.keys(files).length} file(s) into the VFS`);
+}
+var Module = {
+  canvas: document.getElementById('canvas'),
+  preRun: [() => { Module.canvas.focus(); }, writeHostFiles],
+  setStatus: t => { statusEl.textContent = t; if (!t) statusEl.style.display = 'none'; },
+  print: (...a) => console.log(...a),
+  printErr: (...a) => console.error(...a),
+  onAbort: w => { statusEl.style.display=''; statusEl.textContent = 'aborted: ' + w; },
+};
+(async () => {
+  const get = async p => new Uint8Array(await (await fetch(p)).arrayBuffer());
+  Module.shipFiles = {
+    '/oot.o2r':              await get('hostfiles/oot.o2r'),
+    '/shipofharkinian.json': await get('hostfiles/shipofharkinian.json'),
+    '/Save/file1.sav':       await get('hostfiles/Save/file1.sav'),
+    '/Save/global.sav':      await get('hostfiles/Save/global.sav'),
+  };
+  console.log('host: fetched files, loading module');
+  const s = document.createElement('script');
+  s.src = 'soh.js';
+  document.body.appendChild(s);
+})();
+</script>
+</body></html>
