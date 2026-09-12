@@ -813,8 +813,11 @@ if(EMSCRIPTEN)
             "(`make GenerateSohOtr`) and point -DSOH_WASM_ASSET_DIR at it.")
     endif()
 
+    # SHELL: keeps each --preload-file and its path together as one unit. Without it CMake
+    # de-duplicates the repeated `--preload-file` token and silently drops all but the first
+    # archive.
     target_link_options(${PROJECT_NAME} PRIVATE
-        --preload-file "${SOH_WASM_ASSET_DIR}/soh.o2r@/soh.o2r"
+        "SHELL:--preload-file ${SOH_WASM_ASSET_DIR}/soh.o2r@/soh.o2r"
         -sFORCE_FILESYSTEM=1
         -sALLOW_MEMORY_GROWTH=1
         -sINITIAL_MEMORY=536870912
@@ -826,8 +829,13 @@ if(EMSCRIPTEN)
         target_compile_definitions(${PROJECT_NAME} PRIVATE SOH_WASM_GUI_ONLY)
     else()
         # The game needs the asset archive too.
+        if(NOT EXISTS "${SOH_WASM_ASSET_DIR}/oot.o2r")
+            message(FATAL_ERROR
+                "oot.o2r not found in ${SOH_WASM_ASSET_DIR}. Extract it with a desktop "
+                "build, or configure with -DSOH_WASM_GUI_ONLY=ON to boot without the game.")
+        endif()
         target_link_options(${PROJECT_NAME} PRIVATE
-            --preload-file "${SOH_WASM_ASSET_DIR}/oot.o2r@/oot.o2r"
+            "SHELL:--preload-file ${SOH_WASM_ASSET_DIR}/oot.o2r@/oot.o2r"
         )
     endif()
 

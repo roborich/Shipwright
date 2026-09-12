@@ -167,6 +167,12 @@ if(EMSCRIPTEN)
     add_compile_options(-fwasm-exceptions)
     add_link_options(-fwasm-exceptions)
 
+    # Trace/debug logging is compiled out. Every spdlog call in a browser crosses into JS
+    # and lands in the devtools console, which costs orders of magnitude more than writing
+    # a line to a terminal -- resource loading alone emitted ~7,500 trace lines during one
+    # boot. This is a performance fix, not a tidiness one.
+    set(SPDLOG_MIN_CUTOFF SPDLOG_LEVEL_INFO CACHE STRING "cutoff at info" FORCE)
+
     # spdlog's bundled fmt uses consteval in a way this clang rejects. Same workaround the
     # macOS desktop build needs; harmless, it only relaxes a compile-time format check.
     add_compile_definitions(FMT_CONSTEVAL=constexpr)

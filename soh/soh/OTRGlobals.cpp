@@ -793,7 +793,11 @@ void OTRGlobals::Initialize() {
         OOT_NTSC_JP_GC, OOT_NTSC_US_GC, OOT_PAL_GC,     OOT_PAL_GC_DBG1,   OOT_PAL_GC_DBG2,
     };
 
-#if (_DEBUG)
+#if defined(__EMSCRIPTEN__)
+    // SOH [WASM] Info even in a debug build: see the SPDLOG_MIN_CUTOFF note in the root
+    // CMakeLists. Browser console output is expensive enough to dominate boot time.
+    auto defaultLogLevel = spdlog::level::info;
+#elif (_DEBUG)
     auto defaultLogLevel = spdlog::level::trace;
 #else
     auto defaultLogLevel = spdlog::level::info;
