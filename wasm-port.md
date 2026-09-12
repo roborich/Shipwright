@@ -103,7 +103,7 @@ Four are always created, two more on demand. Under Emscripten without `-pthread`
 
 ## The work
 
-### Milestone 1 — compiles and links
+### Milestone 1 — compiles and links ✅ DONE (2026-09-11, 8354f68a2)
 
 - Add an `Emscripten` arm to the ~12 scattered `if(CMAKE_SYSTEM_NAME …)` blocks in
   `CMakeLists.txt` (lines 83-294) and `soh/CMakeLists.txt`.
@@ -137,17 +137,40 @@ Four are always created, two more on demand. Under Emscripten without `-pthread`
     just a CMake filter.
 - `INITIAL_MEMORY` / `ALLOW_MEMORY_GROWTH` sized for game + decoded o2r cache.
 
-Expect this milestone to be a long tail of link errors and to consume most of the
-calendar time.
+**Outcome.** `soh.js` + `soh.wasm` build from the full decomp and port layer with
+Emscripten 6.0.9. The predicted long tail of link errors did not materialise: the decomp
+translated to wasm without a single source change, and the only source edits needed at all
+were the two amputations below. Everything else was build plumbing.
+
+What actually had to change, beyond the plan above:
+
+- `-pthread` was being added unconditionally in the final `else()` of the platform chain
+  (`soh/CMakeLists.txt:587`), which under Emscripten requests a **shared-memory** build —
+  the SharedArrayBuffer/COOP-COEP dependency this target exists to avoid. Now excluded.
+- `-sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2`, or the GLES3 entry points do not resolve.
+- `FMT_CONSTEVAL=constexpr` for spdlog's bundled fmt (the macOS desktop build needs the
+  same workaround).
+- The `glewInit()` guard, as predicted.
+- libzip linked `PUBLIC` rather than `PRIVATE` in LUS: the public header `O2rArchive.h`
+  includes `<zip.h>`, which desktop builds get for free from a system include dir.
+- `RunExtract`'s body compiled out (see Milestone 2 — this arrived early, because removing
+  every `Extractor::` reference was the only way to link).
+
+Caveat on artifact size: the Debug build's `soh.wasm` is **626 MB**, almost entirely DWARF.
+A release build has not been measured yet and needs to be before any judgement about
+download size.
+
+The one dependency with no answer: **Opus and OpusFile**, stubbed to silence rather than
+built from source. That costs custom streamed Opus audio and nothing else.
 
 ### Milestone 2 — single-threaded shims
 
-- **Bypass `RunExtract`.** `OTRGlobals.cpp:391-757` is a synchronous frame-pumping loop
-  (`while (!extractDone)` at `:453`, with `goto render`) that draws ImGui frames while
-  ROM-extraction popups are queued, and spins up its own `BS::thread_pool(1)` at `:446`.
-  A loop that never returns to the event loop never receives the click that would dismiss
-  the popup — the tab just freezes. Must be bypassed or made resumable, and it runs
-  *before* `Main()`, so it blocks everything else.
+- ~~**Bypass `RunExtract`.**~~ **Done in Milestone 1.** Its body (`OTRGlobals.cpp:391-757`)
+  is compiled out under `__EMSCRIPTEN__`, because removing every `Extractor::` reference
+  was the only way to link. That also disposes of its `while (!extractDone)` frame-pump,
+  which would have hung the tab: it draws ImGui popups in a loop that never returns to the
+  event loop, so the click to dismiss one could never arrive — and it runs *before*
+  `Main()`, so it would have blocked everything else.
 - **Rewrite the audio handshake, don't just move the thread.** `Graph_ProcessGfxCommands`
   sets `audio.processing = true` and notifies (`OTRGlobals.cpp:1730-1734`), then blocks at
   the end on `while (audio.processing) audio.cv_from_thread.wait(Lock)`
