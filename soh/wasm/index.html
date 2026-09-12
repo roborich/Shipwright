@@ -19,6 +19,55 @@
 <script>
   const statusEl = document.getElementById('status');
 
+  // --- Memory trace ---------------------------------------------------------------------
+  // A renderer crash ("Aw, Snap") takes the console with it, so samples are kept in
+  // localStorage and reported on the next load. The wasm heap can grow to 2GB by default
+  // (Emscripten's MAXIMUM_MEMORY); an allocation past that aborts the module. Enable with
+  // ?memtrace, read the previous run's trail from the console after a crash.
+  const MEMTRACE = new URLSearchParams(location.search).has('memtrace');
+  const TRACE_KEY = 'soh-memtrace';       // the run in progress
+  const PREV_KEY  = 'soh-memtrace-prev';  // the last finished/crashed run, kept for reading
+  if (MEMTRACE) {
+    // The finished run is moved to its own key rather than deleted, so it survives any
+    // number of reloads and can be read back by hand at any time:
+    //   JSON.parse(localStorage.getItem('soh-memtrace-prev'))
+    // Only the next run with ?memtrace overwrites it.
+    try {
+      const live = localStorage.getItem(TRACE_KEY);
+      if (live) localStorage.setItem(PREV_KEY, live);
+      localStorage.removeItem(TRACE_KEY);
+      const prev = JSON.parse(localStorage.getItem(PREV_KEY) || '[]');
+      if (prev.length) {
+        const last = prev[prev.length - 1];
+        const peak = prev.reduce((m, s) => Math.max(m, s.heapMB), 0);
+        console.warn(`memtrace: previous run ran ${last.t}s, ended at ${last.heapMB} MB, ` +
+                     `peak ${peak} MB (cap 2048). Trail:`);
+        console.table(prev);
+      } else {
+        console.warn('memtrace: no previous run recorded.');
+      }
+    } catch (e) { /* private mode, blocked storage: tracing is optional */ }
+
+    const started = Date.now();
+    const trail = [];
+    setInterval(() => {
+      const heap = Module.HEAPU8 ? Module.HEAPU8.buffer.byteLength : 0;
+      if (!heap) return;
+      const sample = {
+        t: Math.round((Date.now() - started) / 1000),
+        heapMB: Math.round(heap / 1048576),
+        jsMB: performance.memory ? Math.round(performance.memory.usedJSHeapSize / 1048576) : null,
+      };
+      trail.push(sample);
+      if (trail.length > 600) trail.shift();   // ~10 min at 1Hz
+      statusEl.style.display = '';
+      statusEl.textContent = `wasm heap ${sample.heapMB} MB` +
+        (sample.jsMB !== null ? `   js ${sample.jsMB} MB` : '') +
+        `   (cap 2048 MB)`;
+      try { localStorage.setItem(TRACE_KEY, JSON.stringify(trail)); } catch (e) {}
+    }, 1000);
+  }
+
   // --- Host file contract -------------------------------------------------------------
   // The game reads its files from a plain in-memory filesystem; it has no knowledge of
   // IndexedDB, the network, or whoever is embedding it. A host supplies them as bytes:
