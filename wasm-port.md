@@ -20,8 +20,10 @@ Deliberately narrow, so the port is a port and not a rewrite:
 - **Enhancements and GUI stay compiled in.** See "What not to strip" — removing them is
   more work than keeping them.
 - **Single-threaded.** No pthreads, no SharedArrayBuffer, no COOP/COEP. See below.
-- **20 fps, initially.** The game's logic tick is 20 Hz and the frame loop yields only
-  once per tick; rendering faster is a separate work item (§1).
+- **20 fps, and that is accepted** (decided 2026-09-11). The game's logic tick is 20 Hz
+  and the frame loop yields only once per tick. Rendering faster needs a second yield
+  point inside the sub-frame loop (§1); it is explicitly **out of scope** — "look at my
+  scene edit" does not need 60 fps.
 
 ## What the survey found
 
@@ -256,9 +258,6 @@ true), and setjmp/longjmp (none in the tree).
 
 ## Open questions
 
-- **Is 20 fps acceptable for Prelude's use case?** This decides whether the second
-  `RunFrame` yield point (§1) is in scope at all. For "look at my scene edit", probably
-  yes.
 - Is `-fwasm-exceptions` acceptable for the target browsers?
 - Memory ceiling. wasm32 caps at 4 GB and `-sMAXIMUM_MEMORY=4GB` works in current desktop
   browsers, but Safari and iOS are tighter. The ">512 MB" figure is still unmeasured.
