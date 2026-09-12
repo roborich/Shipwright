@@ -359,6 +359,21 @@ not UI surface area.
   `SDL_QueueAudio` and crackles. WebAudio contexts also start suspended until a user
   gesture — verify SDL's Emscripten backend resumes on first input, or add JS glue.
 
+- **Chrome kills the tab a few minutes into a session (found 2026-09-12).** "Aw, Snap",
+  renderer process, `EXC_BREAKPOINT` on a `ThreadPoolForegroundWorker` — the crashing
+  thread is V8's background TurboFan tier-up compiling one function, and the dump names it
+  (`wasm-function#5858` = `RegionTable_Init()`). Binaryen inlines any function that has a
+  single caller regardless of size, which folded the 35 `RegionTable_Init_*` area
+  builders into one 3.3 MB function; TurboFan cannot compile it and the check tracker runs
+  it on every game load, vanilla included. Reproduces in seconds with
+  `--js-flags="--no-wasm-dynamic-tiering --no-wasm-lazy-compilation"` (eager tier-up).
+  Fixed by capping single-caller inlining in the link
+  (`-sBINARYEN_EXTRA_PASSES=--one-caller-inline-max-function-size=1000`). Memory was not
+  involved: a 10-minute gameplay soak held the wasm heap at 512 MB and the JS heap at
+  ~10 MB. Chrome's minidumps in
+  `~/Library/Application Support/Google/Chrome/Crashpad/completed/` carry the thread name,
+  the exception, and the V8 debug name of whatever was being compiled.
+
 Confirmed *not* to be problems: `PadMgr_ThreadEntry` (`padmgr.c:422` — non-blocking recv
 then `break`), `Sleep_Msec` (`sleep.c:10`, returns immediately), the `OS_MESG_BLOCK` call
 sites (all hit LUS's non-blocking stubs), `IsFrameReady()` (`gfx_sdl2.cpp:635`, always

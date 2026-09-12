@@ -45,6 +45,7 @@ const statusEl = document.getElementById('status');
 
     const started = Date.now();
     const trail = [];
+    let lastTotalMB = null;
     setInterval(() => {
       const heap = Module.HEAPU8 ? Module.HEAPU8.buffer.byteLength : 0;
       if (!heap) return;
@@ -52,12 +53,20 @@ const statusEl = document.getElementById('status');
         t: Math.round((Date.now() - started) / 1000),
         heapMB: Math.round(heap / 1048576),
         jsMB: performance.memory ? Math.round(performance.memory.usedJSHeapSize / 1048576) : null,
+        totalMB: lastTotalMB, // whole renderer (wasm + JS + DOM + canvases); null unless cross-origin isolated
       };
+      // performance.measureUserAgentSpecificMemory needs crossOriginIsolated and is async, so
+      // it is requested here and lands in the next sample.
+      if (self.crossOriginIsolated && performance.measureUserAgentSpecificMemory) {
+        performance.measureUserAgentSpecificMemory()
+          .then(m => { lastTotalMB = Math.round(m.bytes / 1048576); }, () => {});
+      }
       trail.push(sample);
       if (trail.length > 600) trail.shift();   // ~10 min at 1Hz
       statusEl.style.display = '';
       statusEl.textContent = `wasm heap ${sample.heapMB} MB` +
         (sample.jsMB !== null ? `   js ${sample.jsMB} MB` : '') +
+        (sample.totalMB !== null ? `   total ${sample.totalMB} MB` : '') +
         `   (cap 2048 MB)`;
       try { localStorage.setItem(TRACE_KEY, JSON.stringify(trail)); } catch (e) {}
     }, 1000);
@@ -105,17 +114,6 @@ const statusEl = document.getElementById('status');
     console.log(`shipFiles: wrote ${Object.keys(files).length} file(s) into the VFS`);
   }
 
-
-function writeHostFiles() {
-  const files = Module.shipFiles;
-  if (!files) return;
-  for (const [path, bytes] of Object.entries(files)) {
-    const dir = path.slice(0, path.lastIndexOf('/'));
-    if (dir) Module.FS.mkdirTree(dir);
-    Module.FS.writeFile(path, new Uint8Array(bytes));
-  }
-  console.log(`shipFiles: wrote ${Object.keys(files).length} file(s) into the VFS`);
-}
 var Module = {
   canvas: document.getElementById('canvas'),
   preRun: [() => { Module.canvas.focus(); }, writeHostFiles],

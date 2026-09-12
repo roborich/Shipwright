@@ -85,6 +85,28 @@ below), so supersampling is opt-in rather than automatic.
 
 Note that a config copied from a desktop install carries everything with it, cheats
 included — `gCheats.FreezeTime` in particular will freeze the in-game clock here too.
+`gSettings.EnabledMods` is the one thing that is healed rather than honoured: names with no
+archive under `/mods` are dropped at boot (and the trimmed list is written back), so a
+desktop mod list cannot break the Mod Menu here.
+
+## Diagnosing a crash or a freeze
+
+- **The game freezes, the tab lives.** A C++ exception escaped the frame; Emscripten stops
+  the main loop. The console has a `[error] Unhandled exception in frame: <what()>` line
+  naming it, and Chrome's "Pause on exceptions" (all, not just uncaught) stops at the throw
+  with a readable wasm stack — function names are kept in the binary (`--profiling-funcs`).
+- **The tab dies ("Aw, Snap").** The renderer process was killed, which no in-page handler
+  survives. `chrome://crashes` has the error code, and on macOS the minidumps in
+  `~/Library/Application Support/Google/Chrome/Crashpad/completed/` hold more: the
+  crashing thread's name, the exception, and — when V8 was compiling wasm — a
+  `wasm-function#N` string naming the function (map N through the name section). One such
+  crash has already been found and fixed this way; see `wasm-port.md`, "Other traps". The host pages take `?memtrace`, which
+  samples the wasm heap (`Module.HEAPU8`, exported for this), the JS heap, and — when the page
+  is cross-origin isolated — the whole renderer, once a second into `localStorage`; after the
+  crash, reload with `?memtrace` and the previous run is printed as a table, or read
+  `JSON.parse(localStorage.getItem('soh-memtrace-prev'))` by hand. The wasm heap is capped
+  at 2 GB (Emscripten's default `MAXIMUM_MEMORY`); hitting it aborts with a message rather
+  than killing the tab.
 
 ## Limits you should know about
 
