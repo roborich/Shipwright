@@ -67,6 +67,23 @@ Under Emscripten `Ship::Context::GetAppDirectoryPath()` falls through to `"."`, 
 looks for its config and saves at the filesystem root — `./shipofharkinian.json`,
 `./Save/file1.sav`. That is why the paths above are what they are.
 
+## Settings worth knowing about
+
+The defaults are already right for a browser; there is nothing to add to a config for
+speed. What matters is what *not* to turn on:
+
+| CVar | Keep at | Why |
+|---|---|---|
+| `gSettings.InterpolationFPS` | 20 | The game's logic tick is 20 Hz. Raising this renders extra interpolated sub-frames per tick, and only the last survives the frame callback — pure cost. |
+| `gSettings.MatchRefreshRate` | off | On, it pushes interpolation to the display's rate: 3x the rendering per tick on a 60 Hz panel. |
+| `gSettings.VsyncEnabled` | either | Now inert here (see below). Historically, turning it off fast-forwarded the game. |
+
+MSAA and the internal resolution multiplier are the levers with real cost if tuning is ever
+needed; both scale fragment work directly.
+
+Note that a config copied from a desktop install carries everything with it, cheats
+included — `gCheats.FreezeTime` in particular will freeze the in-game clock here too.
+
 ## Limits you should know about
 
 - **Writes do not persist.** The filesystem is in-memory: a save the game writes is gone on
@@ -76,5 +93,8 @@ looks for its config and saves at the filesystem root — `./shipofharkinian.jso
   boot is a separate feature, and needs SoH: Unbound's `SceneDB` to resolve a scene by name.
 - **20 fps.** The game's logic tick is 20 Hz and the frame loop yields once per tick. See
   `wasm-port.md` §1.
+- **VSync is inert.** Emscripten's SDL implements the swap interval by retiming the main
+  loop, so the setting used to fast-forward the game. Both call sites are now compiled out
+  and pacing is owned by `emscripten_set_main_loop`; the toggle does nothing either way.
 - **Keyboard only.** Controllers are untested, and `gamecontrollerdb.txt` is not shipped, so
   SDL logs a harmless mapping-load failure at boot.
