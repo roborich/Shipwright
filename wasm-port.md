@@ -239,9 +239,26 @@ Two fixes were needed:
   synchronous ResourceManager fast enough" question was never really tested before — it is
   still unanswered, now without the logging confound.
 
-Still slow: first scene load lands ~27s after boot in a `-O0` debug build. Attribution
-between the synchronous loader and the unoptimised build is the open question for
-Milestone 4.
+**Release build measured (2026-09-12), and it settles two open questions.**
+
+| | Debug | Release |
+|---|---|---|
+| `soh.wasm` | 604 MB | **24.7 MB** |
+| gzip -9 | — | 6.5 MB |
+| **brotli -q 11** | — | **4.2 MB** |
+
+4.2 MB over the wire is an ordinary web download, so **size is not a constraint** and no
+splitting or streaming strategy is needed. The 37.7 MB of archives need not be downloaded
+at all under Prelude, which already holds them in IndexedDB on the same origin.
+
+And the ~25s from init to the first attract-demo scene is **not** slowness, as an earlier
+draft of this section claimed. Debug measures 25s and Release 24s for the same interval —
+if it were CPU-bound, `-O2` would have collapsed it. It is the N64 logo plus title-screen
+idle before the demo starts, i.e. the game's own timing. The Release build renders the
+title screen correctly and is responsive to keyboard input (confirmed by hand).
+
+The synchronous-ResourceManager question is therefore still genuinely open, but there is no
+longer any evidence pointing at it.
 
 Known rough edges in `libultraship/src/fast/backends/gfx_opengl.cpp`:
 
