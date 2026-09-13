@@ -521,6 +521,9 @@ static void RunFrame() {
 }
 
 #ifdef __EMSCRIPTEN__
+// SOH [WASM] Runs a randomizer seed requested during an earlier tick; see randomizer.cpp.
+void Randomizer_RunDeferredGeneration(void);
+
 // SOH [WASM] When the next tick is due. Ticks are scheduled against this running deadline
 // rather than "period after this one started", so neither setTimeout's lateness nor the
 // whole-millisecond timer resolution accumulates into a slow or fast game.
@@ -565,6 +568,7 @@ static void Graph_EmscriptenFrame(void) {
     }
     Soh_RunFrameGuarded(RunFrame);
     Soh_EmbedderAfterFrame();
+    Randomizer_RunDeferredGeneration();
 
     // SOH [WASM] R_UPDATE_RATE is the N64's vsync divisor: the game runs at 60/R_UPDATE_RATE
     // Hz and synthesises R_UPDATE_RATE audio buffers per frame, so the two cancel and audio

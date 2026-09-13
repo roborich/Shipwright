@@ -3511,6 +3511,23 @@ void GenerateRandomizerImgui(std::string seed = "") {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnGenerationCompletion>();
 }
 
+#ifdef __EMSCRIPTEN__
+// SOH [WASM] Generation blocks the tab, so it waits for the frame loop rather than starting
+// from the click. File select only plays the horse music, then the fanfare or the error
+// sound, if it sees RandoGenerating set on a frame of its own; generating inside the
+// clicking frame cleared it again before file select looked. Counted in frame-loop ticks.
+static std::string sDeferredSeed;
+static int sDeferredTicks = 0;
+
+// Called by the frame loop (graph.c) after every tick.
+extern "C" void Randomizer_RunDeferredGeneration(void) {
+    if (sDeferredTicks == 0 || --sDeferredTicks > 0) {
+        return;
+    }
+    GenerateRandomizerImgui(sDeferredSeed);
+}
+#endif
+
 bool GenerateRandomizer(std::string seed /*= ""*/) {
     if (generated) {
         generated = 0;
@@ -3518,11 +3535,13 @@ bool GenerateRandomizer(std::string seed /*= ""*/) {
     }
     if (CVarGetInteger(CVAR_GENERAL("RandoGenerating"), 0) == 0) {
 #ifdef __EMSCRIPTEN__
-        // SOH [WASM] Single-threaded: generate inline. This blocks the browser tab until
-        // the seed is done, where desktop keeps drawing a progress UI -- but blocking beats
-        // the alternative, since constructing a std::thread aborts in a build without
-        // pthreads.
-        GenerateRandomizerImgui(seed);
+        // SOH [WASM] Single-threaded: generate on the frame loop, two ticks from now (see
+        // Randomizer_RunDeferredGeneration). This blocks the browser tab until the seed is
+        // done, where desktop keeps drawing a progress UI -- but blocking beats the
+        // alternative, since constructing a std::thread aborts in a build without pthreads.
+        CVarSetInteger(CVAR_GENERAL("RandoGenerating"), 1);
+        sDeferredSeed = seed;
+        sDeferredTicks = 2;
 #else
         randoThread = std::thread(&GenerateRandomizerImgui, seed);
 #endif
