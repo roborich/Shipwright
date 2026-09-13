@@ -11,7 +11,13 @@ include(CMake/soh-cvars.cmake)
 include(CMake/lus-cvars.cmake)
 set(SPDLOG_LEVEL_TRACE 0)
 set(SPDLOG_LEVEL_OFF 6)
-set(SPDLOG_MIN_CUTOFF SPDLOG_LEVEL_TRACE CACHE STRING "cutoff at trace")
+# SOH [WASM] The browser build defaults to info; see the SPDLOG note in the Emscripten block
+# below. A default only: -DSPDLOG_MIN_CUTOFF=... still wins on either platform.
+if(EMSCRIPTEN)
+    set(SPDLOG_MIN_CUTOFF SPDLOG_LEVEL_INFO CACHE STRING "cutoff at info")
+else()
+    set(SPDLOG_MIN_CUTOFF SPDLOG_LEVEL_TRACE CACHE STRING "cutoff at trace")
+endif()
 
 option(SUPPRESS_WARNINGS "Suppress warnings in LUS and src (decomp)" ON)
 if(SUPPRESS_WARNINGS)
@@ -170,8 +176,8 @@ if(EMSCRIPTEN)
     # Trace/debug logging is compiled out. Every spdlog call in a browser crosses into JS
     # and lands in the devtools console, which costs orders of magnitude more than writing
     # a line to a terminal -- resource loading alone emitted ~7,500 trace lines during one
-    # boot. This is a performance fix, not a tidiness one.
-    set(SPDLOG_MIN_CUTOFF SPDLOG_LEVEL_INFO CACHE STRING "cutoff at info" FORCE)
+    # boot. This is a performance fix, not a tidiness one. The default is set near the top of
+    # this file, where the cache entry is first created; FORCE here would override -D as well.
 
     # spdlog's bundled fmt uses consteval in a way this clang rejects. Same workaround the
     # macOS desktop build needs; harmless, it only relaxes a compile-time format check.

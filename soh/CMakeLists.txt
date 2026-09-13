@@ -598,6 +598,13 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
         target_link_options(${PROJECT_NAME} PRIVATE
             $<$<NOT:$<BOOL:${EMSCRIPTEN}>>:-pthread>
                 #-fsanitize=address
+            # SOH [WASM] Kept for the Emscripten link too, though there it exports ~1600 symbols
+            # that nothing calls. Exported functions are never inlined, and without that Binaryen
+            # inlines small helpers thousands of times into the randomizer's table builders
+            # (HintTable_Init_*, InitLocationTable, CreateOptions): 7 locals became 19168, and V8
+            # crashed the renderer compiling them, with either compiler, seconds after boot.
+            # Dropping the exports needs a Binaryen inlining limit that prevents that first; the
+            # artifacts test in soh/wasm/tests checks the locals.
             -Wl,-export-dynamic
         )
     endif()

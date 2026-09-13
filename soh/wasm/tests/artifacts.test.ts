@@ -2,8 +2,7 @@ import { expect, test } from "bun:test";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { BUILD_DIR } from "./lib/env";
-import { knownBug } from "./lib/known";
-import { exportNames, largestFunctions } from "./lib/wasm";
+import { largestFunctions, mostLocals } from "./lib/wasm";
 
 const wasm = () => new Uint8Array(readFileSync(join(BUILD_DIR, "soh.wasm")));
 
@@ -23,8 +22,15 @@ test("no function is large enough to endanger V8's optimising compiler", () => {
     expect(tooBig).toEqual([]);
 });
 
-knownBug("B5", "the module exports only what the page needs", async () => {
-    const names = exportNames(wasm());
-    expect(names).toContain("Soh_RunConsoleCommand");
-    expect(names.length).toBeLessThan(150);
-}, 60_000);
+// Exported functions are never inlined. Without -export-dynamic, Binaryen inlined small
+// helpers thousands of times into the randomizer's table builders: HintTable_Init_Exclude_
+// Overworld went from 7 locals to 19168, and V8 crashed the renderer compiling it. The
+// largest count in a healthy build is a few hundred.
+const MOST_LOCALS = 2000;
+
+test("no function declares so many locals that V8 cannot compile it", () => {
+    const tooMany = mostLocals(wasm(), 5)
+        .filter((f) => f.locals >= MOST_LOCALS)
+        .map((f) => `${f.name}: ${f.locals} locals`);
+    expect(tooMany).toEqual([]);
+});

@@ -1,6 +1,6 @@
 // Just enough of the wasm binary format to measure function bodies and name them.
 
-export type FunctionBody = { index: number; name: string; size: number };
+export type FunctionBody = { index: number; name: string; size: number; locals: number };
 
 export function readLeb128(bytes: Uint8Array, offset: number): { value: number; next: number } {
     let value = 0;
@@ -114,10 +114,31 @@ export function functionBodies(bytes: Uint8Array): FunctionBody[] {
     for (let i = 0; i < count.value; i++) {
         const size = readLeb128(bytes, offset);
         const index = firstIndex + i;
-        bodies.push({ index, name: names.get(index) ?? `$func${index}`, size: size.value });
+        bodies.push({ index, name: names.get(index) ?? `$func${index}`, size: size.value, locals: countLocals(bytes, size.next) });
         offset = size.next + size.value;
     }
     return bodies;
+}
+
+// Locals declared at the start of a function body: a vector of (count, type) groups.
+export function countLocals(bytes: Uint8Array, bodyStart: number): number {
+    const groups = readLeb128(bytes, bodyStart);
+    let cursor = groups.next;
+    let locals = 0;
+    for (let g = 0; g < groups.value; g++) {
+        const count = readLeb128(bytes, cursor);
+        locals += count.value;
+        const type = bytes[count.next];
+        // (ref null <heaptype>) and (ref <heaptype>) carry a heap type index after the type byte.
+        cursor = type === 0x63 || type === 0x64 ? readLeb128(bytes, count.next + 1).next : count.next + 1;
+    }
+    return locals;
+}
+
+export function mostLocals(bytes: Uint8Array, count: number): FunctionBody[] {
+    return functionBodies(bytes)
+        .sort((a, b) => b.locals - a.locals)
+        .slice(0, count);
 }
 
 export function largestFunctions(bytes: Uint8Array, count: number): FunctionBody[] {
