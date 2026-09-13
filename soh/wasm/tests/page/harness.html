@@ -1,0 +1,60 @@
+<!doctype html>
+<!-- Stands in for an embedder in the tests. It fetches the files it is told to, writes them
+     into the VFS before main(), and loads soh.js. tests/lib/game.ts sets window.__sohBoot and
+     installs the event recorder (window.__soh) before this script runs. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SoH wasm test harness</title>
+<style>html,body{margin:0;height:100%;background:#000}#canvas{display:block;width:100vw;height:100vh;border:0;outline:none}</style>
+</head>
+<body>
+<canvas id="canvas" tabindex="-1" oncontextmenu="event.preventDefault()"></canvas>
+<script>
+const boot = window.__sohBoot || { files: {}, inlineFiles: {}, moduleUrl: '/build/soh.js' };
+const record = window.__soh;
+
+async function fetchFiles(urls) {
+  const files = {};
+  for (const [vfsPath, url] of Object.entries(urls)) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`harness: ${url} returned HTTP ${response.status}`);
+    files[vfsPath] = new Uint8Array(await response.arrayBuffer());
+  }
+  return files;
+}
+
+function writeFiles(files) {
+  for (const [path, bytes] of Object.entries(files)) {
+    const dir = path.slice(0, path.lastIndexOf('/'));
+    if (dir) Module.FS.mkdirTree(dir);
+    Module.FS.writeFile(path, bytes);
+  }
+}
+
+(async () => {
+  const files = await fetchFiles(boot.files);
+  for (const [path, text] of Object.entries(boot.inlineFiles)) {
+    files[path] = new TextEncoder().encode(text);
+  }
+  window.Module = {
+    canvas: document.getElementById('canvas'),
+    // soh.data is fetched relative to the page, not to soh.js, so point every file the
+    // module loads at the directory soh.js came from.
+    locateFile: path => new URL(path, new URL(boot.moduleUrl, location.href)).href,
+    preRun: [() => { Module.canvas.focus(); writeFiles(files); }],
+    onRuntimeInitialized: () => { record.runtimeReady = true; },
+    onAbort: what => { record.aborted = String(what); },
+    print: (...args) => console.log(...args),
+    printErr: (...args) => console.warn(...args),
+  };
+  const script = document.createElement('script');
+  script.src = boot.moduleUrl;
+  document.body.appendChild(script);
+})().catch(error => {
+  record.harnessError = String(error);
+  console.error(error);
+});
+</script>
+</body>
+</html>

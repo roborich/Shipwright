@@ -1,0 +1,14 @@
+{
+  "name": "soh-wasm-tests",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "bun test",
+    "unit": "bun test unit/",
+    "smoke": "bun test smoke",
+    "install-browser": "bunx playwright-core install chromium"
+  },
+  "devDependencies": {
+    "playwright-core": "1.62.1"
+  }
+}
