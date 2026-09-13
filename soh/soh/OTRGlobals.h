@@ -156,10 +156,6 @@ GetItemEntry ItemTable_RetrieveEntry(s16 modIndex, s16 getItemID);
 // SOH [WASM] Runs one frame, logging the message of any exception that escapes it.
 void Soh_RunFrameGuarded(void (*runFrame)(void));
 #endif
-#ifdef SOH_WASM_GUI_ONLY
-// SOH [WASM] Milestone 2b entry point: window + GUI only, no game. Does not return.
-void Soh_RunGuiOnly(void);
-#endif
 void EntranceTracker_SetCurrentGrottoID(s16 entranceIndex);
 void EntranceTracker_SetLastEntranceOverride(s16 entranceIndex);
 void Gfx_RegisterBlendedTexture(const char* name, u8* mask, u8* replacement);

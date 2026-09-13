@@ -812,8 +812,6 @@ if(EMSCRIPTEN)
     set(SOH_WASM_ASSET_DIR "${CMAKE_SOURCE_DIR}/build-cmake/soh" CACHE PATH
         "Directory holding pre-built soh.o2r / oot.o2r for the wasm build")
 
-    option(SOH_WASM_GUI_ONLY "Boot only the window, WebGL2 and ImGui -- no game, no oot.o2r" OFF)
-
     # When ON, oot.o2r / config / saves are NOT baked into the module. The host page
     # supplies them as bytes instead (Module.shipFiles; see soh/wasm/index.html), which is
     # how an embedder such as Prelude of Light hands over an archive it already holds
@@ -904,9 +902,7 @@ if(EMSCRIPTEN)
         message(STATUS "WASM profile baked in from ${SOH_WASM_PROFILE_DIR}")
     endif()
 
-    if(SOH_WASM_GUI_ONLY)
-        target_compile_definitions(${PROJECT_NAME} PRIVATE SOH_WASM_GUI_ONLY)
-    elseif(SOH_WASM_HOST_FILES)
+    if(SOH_WASM_HOST_FILES)
         # Nothing to bake: the host page writes the game archive into the VFS at boot.
         message(STATUS "WASM: oot.o2r, config and saves come from the host page")
     else()

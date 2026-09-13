@@ -228,6 +228,10 @@ errors. Built with `-DSOH_WASM_GUI_ONLY=ON`; `OTRGlobals`' constructor turned ou
 exact seam (resource manager with soh.o2r only, then window, then GUI — everything after is
 game).
 
+The GUI-only boot was removed on 2026-09-13, once the full game booted: nothing built it and it
+had fallen behind the real frame loop. It lives in 6ed5b4414 if a render problem ever needs
+the game taken out of the picture again.
+
 **The finding that mattered: `USE_OPENGLES` defaults to OFF**
 (`libultraship/src/CMakeLists.txt:10`), so this build had been compiling LUS's *desktop* GL
 path the whole time, generating desktop GLSL against a WebGL2 context. Every shader failed
