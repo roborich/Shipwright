@@ -1088,10 +1088,13 @@ static void OTRAudio_FillBuffer() {
 #define SAMPLES_LOW 528
 
 #define AUDIO_FRAMES_PER_UPDATE (R_UPDATE_RATE > 0 ? R_UPDATE_RATE : 1)
+// 3 is the maximum authentic frame divisor.
+#define MAX_AUDIO_FRAMES_PER_UPDATE 3
 #ifdef __EMSCRIPTEN__
     // SOH [WASM] The most the queue can hold after a top-up must stay under the SDL player's
     // 6000-sample drop threshold, or whole packets of audio are thrown away.
-    static_assert(WASM_AUDIO_DESIRED_BUFFERED + 3 * SAMPLES_HIGH <= WASM_SDL_AUDIO_DROP_THRESHOLD,
+    static_assert(WASM_AUDIO_DESIRED_BUFFERED + MAX_AUDIO_FRAMES_PER_UPDATE * SAMPLES_HIGH <=
+                      WASM_SDL_AUDIO_DROP_THRESHOLD,
                   "wasm audio target leaves no room for a full update below SDLAudioPlayer's drop threshold");
 #endif
 #define NUM_AUDIO_CHANNELS 2
@@ -1099,8 +1102,7 @@ static void OTRAudio_FillBuffer() {
     int samples_left = AudioPlayer_Buffered();
     u32 num_audio_samples = samples_left < AudioPlayer_GetDesiredBuffered() ? SAMPLES_HIGH : SAMPLES_LOW;
 
-    // 3 is the maximum authentic frame divisor.
-    s16 audio_buffer[SAMPLES_HIGH * NUM_AUDIO_CHANNELS * 3];
+    s16 audio_buffer[SAMPLES_HIGH * NUM_AUDIO_CHANNELS * MAX_AUDIO_FRAMES_PER_UPDATE];
     for (int i = 0; i < AUDIO_FRAMES_PER_UPDATE; i++) {
         AudioMgr_CreateNextAudioBuffer(audio_buffer + i * (num_audio_samples * NUM_AUDIO_CHANNELS), num_audio_samples);
     }

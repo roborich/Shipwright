@@ -75,10 +75,7 @@ export function importedFunctionCount(bytes: Uint8Array, section: Section): numb
 
 export function functionNames(bytes: Uint8Array, section: Section): Map<number, string> {
     const names = new Map<number, string>();
-    let offset = readName(bytes, section.start).next;
-    if (!new TextDecoder().decode(bytes.subarray(section.start, offset)).endsWith("name")) {
-        return names;
-    }
+    let offset = readName(bytes, section.start).next; // past the custom section's own name
     while (offset < section.end) {
         const id = bytes[offset];
         const size = readLeb128(bytes, offset + 1);
