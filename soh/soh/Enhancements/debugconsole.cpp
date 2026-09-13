@@ -419,6 +419,13 @@ static bool EntranceHandler(std::shared_ptr<Ship::Console> Console, const std::v
         return 1;
     }
 
+    // SOH [Port] Reachable from outside the game now (see EmbedderBridge.cpp), so refuse
+    // politely instead of dereferencing a null play state on the title screen.
+    if (gPlayState == NULL) {
+        ERROR_MESSAGE("[SOH] Not in game; load a file first.");
+        return 1;
+    }
+
     gPlayState->nextEntranceIndex = entrance;
     gPlayState->transitionTrigger = TRANS_TRIGGER_START;
     gPlayState->transitionType = TRANS_TYPE_INSTANT;

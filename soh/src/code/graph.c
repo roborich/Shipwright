@@ -8,6 +8,7 @@
 
 #include "soh/Enhancements/gameconsole.h"
 #include "soh/OTRGlobals.h"
+#include "soh/EmbedderBridge.h"
 #include "libultraship/bridge.h"
 
 #ifdef __EMSCRIPTEN__
@@ -533,10 +534,12 @@ static void Graph_EmscriptenFrame(void) {
     static s32 sLastUpdateRate = 0;
 
     if (!WindowIsRunning()) {
+        Soh_EmbedderQuit();
         emscripten_cancel_main_loop();
         return;
     }
     Soh_RunFrameGuarded(RunFrame);
+    Soh_EmbedderAfterFrame();
 
     // SOH [WASM] R_UPDATE_RATE is the N64's vsync divisor: the game runs at 60/R_UPDATE_RATE
     // Hz and synthesises R_UPDATE_RATE audio buffers per frame, so the two cancel and audio

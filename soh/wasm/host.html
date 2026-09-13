@@ -114,6 +114,13 @@ const statusEl = document.getElementById('status');
     console.log(`shipFiles: wrote ${Object.keys(files).length} file(s) into the VFS`);
   }
 
+// --- Talking to the game (see EMBEDDING.md) -------------------------------------------
+// Outbound: the game dispatches CustomEvent('soh') on window; detail.type is 'load-game',
+// 'scene', 'file-saved' (path + bytes of a config/save the game wrote), 'quit' or 'error'.
+// Inbound: soh('entrance cd') runs a debug-console line.
+window.addEventListener('soh', e => console.log('soh event', e.detail));
+window.soh = cmd => Module.ccall('Soh_RunConsoleCommand', 'number', ['string'], [cmd]);
+
 var Module = {
   canvas: document.getElementById('canvas'),
   preRun: [() => { Module.canvas.focus(); }, writeHostFiles],

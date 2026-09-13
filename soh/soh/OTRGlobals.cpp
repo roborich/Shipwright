@@ -78,6 +78,7 @@
 #include "soh/Network/Anchor/Anchor.h"
 #include "Enhancements/mods.h"
 #include "Enhancements/game-interactor/GameInteractor.h"
+#include "EmbedderBridge.h"
 #include "Enhancements/randomizer/draw.h"
 #include <libultraship/libultraship.h>
 #include <libultraship/controller/controldeck/ControlDeck.h>
@@ -1545,9 +1546,11 @@ extern "C" void Soh_RunFrameGuarded(void (*runFrame)(void)) {
         runFrame();
     } catch (const std::exception& e) {
         SPDLOG_ERROR("Unhandled exception in frame: {}", e.what());
+        Soh_EmbedderError(e.what());
         throw;
     } catch (...) {
         SPDLOG_ERROR("Unhandled non-standard exception in frame");
+        Soh_EmbedderError("non-standard exception");
         throw;
     }
 }
@@ -1597,6 +1600,9 @@ extern "C" void InitOTR(int argc, char* argv[]) {
     OTRExtScanner();
     VanillaItemTable_Init();
     DebugConsole_Init();
+#ifdef __EMSCRIPTEN__
+    Soh_InitEmbedderBridge();
+#endif
 
     InitMods();
     ActorDB::AddBuiltInCustomActors();

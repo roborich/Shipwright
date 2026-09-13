@@ -61,6 +61,51 @@ archive on every iteration, where a layer is only the delta.
 
 Load order within `/mods` is the archives' sorted filename order.
 
+## Talking to the game
+
+The build knows nothing about its embedder. It talks through two plain browser mechanisms,
+both defined in `soh/soh/EmbedderBridge.cpp`:
+
+**Outbound: `CustomEvent('soh')` on `window`.** `event.detail` is a plain object with a
+`type` and a few fields:
+
+| `detail.type` | Fields | Fired when |
+|---|---|---|
+| `load-game` | `fileNum` | A save was loaded from file select (or the debug map select). From here on, console commands that need a play state are safe. |
+| `scene` | `sceneNum`, `entranceIndex` | A scene finished initialising — after every load, warp, and door. |
+| `file-saved` | `path`, `bytes` | The game wrote its config or a save. `path` is absolute in the VFS (`/shipofharkinian.json`, `/Save/file1.sav`, `/Save/global.sav`); `bytes` is a `Uint8Array` copy of the whole file, yours to keep. Persist it however you like — the VFS itself is gone on reload. |
+| `quit` | | The game closed its window and the main loop has stopped for good. The last frame stays on the canvas; nothing else happens unless you act. Any file written on the way out arrives as `file-saved` before this. |
+| `error` | `message` | A C++ exception escaped a frame. The loop stops after this, so treat it like `quit` with a reason. |
+
+The `file-saved` detection is a watch, not a hook: after each frame the bridge compares the
+timestamp and size of the config and of every file under `Save/` against the previous
+frame, so every writer in the game is covered without being told about the bridge. The
+files the host supplied at boot are the baseline and are not reported.
+
+```js
+window.addEventListener('soh', ({ detail }) => {
+  if (detail.type === 'scene') showScene(detail.sceneNum, detail.entranceIndex);
+});
+```
+
+**Inbound: `Soh_RunConsoleCommand`.** Runs one line through the game's debug console, the
+same one behind the in-game GUI, and returns that command's result: `0` on success by
+convention, `-1` if called before the game has started, `-2` for a command the console
+does not know.
+
+```js
+Module.ccall('Soh_RunConsoleCommand', 'number', ['string'], ['entrance cd']);
+```
+
+`entrance <hex>` is the warp. It needs a play state: after `load-game` it goes where you
+say; on the title screen it warps the attract demo instead (that is a play state too); on
+file select it refuses with result `1` and a message in the console. Everything else in
+`soh/soh/Enhancements/debugconsole.cpp` works the same way. The call lands between frames,
+so a handler that queues work for the next frame behaves exactly as when typed.
+
+`host.html` wires both up as an example: it logs every event and defines
+`soh('entrance cd')`.
+
 ## Paths, and why they look like that
 
 Under Emscripten `Ship::Context::GetAppDirectoryPath()` falls through to `"."`, so the game
