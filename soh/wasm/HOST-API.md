@@ -34,7 +34,7 @@ window.addEventListener('soh', ({ detail }) => { switch (detail.type) { /* ... *
 | `scene` | `sceneNum`, `entranceIndex` | A scene finished initialising (boot, load, warp, door). Both are plain numbers. `entranceIndex` is decimal here, but `entrance` takes hex: `entranceIndex.toString(16)`. |
 | `file-saved` | `path`, `bytes` | The game wrote `/shipofharkinian.json` or a file under `/Save/`. `bytes` is a `Uint8Array` copy of the whole file. Persist it yourself; the VFS is lost on reload. Files you supplied at boot are not echoed back. |
 | `quit` | — | The main loop stopped for good (for example after the `quit` command). Any final `file-saved` events arrive first. |
-| `error` | `message` | A C++ exception escaped a frame. The loop has stopped; treat it as `quit` with a reason. |
+| `error` | `message` | The game stopped: a C++ exception escaped a frame, or at startup the game archives were missing or from an incompatible version (then no `scene` ever arrives). Treat it as `quit` with a reason. |
 
 ## 3. Commands in: `Soh_RunConsoleCommand`
 

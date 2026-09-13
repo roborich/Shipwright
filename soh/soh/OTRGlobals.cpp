@@ -399,6 +399,24 @@ namespace SohGui {
 extern std::shared_ptr<SohGui::SohMenu> mSohMenu;
 }
 
+#ifdef __EMSCRIPTEN__
+// SOH [WASM] The checks RunExtract makes on desktop before it offers to extract, for a build
+// that cannot extract. Returns why the game cannot start, or an empty string.
+static std::string BrowserArchiveProblem(bool portArchiveMatches, OTRVersion vanilla, OTRVersion mq) {
+    if (!portArchiveMatches) {
+        return "soh.o2r does not match this build (" + std::to_string(gBuildVersionMajor) + "." +
+               std::to_string(gBuildVersionMinor) + "." + std::to_string(gBuildVersionPatch) + ")";
+    }
+    if (vanilla.major == INT16_MAX && mq.major == INT16_MAX) {
+        return "no game archive: supply /oot.o2r or /oot-mq.o2r in Module.shipFiles";
+    }
+    if (VerifyArchiveVersion(vanilla) || VerifyArchiveVersion(mq)) {
+        return "oot.o2r or oot-mq.o2r was made by an incompatible version of SoH; extract it again";
+    }
+    return "";
+}
+#endif
+
 void OTRGlobals::RunExtract(int argc, char* argv[]) {
 #ifdef __EMSCRIPTEN__
     // SOH [WASM] There is no ROM to extract from in a browser tab: oot.o2r and soh.o2r are
@@ -406,6 +424,20 @@ void OTRGlobals::RunExtract(int argc, char* argv[]) {
     // its `while (!extractDone)` frame-pump, which would hang a browser tab outright -- it
     // draws popups in a loop that never returns to the event loop, so the click that would
     // dismiss one could never arrive. See wasm-port.md.
+    //
+    // The checks do carry over. Desktop will not start on a port archive from another build
+    // or a game archive from an incompatible version, and offers to extract when there is
+    // none; without them a missing or stale oot.o2r failed at the first resource load, in a
+    // loop that never returned to the page and that no event reported.
+    std::string problem = BrowserArchiveProblem(sohArchiveVersionMatch, DetectOTRVersion("oot.o2r", false),
+                                                DetectOTRVersion("oot-mq.o2r", true));
+    if (!problem.empty()) {
+        SPDLOG_ERROR("Cannot start: {}", problem);
+        Soh_EmbedderError(problem.c_str());
+        // Unwinds out of main() but keeps the runtime, so the page keeps its console and can
+        // show the message. Nothing on this stack catches the unwind.
+        emscripten_exit_with_live_runtime();
+    }
     return;
 #else
     bool extractDone = false;

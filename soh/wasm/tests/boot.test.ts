@@ -1,12 +1,11 @@
 import { expect, test } from "bun:test";
 import { BAKED_BUILD_DIR, BOOT_TIMEOUT, TEST_TIMEOUT } from "./lib/env";
 import { DEFAULT_FILES, withoutFile } from "./lib/game";
-import { knownBug } from "./lib/known";
 import { useSuite, withGame, withPage } from "./lib/suite";
 
 const suite = useSuite();
 
-knownBug("B1", "a missing oot.o2r is reported as an error event", () =>
+test("a missing oot.o2r is reported as an error event", () =>
     withGame(suite, { files: withoutFile(DEFAULT_FILES, "/oot.o2r") }, async (game) => {
         const { event } = await game.waitForEvent("error", { timeout: BOOT_TIMEOUT });
         expect(event.message).toContain("oot.o2r");

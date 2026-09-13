@@ -39,7 +39,10 @@ Module.shipFiles = {
 Parent directories are created as needed. The files are written during `preRun`, before
 `main()`, which is early enough for the archive manager to find them.
 
-`soh/wasm/host.html` is a worked example.
+`soh/wasm/host.html` is a worked example. Hand over only the files you have: bytes that are
+not a save (an HTTP error page, say) are moved aside as `file<N>-<timestamp>.bak` with a
+popup, not loaded. A missing or incompatible `oot.o2r` stops the game at startup with an
+`error` event instead of a black canvas.
 
 ### What the host does *not* supply
 
