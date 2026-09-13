@@ -17,6 +17,8 @@
 extern "C" {
 #include <z64.h>
 #include <variables.h>
+extern PlayState* gPlayState;
+int AudioPlayer_Buffered(void);
 }
 
 // ---- outbound ----------------------------------------------------------------------------
@@ -103,6 +105,26 @@ static void ReportSavedFiles() {
     sSeenFilesPrimed = true;
 }
 
+// ---- diagnostics -------------------------------------------------------------------------
+// Counters for soh/wasm/tests and for profiling. Not part of the host contract: the fields
+// can change without notice.
+
+static uint64_t sTicks = 0;
+static uint64_t sDraws = 0;
+
+void Soh_EmbedderCountDraws(size_t draws) {
+    sDraws += draws;
+}
+
+// Returns a JSON object, valid until the next call. updateRate is R_UPDATE_RATE, the game's
+// vsync divisor; sceneNum is -1 outside a play state.
+extern "C" EMSCRIPTEN_KEEPALIVE const char* Soh_GetStats(void) {
+    static std::string json;
+    json = fmt::format(R"({{"ticks":{},"draws":{},"updateRate":{},"audioBuffered":{},"sceneNum":{}}})", sTicks, sDraws,
+                       R_UPDATE_RATE, AudioPlayer_Buffered(), gPlayState != nullptr ? gPlayState->sceneNum : -1);
+    return json.c_str();
+}
+
 // ---- entry points ------------------------------------------------------------------------
 
 void Soh_InitEmbedderBridge(void) {
@@ -112,6 +134,7 @@ void Soh_InitEmbedderBridge(void) {
 }
 
 void Soh_EmbedderAfterFrame(void) {
+    sTicks++;
     ReportSavedFiles();
 }
 

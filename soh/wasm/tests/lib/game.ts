@@ -1,6 +1,7 @@
 import { chromium, type Browser, type Page } from "playwright-core";
 import { HEADED } from "./env";
 import type { TestServer } from "./server";
+import type { StatsSample } from "./timing";
 
 // Globals that exist only inside the page; the callbacks passed to page.evaluate run there.
 declare const Module: any;
@@ -232,6 +233,27 @@ export class Game {
 
     listenerResults(): Promise<number[]> {
         return this.evaluate(() => window.__soh.listenerResults);
+    }
+
+    // ---- diagnostics ----------------------------------------------------------------------
+
+    stats(): Promise<StatsSample & { sceneNum: number }> {
+        return this.evaluate(() => ({ ...JSON.parse(Module.ccall("Soh_GetStats", "string", [], [])), t: performance.now() }));
+    }
+
+    async sampleStats(durationMs: number, everyMs = 250): Promise<StatsSample[]> {
+        const samples: StatsSample[] = [];
+        const end = performance.now() + durationMs;
+        while (performance.now() < end) {
+            await this.assertAlive();
+            samples.push(await this.stats());
+            await Bun.sleep(everyMs);
+        }
+        return samples;
+    }
+
+    heapBytes(): Promise<number> {
+        return this.evaluate(() => Module.HEAPU8.buffer.byteLength);
     }
 
     // ---- filesystem -----------------------------------------------------------------------

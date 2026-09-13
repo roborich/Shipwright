@@ -14,9 +14,11 @@
 //                                                stops after this too
 //   in:  Module.ccall('Soh_RunConsoleCommand', 'number', ['string'], ['entrance cd'])
 //        runs a line through the game's debug console; returns the command's result.
+//   diagnostics: Module.ccall('Soh_GetStats', 'string') returns counters as JSON, for tests.
 //
 // See soh/wasm/EMBEDDING.md, "Talking to the game".
 #ifdef __EMSCRIPTEN__
+#include <stddef.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -27,6 +29,9 @@ void Soh_EmbedderAfterFrame(void);
 void Soh_EmbedderQuit(void);
 // Called by the frame guard for an exception escaping a frame.
 void Soh_EmbedderError(const char* message);
+// Called by Graph_ProcessGfxCommands with the number of frames it drew this tick; read
+// back through Soh_GetStats.
+void Soh_EmbedderCountDraws(size_t draws);
 #ifdef __cplusplus
 }
 #endif

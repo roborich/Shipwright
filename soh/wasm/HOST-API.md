@@ -64,3 +64,17 @@ the first `soh` event is a safe signal. The command takes effect on the next fra
 The console has ~50 more commands (items, health, rupees, `spawn`, `pos`, cheats, …).
 Each one is registered with its arguments in `DebugConsole_Init()` in
 `soh/soh/Enhancements/debugconsole.cpp`, and they all work here the same way.
+
+## 4. Diagnostics: `Soh_GetStats` (unstable)
+
+For tests and profiling, not for building on: the fields can change without notice.
+
+```js
+JSON.parse(Module.ccall('Soh_GetStats', 'string'));
+// { ticks, draws, updateRate, audioBuffered, sceneNum }
+```
+
+`ticks` counts frame-loop callbacks and `draws` the frames drawn in them; more than one draw
+per tick means frame interpolation is on. `updateRate` is the game's vsync divisor (the loop
+runs at `60 / updateRate` Hz). `audioBuffered` is the number of samples queued for the audio
+device. `sceneNum` is `-1` outside a play state.

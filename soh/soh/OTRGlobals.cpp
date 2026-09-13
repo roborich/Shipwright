@@ -1887,6 +1887,9 @@ extern "C" void Graph_ProcessGfxCommands(Gfx* commands) {
     }
 
     RunCommands(commands, mtx_replacements);
+#ifdef __EMSCRIPTEN__
+    Soh_EmbedderCountDraws(mtx_replacements.size());
+#endif
 
     last_fps = fps;
     last_update_rate = R_UPDATE_RATE;
