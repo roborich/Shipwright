@@ -23,6 +23,8 @@ Do not supply `soh.o2r`; it is inside the module.
 ## 2. Events out: `CustomEvent('soh')` on `window`
 
 Attach the listener **before** `soh.js` loads; the title screen fires events at boot.
+Events are dispatched between frames, after the frame that raised them, so a listener can
+call `Soh_RunConsoleCommand` directly (a warp from inside a `scene` listener works).
 
 ```js
 window.addEventListener('soh', ({ detail }) => { switch (detail.type) { /* ... */ } });
@@ -30,11 +32,12 @@ window.addEventListener('soh', ({ detail }) => { switch (detail.type) { /* ... *
 
 | `detail.type` | Fields | Meaning |
 |---|---|---|
-| `load-game` | `fileNum` | A save was loaded. Play-state commands now act on the player's game. |
+| `load-game` | `fileNum` | A save was loaded and its first scene is up; sent just before that `scene` event. Play-state commands now act on the player's game. |
 | `scene` | `sceneNum`, `entranceIndex` | A scene finished initialising (boot, load, warp, door). Both are plain numbers. `entranceIndex` is decimal here, but `entrance` takes hex: `entranceIndex.toString(16)`. |
 | `file-saved` | `path`, `bytes` | The game wrote `/shipofharkinian.json` or a file under `/Save/`. `bytes` is a `Uint8Array` copy of the whole file. Persist it yourself; the VFS is lost on reload. Files you supplied at boot are not echoed back. |
+| `file-removed` | `path` | A watched file is gone: a save erased in file select, or one the game moved aside as unreadable (its `file<N>-<timestamp>.bak` arrives as `file-saved`). Delete your copy, or the next boot brings it back. |
 | `quit` | — | The main loop stopped for good (for example after the `quit` command). Any final `file-saved` events arrive first. |
-| `error` | `message` | The game stopped: a C++ exception escaped a frame, or at startup the game archives were missing or from an incompatible version (then no `scene` ever arrives). Treat it as `quit` with a reason. |
+| `error` | `message` | The game stopped: a C++ exception escaped a frame, or at startup the game archives were missing or from an incompatible version (then no `scene` ever arrives). Any final `file-saved` events arrive first. Treat it as `quit` with a reason. |
 
 ## 3. Commands in: `Soh_RunConsoleCommand`
 

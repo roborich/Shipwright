@@ -2,7 +2,6 @@ import { expect, test } from "bun:test";
 import { playFiles } from "./lib/configs";
 import { BOOT_TIMEOUT, TEST_TIMEOUT } from "./lib/env";
 import { loadFirstSave, type Game } from "./lib/game";
-import { knownBug } from "./lib/known";
 import { useSuite, withGame } from "./lib/suite";
 
 // soh/wasm/HOST-API.md is the spec for everything in this file.
@@ -39,7 +38,7 @@ test("a save loads from file select, and a scene follows load-game", () =>
         expect(await game.problems()).toEqual([]);
     }), TEST_TIMEOUT);
 
-knownBug("C1", "a command sent from inside a scene listener takes effect", () =>
+test("a command sent from inside a scene listener takes effect", () =>
     withGame(suite, {}, async (game) => {
         await bootToScene(game);
         const from = await game.eventCount();
@@ -49,7 +48,7 @@ knownBug("C1", "a command sent from inside a scene listener takes effect", () =>
         expect(await game.listenerResults()).toEqual([0]);
     }), TEST_TIMEOUT);
 
-knownBug("C2", "load-game arrives once play-state commands work", () =>
+test("load-game arrives once play-state commands work", () =>
     withGame(suite, { inlineFiles: playFiles() }, async (game) => {
         await bootToScene(game);
         await game.armCommandOnEvent("load-game", "entrance cd");
@@ -69,7 +68,7 @@ test("file-saved reports files written after boot, not the files supplied", () =
         expect(event.byteLength).toBe(5);
     }), TEST_TIMEOUT);
 
-knownBug("C3", "a save that disappears is reported as file-removed", () =>
+test("a save that disappears is reported as file-removed", () =>
     withGame(suite, {}, async (game) => {
         await bootToScene(game);
         await game.writeFile("/Save/file3.sav", "hello");

@@ -77,8 +77,8 @@ commands a host can send in (`Soh_RunConsoleCommand`) are listed in **`HOST-API.
 build copies that file next to `soh.js`, so embedders get it with the artifacts. The code is
 `soh/soh/EmbedderBridge.cpp`.
 
-`file-saved` is a watch, not a hook. After each frame the bridge compares the timestamp and
-size of the config and of every file under `Save/` with the previous frame. That covers every
+`file-saved` and `file-removed` are a watch, not a hook. After each frame the bridge compares
+the timestamp and size of the config and of every file under `Save/` with the previous frame. That covers every
 writer in the game without any of them knowing about the bridge.
 
 `host.html` wires both directions up as an example: it logs every event and defines
