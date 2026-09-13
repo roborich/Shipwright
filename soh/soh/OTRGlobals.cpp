@@ -1867,7 +1867,14 @@ extern "C" void Graph_ProcessGfxCommands(Gfx* commands) {
     audio.cv_to_thread.notify_one();
 #endif
     std::vector<std::unordered_map<Mtx*, MtxF>> mtx_replacements;
+#ifdef __EMSCRIPTEN__
+    // SOH [WASM] One frame per game tick. Interpolated frames need a loop paced by the display
+    // to be seen; this one ticks at the game's rate (graph.c), so they were drawn back to back
+    // and only the last reached the screen, at up to three times the cost of a tick.
+    int target_fps = 60 / R_UPDATE_RATE;
+#else
     int target_fps = OTRGlobals::Instance->GetInterpolationFPS();
+#endif
     static int last_fps;
     static int last_update_rate;
     static int time;

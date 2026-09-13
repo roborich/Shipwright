@@ -84,13 +84,14 @@ looks for its config and saves at the filesystem root — `./shipofharkinian.jso
 ## Settings worth knowing about
 
 The defaults are already right for a browser; there is nothing to add to a config for
-speed. What matters is what *not* to turn on:
+speed. Settings that would cost more than they give are ignored here, so a desktop config
+cannot turn them on:
 
-| CVar | Keep at | Why |
+| Setting | Here | Why |
 |---|---|---|
-| `gSettings.InterpolationFPS` | 20 | The game's logic tick is 20 Hz. Raising this renders extra interpolated sub-frames per tick, and only the last survives the frame callback — pure cost. |
-| `gSettings.MatchRefreshRate` | off | On, it pushes interpolation to the display's rate: 3x the rendering per tick on a 60 Hz panel. |
-| `gSettings.VsyncEnabled` | either | Now inert here (see below). Historically, turning it off fast-forwarded the game. |
+| `gSettings.InterpolationFPS`, `gSettings.MatchRefreshRate` | ignored, hidden | One frame is drawn per game tick. Interpolated sub-frames would each be drawn and only the last would reach the screen: up to 3x the rendering per tick for nothing. |
+| `gSettings.VsyncEnabled` | ignored, hidden | Emscripten's SDL implements it by retiming the main loop, which fast-forwarded the game. |
+| `Window.AudioBackend` | falls back to SDL | A desktop config names `coreaudio` or `wasapi`, which this build does not have. It used to mean a silent game; LUS now uses the platform's own backend and writes that back. |
 
 MSAA and the internal resolution multiplier are the levers with real cost if tuning is ever
 needed; both scale fragment work directly. The multiplier is also how you get a sharper
@@ -136,8 +137,10 @@ desktop mod list cannot break the Mod Menu here.
   backing store by `devicePixelRatio` while ImGui keeps reporting CSS pixels, and the two
   get mixed — every internal resolution except 100% rendered at double size and cropped on
   a 2x display. Raise the internal resolution multiplier for a sharper picture instead.
-- **VSync is inert.** Emscripten's SDL implements the swap interval by retiming the main
-  loop, so the setting used to fast-forward the game. Both call sites are now compiled out
-  and pacing is owned by `emscripten_set_main_loop`; the toggle does nothing either way.
+- **No frame interpolation, no VSync.** The loop is paced by the page's timer at the game's
+  own rate, one frame per tick, so interpolated frames would only be drawn and thrown away.
+  The Current FPS, Match Refresh Rate and Enable Vsync settings are hidden, and a config that
+  sets them is ignored. (Emscripten's SDL also implements the swap interval by retiming the
+  main loop, which used to fast-forward the game; those call sites are compiled out.)
 - **Keyboard only.** Controllers are untested, and `gamecontrollerdb.txt` is not shipped, so
   SDL logs a harmless mapping-load failure at boot.
