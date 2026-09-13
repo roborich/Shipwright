@@ -22,6 +22,7 @@
 #include <ship/window/FileDropMgr.h>
 #include "static_data.h"
 #include "soh/Enhancements/game-interactor/GameInteractor.h"
+#include "soh/ShipInit.hpp"
 #include "trial.h"
 #include "settings.h"
 #include "soh/util.h"
@@ -3512,20 +3513,31 @@ void GenerateRandomizerImgui(std::string seed = "") {
 }
 
 #ifdef __EMSCRIPTEN__
-// SOH [WASM] Generation blocks the tab, so it waits for the frame loop rather than starting
-// from the click. File select only plays the horse music, then the fanfare or the error
-// sound, if it sees RandoGenerating set on a frame of its own; generating inside the
-// clicking frame cleared it again before file select looked. Counted in frame-loop ticks.
-static std::string sDeferredSeed;
-static int sDeferredTicks = 0;
+// SOH [WASM] Generation blocks the tab, so it runs on the game frame after the click rather
+// than from it. File select only plays the horse music, then the fanfare or the error sound,
+// if it sees RandoGenerating set on a frame of its own; generating inside the clicking frame
+// cleared it again before file select looked. OnGameFrameUpdate fires at the end of a game
+// frame, after file select has run and inside the frame guard, so a throw here is reported
+// like any other.
+static std::string sPendingSeed;
+static bool sGenerationPending = false;
 
-// Called by the frame loop (graph.c) after every tick.
-extern "C" void Randomizer_RunDeferredGeneration(void) {
-    if (sDeferredTicks == 0 || --sDeferredTicks > 0) {
-        return;
+static void RunPendingGeneration() {
+    if (sGenerationPending) {
+        sGenerationPending = false;
+        GenerateRandomizerImgui(sPendingSeed);
     }
-    GenerateRandomizerImgui(sDeferredSeed);
 }
+
+static void GenerateOnNextFrame(const std::string& seed) {
+    CVarSetInteger(CVAR_GENERAL("RandoGenerating"), 1);
+    sPendingSeed = seed;
+    sGenerationPending = true;
+}
+
+static RegisterShipInitFunc initFunc_PendingGeneration([]() {
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnGameFrameUpdate>(RunPendingGeneration);
+});
 #endif
 
 bool GenerateRandomizer(std::string seed /*= ""*/) {
@@ -3535,13 +3547,11 @@ bool GenerateRandomizer(std::string seed /*= ""*/) {
     }
     if (CVarGetInteger(CVAR_GENERAL("RandoGenerating"), 0) == 0) {
 #ifdef __EMSCRIPTEN__
-        // SOH [WASM] Single-threaded: generate on the frame loop, two ticks from now (see
-        // Randomizer_RunDeferredGeneration). This blocks the browser tab until the seed is
-        // done, where desktop keeps drawing a progress UI -- but blocking beats the
-        // alternative, since constructing a std::thread aborts in a build without pthreads.
-        CVarSetInteger(CVAR_GENERAL("RandoGenerating"), 1);
-        sDeferredSeed = seed;
-        sDeferredTicks = 2;
+        // SOH [WASM] Single-threaded: generate on the next game frame (see GenerateOnNextFrame).
+        // This blocks the browser tab until the seed is done, where desktop keeps drawing a
+        // progress UI -- but blocking beats the alternative, since constructing a std::thread
+        // aborts in a build without pthreads.
+        GenerateOnNextFrame(seed);
 #else
         randoThread = std::thread(&GenerateRandomizerImgui, seed);
 #endif
