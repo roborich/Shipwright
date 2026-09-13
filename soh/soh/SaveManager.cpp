@@ -445,13 +445,10 @@ void SaveManager::Init() {
             globalBlock = nlohmann::json::object();
         }
 
-        if (!globalBlock.contains("version")) {
-            SPDLOG_WARN("Global save does not contain a version. We are reconstructing it.");
-            CreateDefaultGlobal();
-            return;
-        }
-
-        switch (globalBlock["version"].get<int>()) {
+        // SOH [Port] A rebuilt global save is not a reason to skip the save slots below: an
+        // early return here left every slot looking empty until the next boot.
+        int version = globalBlock.is_object() ? globalBlock.value("version", 0) : 0;
+        switch (version) {
             case 1:
                 currentJsonContext = &globalBlock;
                 LoadData("audioSetting", gSaveContext.audioSetting);
@@ -459,7 +456,7 @@ void SaveManager::Init() {
                 LoadData("language", gSaveContext.language);
                 break;
             default:
-                SPDLOG_WARN("Global save has a unrecognized version. We are reconstructing it.");
+                SPDLOG_WARN("Global save has no version or an unrecognized one. We are reconstructing it.");
                 CreateDefaultGlobal();
                 break;
         }
