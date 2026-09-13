@@ -16,113 +16,16 @@
 <body>
 <canvas id="canvas" tabindex="-1" oncontextmenu="event.preventDefault()"></canvas>
 <div id="status">loading…</div>
+<script src="host-page.js"></script>
 <script>
   const statusEl = document.getElementById('status');
 
-  // --- Memory trace ---------------------------------------------------------------------
-  // A renderer crash ("Aw, Snap") takes the console with it, so samples are kept in
-  // localStorage and reported on the next load. The wasm heap can grow to 2GB by default
-  // (Emscripten's MAXIMUM_MEMORY); an allocation past that aborts the module. Enable with
-  // ?memtrace, read the previous run's trail from the console after a crash.
-  const MEMTRACE = new URLSearchParams(location.search).has('memtrace');
-  const TRACE_KEY = 'soh-memtrace';       // the run in progress
-  const PREV_KEY  = 'soh-memtrace-prev';  // the last finished/crashed run, kept for reading
-  if (MEMTRACE) {
-    // The finished run is moved to its own key rather than deleted, so it survives any
-    // number of reloads and can be read back by hand at any time:
-    //   JSON.parse(localStorage.getItem('soh-memtrace-prev'))
-    // Only the next run with ?memtrace overwrites it.
-    try {
-      const live = localStorage.getItem(TRACE_KEY);
-      if (live) localStorage.setItem(PREV_KEY, live);
-      localStorage.removeItem(TRACE_KEY);
-      const prev = JSON.parse(localStorage.getItem(PREV_KEY) || '[]');
-      if (prev.length) {
-        const last = prev[prev.length - 1];
-        const peak = prev.reduce((m, s) => Math.max(m, s.heapMB), 0);
-        console.warn(`memtrace: previous run ran ${last.t}s, ended at ${last.heapMB} MB, ` +
-                     `peak ${peak} MB (cap 2048). Trail:`);
-        console.table(prev);
-      } else {
-        console.warn('memtrace: no previous run recorded.');
-      }
-    } catch (e) { /* private mode, blocked storage: tracing is optional */ }
-
-    const started = Date.now();
-    const trail = [];
-    let lastTotalMB = null;
-    setInterval(() => {
-      const heap = Module.HEAPU8 ? Module.HEAPU8.buffer.byteLength : 0;
-      if (!heap) return;
-      const sample = {
-        t: Math.round((Date.now() - started) / 1000),
-        heapMB: Math.round(heap / 1048576),
-        jsMB: performance.memory ? Math.round(performance.memory.usedJSHeapSize / 1048576) : null,
-        totalMB: lastTotalMB, // whole renderer (wasm + JS + DOM + canvases); null unless cross-origin isolated
-      };
-      // performance.measureUserAgentSpecificMemory needs crossOriginIsolated and is async, so
-      // it is requested here and lands in the next sample.
-      if (self.crossOriginIsolated && performance.measureUserAgentSpecificMemory) {
-        performance.measureUserAgentSpecificMemory()
-          .then(m => { lastTotalMB = Math.round(m.bytes / 1048576); }, () => {});
-      }
-      trail.push(sample);
-      if (trail.length > 600) trail.shift();   // ~10 min at 1Hz
-      statusEl.style.display = '';
-      statusEl.textContent = `wasm heap ${sample.heapMB} MB` +
-        (sample.jsMB !== null ? `   js ${sample.jsMB} MB` : '') +
-        (sample.totalMB !== null ? `   total ${sample.totalMB} MB` : '') +
-        `   (cap 2048 MB)`;
-      try { localStorage.setItem(TRACE_KEY, JSON.stringify(trail)); } catch (e) {}
-    }, 1000);
-  }
-
-  // --- Host file contract -------------------------------------------------------------
-  // The game reads its files from a plain in-memory filesystem; it has no knowledge of
-  // IndexedDB, the network, or whoever is embedding it. A host supplies them as bytes:
-  //
-  //   Module.shipFiles = {
-  //     '/oot.o2r':              Uint8Array,   // the game archive
-  //     '/shipofharkinian.json': Uint8Array,   // config (optional)
-  //     '/Save/file1.sav':       Uint8Array,   // a save file (optional)
-  //   };
-  //
-  // Set it before soh.js loads. Paths are absolute; parent directories are created as
-  // needed. An embedder (Prelude of Light) can therefore hand over an archive it already
-  // holds without a copy or a download, and this build stays agnostic about where the
-  // bytes came from.
-  //
-  // soh.o2r is NOT in this list on purpose: it ships inside the module, version-locked to
-  // the binary, so a host cannot pair a stale port archive with a newer build.
-  function writeHostFiles() {
-    const files = Module.shipFiles;
-    // A build made with -DSOH_WASM_HOST_FILES=ON carries no game archive, so without
-    // shipFiles the game boots into a black screen with nothing to render. Say so, rather
-    // than leaving the reader to guess.
-    if (!files && !Module.FS.analyzePath('/oot.o2r').exists) {
-      const msg = 'No game archive.\n\n' +
-        'This build expects the page to supply oot.o2r (it was built with\n' +
-        'SOH_WASM_HOST_FILES=ON). Set Module.shipFiles before loading soh.js:\n\n' +
-        "  Module.shipFiles = { '/oot.o2r': bytes };\n\n" +
-        'See soh/wasm/EMBEDDING.md, or host.html for a worked example.';
-      statusEl.style.display = '';
-      statusEl.textContent = msg;
-      console.error(msg);
-      throw new Error('shipFiles: no /oot.o2r provided');
-    }
-    if (!files) return;
-    for (const [path, bytes] of Object.entries(files)) {
-      const dir = path.slice(0, path.lastIndexOf('/'));
-      if (dir) Module.FS.mkdirTree(dir);
-      Module.FS.writeFile(path, bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes));
-    }
-    console.log(`shipFiles: wrote ${Object.keys(files).length} file(s) into the VFS`);
-  }
+  SohHostPage.startMemtrace(statusEl);
 
   var Module = {
     canvas: document.getElementById('canvas'),
     // Keyboard input only reaches SDL when the canvas has focus.
-    preRun: [() => { Module.canvas.focus(); }, writeHostFiles],
+    preRun: [() => { Module.canvas.focus(); }, () => SohHostPage.writeHostFiles(statusEl)],
     setStatus: (text) => { statusEl.textContent = text; if (!text) statusEl.style.display = 'none'; },
     print: (...args) => console.log(...args),
     printErr: (...args) => console.error(...args),

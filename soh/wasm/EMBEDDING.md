@@ -21,6 +21,12 @@ Serve all three plus your host page from the same directory.
 Without `SOH_WASM_HOST_FILES` the archives are baked into `soh.data` instead — convenient
 for local testing, useless for an embedder.
 
+Either way `soh.js` carries `Module.sohBuild` (generated from `soh/wasm/build-info.js.in`):
+whether the build expects the page to supply `oot.o2r`, and which paths are already packaged
+in `soh.data`. `soh.data` is unpacked after `preRun`, so a page that writes one of those
+paths itself makes the unpack fail and the module never starts. The bundled pages read it
+through `soh/wasm/host-page.js`; an embedder using a host-files build does not need to.
+
 ## The contract
 
 Set `Module.shipFiles` **before** `soh.js` loads. Keys are absolute VFS paths, values are
@@ -118,7 +124,7 @@ desktop mod list cannot break the Mod Menu here.
   `~/Library/Application Support/Google/Chrome/Crashpad/completed/` hold more: the
   crashing thread's name, the exception, and — when V8 was compiling wasm — a
   `wasm-function#N` string naming the function (map N through the name section). One such
-  crash has already been found and fixed this way; see `wasm-port.md`, "Other traps". The host pages take `?memtrace`, which
+  crash has already been found and fixed this way; see `wasm-port.md`, "Other traps". The host pages take `?memtrace` (`host-page.js`), which
   samples the wasm heap (`Module.HEAPU8`, exported for this), the JS heap, and — when the page
   is cross-origin isolated — the whole renderer, once a second into `localStorage`; after the
   crash, reload with `?memtrace` and the previous run is printed as a table, or read

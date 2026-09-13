@@ -17,7 +17,7 @@ test("host.html boots with every host file present", () =>
         expect(await game.problems()).toEqual([]);
     }), TEST_TIMEOUT);
 
-knownBug("B3", "host.html boots cleanly when an optional save is missing", () =>
+test("host.html boots cleanly when an optional save is missing", () =>
     withPage(
         suite,
         "/build/host.html",
@@ -29,7 +29,7 @@ knownBug("B3", "host.html boots cleanly when an optional save is missing", () =>
     ), TEST_TIMEOUT);
 
 if (BAKED_BUILD_DIR) {
-    knownBug("B2", "a baked build boots from its own index.html", () =>
+    test("a baked build boots from its own index.html", () =>
         withPage(suite, "/baked/index.html", undefined, async (game) => {
             await game.waitForEvent("scene", { timeout: BOOT_TIMEOUT });
             expect(await game.problems()).toEqual([]);

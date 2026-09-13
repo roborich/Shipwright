@@ -847,6 +847,13 @@ if(EMSCRIPTEN)
         -sEXIT_RUNTIME=0
     )
 
+    # --preload-file inputs reach the link only as options, and CMake does not treat those as
+    # dependencies: a regenerated soh.o2r would leave soh up to date and soh.data stale.
+    set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY LINK_DEPENDS "${SOH_WASM_ASSET_DIR}/soh.o2r")
+
+    # VFS paths packaged in soh.data, reported to the page through build-info.js below.
+    set(_soh_wasm_baked_files "/soh.o2r")
+
     # A profile directory (config + saves) baked into the VFS. Under Emscripten
     # Context::GetAppDirectoryPath() falls through to ".", so SoH looks for
     # ./shipofharkinian.json and ./Save/*.sav at the filesystem root.
@@ -867,9 +874,21 @@ if(EMSCRIPTEN)
             file(COPY "${SOH_WASM_PROFILE_DIR}/Save" DESTINATION "${_soh_wasm_profile}"
                  FILES_MATCHING PATTERN "*.sav")
         endif()
+        # The copy above runs at configure time, so an edited profile needs a reconfigure (for
+        # files that existed when it last ran) and a relink. A newly added save needs a manual
+        # reconfigure.
+        file(GLOB _soh_wasm_profile_sources "${SOH_WASM_PROFILE_DIR}/shipofharkinian.json"
+             "${SOH_WASM_PROFILE_DIR}/Save/*.sav")
+        file(GLOB_RECURSE _soh_wasm_profile_staged "${_soh_wasm_profile}/*")
+        set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${_soh_wasm_profile_sources})
+        set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY LINK_DEPENDS ${_soh_wasm_profile_staged})
         target_link_options(${PROJECT_NAME} PRIVATE
             "SHELL:--preload-file ${_soh_wasm_profile}/shipofharkinian.json@/shipofharkinian.json"
         )
+        list(APPEND _soh_wasm_baked_files "/shipofharkinian.json")
+        file(GLOB _soh_wasm_staged_saves RELATIVE "${_soh_wasm_profile}" "${_soh_wasm_profile}/Save/*.sav")
+        list(TRANSFORM _soh_wasm_staged_saves PREPEND "/")
+        list(APPEND _soh_wasm_baked_files ${_soh_wasm_staged_saves})
         if(EXISTS "${_soh_wasm_profile}/Save")
             target_link_options(${PROJECT_NAME} PRIVATE
                 "SHELL:--preload-file ${_soh_wasm_profile}/Save@/Save"
@@ -888,13 +907,31 @@ if(EMSCRIPTEN)
         if(NOT EXISTS "${SOH_WASM_ASSET_DIR}/oot.o2r")
             message(FATAL_ERROR
                 "oot.o2r not found in ${SOH_WASM_ASSET_DIR}. Extract it with a desktop "
-                "build, or configure with -DSOH_WASM_GUI_ONLY=ON to boot without the game.")
+                "build, or configure with -DSOH_WASM_HOST_FILES=ON to have the page supply it.")
         endif()
         target_link_options(${PROJECT_NAME} PRIVATE
             "SHELL:--preload-file ${SOH_WASM_ASSET_DIR}/oot.o2r@/oot.o2r"
         )
+        set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY LINK_DEPENDS "${SOH_WASM_ASSET_DIR}/oot.o2r")
+        list(APPEND _soh_wasm_baked_files "/oot.o2r")
     endif()
 
+    # Tells the page how this module was built: whether it must supply oot.o2r, and which
+    # paths it must not write because soh.data already has them. See host-page.js.
+    if(SOH_WASM_HOST_FILES)
+        set(SOH_WASM_BUILD_INFO_HOST_FILES true)
+    else()
+        set(SOH_WASM_BUILD_INFO_HOST_FILES false)
+    endif()
+    list(JOIN _soh_wasm_baked_files "\", \"" _soh_wasm_baked_joined)
+    set(SOH_WASM_BUILD_INFO_BAKED_FILES "\"${_soh_wasm_baked_joined}\"")
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wasm/build-info.js.in
+                   ${CMAKE_CURRENT_BINARY_DIR}/build-info.js @ONLY)
+    target_link_options(${PROJECT_NAME} PRIVATE "SHELL:--pre-js ${CMAKE_CURRENT_BINARY_DIR}/build-info.js")
+    set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY LINK_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/build-info.js")
+
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wasm/host-page.js
+                   ${CMAKE_CURRENT_BINARY_DIR}/host-page.js COPYONLY)
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wasm/index.html
                    ${CMAKE_CURRENT_BINARY_DIR}/index.html COPYONLY)
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wasm/host.html
