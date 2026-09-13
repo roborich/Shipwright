@@ -6,7 +6,6 @@ export const REPO_DIR = resolve(TESTS_DIR, "../../..");
 
 export const BUILD_DIR = resolve(process.env.SOH_WASM_BUILD ?? join(REPO_DIR, "build-wasm-rel/soh"));
 export const FILES_DIR = resolve(process.env.SOH_WASM_FILES ?? join(BUILD_DIR, "hostfiles"));
-export const BAKED_BUILD_DIR = process.env.SOH_WASM_BAKED_BUILD ? resolve(process.env.SOH_WASM_BAKED_BUILD) : null;
 
 export const SLOW = process.env.SOH_WASM_SLOW === "1";
 export const SOAK = process.env.SOH_WASM_SOAK === "1";

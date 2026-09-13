@@ -12,26 +12,123 @@
 <body>
 <canvas id="canvas" tabindex="-1" oncontextmenu="event.preventDefault()"></canvas>
 <div id="status">fetching host files…</div>
-<script src="host-page.js"></script>
 <script>
 const statusEl = document.getElementById('status');
-SohHostPage.startMemtrace(statusEl);
 
-// --- Talking to the game (see EMBEDDING.md) -------------------------------------------
-// Outbound: the game dispatches CustomEvent('soh') on window; detail.type is 'load-game',
-// 'scene', 'file-saved' (path + bytes of a config/save the game wrote), 'quit' or 'error'.
-// Inbound: soh('entrance cd') runs a debug-console line.
+function showStatus(text) {
+  statusEl.style.display = '';
+  statusEl.textContent = text;
+}
+
+// --- Memory trace -----------------------------------------------------------------------
+// A renderer crash ("Aw, Snap") takes the console with it, so samples are kept in
+// localStorage and reported on the next load. The wasm heap can grow to 2GB by default
+// (Emscripten's MAXIMUM_MEMORY); an allocation past that aborts the module. Enable with
+// ?memtrace, read the previous run's trail from the console after a crash.
+const TRACE_KEY = 'soh-memtrace';       // the run in progress
+const PREV_KEY  = 'soh-memtrace-prev';  // the last finished/crashed run, kept for reading
+
+function reportPreviousTrace() {
+  // The finished run is moved to its own key rather than deleted, so it survives any
+  // number of reloads and can be read back by hand at any time:
+  //   JSON.parse(localStorage.getItem('soh-memtrace-prev'))
+  // Only the next run with ?memtrace overwrites it.
+  try {
+    const live = localStorage.getItem(TRACE_KEY);
+    if (live) localStorage.setItem(PREV_KEY, live);
+    localStorage.removeItem(TRACE_KEY);
+    const prev = JSON.parse(localStorage.getItem(PREV_KEY) || '[]');
+    if (prev.length) {
+      const last = prev[prev.length - 1];
+      const peak = prev.reduce((m, s) => Math.max(m, s.heapMB), 0);
+      console.warn(`memtrace: previous run ran ${last.t}s, ended at ${last.heapMB} MB, ` +
+                   `peak ${peak} MB (cap 2048). Trail:`);
+      console.table(prev);
+    } else {
+      console.warn('memtrace: no previous run recorded.');
+    }
+  } catch (e) { /* private mode, blocked storage: tracing is optional */ }
+}
+
+function startMemtrace() {
+  if (!new URLSearchParams(location.search).has('memtrace')) return;
+  reportPreviousTrace();
+  const started = Date.now();
+  const trail = [];
+  let lastTotalMB = null;
+  setInterval(() => {
+    const heap = Module.HEAPU8 ? Module.HEAPU8.buffer.byteLength : 0;
+    if (!heap) return;
+    const sample = {
+      t: Math.round((Date.now() - started) / 1000),
+      heapMB: Math.round(heap / 1048576),
+      jsMB: performance.memory ? Math.round(performance.memory.usedJSHeapSize / 1048576) : null,
+      totalMB: lastTotalMB, // whole renderer (wasm + JS + DOM + canvases); null unless cross-origin isolated
+    };
+    // performance.measureUserAgentSpecificMemory needs crossOriginIsolated and is async, so
+    // it is requested here and lands in the next sample.
+    if (self.crossOriginIsolated && performance.measureUserAgentSpecificMemory) {
+      performance.measureUserAgentSpecificMemory()
+        .then(m => { lastTotalMB = Math.round(m.bytes / 1048576); }, () => {});
+    }
+    trail.push(sample);
+    if (trail.length > 600) trail.shift();   // ~10 min at 1Hz
+    showStatus(`wasm heap ${sample.heapMB} MB` +
+      (sample.jsMB !== null ? `   js ${sample.jsMB} MB` : '') +
+      (sample.totalMB !== null ? `   total ${sample.totalMB} MB` : '') +
+      `   (cap 2048 MB)`);
+    try { localStorage.setItem(TRACE_KEY, JSON.stringify(trail)); } catch (e) {}
+  }, 1000);
+}
+
+startMemtrace();
+
+// --- Host files -------------------------------------------------------------------------
+// Writes Module.shipFiles (VFS path -> bytes, see HOST-API.md) into the filesystem during
+// preRun. oot.o2r is required. soh.o2r is not the page's to supply: it is packaged in
+// soh.data, version-locked to the binary, and unpacked after preRun, where a copy written
+// here would make the unpack fail.
+function writeHostFiles() {
+  const files = Module.shipFiles || {};
+  if (!files['/oot.o2r']) {
+    const msg = 'No game archive.\n\n' +
+      'The page must supply oot.o2r. Set Module.shipFiles before loading soh.js:\n\n' +
+      "  Module.shipFiles = { '/oot.o2r': bytes };\n\n" +
+      'See soh/wasm/HOST-API.md.';
+    showStatus(msg);
+    console.error(msg);
+    throw new Error('shipFiles: no /oot.o2r provided');
+  }
+  let written = 0;
+  for (const [path, bytes] of Object.entries(files)) {
+    if (path === '/soh.o2r') {
+      console.warn('shipFiles: /soh.o2r is packaged in soh.data; ignoring the page\'s copy');
+      continue;
+    }
+    const dir = path.slice(0, path.lastIndexOf('/'));
+    if (dir) Module.FS.mkdirTree(dir);
+    Module.FS.writeFile(path, bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes));
+    written++;
+  }
+  console.log(`shipFiles: wrote ${written} file(s) into the VFS`);
+}
+
+// --- Talking to the game (see HOST-API.md) ----------------------------------------------
+// Outbound: the game dispatches CustomEvent('soh') on window. Inbound: soh('entrance cd')
+// runs a debug-console line.
 window.addEventListener('soh', e => console.log('soh event', e.detail));
 window.soh = cmd => Module.ccall('Soh_RunConsoleCommand', 'number', ['string'], [cmd]);
 
 var Module = {
   canvas: document.getElementById('canvas'),
-  preRun: [() => { Module.canvas.focus(); }, () => SohHostPage.writeHostFiles(statusEl)],
+  // Keyboard input only reaches SDL when the canvas has focus.
+  preRun: [() => { Module.canvas.focus(); }, writeHostFiles],
   setStatus: t => { statusEl.textContent = t; if (!t) statusEl.style.display = 'none'; },
   print: (...a) => console.log(...a),
   printErr: (...a) => console.error(...a),
-  onAbort: w => { statusEl.style.display=''; statusEl.textContent = 'aborted: ' + w; },
+  onAbort: w => showStatus('aborted: ' + w),
 };
+
 // The files this page hands over, and whether the boot can go on without each one.
 const HOST_FILES = {
   '/oot.o2r':              { url: 'hostfiles/oot.o2r',             required: true },
@@ -61,7 +158,7 @@ async function fetchBytes(url) {
   s.src = 'soh.js';
   document.body.appendChild(s);
 })().catch(error => {
-  SohHostPage.show(statusEl, 'host: ' + error.message);
+  showStatus('host: ' + error.message);
   console.error(error);
 });
 </script>

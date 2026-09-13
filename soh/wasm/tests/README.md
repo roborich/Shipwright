@@ -28,7 +28,6 @@ bun test              # everything that is enabled
 |---|---|---|
 | `SOH_WASM_BUILD` | `build-wasm-rel/soh` | Directory with `soh.js`, `soh.wasm`, `soh.data` |
 | `SOH_WASM_FILES` | `$SOH_WASM_BUILD/hostfiles` | `oot.o2r`, `shipofharkinian.json`, `Save/file1.sav`, `Save/global.sav` |
-| `SOH_WASM_BAKED_BUILD` | unset | A build made with `SOH_WASM_HOST_FILES=OFF`; enables its boot test |
 | `SOH_WASM_SLOW` | unset | `1` runs the timing tests |
 | `SOH_WASM_SOAK` | unset | `1` runs the 10-minute memory soak |
 | `SOH_WASM_KNOWN_BUGS` | unset | `1` also runs tests for bugs that are not fixed yet |

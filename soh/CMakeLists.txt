@@ -806,29 +806,23 @@ endif()
 # SOH [WASM] Emscripten packaging
 ################################################################################
 if(EMSCRIPTEN)
-    # Where the pre-built .o2r archives live. They are produced by a desktop build
-    # (ZAPD is a host tool), then baked into the module's virtual filesystem at the
-    # paths LocateFileAcrossAppDirs searches. Override to point at your own copies.
+    # Where the pre-built soh.o2r lives. It is produced by a desktop build (ZAPD is a host
+    # tool), then packaged into the module's virtual filesystem at the path
+    # LocateFileAcrossAppDirs searches. Override to point at your own copy.
     set(SOH_WASM_ASSET_DIR "${CMAKE_SOURCE_DIR}/build-cmake/soh" CACHE PATH
-        "Directory holding pre-built soh.o2r / oot.o2r for the wasm build")
+        "Directory holding a pre-built soh.o2r for the wasm build")
 
-    # When ON, oot.o2r / config / saves are NOT baked into the module. The host page
-    # supplies them as bytes instead (Module.shipFiles; see soh/wasm/index.html), which is
-    # how an embedder such as Prelude of Light hands over an archive it already holds
-    # without a second copy or a download. soh.o2r stays baked in either way: it is built
-    # from this repo and version-checked against gBuildVersion, so letting a host supply it
-    # only invites version-mismatch bugs.
-    option(SOH_WASM_HOST_FILES "Take oot.o2r, config and saves from the host page at boot" OFF)
-
+    # soh.o2r is the only game file the build carries: it is built from this repo and
+    # version-checked against gBuildVersion, so a host supplying it could only pair a stale
+    # port archive with a newer binary. Everything else -- oot.o2r, the config, saves, mods --
+    # the page embedding the build hands over as bytes (Module.shipFiles; see
+    # soh/wasm/HOST-API.md and host.html). Nothing extracted from a ROM ends up in the output.
     if(NOT EXISTS "${SOH_WASM_ASSET_DIR}/soh.o2r")
         message(FATAL_ERROR
             "soh.o2r not found in ${SOH_WASM_ASSET_DIR}. Build it from a desktop build "
             "(`make GenerateSohOtr`) and point -DSOH_WASM_ASSET_DIR at it.")
     endif()
 
-    # SHELL: keeps each --preload-file and its path together as one unit. Without it CMake
-    # de-duplicates the repeated `--preload-file` token and silently drops all but the first
-    # archive.
     target_link_options(${PROJECT_NAME} PRIVATE
         "SHELL:--preload-file ${SOH_WASM_ASSET_DIR}/soh.o2r@/soh.o2r"
         -sFORCE_FILESYSTEM=1
@@ -856,87 +850,6 @@ if(EMSCRIPTEN)
     # dependencies: a regenerated soh.o2r would leave soh up to date and soh.data stale.
     set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY LINK_DEPENDS "${SOH_WASM_ASSET_DIR}/soh.o2r")
 
-    # VFS paths packaged in soh.data, reported to the page through build-info.js below.
-    set(_soh_wasm_baked_files "/soh.o2r")
-
-    # A profile directory (config + saves) baked into the VFS. Under Emscripten
-    # Context::GetAppDirectoryPath() falls through to ".", so SoH looks for
-    # ./shipofharkinian.json and ./Save/*.sav at the filesystem root.
-    #
-    # This is a stopgap: MEMFS is in-memory, so anything the game writes is lost on
-    # reload. Real persistence means IDBFS + syncfs, or handing these to Prelude along
-    # with the archives. Files are staged into the build tree first because
-    # --preload-file cannot cope with spaces in a source path.
-    set(SOH_WASM_PROFILE_DIR "" CACHE PATH
-        "Optional directory holding shipofharkinian.json and Save/ to bake into the wasm VFS")
-
-    if(SOH_WASM_PROFILE_DIR AND NOT SOH_WASM_HOST_FILES AND EXISTS "${SOH_WASM_PROFILE_DIR}/shipofharkinian.json")
-        set(_soh_wasm_profile "${CMAKE_CURRENT_BINARY_DIR}/wasm-profile")
-        file(REMOVE_RECURSE "${_soh_wasm_profile}")
-        file(MAKE_DIRECTORY "${_soh_wasm_profile}")
-        file(COPY "${SOH_WASM_PROFILE_DIR}/shipofharkinian.json" DESTINATION "${_soh_wasm_profile}")
-        if(EXISTS "${SOH_WASM_PROFILE_DIR}/Save")
-            file(COPY "${SOH_WASM_PROFILE_DIR}/Save" DESTINATION "${_soh_wasm_profile}"
-                 FILES_MATCHING PATTERN "*.sav")
-        endif()
-        # The copy above runs at configure time, so an edited profile needs a reconfigure (for
-        # files that existed when it last ran) and a relink. A newly added save needs a manual
-        # reconfigure.
-        file(GLOB _soh_wasm_profile_sources "${SOH_WASM_PROFILE_DIR}/shipofharkinian.json"
-             "${SOH_WASM_PROFILE_DIR}/Save/*.sav")
-        file(GLOB_RECURSE _soh_wasm_profile_staged "${_soh_wasm_profile}/*")
-        set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${_soh_wasm_profile_sources})
-        set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY LINK_DEPENDS ${_soh_wasm_profile_staged})
-        target_link_options(${PROJECT_NAME} PRIVATE
-            "SHELL:--preload-file ${_soh_wasm_profile}/shipofharkinian.json@/shipofharkinian.json"
-        )
-        list(APPEND _soh_wasm_baked_files "/shipofharkinian.json")
-        file(GLOB _soh_wasm_staged_saves RELATIVE "${_soh_wasm_profile}" "${_soh_wasm_profile}/Save/*.sav")
-        list(TRANSFORM _soh_wasm_staged_saves PREPEND "/")
-        list(APPEND _soh_wasm_baked_files ${_soh_wasm_staged_saves})
-        if(EXISTS "${_soh_wasm_profile}/Save")
-            target_link_options(${PROJECT_NAME} PRIVATE
-                "SHELL:--preload-file ${_soh_wasm_profile}/Save@/Save"
-            )
-        endif()
-        message(STATUS "WASM profile baked in from ${SOH_WASM_PROFILE_DIR}")
-    endif()
-
-    if(SOH_WASM_HOST_FILES)
-        # Nothing to bake: the host page writes the game archive into the VFS at boot.
-        message(STATUS "WASM: oot.o2r, config and saves come from the host page")
-    else()
-        # The game needs the asset archive too.
-        if(NOT EXISTS "${SOH_WASM_ASSET_DIR}/oot.o2r")
-            message(FATAL_ERROR
-                "oot.o2r not found in ${SOH_WASM_ASSET_DIR}. Extract it with a desktop "
-                "build, or configure with -DSOH_WASM_HOST_FILES=ON to have the page supply it.")
-        endif()
-        target_link_options(${PROJECT_NAME} PRIVATE
-            "SHELL:--preload-file ${SOH_WASM_ASSET_DIR}/oot.o2r@/oot.o2r"
-        )
-        set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY LINK_DEPENDS "${SOH_WASM_ASSET_DIR}/oot.o2r")
-        list(APPEND _soh_wasm_baked_files "/oot.o2r")
-    endif()
-
-    # Tells the page how this module was built: whether it must supply oot.o2r, and which
-    # paths it must not write because soh.data already has them. See host-page.js.
-    if(SOH_WASM_HOST_FILES)
-        set(SOH_WASM_BUILD_INFO_HOST_FILES true)
-    else()
-        set(SOH_WASM_BUILD_INFO_HOST_FILES false)
-    endif()
-    list(JOIN _soh_wasm_baked_files "\", \"" _soh_wasm_baked_joined)
-    set(SOH_WASM_BUILD_INFO_BAKED_FILES "\"${_soh_wasm_baked_joined}\"")
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wasm/build-info.js.in
-                   ${CMAKE_CURRENT_BINARY_DIR}/build-info.js @ONLY)
-    target_link_options(${PROJECT_NAME} PRIVATE "SHELL:--pre-js ${CMAKE_CURRENT_BINARY_DIR}/build-info.js")
-    set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY LINK_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/build-info.js")
-
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wasm/host-page.js
-                   ${CMAKE_CURRENT_BINARY_DIR}/host-page.js COPYONLY)
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wasm/index.html
-                   ${CMAKE_CURRENT_BINARY_DIR}/index.html COPYONLY)
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wasm/host.html
                    ${CMAKE_CURRENT_BINARY_DIR}/host.html COPYONLY)
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wasm/HOST-API.md

@@ -95,7 +95,7 @@ function installRecorder() {
     });
 }
 
-// Opens any page (host.html, index.html, the harness) with the event recorder installed.
+// Opens any page (host.html, the harness) with the event recorder installed.
 export async function openPage(browser: Browser, url: string, setup?: (page: Page) => Promise<void>): Promise<Game> {
     const context = await browser.newContext({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 2 });
     const page = await context.newPage();

@@ -10,22 +10,16 @@ likes and hands them over.
 ```
 emcmake cmake -H. -Bbuild-wasm-rel -G "Unix Makefiles" \
   -DCMAKE_BUILD_TYPE=Release \
-  -DSOH_WASM_ASSET_DIR=/path/to/o2r/files \
-  -DSOH_WASM_HOST_FILES=ON
+  -DSOH_WASM_ASSET_DIR=/path/to/dir/with/soh.o2r
 make -C build-wasm-rel soh -j10
 ```
 
 Outputs `soh.js`, `soh.wasm` (24.7 MB raw, **4.2 MB brotli**) and `soh.data` (4.55 MB).
 Serve all three plus your host page from the same directory.
 
-Without `SOH_WASM_HOST_FILES` the archives are baked into `soh.data` instead — convenient
-for local testing, useless for an embedder.
-
-Either way `soh.js` carries `Module.sohBuild` (generated from `soh/wasm/build-info.js.in`):
-whether the build expects the page to supply `oot.o2r`, and which paths are already packaged
-in `soh.data`. `soh.data` is unpacked after `preRun`, so a page that writes one of those
-paths itself makes the unpack fail and the module never starts. The bundled pages read it
-through `soh/wasm/host-page.js`; an embedder using a host-files build does not need to.
+`soh.data` holds `soh.o2r` and nothing else. The game archive, config and saves always come
+from the page, so the output contains nothing extracted from a ROM and can be published as is.
+For local play, `bun run serve` in `soh/wasm/tests` serves the build with `host.html`.
 
 ## The contract
 
@@ -124,7 +118,7 @@ desktop mod list cannot break the Mod Menu here.
   `~/Library/Application Support/Google/Chrome/Crashpad/completed/` hold more: the
   crashing thread's name, the exception, and — when V8 was compiling wasm — a
   `wasm-function#N` string naming the function (map N through the name section). One such
-  crash has already been found and fixed this way; see `wasm-port.md`, "Other traps". The host pages take `?memtrace` (`host-page.js`), which
+  crash has already been found and fixed this way; see `wasm-port.md`, "Other traps". `host.html` takes `?memtrace`, which
   samples the wasm heap (`Module.HEAPU8`, exported for this), the JS heap, and — when the page
   is cross-origin isolated — the whole renderer, once a second into `localStorage`; after the
   crash, reload with `?memtrace` and the previous run is printed as a table, or read

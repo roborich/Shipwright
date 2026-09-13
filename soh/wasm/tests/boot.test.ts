@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { BAKED_BUILD_DIR, BOOT_TIMEOUT, TEST_TIMEOUT } from "./lib/env";
+import { BOOT_TIMEOUT, TEST_TIMEOUT } from "./lib/env";
 import { DEFAULT_FILES, withoutFile } from "./lib/game";
 import { useSuite, withGame, withPage } from "./lib/suite";
 
@@ -27,16 +27,6 @@ test("host.html boots cleanly when an optional save is missing", () =>
             expect((await game.listDir("/Save")).filter((name) => name.endsWith(".bak"))).toEqual([]);
         },
     ), TEST_TIMEOUT);
-
-if (BAKED_BUILD_DIR) {
-    test("a baked build boots from its own index.html", () =>
-        withPage(suite, "/baked/index.html", undefined, async (game) => {
-            await game.waitForEvent("scene", { timeout: BOOT_TIMEOUT });
-            expect(await game.problems()).toEqual([]);
-        }), TEST_TIMEOUT);
-} else {
-    test.skip("[needs SOH_WASM_BAKED_BUILD] a baked build boots from its own index.html", () => {});
-}
 
 // SaveManager read every save's metadata at startup without catching a parse error, and left
 // its mutex locked when one threw. It now moves the file aside, as LoadFile already did.

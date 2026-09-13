@@ -1,6 +1,6 @@
 import { afterAll, beforeAll } from "bun:test";
 import type { Browser, Page } from "playwright-core";
-import { BAKED_BUILD_DIR, BUILD_DIR, FILES_DIR, TESTS_DIR, requireBuild } from "./env";
+import { BUILD_DIR, FILES_DIR, TESTS_DIR, requireBuild } from "./env";
 import { bootGame, launchBrowser, openPage, type BootOptions, type Game } from "./game";
 import { startServer, type Mounts, type TestServer } from "./server";
 import { join } from "node:path";
@@ -8,11 +8,7 @@ import { join } from "node:path";
 export type Suite = { browser: Browser; server: TestServer };
 
 export function defaultMounts(): Mounts {
-    const mounts: Mounts = { "/build/": BUILD_DIR, "/files/": FILES_DIR, "/page/": join(TESTS_DIR, "page") };
-    if (BAKED_BUILD_DIR) {
-        mounts["/baked/"] = BAKED_BUILD_DIR;
-    }
-    return mounts;
+    return { "/build/": BUILD_DIR, "/files/": FILES_DIR, "/page/": join(TESTS_DIR, "page") };
 }
 
 // One server and one browser per test file; each test gets its own browser context.
