@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "serve": "bun serve.ts",
     "test": "bun test",
     "unit": "bun test unit/",
     "smoke": "bun test smoke",

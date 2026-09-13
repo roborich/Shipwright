@@ -16,7 +16,17 @@ bun install
 bun run install-browser   # once, fetches Playwright's Chromium
 ```
 
-## Running
+## Playing a build
+
+```sh
+bun run serve         # http://127.0.0.1:8724/ -> host.html
+```
+
+Serves `SOH_WASM_BUILD` at `/` and `SOH_WASM_FILES` at `/hostfiles/`, which is where
+`host.html` fetches `oot.o2r`, the config and saves. `PORT` changes the port, and `HOST=0.0.0.0`
+makes it reachable from other devices. Nothing is cached, so a rebuild only needs a reload.
+
+## Running the tests
 
 ```sh
 bun test unit/        # pure helpers, no build needed (seconds)

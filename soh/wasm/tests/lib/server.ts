@@ -3,6 +3,11 @@ import { extname, resolve, sep } from "node:path";
 // URL prefix (with trailing slash) -> directory served under it.
 export type Mounts = Record<string, string>;
 export type TestServer = { url: string; stop: () => void };
+export type ServerOptions = {
+    port?: number; // 0 (the default) picks a free port
+    hostname?: string;
+    redirects?: Record<string, string>; // exact request path -> location
+};
 
 const CONTENT_TYPES: Record<string, string> = {
     ".html": "text/html; charset=utf-8",
@@ -37,12 +42,16 @@ export function findMount(mounts: Mounts, pathname: string): { dir: string; rest
     return prefix === undefined ? null : { dir: mounts[prefix], rest: pathname.slice(prefix.length) };
 }
 
-export function startServer(mounts: Mounts): TestServer {
+export function startServer(mounts: Mounts, { port = 0, hostname = "127.0.0.1", redirects = {} }: ServerOptions = {}): TestServer {
     const server = Bun.serve({
-        port: 0,
-        hostname: "127.0.0.1",
+        port,
+        hostname,
         async fetch(request) {
-            const mount = findMount(mounts, new URL(request.url).pathname);
+            const { pathname } = new URL(request.url);
+            if (redirects[pathname]) {
+                return Response.redirect(redirects[pathname], 302);
+            }
+            const mount = findMount(mounts, pathname);
             const path = mount && resolveWithin(mount.dir, mount.rest);
             const file = path ? Bun.file(path) : null;
             if (!path || !file || !(await file.exists())) {
@@ -51,5 +60,5 @@ export function startServer(mounts: Mounts): TestServer {
             return new Response(file, { headers: { "content-type": contentType(path), "cache-control": "no-store" } });
         },
     });
-    return { url: `http://127.0.0.1:${server.port}`, stop: () => server.stop(true) };
+    return { url: `http://${hostname}:${server.port}`, stop: () => server.stop(true) };
 }
