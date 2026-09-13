@@ -899,4 +899,6 @@ if(EMSCRIPTEN)
                    ${CMAKE_CURRENT_BINARY_DIR}/index.html COPYONLY)
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wasm/host.html
                    ${CMAKE_CURRENT_BINARY_DIR}/host.html COPYONLY)
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wasm/HOST-API.md
+                   ${CMAKE_CURRENT_BINARY_DIR}/HOST-API.md COPYONLY)
 endif()
