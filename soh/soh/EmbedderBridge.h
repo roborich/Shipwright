@@ -32,6 +32,9 @@ void Soh_EmbedderError(const char* message);
 // Called by Graph_ProcessGfxCommands with the number of frames it drew this tick; read
 // back through Soh_GetStats.
 void Soh_EmbedderCountDraws(size_t draws);
+// Called by the audio update when the SDL player is about to drop it; read back through
+// Soh_GetStats.
+void Soh_EmbedderCountAudioDrop(void);
 #ifdef __cplusplus
 }
 #endif

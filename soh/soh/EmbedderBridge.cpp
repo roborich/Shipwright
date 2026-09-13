@@ -111,17 +111,23 @@ static void ReportSavedFiles() {
 
 static uint64_t sTicks = 0;
 static uint64_t sDraws = 0;
+static uint64_t sAudioDrops = 0;
 
 void Soh_EmbedderCountDraws(size_t draws) {
     sDraws += draws;
+}
+
+void Soh_EmbedderCountAudioDrop(void) {
+    sAudioDrops++;
 }
 
 // Returns a JSON object, valid until the next call. updateRate is R_UPDATE_RATE, the game's
 // vsync divisor; sceneNum is -1 outside a play state.
 extern "C" EMSCRIPTEN_KEEPALIVE const char* Soh_GetStats(void) {
     static std::string json;
-    json = fmt::format(R"({{"ticks":{},"draws":{},"updateRate":{},"audioBuffered":{},"sceneNum":{}}})", sTicks, sDraws,
-                       R_UPDATE_RATE, AudioPlayer_Buffered(), gPlayState != nullptr ? gPlayState->sceneNum : -1);
+    json = fmt::format(R"({{"ticks":{},"draws":{},"updateRate":{},"audioBuffered":{},"audioDrops":{},"sceneNum":{}}})",
+                       sTicks, sDraws, R_UPDATE_RATE, AudioPlayer_Buffered(), sAudioDrops,
+                       gPlayState != nullptr ? gPlayState->sceneNum : -1);
     return json.c_str();
 }
 

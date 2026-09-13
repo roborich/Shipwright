@@ -272,6 +272,12 @@ static OTRVersion DetectOTRVersion(std::string path, bool isMq);
 static bool VerifyArchiveVersion(OTRVersion version);
 std::string portArchivePath = "";
 static bool sohArchiveVersionMatch = false;
+#ifdef __EMSCRIPTEN__
+// SOH [WASM] Audio queue target; see OTRGlobals::Initialize.
+#define WASM_AUDIO_DESIRED_BUFFERED 4320
+// SOH [WASM] SDLAudioPlayer::DoPlay discards a whole packet when this many samples are queued.
+#define WASM_SDL_AUDIO_DROP_THRESHOLD 6000
+#endif
 
 OTRGlobals::OTRGlobals() {
     context = Ship::Context::CreateUninitializedInstance("Ship of Harkinian", appShortName, "shipofharkinian.json");
@@ -830,8 +836,12 @@ void OTRGlobals::Initialize() {
     // whole frame interval plus any spike. At 32 kHz, 1680 samples is 52ms against a 50ms
     // frame -- around 2ms of headroom, so anything that stalls a frame (the pause screen's
     // framebuffer capture, a synchronous resource load) is audible. 6400 samples is 200ms,
-    // about four frames of slack.
-    context->InitAudio({ .SampleRate = 32000, .SampleLength = 1024, .DesiredBuffered = 6400 });
+    // about four frames of slack -- but LUS's SDL player drops any packet offered while 6000
+    // samples are already queued (SDLAudioPlayer::DoPlay). The game only asks for more while
+    // the queue is under this target and then queues up to three 560-sample updates, so the
+    // target has to leave that much room: 6000 - 3 * 560 = 4320, 135ms. See the static_assert
+    // next to SAMPLES_HIGH.
+    context->InitAudio({ .SampleRate = 32000, .SampleLength = 1024, .DesiredBuffered = WASM_AUDIO_DESIRED_BUFFERED });
 #else
     context->InitAudio({ .SampleRate = 32000, .SampleLength = 1024, .DesiredBuffered = 1680 });
 #endif
@@ -1046,18 +1056,29 @@ static void OTRAudio_FillBuffer() {
 #define SAMPLES_LOW 528
 
 #define AUDIO_FRAMES_PER_UPDATE (R_UPDATE_RATE > 0 ? R_UPDATE_RATE : 1)
+#ifdef __EMSCRIPTEN__
+    // SOH [WASM] The most the queue can hold after a top-up must stay under the SDL player's
+    // 6000-sample drop threshold, or whole packets of audio are thrown away.
+    static_assert(WASM_AUDIO_DESIRED_BUFFERED + 3 * SAMPLES_HIGH <= WASM_SDL_AUDIO_DROP_THRESHOLD,
+                  "wasm audio target leaves no room for a full update below SDLAudioPlayer's drop threshold");
+#endif
 #define NUM_AUDIO_CHANNELS 2
 
-        int samples_left = AudioPlayer_Buffered();
-        u32 num_audio_samples = samples_left < AudioPlayer_GetDesiredBuffered() ? SAMPLES_HIGH : SAMPLES_LOW;
+    int samples_left = AudioPlayer_Buffered();
+    u32 num_audio_samples = samples_left < AudioPlayer_GetDesiredBuffered() ? SAMPLES_HIGH : SAMPLES_LOW;
 
-        // 3 is the maximum authentic frame divisor.
-        s16 audio_buffer[SAMPLES_HIGH * NUM_AUDIO_CHANNELS * 3];
-        for (int i = 0; i < AUDIO_FRAMES_PER_UPDATE; i++) {
-            AudioMgr_CreateNextAudioBuffer(audio_buffer + i * (num_audio_samples * NUM_AUDIO_CHANNELS),
-                                           num_audio_samples);
-        }
+    // 3 is the maximum authentic frame divisor.
+    s16 audio_buffer[SAMPLES_HIGH * NUM_AUDIO_CHANNELS * 3];
+    for (int i = 0; i < AUDIO_FRAMES_PER_UPDATE; i++) {
+        AudioMgr_CreateNextAudioBuffer(audio_buffer + i * (num_audio_samples * NUM_AUDIO_CHANNELS), num_audio_samples);
+    }
 
+#ifdef __EMSCRIPTEN__
+    // SOH [WASM] Count the updates the SDL player is about to throw away, for Soh_GetStats.
+    if (samples_left >= WASM_SDL_AUDIO_DROP_THRESHOLD) {
+        Soh_EmbedderCountAudioDrop();
+    }
+#endif
     AudioPlayer_Play((u8*)audio_buffer,
                      num_audio_samples * (sizeof(int16_t) * NUM_AUDIO_CHANNELS * AUDIO_FRAMES_PER_UPDATE));
 }

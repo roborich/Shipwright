@@ -6,6 +6,7 @@ export type StatsSample = {
     draws: number;
     updateRate: number;
     audioBuffered: number;
+    audioDrops: number;
 };
 
 export type RateSegment = { updateRate: number; durationMs: number; measuredHz: number; expectedHz: number; error: number };
@@ -41,8 +42,9 @@ export function drawsPerTick(samples: StatsSample[]): number {
     return (last.draws - first.draws) / (last.ticks - first.ticks);
 }
 
-export function maxAudioBuffered(samples: StatsSample[]): number {
-    return Math.max(...samples.map((s) => s.audioBuffered));
+// Audio updates the SDL player discarded between the first sample and the last.
+export function audioDropsDuring(samples: StatsSample[]): number {
+    return samples[samples.length - 1].audioDrops - samples[0].audioDrops;
 }
 
 // True when the audio queue went down at some point, i.e. the device is consuming it. A

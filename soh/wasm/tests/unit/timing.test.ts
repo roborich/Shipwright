@@ -1,12 +1,13 @@
 import { expect, test } from "bun:test";
-import { audioDrains, drawsPerTick, maxAudioBuffered, tickRateSegments, type StatsSample } from "../lib/timing";
+import { audioDrains, audioDropsDuring, drawsPerTick, tickRateSegments, type StatsSample } from "../lib/timing";
 
-const sample = (t: number, ticks: number, updateRate: number, draws = ticks, audioBuffered = 0): StatsSample => ({
+const sample = (t: number, ticks: number, updateRate: number, draws = ticks, audioBuffered = 0, audioDrops = 0): StatsSample => ({
     t,
     ticks,
     draws,
     updateRate,
     audioBuffered,
+    audioDrops,
 });
 
 test("tickRateSegments measures each constant-rate run against 60 / R_UPDATE_RATE", () => {
@@ -30,9 +31,9 @@ test("tickRateSegments reports a loop running 4% fast", () => {
 });
 
 test("drawsPerTick and the audio helpers", () => {
-    const samples = [sample(0, 10, 3, 10, 4000), sample(1000, 30, 3, 70, 5000), sample(2000, 50, 3, 130, 4600)];
+    const samples = [sample(0, 10, 3, 10, 4000, 2), sample(1000, 30, 3, 70, 5000, 2), sample(2000, 50, 3, 130, 4600, 5)];
     expect(drawsPerTick(samples)).toBe(3);
-    expect(maxAudioBuffered(samples)).toBe(5000);
+    expect(audioDropsDuring(samples)).toBe(3);
     expect(audioDrains(samples)).toBe(true);
     expect(audioDrains(samples.slice(0, 2))).toBe(false);
 });

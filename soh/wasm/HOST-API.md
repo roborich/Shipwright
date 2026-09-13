@@ -71,10 +71,11 @@ For tests and profiling, not for building on: the fields can change without noti
 
 ```js
 JSON.parse(Module.ccall('Soh_GetStats', 'string'));
-// { ticks, draws, updateRate, audioBuffered, sceneNum }
+// { ticks, draws, updateRate, audioBuffered, audioDrops, sceneNum }
 ```
 
 `ticks` counts frame-loop callbacks and `draws` the frames drawn in them; more than one draw
 per tick means frame interpolation is on. `updateRate` is the game's vsync divisor (the loop
 runs at `60 / updateRate` Hz). `audioBuffered` is the number of samples queued for the audio
-device. `sceneNum` is `-1` outside a play state.
+device, and `audioDrops` the updates discarded because that queue was already full. `sceneNum`
+is `-1` outside a play state.
