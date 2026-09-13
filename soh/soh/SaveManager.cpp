@@ -437,7 +437,13 @@ void SaveManager::Init() {
         std::ifstream input(sGlobalPath);
 
         nlohmann::json globalBlock;
-        input >> globalBlock;
+        try {
+            input >> globalBlock;
+        } catch (const std::exception& e) {
+            // Treated like a global save with no version, below: it is rebuilt.
+            SPDLOG_WARN("Global save could not be read: {}", e.what());
+            globalBlock = nlohmann::json::object();
+        }
 
         if (!globalBlock.contains("version")) {
             SPDLOG_WARN("Global save does not contain a version. We are reconstructing it.");
@@ -471,6 +477,30 @@ void SaveManager::Init() {
     OTRGlobals::Instance->gRandoContext->ClearItemLocations();
 }
 
+int copy_file(const char* src, const char* dst);
+
+// Moves a save aside as file<N>-<timestamp>.bak, so the next boot does not read it again, and
+// returns the new path. The caller tells the player why.
+static std::string MoveSaveAside(int fileNum, const std::filesystem::path& fileName) {
+    std::string newFileName =
+        Ship::Context::GetPathRelativeToAppDirectory("Save") +
+        ("/file" + std::to_string(fileNum + 1) + "-" + std::to_string(GetUnixTimestamp()) + ".bak");
+#if defined(__SWITCH__) || defined(__WIIU__)
+    copy_file(fileName.c_str(), newFileName.c_str());
+    std::filesystem::remove(fileName);
+#else
+    std::filesystem::rename(fileName, newFileName);
+#endif
+    return newFileName;
+}
+
+static void ReportCorruptSave(int fileNum) {
+    SohGui::RegisterPopup("Error loading save file", "A problem occurred loading the save in slot " +
+                                                         std::to_string(fileNum + 1) +
+                                                         ".\nSave file corruption is suspected.\n" +
+                                                         "The file has been renamed to prevent further issues.");
+}
+
 void SaveManager::StartupCheckAndInitMeta(int fileNum) {
     saveMtx.lock();
     SPDLOG_INFO("Init Meta - fileNum: {}", fileNum);
@@ -480,7 +510,18 @@ void SaveManager::StartupCheckAndInitMeta(int fileNum) {
 
     bool deleteRando = false;
     nlohmann::json metaSaveBlock = nlohmann::json::object();
-    input >> metaSaveBlock;
+    try {
+        input >> metaSaveBlock;
+    } catch (const std::exception& e) {
+        // Unlike LoadFile, this read had no handler: a save that is not JSON threw out of Init
+        // and left saveMtx locked.
+        input.close();
+        saveMtx.unlock();
+        SPDLOG_ERROR("Save at {} could not be read: {}", fileName.string(), e.what());
+        MoveSaveAside(fileNum, fileName);
+        ReportCorruptSave(fileNum);
+        return;
+    }
     input.close();
     saveMtx.unlock();
     if (!metaSaveBlock.contains("version")) {
@@ -511,15 +552,7 @@ void SaveManager::StartupCheckAndInitMeta(int fileNum) {
         s16 patch = metaSaveBlock["sections"]["sohStats"]["data"]["buildVersionPatch"];
         // block loading outdated rando save
         if (!(major == gBuildVersionMajor && minor == gBuildVersionMinor && patch == gBuildVersionPatch)) {
-            std::string newFileName =
-                Ship::Context::GetPathRelativeToAppDirectory("Save") +
-                ("/file" + std::to_string(fileNum + 1) + "-" + std::to_string(GetUnixTimestamp()) + ".bak");
-#if defined(__SWITCH__) || defined(__WIIU__)
-            copy_file(fileName.c_str(), newFileName.c_str());
-            std::filesystem::remove(fileName);
-#else
-            std::filesystem::rename(fileName, newFileName);
-#endif
+            std::string newFileName = MoveSaveAside(fileNum, fileName);
             SohGui::RegisterPopup("Outdated Randomizer Save",
                                   "The SoH version in the file in slot " + std::to_string(fileNum + 1) +
                                       " does not match the currently running version.\n" +
@@ -1313,19 +1346,8 @@ void SaveManager::LoadFile(int fileNum) {
         GameInteractor::Instance->ExecuteHooks<GameInteractor::OnLoadFile>(fileNum);
     } catch (const std::exception& e) {
         input.close();
-        std::string newFileName =
-            Ship::Context::GetPathRelativeToAppDirectory("Save") +
-            ("/file" + std::to_string(fileNum + 1) + "-" + std::to_string(GetUnixTimestamp()) + ".bak");
-#if defined(__SWITCH__) || defined(__WIIU__)
-        copy_file(fileName.c_str(), newFileName.c_str());
-        std::filesystem::remove(fileName);
-#else
-        std::filesystem::rename(fileName, newFileName);
-#endif
-        SohGui::RegisterPopup("Error loading save file", "A problem occurred loading the save in slot " +
-                                                             std::to_string(fileNum + 1) +
-                                                             ".\nSave file corruption is suspected.\n" +
-                                                             "The file has been renamed to prevent further issues.");
+        MoveSaveAside(fileNum, fileName);
+        ReportCorruptSave(fileNum);
     }
     saveMtx.unlock();
 }

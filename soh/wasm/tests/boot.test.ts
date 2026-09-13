@@ -39,9 +39,9 @@ if (BAKED_BUILD_DIR) {
     test.skip("[needs SOH_WASM_BAKED_BUILD] a baked build boots from its own index.html", () => {});
 }
 
-// S1: SaveManager reads every save's metadata at startup without catching a parse error,
-// and leaves its mutex locked when one throws. LoadFile already catches and keeps a .bak.
-knownBug("S1", "a save that is not JSON does not stop the game at boot", () =>
+// SaveManager read every save's metadata at startup without catching a parse error, and left
+// its mutex locked when one threw. It now moves the file aside, as LoadFile already did.
+test("a save that is not JSON does not stop the game at boot", () =>
     withGame(suite, { inlineFiles: { "/Save/file2.sav": "this is not a save" } }, async (game) => {
         await game.waitForEvent("scene", { timeout: BOOT_TIMEOUT });
         await Bun.sleep(2000);
