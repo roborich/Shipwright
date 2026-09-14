@@ -16,6 +16,12 @@ bun install
 bun run install-browser   # once, fetches Playwright's Chromium
 ```
 
+bun 1.4 or newer. 1.2.x drops Playwright's DevTools pipe partway through a multi-file run:
+Chromium logs `Connection terminated while reading from pipe` and exits cleanly, and every
+test after that waits out its full timeout on a browser that is gone. It never shows when a
+single file runs, which is what made it look like the game. `run-tests.ts` refuses older
+versions; `bun upgrade` fixes it.
+
 ## Playing a build
 
 ```sh
@@ -45,6 +51,23 @@ bun test              # everything that is enabled
 
 The files directory needs a desktop-style config whose keyboard mapping has A on X, B on C
 and Start on Space; the tests drive file select with those keys.
+
+`bun test` (via `run-tests.ts`) is capped at 30 minutes of wall clock, `SOH_WASM_BUDGET_MIN`
+to change it; `bun test smoke` and `bun test unit/` run the runner directly.
+
+## If a run hangs
+
+`bun test` applies its timeout to test bodies only, not to `beforeAll` / `afterAll` hooks or
+to its own exit. A page that never answers `page.evaluate` (bounded in `lib/game.ts`) also
+never finishes closing, which is why `afterAll` bounds `browser.close()` and kills the
+browser process if it does not finish, and why `run-tests.ts` caps the whole run. If a run
+still sits idle, `ps -o pid,etime,command | grep "bun test"` finds it; one listening socket
+and no browser under it means the runner finished its tests and could not exit.
+
+To see what the browser itself is doing, run with `DEBUG=pw:browser`: Playwright then prints
+every browser launch, exit code, and stderr line, which is how the bun pipe bug above was
+found. A failed call into the page also appends the page's recent console errors to the
+error, which arrive over the protocol and so survive a stuck main thread.
 
 ## Layout
 

@@ -4,12 +4,15 @@
   "type": "module",
   "scripts": {
     "serve": "bun serve.ts",
-    "test": "bun test",
+    "test": "bun run-tests.ts",
     "unit": "bun test unit/",
-    "smoke": "bun test smoke",
+    "smoke": "bun run-tests.ts smoke",
     "install-browser": "bunx playwright-core install chromium"
   },
   "devDependencies": {
     "playwright-core": "1.62.1"
+  },
+  "engines": {
+    "bun": ">=1.4.0"
   }
 }
