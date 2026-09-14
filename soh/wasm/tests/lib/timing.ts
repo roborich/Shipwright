@@ -42,7 +42,8 @@ export function drawsPerTick(samples: StatsSample[]): number {
     return (last.draws - first.draws) / (last.ticks - first.ticks);
 }
 
-// Audio updates the SDL player discarded between the first sample and the last.
+// Audio updates the player discarded, because its queue was already full, between the first
+// sample and the last.
 export function audioDropsDuring(samples: StatsSample[]): number {
     return samples[samples.length - 1].audioDrops - samples[0].audioDrops;
 }

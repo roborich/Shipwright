@@ -19,6 +19,7 @@ export type WebAudioState = {
     failed: boolean;
     queued: number;
     consumed: number;
+    dropped: number;
     underruns: number;
 };
 type Recorder = {
@@ -36,6 +37,8 @@ export type BootOptions = {
     files?: Record<string, string>;
     // VFS path -> text, for configs a test builds itself.
     inlineFiles?: Record<string, string>;
+    // Runs in the page before any of its scripts, for breaking a browser API on purpose.
+    initScript?: string;
 };
 
 // N64 buttons on the keyboard, as the files directory's config maps them.
@@ -123,11 +126,14 @@ export async function bootGame(browser: Browser, server: TestServer, options: Bo
         inlineFiles: options.inlineFiles ?? {},
         moduleUrl: "/build/soh.js",
     };
-    const game = await openPage(browser, `${server.url}/page/harness.html`, (page) =>
-        page.addInitScript((config) => {
+    const game = await openPage(browser, `${server.url}/page/harness.html`, async (page) => {
+        await page.addInitScript((config) => {
             window.__sohBoot = config;
-        }, boot),
-    );
+        }, boot);
+        if (options.initScript) {
+            await page.addInitScript(options.initScript);
+        }
+    });
     await game.waitUntil(() => game.evaluate(() => window.__soh.runtimeReady), "the runtime to start", 60_000);
     return game;
 }
@@ -264,9 +270,9 @@ export class Game {
         return this.evaluate(() => Module.HEAPU8.buffer.byteLength);
     }
 
-    // The Web Audio player's state (libultraship WebAudioAudioPlayer.cpp), or null when another
-    // player is in use. Counts are frames; `underruns` is the number of 128-frame blocks the
-    // worklet had to fill with silence.
+    // The Web Audio player's state (libultraship WebAudioAudioPlayer.js), or null when another
+    // player is in use. Counts are frames; `underruns` is the number of render quanta the
+    // worklet had to fill with silence while the tab was visible.
     webAudio(): Promise<WebAudioState | null> {
         return this.evaluate(() => {
             const state = Module.LUSWebAudio;
@@ -277,6 +283,7 @@ export class Game {
                 failed: !!state.failed,
                 queued: state.queued,
                 consumed: state.consumed,
+                dropped: state.dropped,
                 underruns: state.underruns,
             };
         });

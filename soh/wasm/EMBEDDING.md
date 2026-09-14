@@ -145,9 +145,12 @@ desktop mod list cannot break the Mod Menu here.
   The Current FPS, Match Refresh Rate and Enable Vsync settings are hidden, and a config that
   sets them is ignored. (Emscripten's SDL also implements the swap interval by retiming the
   main loop, which used to fast-forward the game; those call sites are compiled out.)
-- **Keyboard only.** Controllers are untested, and `gamecontrollerdb.txt` is not shipped, so
-  SDL logs a harmless mapping-load failure at boot.
+- **Keyboard and controllers.** A controller works through SDL's Gamepad API backend (played
+  on an iPhone), but `gamecontrollerdb.txt` is not shipped, so SDL logs a harmless
+  mapping-load failure at boot and unusual controllers may map oddly.
 - **Audio starts on the first key, pointer, or touch.** Browsers keep an AudioContext
-  suspended until the page has had a user gesture, and a gamepad button is not one. The
-  player resumes itself on the first gesture and when the tab becomes visible again; until
-  then the game runs silent and its audio queue caps at the drop threshold.
+  suspended until the page has had a user gesture, and a gamepad button is not one, so a
+  controller-only session needs one touch of the screen first. After that the player resumes
+  itself whenever the context stops running: the tab coming back, or on iOS a phone call,
+  Siri, or a headphone change. Until then the game runs silent and its audio queue caps at
+  the drop threshold.
