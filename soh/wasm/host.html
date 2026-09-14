@@ -73,10 +73,17 @@ function startMemtrace() {
     }
     trail.push(sample);
     if (trail.length > 600) trail.shift();   // ~10 min at 1Hz
+    // The Web Audio player's counters (libultraship WebAudioAudioPlayer.cpp): frames queued
+    // ahead of the speaker, and the blocks the worklet had to fill with silence because a
+    // frame ran longer than that queue covered.
+    const audio = Module.LUSWebAudio;
+    const audioText = audio
+      ? `   audio ${audio.ctx.state} q${Math.max(0, audio.queued - audio.consumed)} underruns ${audio.underruns}`
+      : '';
     showStatus(`wasm heap ${sample.heapMB} MB` +
       (sample.jsMB !== null ? `   js ${sample.jsMB} MB` : '') +
       (sample.totalMB !== null ? `   total ${sample.totalMB} MB` : '') +
-      `   (cap 2048 MB)`);
+      `   (cap 2048 MB)` + audioText);
     try { localStorage.setItem(TRACE_KEY, JSON.stringify(trail)); } catch (e) {}
   }, 1000);
 }

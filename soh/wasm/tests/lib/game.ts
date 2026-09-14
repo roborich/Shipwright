@@ -13,6 +13,14 @@ declare global {
 }
 
 export type SohEvent = { type: string; at: number; [field: string]: any };
+export type WebAudioState = {
+    contextState: string;
+    ready: boolean;
+    failed: boolean;
+    queued: number;
+    consumed: number;
+    underruns: number;
+};
 type Recorder = {
     events: SohEvent[];
     savedBytes: Record<string, Uint8Array>;
@@ -254,6 +262,32 @@ export class Game {
 
     heapBytes(): Promise<number> {
         return this.evaluate(() => Module.HEAPU8.buffer.byteLength);
+    }
+
+    // The Web Audio player's state (libultraship WebAudioAudioPlayer.cpp), or null when another
+    // player is in use. Counts are frames; `underruns` is the number of 128-frame blocks the
+    // worklet had to fill with silence.
+    webAudio(): Promise<WebAudioState | null> {
+        return this.evaluate(() => {
+            const state = Module.LUSWebAudio;
+            if (!state) return null;
+            return {
+                contextState: state.ctx.state,
+                ready: state.node !== null,
+                failed: !!state.failed,
+                queued: state.queued,
+                consumed: state.consumed,
+                underruns: state.underruns,
+            };
+        });
+    }
+
+    // The text of a file the game reported through a 'file-saved' event, or null.
+    savedText(path: string): Promise<string | null> {
+        return this.evaluate((p) => {
+            const bytes = window.__soh.savedBytes[p];
+            return bytes ? new TextDecoder().decode(bytes) : null;
+        }, path);
     }
 
     // ---- filesystem -----------------------------------------------------------------------

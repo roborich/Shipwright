@@ -7,12 +7,13 @@ export function baseConfig(): any {
 }
 
 // The base config set up to play: debug mode off, because with DebugEnabled choosing file 1
-// opens map select instead of loading the save; and SDL audio named explicitly, because a
-// desktop config names a backend this build may not have (see audio.test.ts).
+// opens map select instead of loading the save; and the browser's own audio player named
+// explicitly, because a desktop config names a backend this build may not have (see
+// audio.test.ts).
 export function playConfig(): any {
     const config = baseConfig();
     config.CVars.gDeveloperTools = { ...config.CVars.gDeveloperTools, DebugEnabled: 0 };
-    config.Window = { ...config.Window, AudioBackend: "sdl" };
+    config.Window = { ...config.Window, AudioBackend: "webaudio" };
     return config;
 }
 

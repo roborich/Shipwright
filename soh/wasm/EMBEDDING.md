@@ -94,7 +94,7 @@ cannot turn them on:
 |---|---|---|
 | `gSettings.InterpolationFPS`, `gSettings.MatchRefreshRate` | ignored, hidden | One frame is drawn per game tick. Interpolated sub-frames would each be drawn and only the last would reach the screen: up to 3x the rendering per tick for nothing. |
 | `gSettings.VsyncEnabled` | ignored, hidden | Emscripten's SDL implements it by retiming the main loop, which fast-forwarded the game. |
-| `Window.AudioBackend` | falls back to SDL | A desktop config names `coreaudio` or `wasapi`, which this build does not have. It used to mean a silent game; LUS now uses the platform's own backend and writes that back. |
+| `Window.AudioBackend` | `webaudio` unless the config says `sdl` | A desktop config names `coreaudio` or `wasapi`, which this build does not have. It used to mean a silent game; LUS now uses the platform's own backend and writes that back. Here that is the Web Audio player, whose AudioWorklet runs on the browser's audio thread. SDL's player is kept as the fallback, but its callback runs on the main thread, so with it any frame longer than about 20 ms crackles (see `wasm-port.md`, "Other traps"). |
 
 MSAA and the internal resolution multiplier are the levers with real cost if tuning is ever
 needed; both scale fragment work directly. The multiplier is also how you get a sharper
@@ -147,3 +147,7 @@ desktop mod list cannot break the Mod Menu here.
   main loop, which used to fast-forward the game; those call sites are compiled out.)
 - **Keyboard only.** Controllers are untested, and `gamecontrollerdb.txt` is not shipped, so
   SDL logs a harmless mapping-load failure at boot.
+- **Audio starts on the first key, pointer, or touch.** Browsers keep an AudioContext
+  suspended until the page has had a user gesture, and a gamepad button is not one. The
+  player resumes itself on the first gesture and when the tab becomes visible again; until
+  then the game runs silent and its audio queue caps at the drop threshold.

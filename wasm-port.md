@@ -378,6 +378,19 @@ not UI surface area.
   `~/Library/Application Support/Google/Chrome/Crashpad/completed/` carry the thread name,
   the exception, and the V8 debug name of whatever was being compiled.
 
+- **SDL's audio callback runs on the main thread (found 2026-09-14).** Emscripten's SDL2
+  plays through a ScriptProcessorNode whose `onaudioprocess` is a main-thread event, sized by
+  `SampleLength` (1024 frames, 21 ms at the iPhone's 48 kHz). The browser tolerates about one
+  missed callback, so any single frame longer than roughly 20-40 ms crackled -- the pause
+  screen, a fast camera flip -- however much audio SDL had queued, because the code that moves
+  samples from that queue to the device was the thing being starved. Every `DesiredBuffered`
+  number in `OTRGlobals.cpp` was tuning a queue upstream of the real bottleneck. Fixed with a
+  LUS `WebAudioAudioPlayer` (Emscripten only): an AudioWorklet fed by `postMessage` with
+  transferred buffers, no SharedArrayBuffer, so the consumer runs on the audio thread and the
+  135 ms queue target is real headroom. It is the browser default; SDL stays as the fallback
+  for browsers without AudioWorklet. `Module.LUSWebAudio.underruns` counts the blocks the
+  worklet filled with silence, and `host.html?memtrace` shows it.
+
 Confirmed *not* to be problems: `PadMgr_ThreadEntry` (`padmgr.c:422` — non-blocking recv
 then `break`), `Sleep_Msec` (`sleep.c:10`, returns immediately), the `OS_MESG_BLOCK` call
 sites (all hit LUS's non-blocking stubs), `IsFrameReady()` (`gfx_sdl2.cpp:635`, always

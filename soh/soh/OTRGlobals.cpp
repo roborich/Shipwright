@@ -275,8 +275,9 @@ static bool sohArchiveVersionMatch = false;
 #ifdef __EMSCRIPTEN__
 // SOH [WASM] Audio queue target; see OTRGlobals::Initialize.
 #define WASM_AUDIO_DESIRED_BUFFERED 4320
-// SOH [WASM] SDLAudioPlayer::DoPlay discards a whole packet when this many samples are queued.
-#define WASM_SDL_AUDIO_DROP_THRESHOLD 6000
+// SOH [WASM] Both browser players (WebAudioAudioPlayer, and SDLAudioPlayer::DoPlay as the
+// fallback) discard a whole update when this many frames are already queued.
+#define WASM_AUDIO_DROP_THRESHOLD 6000
 #endif
 
 OTRGlobals::OTRGlobals() {
@@ -867,12 +868,16 @@ void OTRGlobals::Initialize() {
     // than by an audio thread that refills independently, so the buffer has to cover a
     // whole frame interval plus any spike. At 32 kHz, 1680 samples is 52ms against a 50ms
     // frame -- around 2ms of headroom, so anything that stalls a frame (the pause screen's
-    // framebuffer capture, a synchronous resource load) is audible. 6400 samples is 200ms,
-    // about four frames of slack -- but LUS's SDL player drops any packet offered while 6000
-    // samples are already queued (SDLAudioPlayer::DoPlay). The game only asks for more while
-    // the queue is under this target and then queues up to three 560-sample updates, so the
-    // target has to leave that much room: 6000 - 3 * 560 = 4320, 135ms. See the static_assert
-    // next to SAMPLES_HIGH.
+    // framebuffer capture, a synchronous resource load) is audible. Both browser players drop
+    // any update offered while 6000 frames are already queued (WASM_AUDIO_DROP_THRESHOLD);
+    // the game only asks for more while the queue is under this target and then queues up to
+    // three 560-sample updates, so the target has to leave that much room:
+    // 6000 - 3 * 560 = 4320, 135ms. See the static_assert next to SAMPLES_HIGH.
+    //
+    // This headroom is only real with the Web Audio player (the default here), whose
+    // consumer runs on the browser's audio thread. SDL's Emscripten player consumes from a
+    // main-thread callback, so with it a long frame glitches no matter how much is queued.
+    // SampleLength only matters to that fallback: it sizes SDL's ScriptProcessorNode buffer.
     context->InitAudio({ .SampleRate = 32000, .SampleLength = 1024, .DesiredBuffered = WASM_AUDIO_DESIRED_BUFFERED });
 #else
     context->InitAudio({ .SampleRate = 32000, .SampleLength = 1024, .DesiredBuffered = 1680 });
@@ -1091,11 +1096,10 @@ static void OTRAudio_FillBuffer() {
 // 3 is the maximum authentic frame divisor.
 #define MAX_AUDIO_FRAMES_PER_UPDATE 3
 #ifdef __EMSCRIPTEN__
-    // SOH [WASM] The most the queue can hold after a top-up must stay under the SDL player's
-    // 6000-sample drop threshold, or whole packets of audio are thrown away.
-    static_assert(WASM_AUDIO_DESIRED_BUFFERED + MAX_AUDIO_FRAMES_PER_UPDATE * SAMPLES_HIGH <=
-                      WASM_SDL_AUDIO_DROP_THRESHOLD,
-                  "wasm audio target leaves no room for a full update below SDLAudioPlayer's drop threshold");
+    // SOH [WASM] The most the queue can hold after a top-up must stay under the players'
+    // 6000-frame drop threshold, or whole updates of audio are thrown away.
+    static_assert(WASM_AUDIO_DESIRED_BUFFERED + MAX_AUDIO_FRAMES_PER_UPDATE * SAMPLES_HIGH <= WASM_AUDIO_DROP_THRESHOLD,
+                  "wasm audio target leaves no room for a full update below the players' drop threshold");
 #endif
 #define NUM_AUDIO_CHANNELS 2
 
@@ -1108,8 +1112,8 @@ static void OTRAudio_FillBuffer() {
     }
 
 #ifdef __EMSCRIPTEN__
-    // SOH [WASM] Count the updates the SDL player is about to throw away, for Soh_GetStats.
-    if (samples_left >= WASM_SDL_AUDIO_DROP_THRESHOLD) {
+    // SOH [WASM] Count the updates the player is about to throw away, for Soh_GetStats.
+    if (samples_left >= WASM_AUDIO_DROP_THRESHOLD) {
         Soh_EmbedderCountAudioDrop();
     }
 #endif
