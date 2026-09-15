@@ -48,6 +48,7 @@ bun test              # everything that is enabled
 | `SOH_WASM_SOAK` | unset | `1` runs the 10-minute memory soak |
 | `SOH_WASM_KNOWN_BUGS` | unset | `1` also runs tests for bugs that are not fixed yet |
 | `SOH_WASM_HEADED` | unset | `1` shows the browser |
+| `SOH_WASM_ROM` | unset | A ROM file; runs the ROM -> o2r converter tests (`extract.test.ts`) against it |
 
 The files directory needs a desktop-style config whose keyboard mapping has A on X, B on C
 and Start on Space; the tests drive file select with those keys.
@@ -75,6 +76,9 @@ error, which arrive over the protocol and so survive a stuck main thread.
   them into the VFS before `main()`, and loads `soh.js`.
 - `lib/game.ts` drives one page: event log, `run(command)`, VFS access, key presses, and a
   check that the canvas actually shows something.
+- `page/extract.html` + `page/extract-worker.js` stand in for a host converting a ROM in a
+  module worker with `soh-extract.js`; `extract.test.ts` also runs the converter in-process
+  and holds its archive to the desktop-extracted one in `SOH_WASM_FILES`, entry for entry.
 - `unit/` tests the pure helpers under `lib/`.
 - `knownBug(...)` marks a test for a bug that is not fixed yet. It is skipped unless
   `SOH_WASM_KNOWN_BUGS=1`; the commit that fixes the bug turns it into a plain `test`.

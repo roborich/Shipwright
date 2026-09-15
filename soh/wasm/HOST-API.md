@@ -140,3 +140,39 @@ per tick means frame interpolation is on. `updateRate` is the game's vsync divis
 runs at `60 / updateRate` Hz). `audioBuffered` is the number of samples queued for the audio
 device, and `audioDrops` the updates discarded because that queue was already full. `sceneNum`
 is `-1` outside a play state.
+
+## 6. Converting a ROM: `soh-extract.js`
+
+A second, independent module built next to `soh.js`: `soh-extract.js` + `soh-extract.wasm`
+(37 MB raw, about 0.8 MB brotli). It turns a ROM into the `oot.o2r` / `oot-mq.o2r` that §1
+asks for, exactly as the desktop game would (same checks, same ZAPD, same archive, entry
+for entry). It has no window, no canvas and no idea who is calling: run it in a worker, keep
+the bytes wherever you like.
+
+```js
+// In a module worker (or a page, or node):
+const { default: createSohExtractor } = await import('./soh-extract.js');
+const mod = await createSohExtractor();
+const { name, version, bytes } = await mod.extractRom(romBytes, {
+  onProgress: (done, total) => postMessage({ done, total }),
+});
+// name: 'oot.o2r' | 'oot-mq.o2r'   version: e.g. 'NTSC N64 1.0'   bytes: Uint8Array
+```
+
+- `romBytes` is a `Uint8Array` of the whole file in any byte order (`.z64`, `.n64`, `.v64`).
+- `onProgress(done, total)` fires once per recipe file (547 for an NTSC 1.0 ROM); the last
+  call is `(total, total)`. Expect about 10 s in a worker on a desktop machine.
+- **One conversion per instance.** Call the factory again for the next ROM; a second
+  `extractRom` on the same instance rejects.
+- **Rejections** carry the desktop game's own message (`The rom file was not a valid size...`,
+  `...appears to be compressed...`, `Rom CRC did not match...`) and a numeric `error.code`.
+  Anything ZAPD printed to stderr during a failed run is appended to the message.
+- `quiet: true` keeps ZAPD's stdout out of the console; its warnings on stderr always show.
+- The module resolves its own `.wasm` and carries its data inside it, so it can be imported
+  from anywhere; `locateFile` still works if you move the `.wasm` elsewhere.
+- Memory: about 500–800 MB of heap for a 32 MB ROM (the exporter builds the whole archive in
+  memory before writing it). The module starts at 256 MB and grows.
+
+**Build the two together.** The archive records the port version, and the game refuses one
+from any other build (§1's `error` event, "extract it again"). Copy `soh-extract.*` from the
+same build as `soh.*`.

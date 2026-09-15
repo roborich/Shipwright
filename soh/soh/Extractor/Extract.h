@@ -6,6 +6,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include "RomInfo.h"
 
 // Values come from windows.h
 #ifndef IDYES
@@ -15,10 +16,10 @@
 #define IDNO 7
 #endif
 
-static constexpr size_t MB_BASE = 1024 * 1024;
-static constexpr size_t MB32 = 32 * MB_BASE;
-static constexpr size_t MB54 = 54 * MB_BASE;
-static constexpr size_t MB64 = 64 * MB_BASE;
+using RomInfo::MB32;
+using RomInfo::MB54;
+using RomInfo::MB64;
+using RomInfo::MB_BASE;
 
 enum class RomSearchMode {
     Both = 0,

@@ -17,6 +17,14 @@ make -C build-wasm-rel soh -j10
 Outputs `soh.js`, `soh.wasm` (24.7 MB raw, **4.2 MB brotli**) and `soh.data` (4.55 MB).
 Serve all three plus your host page from the same directory.
 
+The same configure also builds the ROM -> o2r converter, `soh-extract.js` + `soh-extract.wasm`
+(37 MB raw, 4.1 MB gzip, **0.8 MB brotli**: it is mostly the 14 near-identical XML recipe
+sets, which compress into almost nothing), next to `soh.js`. `-DSOH_WASM_EXTRACTOR=OFF` skips
+it. It is a separate module a host runs in a worker; the contract is HOST-API.md §6 and the
+design notes are `wasm-rom-extract.md` in the repo root. The two must come from the same
+build: the archive it writes carries the port version, and the game refuses one from any
+other.
+
 `soh.data` holds `soh.o2r` and nothing else. The game archive, config and saves always come
 from the page, so the output contains nothing extracted from a ROM and can be published as is.
 For local play, `bun run serve` in `soh/wasm/tests` serves the build with `host.html`.

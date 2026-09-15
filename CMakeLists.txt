@@ -231,6 +231,15 @@ if(NOT EMSCRIPTEN)
 endif()
 add_subdirectory(soh)
 
+# SOH [WASM] ...except as a separate module a host runs in a worker: ROM in, o2r out. It
+# lists the ZAPD and OTRExporter sources itself (see soh/wasm/extract/CMakeLists.txt).
+if(EMSCRIPTEN)
+    option(SOH_WASM_EXTRACTOR "Also build soh-extract, the ROM -> o2r converter module" ON)
+    if(SOH_WASM_EXTRACTOR)
+        add_subdirectory(soh/wasm/extract)
+    endif()
+endif()
+
 if(NOT EMSCRIPTEN)
 set_property(TARGET soh PROPERTY APPIMAGE_DESKTOP_FILE_TERMINAL YES)
 set_property(TARGET soh PROPERTY APPIMAGE_DESKTOP_FILE "${CMAKE_SOURCE_DIR}/scripts/linux/appimage/soh.desktop")
