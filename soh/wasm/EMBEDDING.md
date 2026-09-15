@@ -130,8 +130,9 @@ desktop mod list cannot break the Mod Menu here.
 
 - **Writes do not persist on their own.** The filesystem is in-memory: a save the game
   writes is gone on reload unless the host keeps the `file-saved` copy (see `HOST-API.md`).
-- **No boot-to-scene.** The game starts at the title screen. Warping to a named scene at
-  boot is a separate feature, and needs SoH: Unbound's `SceneDB` to resolve a scene by name.
+- **Scenes are addressed by entrance index, not by name.** `HOST-API.md` has two ways to
+  start in a scene (the `warp` command, or a boot warp point in the config), both by entrance
+  index. Resolving a scene by name needs SoH: Unbound's `SceneDB`, which this branch lacks.
 - **20 fps during gameplay**, but not everywhere: the loop follows `R_UPDATE_RATE`, so the
   pause menu runs at 30 Hz and the title and map-select screens at 60. See `wasm-port.md`
   §1 and §1c.

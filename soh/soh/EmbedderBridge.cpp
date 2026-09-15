@@ -64,8 +64,8 @@ static void OnSceneInit(int16_t sceneNum) {
         sHeldEvents.push_back(fmt::format(R"({{"type":"load-game","fileNum":{}}})", sLoadedFileNum));
         sLoadedFileNum = -1;
     }
-    sHeldEvents.push_back(
-        fmt::format(R"({{"type":"scene","sceneNum":{},"entranceIndex":{}}})", sceneNum, gSaveContext.entranceIndex));
+    sHeldEvents.push_back(fmt::format(R"({{"type":"scene","sceneNum":{},"entranceIndex":{},"setup":{}}})", sceneNum,
+                                      gSaveContext.entranceIndex, gSaveContext.sceneSetupIndex));
 }
 
 // The file's bytes travel as a Uint8Array copy, so the host owns them outright and the

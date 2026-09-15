@@ -12,6 +12,7 @@
 #include "soh/Enhancements/cosmetics/CosmeticsEditor.h"
 #include "soh/Enhancements/audio/AudioEditor.h"
 #include "soh/Enhancements/randomizer/logic.h"
+#include "soh/Enhancements/Warping.h"
 
 #define Path _Path
 #define PATH_HACK
@@ -430,6 +431,112 @@ static bool EntranceHandler(std::shared_ptr<Ship::Console> Console, const std::v
     gPlayState->transitionTrigger = TRANS_TRIGGER_START;
     gPlayState->transitionType = TRANS_TYPE_INSTANT;
     gSaveContext.nextTransitionType = TRANS_TYPE_INSTANT;
+    return 0;
+}
+
+// ---- warp <entrance hex> [adult|child] [time] [room x y z yaw] ---------------------------
+// The console splits on spaces, so the optional parts are told apart by what is left after
+// the entrance: a word is the age, then one token is a time, five are a point, six are both.
+
+// The whole token as an integer in `base`, within [min, max].
+static bool ParseInt(const std::string& token, int base, long min, long max, int32_t* out) {
+    try {
+        size_t used = 0;
+        long value = std::stol(token, &used, base);
+        if (used != token.size() || value < min || value > max) {
+            return false;
+        }
+        *out = (int32_t)value;
+        return true;
+    } catch (std::exception const&) { return false; }
+}
+
+static bool ParseFloat(const std::string& token, float* out) {
+    try {
+        size_t used = 0;
+        *out = std::stof(token, &used);
+        return used == token.size();
+    } catch (std::exception const&) { return false; }
+}
+
+static bool ParseAge(const std::string& word, int32_t* linkAge) {
+    if (word == "adult") {
+        *linkAge = LINK_AGE_ADULT;
+    } else if (word == "child") {
+        *linkAge = LINK_AGE_CHILD;
+    } else {
+        return false;
+    }
+    return true;
+}
+
+// `day` and `night` name the two layers; anything else is the u16 dayTime in hex.
+static bool ParseDayTime(const std::string& token, int32_t* dayTime) {
+    if (token == "day") {
+        *dayTime = 0x8000;
+        return true;
+    }
+    if (token == "night") {
+        *dayTime = 0;
+        return true;
+    }
+    return ParseInt(token, 16, 0, 0xFFFF, dayTime);
+}
+
+// room x y z yaw: the room decimal, the position as floats, the yaw a decimal binary angle.
+static bool ParsePoint(const std::vector<std::string>& tokens, size_t at, WarpPoint* point) {
+    int32_t room, yaw;
+    if (!ParseInt(tokens[at], 10, INT8_MIN, INT8_MAX, &room) || !ParseFloat(tokens[at + 1], &point->pos.x) ||
+        !ParseFloat(tokens[at + 2], &point->pos.y) || !ParseFloat(tokens[at + 3], &point->pos.z) ||
+        !ParseInt(tokens[at + 4], 10, INT16_MIN, INT16_MAX, &yaw)) {
+        return false;
+    }
+    point->roomNum = (int8_t)room;
+    point->rotY = (int16_t)yaw;
+    return true;
+}
+
+static bool WarpHandler(std::shared_ptr<Ship::Console> Console, const std::vector<std::string>& args,
+                        std::string* output) {
+    if (args.size() < 2) {
+        ERROR_MESSAGE("[SOH] Usage: warp <entrance hex> [adult|child] [time] [room x y z yaw]");
+        return 1;
+    }
+
+    WarpPoint point;
+    if (!ParseInt(args[1], 16, 0, ENTR_MAX - 1, &point.entranceId)) {
+        ERROR_MESSAGE("[SOH] Entrance must be a hex number below 614.");
+        return 1;
+    }
+
+    size_t at = 2;
+    if (at < args.size() && ParseAge(args[at], &point.linkAge)) {
+        at++;
+    }
+    size_t left = args.size() - at;
+    if (left == 1 || left == 6) {
+        if (!ParseDayTime(args[at], &point.dayTime)) {
+            ERROR_MESSAGE("[SOH] Time must be day, night, or a hex number up to FFFF.");
+            return 1;
+        }
+        at++;
+        left--;
+    }
+    bool atPoint = left == 5;
+    if (atPoint && !ParsePoint(args, at, &point)) {
+        ERROR_MESSAGE("[SOH] Point must be: room x y z yaw");
+        return 1;
+    }
+    if (left != 0 && left != 5) {
+        ERROR_MESSAGE("[SOH] Usage: warp <entrance hex> [adult|child] [time] [room x y z yaw]");
+        return 1;
+    }
+
+    if (atPoint) {
+        Warping_WarpToPoint(point);
+    } else {
+        Warping_WarpToEntrance(point.entranceId, point.linkAge, point.dayTime);
+    }
     return 0;
 }
 
@@ -1544,6 +1651,15 @@ void DebugConsole_Init(void) {
                                {
                                    { "entrance", Ship::ArgumentType::NUMBER },
                                } });
+    CMD_REGISTER("warp", { WarpHandler,
+                           "Warps to an entrance (hex) as adult or child at a time of day (day, night, or hex), "
+                           "optionally standing at room x y z yaw. Starts a fresh game when not in one.",
+                           {
+                               { "entrance", Ship::ArgumentType::NUMBER },
+                               { "adult|child", Ship::ArgumentType::TEXT, true },
+                               { "time", Ship::ArgumentType::TEXT, true },
+                               { "room x y z yaw", Ship::ArgumentType::TEXT, true },
+                           } });
 
     // Gameplay
     CMD_REGISTER("kill", { KillPlayerHandler, "Commit suicide." });
