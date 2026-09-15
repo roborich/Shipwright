@@ -9,7 +9,7 @@ self.onmessage = async ({ data }) => {
         const rom = new Uint8Array(await response.arrayBuffer());
         const started = performance.now();
         const result = await mod.extractRom(rom, {
-            onProgress: (done, total) => self.postMessage({ type: 'progress', done, total }),
+            onProgress: (done, total, info) => self.postMessage({ type: 'progress', done, total, info }),
         });
         self.postMessage({
             type: 'done',

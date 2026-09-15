@@ -91,12 +91,15 @@ target_compile_options(${SOH_EXTRACT_NAME} PRIVATE
 # libultraship supplies CRC64 (StrHash64) and, transitively, libzip, StormLib, spdlog,
 # tinyxml2 and nlohmann_json. A static archive link pulls in only what is referenced, so
 # none of the window, GL or audio code comes along.
-target_link_libraries(${SOH_EXTRACT_NAME} PRIVATE libultraship)
+target_link_libraries(${SOH_EXTRACT_NAME} PRIVATE libultraship libzip::zip)
 
 set(SOH_EXTRACT_ASSETS ${CMAKE_SOURCE_DIR}/soh/assets)
 
 target_link_options(${SOH_EXTRACT_NAME} PRIVATE
     --use-port=libpng
+    # Archive-write progress: RomExtractor.cpp's __wrap_zip_close registers libzip's
+    # progress callback around the exporter's one zip_close.
+    -Wl,--wrap=zip_close
     # The extraction recipe, at the paths ZAPD's version configs name relative to the
     # working directory: assets/xml/<version>/, assets/Config_<version>.xml, assets/symbols,
     # assets/filelists, assets/TexturePool.xml. All 14 versions ship, so the module can

@@ -32,22 +32,19 @@ test.skipIf(!ROM)(
     "in-process: a ROM becomes an archive with the entries a desktop extraction produces",
     async () => {
         const mod = await createExtractor();
-        const progress: [number, number][] = [];
+        const progress: Progress[] = [];
         const result = await mod.extractRom(new Uint8Array(readFileSync(ROM!)), {
             quiet: true,
-            onProgress: (done: number, total: number) => progress.push([done, total]),
+            onProgress: (done: number, total: number, info: ProgressInfo) => progress.push([done, total, info]),
         });
 
         expect(["oot.o2r", "oot-mq.o2r"]).toContain(result.name);
         expect(result.version).not.toBe("");
         expect(result.bytes.length).toBeGreaterThan(20 * MB);
-        const [firstDone, total] = progress[0];
-        expect(firstDone).toBe(1);
-        expect(progress.at(-1)).toEqual([total, total]);
-
         const produced = zipIndex(result.bytes);
         expect(produced.get("version")).toBeDefined();
         expect(produced.get("portVersion")).toBeDefined();
+        expectTwoPhases(progress, produced.size);
 
         // The desktop-extracted archive the other tests boot from is the reference, when it
         // came from the same ROM version (its `version` entry holds the ROM CRC).
@@ -61,6 +58,30 @@ test.skipIf(!ROM)(
     },
     TEST_TIMEOUT,
 );
+
+type ProgressInfo = { phase: "recipe" | "write"; file?: string };
+type Progress = [number, number, ProgressInfo];
+
+// Every recipe file in order, each named, then the archive's entries as they are written.
+function expectTwoPhases(progress: Progress[], entries: number): void {
+    const firstWrite = progress.findIndex(([, , info]) => info.phase === "write");
+    expect(firstWrite).toBeGreaterThan(100);
+    const recipe = progress.slice(0, firstWrite);
+    const write = progress.slice(firstWrite);
+
+    expect(recipe.every(([, , info]) => info.phase === "recipe")).toBe(true);
+    expect(recipe.map(([done]) => done)).toEqual(recipe.map((_, i) => i + 1));
+    const total = recipe[0][1];
+    expect(recipe.at(-1)![0]).toBe(total);
+    expect(recipe.every(([, , info]) => info.file?.startsWith("assets/xml/") && info.file.endsWith(".xml"))).toBe(true);
+
+    expect(write.every(([, , info]) => info.phase === "write")).toBe(true);
+    expect(write.length).toBeGreaterThan(10);
+    expect(write[0]).toEqual([0, entries, { phase: "write" }]);
+    expect(write.at(-1)).toEqual([entries, entries, { phase: "write" }]);
+    const dones = write.map(([done]) => done);
+    expect(dones).toEqual([...dones].sort((a, b) => a - b));
+}
 
 test("in-process: a file that is not a ROM is refused with the desktop's reason", async () => {
     const mod = await createExtractor();
@@ -126,9 +147,8 @@ test.skipIf(!ROM)(
             const report = await page.page.evaluate((url) => (window as any).__extract(url), romUrl);
             expect(["oot.o2r", "oot-mq.o2r"]).toContain(report.name);
             expect(report.byteLength).toBeGreaterThan(20 * MB);
-            expect(report.progress.length).toBeGreaterThan(100);
-            const [, total] = report.progress[0];
-            expect(report.progress.at(-1)).toEqual([total, total]);
+            const entries = report.progress.at(-1)[1];
+            expectTwoPhases(report.progress, entries);
             console.log(`worker extracted ${report.name} (${report.version}) in ${report.seconds.toFixed(1)}s`);
         } finally {
             await page.close();

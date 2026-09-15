@@ -9,6 +9,9 @@
 
 #include <ship/utils/binarytools/BitConverter.h>
 
+#include <emscripten.h>
+#include <zip.h>
+
 #include <atomic>
 #include <exception>
 #include <filesystem>
@@ -22,6 +25,41 @@ extern "C" int zapd_report(int argc, char** argv, std::atomic<size_t>* extractCo
 // have, so CrashHandler.cpp is not in this build (see CMakeLists.txt). A browser gives a
 // better stack trace on its own when the module traps.
 void CrashHandler_Init() {
+}
+
+// The exporter adds every entry to the archive as an in-memory buffer and then closes it,
+// and that close is where libzip deflates everything: a quarter of the run with no output.
+// zip_close is wrapped at link time (-Wl,--wrap=zip_close, see CMakeLists.txt) so libzip's
+// progress callback can report it; api.js receives (entriesDone, entries) through the hook
+// below. Nothing in ZAPD or the exporter changes.
+extern "C" int __real_zip_close(zip_t* archive);
+
+namespace {
+
+void ReportWriteProgress(zip_int64_t done, zip_int64_t total) {
+    // clang-format off
+    EM_ASM({ if (Module['_sohExtractWrite']) Module['_sohExtractWrite']($0, $1); }, (double)done, (double)total);
+    // clang-format on
+}
+
+void OnZipProgress(zip_t* archive, double fraction, void* userData) {
+    const zip_int64_t total = *static_cast<zip_int64_t*>(userData);
+    ReportWriteProgress(static_cast<zip_int64_t>(fraction * (double)total), total);
+}
+
+} // namespace
+
+extern "C" int __wrap_zip_close(zip_t* archive) {
+    if (archive == nullptr) {
+        return __real_zip_close(archive);
+    }
+    static zip_int64_t entries;
+    entries = zip_get_num_entries(archive, 0);
+    ReportWriteProgress(0, entries);
+    zip_register_progress_callback_with_state(archive, 0.005, OnZipProgress, nullptr, &entries);
+    const int result = __real_zip_close(archive);
+    ReportWriteProgress(entries, entries);
+    return result;
 }
 
 namespace {

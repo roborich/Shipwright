@@ -4,6 +4,11 @@
 //
 //   const mod = await createSohExtractor();
 //   const { name, version, bytes } = await mod.extractRom(romBytes, { onProgress });
+//
+// onProgress(done, total, info) runs in two phases, each counting its own units:
+//   info.phase === 'recipe'  done/total over ZAPD's recipe files; info.file names the one
+//                            just finished (ZAPD's own "(i / N): path" stdout line).
+//   info.phase === 'write'   done/total over the archive's entries while libzip writes it.
 
 (function () {
     var ROM_PATH = '/rom/rom.z64';
@@ -39,8 +44,13 @@
                     return false;
                 }
                 var m = PROGRESS_LINE.exec(line);
-                if (m && onProgress) onProgress(Number(m[1]), Number(m[2]));
+                if (m && onProgress) {
+                    onProgress(Number(m[1]), Number(m[2]), { phase: 'recipe', file: line.slice(m[0].length) });
+                }
                 return options.quiet === true;
+            };
+            Module['_sohExtractWrite'] = function (done, total) {
+                if (onProgress) onProgress(done, total, { phase: 'write' });
             };
 
             function fail(message, code) {
@@ -60,6 +70,7 @@
                 // A trap or an exception the C++ side did not catch: not an Error, and not
                 // one of the status codes. Still report it as the contract promises.
                 Module['_sohExtractLine'] = null;
+                Module['_sohExtractWrite'] = null;
                 try {
                     FS.unlink(ROM_PATH);
                 } catch (ignored) {}
@@ -67,6 +78,7 @@
                 return;
             }
             Module['_sohExtractLine'] = null;
+            Module['_sohExtractWrite'] = null;
 
             var result = JSON.parse(Module['ccall']('Extract_ResultJson', 'string'));
             try {
