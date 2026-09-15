@@ -8,7 +8,7 @@ import { basename, dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
 import type { Browser } from "playwright-core";
 import { BUILD_DIR, FILES_DIR, TEST_TIMEOUT } from "./lib/env";
-import { launchBrowser, openPage } from "./lib/game";
+import { launchBrowser, openPage, withTimeout } from "./lib/game";
 import { startServer, type TestServer } from "./lib/server";
 import { defaultMounts } from "./lib/suite";
 import { zipDifferences, zipIndex } from "./lib/zip";
@@ -52,11 +52,11 @@ test.skipIf(!ROM)(
         // The desktop-extracted archive the other tests boot from is the reference, when it
         // came from the same ROM version (its `version` entry holds the ROM CRC).
         const referencePath = join(FILES_DIR, result.name);
-        if (existsSync(referencePath)) {
-            const reference = zipIndex(new Uint8Array(readFileSync(referencePath)));
-            if (reference.get("version")?.crc === produced.get("version")?.crc) {
-                expect(zipDifferences(produced, reference)).toEqual([]);
-            }
+        const reference = existsSync(referencePath) ? zipIndex(new Uint8Array(readFileSync(referencePath))) : null;
+        if (reference && reference.get("version")?.crc === produced.get("version")?.crc) {
+            expect(zipDifferences(produced, reference)).toEqual([]);
+        } else {
+            console.log(`no desktop archive from the same ROM version in ${FILES_DIR}; byte comparison skipped`);
         }
     },
     TEST_TIMEOUT,
@@ -67,7 +67,7 @@ test("in-process: a file that is not a ROM is refused with the desktop's reason"
     const error = await mod.extractRom(new Uint8Array(32 * MB), { quiet: true }).catch((e: Error) => e);
     expect(error).toBeInstanceOf(Error);
     expect((error as any).code).toBe(-4);
-    expect(error.message).toContain("did not match the list of known compatible roms");
+    expect(error.message).toContain("not one this build can extract");
 }, TEST_TIMEOUT);
 
 test("in-process: an instance converts once", async () => {
@@ -89,7 +89,12 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-    await browser?.close().catch(() => {});
+    // Bounded for the same reason as lib/suite.ts: a wedged renderer never finishes closing.
+    if (browser) {
+        await withTimeout(browser.close(), 15_000, "closing the browser").catch(() => {
+            browser.process()?.kill("SIGKILL");
+        });
+    }
     server?.stop();
 });
 

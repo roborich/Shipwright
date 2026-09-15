@@ -172,6 +172,12 @@ if(EMSCRIPTEN)
     # The decomp and the port layer both throw; without this every throw aborts.
     add_compile_options(-fwasm-exceptions)
     add_link_options(-fwasm-exceptions)
+    # ...and the exceptions ABI named explicitly, tree-wide, so every object and every
+    # Emscripten port agrees on it. -fwasm-exceptions leaves it at the toolchain default,
+    # which emsdk 6.0.9's libpng port script (used by soh-extract) prints into its own flags
+    # as a Python bool, `True`, and emcc rejects; as an integer it builds.
+    add_compile_options(-sWASM_LEGACY_EXCEPTIONS=1)
+    add_link_options(-sWASM_LEGACY_EXCEPTIONS=1)
 
     # Trace/debug logging is compiled out. Every spdlog call in a browser crosses into JS
     # and lands in the devtools console, which costs orders of magnitude more than writing

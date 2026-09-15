@@ -16,11 +16,6 @@
 #define IDNO 7
 #endif
 
-using RomInfo::MB32;
-using RomInfo::MB54;
-using RomInfo::MB64;
-using RomInfo::MB_BASE;
-
 enum class RomSearchMode {
     Both = 0,
     Vanilla = 1,
@@ -28,7 +23,7 @@ enum class RomSearchMode {
 };
 
 class Extractor {
-    std::unique_ptr<unsigned char[]> mRomData = std::make_unique<unsigned char[]>(MB64);
+    std::unique_ptr<unsigned char[]> mRomData = std::make_unique<unsigned char[]>(RomInfo::MB64);
     std::string mCurrentRomPath;
     std::string mSearchPath;
     size_t mCurRomSize = 0;

@@ -24,6 +24,9 @@ export function zipEntries(bytes: Uint8Array): ZipEntry[] {
     const eocd = findEndOfCentralDirectory(view);
     const count = view.getUint16(eocd + 10, true);
     let offset = view.getUint32(eocd + 16, true);
+    if (count === 0xffff || offset === 0xffffffff) {
+        throw new Error("zip: zip64 archive; this reader handles only classic central directories");
+    }
     const decoder = new TextDecoder();
     const entries: ZipEntry[] = [];
     for (let i = 0; i < count; i++) {

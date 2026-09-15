@@ -43,6 +43,13 @@
                 return options.quiet === true;
             };
 
+            function fail(message, code) {
+                if (errorLines.length) message += '\n' + errorLines.slice(-20).join('\n');
+                var error = new Error(message);
+                error.code = code;
+                reject(error);
+            }
+
             var code;
             try {
                 mkdirIfMissing('/rom');
@@ -50,8 +57,13 @@
                 FS.writeFile(ROM_PATH, romBytes);
                 code = Module['ccall']('Extract_RomToO2r', 'number', ['string', 'string'], [ROM_PATH, OUT_DIR]);
             } catch (e) {
+                // A trap or an exception the C++ side did not catch: not an Error, and not
+                // one of the status codes. Still report it as the contract promises.
                 Module['_sohExtractLine'] = null;
-                reject(e);
+                try {
+                    FS.unlink(ROM_PATH);
+                } catch (ignored) {}
+                fail('Extraction failed: ' + ((e && e.message) || String(e)), -6);
                 return;
             }
             Module['_sohExtractLine'] = null;
@@ -62,11 +74,7 @@
             } catch (e) {}
 
             if (code !== 0) {
-                var message = result.error || 'Extraction failed.';
-                if (errorLines.length) message += '\n' + errorLines.slice(-20).join('\n');
-                var error = new Error(message);
-                error.code = code;
-                reject(error);
+                fail(result.error || 'Extraction failed.', code);
                 return;
             }
 

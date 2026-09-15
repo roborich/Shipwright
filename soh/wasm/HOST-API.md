@@ -145,8 +145,8 @@ is `-1` outside a play state.
 
 A second, independent module built next to `soh.js`: `soh-extract.js` + `soh-extract.wasm`
 (37 MB raw, about 0.8 MB brotli). It turns a ROM into the `oot.o2r` / `oot-mq.o2r` that §1
-asks for, exactly as the desktop game would (same checks, same ZAPD, same archive, entry
-for entry). It has no window, no canvas and no idea who is calling: run it in a worker, keep
+asks for, as the desktop game would (the same ROM checks, the same ZAPD run, the same
+archive entry for entry; it accepts every ROM version ZAPD has a recipe for). It has no window, no canvas and no idea who is calling: run it in a worker, keep
 the bytes wherever you like.
 
 ```js
@@ -164,8 +164,18 @@ const { name, version, bytes } = await mod.extractRom(romBytes, {
   call is `(total, total)`. Expect about 10 s in a worker on a desktop machine.
 - **One conversion per instance.** Call the factory again for the next ROM; a second
   `extractRom` on the same instance rejects.
-- **Rejections** carry the desktop game's own message (`The rom file was not a valid size...`,
-  `...appears to be compressed...`, `Rom CRC did not match...`) and a numeric `error.code`.
+- **Rejections** are `Error`s with a numeric `error.code` and the desktop game's own wording:
+
+  | `code` | Meaning |
+  |---|---|
+  | `-1` | the file could not be read |
+  | `-2` | not 32, 54 or 64 MB |
+  | `-3` | looks like a zip / rar / 7z |
+  | `-4` | header CRC is not a version this build has a recipe for |
+  | `-5` | whole-file CRC is not a known-good dump |
+  | `-6` | ZAPD failed part-way; what it said is in the message |
+  | `-7` | ZAPD finished but wrote no archive |
+
   Anything ZAPD printed to stderr during a failed run is appended to the message.
 - `quiet: true` keeps ZAPD's stdout out of the console; its warnings on stderr always show.
 - The module resolves its own `.wasm` and carries its data inside it, so it can be imported

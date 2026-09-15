@@ -29,10 +29,8 @@
 
 #include <SDL2/SDL_messagebox.h>
 
-#include <array>
 #include <fstream>
 #include <filesystem>
-#include <unordered_map>
 #include <string>
 
 enum class ButtonId : int {
@@ -53,7 +51,7 @@ void Extractor::ShowSizeErrorBox() const {
     std::unique_ptr<char[]> boxBuffer = std::make_unique<char[]>(mCurrentRomPath.size() + 100);
     snprintf(boxBuffer.get(), mCurrentRomPath.size() + 100,
              "The rom file %s was not a valid size. Was %zu MB, expecting 32, 54, or 64MB.", mCurrentRomPath.c_str(),
-             mCurRomSize / MB_BASE);
+             mCurRomSize / RomInfo::MB_BASE);
     ShowErrorBox("Invalid Rom Size", boxBuffer.get());
 }
 
