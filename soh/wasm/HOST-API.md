@@ -163,18 +163,20 @@ const { name, version, bytes } = await mod.extractRom(romBytes, {
 - `onProgress(done, total, info)` runs in two phases, each counting its own units, so a
   host can weight a progress bar by measured time rather than by count:
   - `info.phase === 'recipe'`: `done`/`total` over ZAPD's recipe files (547 for NTSC 1.0),
-    one call per file as it finishes, `done` counting 1, 2, ... `total`. `info.file` is that
+    one call per file as it starts, `done` counting 1, 2, ... `total`. `info.file` is that
     file's path in the recipe (`assets/xml/N64_NTSC_10/objects/object_link_boy.xml`), stable
-    for a ROM version across runs and machines. This phase is about three quarters of the run.
+    for a ROM version across runs and machines. So `(total, total)` means the last file is
+    being extracted, not that the phase is over. This phase is about three quarters of the run.
   - `info.phase === 'write'`: `done`/`total` over the archive's entries (38,390 for NTSC 1.0)
     while libzip writes the archive. It starts with `(0, total)`, ends with `(total, total)`,
     and reports in half-percent steps between. This is the last quarter of the run.
   Expect about 10 s in all, in a worker on a desktop machine. The third argument was added
   after the first release; a host that reads only `done`/`total` still works, but its bar
-  jumps at the phase change.
+  fills during the recipe phase and then restarts from zero for the write.
 - **One conversion per instance.** Call the factory again for the next ROM; a second
   `extractRom` on the same instance rejects.
-- **Rejections** are `Error`s with a numeric `error.code` and the desktop game's own wording:
+- **Rejections** are `Error`s with a numeric `error.code`, worded as the desktop game words
+  the same refusals:
 
   | `code` | Meaning |
   |---|---|
@@ -185,6 +187,7 @@ const { name, version, bytes } = await mod.extractRom(romBytes, {
   | `-5` | whole-file CRC is not a known-good dump |
   | `-6` | ZAPD failed part-way; what it said is in the message |
   | `-7` | ZAPD finished but wrote no archive |
+  | `-8` | this instance has already converted; make a new one |
 
   Anything ZAPD printed to stderr during a failed run is appended to the message.
 - `quiet: true` keeps ZAPD's stdout out of the console; its warnings on stderr always show.

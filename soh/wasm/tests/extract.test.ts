@@ -110,11 +110,36 @@ test("in-process: a failure that escapes the wasm still rejects with an Error an
     expect(mod.FS.analyzePath("/rom/rom.z64").exists).toBe(false);
 }, TEST_TIMEOUT);
 
+// The real -6 path: ZAPD throws on a recipe file it cannot parse. Its message is coloured
+// for a terminal and holds control characters, which the result JSON has to survive.
+test.skipIf(!ROM)(
+    "in-process: a ZAPD failure rejects with its message and code -6",
+    async () => {
+        const mod = await createExtractor();
+        // Whichever version the ROM is, one of its object recipes is now unparseable.
+        const recipeDir = "/work/assets/xml";
+        for (const version of mod.FS.readdir(recipeDir).filter((name: string) => !name.startsWith("."))) {
+            const objects = `${recipeDir}/${version}/objects`;
+            const victim = mod.FS.readdir(objects).find((name: string) => name.endsWith(".xml"));
+            mod.FS.writeFile(`${objects}/${victim}`, "<Root><this is not xml");
+        }
+        const error = await mod.extractRom(new Uint8Array(readFileSync(ROM!)), { quiet: true }).catch((e: Error) => e);
+        expect(error).toBeInstanceOf(Error);
+        expect((error as any).code).toBe(-6);
+        expect(error.message).toContain("Extraction failed");
+        expect(error.message).toMatch(/invalid XML|XML/);
+        expect(error.message).not.toContain("\x1b");
+        expect(mod.FS.analyzePath("/rom/rom.z64").exists).toBe(false);
+    },
+    TEST_TIMEOUT,
+);
+
 test("in-process: an instance converts once", async () => {
     const mod = await createExtractor();
     await mod.extractRom(new Uint8Array(100), { quiet: true }).catch(() => {});
     const error = await mod.extractRom(new Uint8Array(100), { quiet: true }).catch((e: Error) => e);
     expect(error.message).toContain("already run");
+    expect((error as any).code).toBe(-8);
 }, TEST_TIMEOUT);
 
 // In a browser: the module runs in a module worker off the main thread, the page never

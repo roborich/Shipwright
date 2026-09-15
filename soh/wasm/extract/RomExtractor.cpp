@@ -53,12 +53,18 @@ extern "C" int __wrap_zip_close(zip_t* archive) {
     if (archive == nullptr) {
         return __real_zip_close(archive);
     }
+    // Static because libzip keeps the pointer: a failed close leaves the archive alive with
+    // the callback still registered. The exporter closes exactly one archive per run (the
+    // custom-assets one is never opened here), which is what makes a single write phase.
     static zip_int64_t entries;
     entries = zip_get_num_entries(archive, 0);
     ReportWriteProgress(0, entries);
     zip_register_progress_callback_with_state(archive, 0.005, OnZipProgress, nullptr, &entries);
     const int result = __real_zip_close(archive);
-    ReportWriteProgress(entries, entries);
+    if (result == 0) {
+        // libzip's own final update can be swallowed by its precision gate; say it plainly.
+        ReportWriteProgress(entries, entries);
+    }
     return result;
 }
 
@@ -128,9 +134,11 @@ std::vector<uint8_t> ReadFile(const char* path) {
     return bytes;
 }
 
-// The desktop Extractor's ValidateRom, minus the message boxes, in its order. The bytes are
-// only read here: ZAPD and the exporter both put the file into .z64 order themselves, and
-// the header patch FixAndCheckCrc applies is one neither of them looks at.
+// The desktop Extractor's ValidateRom (compressed, size, CRC) minus the message boxes, plus
+// one check it does not make: that ZAPD has a recipe for this version, which the desktop
+// only discovers when its picker hands ZAPD a null version string. The bytes are only read
+// here: ZAPD and the exporter both put the file into .z64 order themselves, and the header
+// patch FixAndCheckCrc applies is one neither of them looks at.
 Status CheckRom(std::vector<uint8_t>& rom) {
     if (rom.size() < kHeaderBytes) {
         return Status::BadSize;
@@ -170,19 +178,38 @@ std::vector<std::string> ZapdArgs(const std::string& romPath, const char* versio
     };
 }
 
-// ZAPD reports a fatal problem by throwing (WarningHandler::PrintErrorAndThrow), not by
-// its return value, so the failure is what was thrown.
+// ZAPD colours its messages for a terminal; a host shows them in a console or a dialog.
+std::string StripAnsi(const std::string& text) {
+    std::string out;
+    for (size_t i = 0; i < text.size(); i++) {
+        if (text[i] == '\x1b' && i + 1 < text.size() && text[i + 1] == '[') {
+            i += 2;
+            while (i < text.size() && !(text[i] >= 0x40 && text[i] <= 0x7e)) {
+                i++;
+            }
+            continue;
+        }
+        out += text[i];
+    }
+    return out;
+}
+
+// ZAPD reports a fatal problem by throwing (WarningHandler::PrintErrorAndThrow); the return
+// value only says whether every file parsed. Both are failures here. Progress does not come
+// through the counters (ZAPD's stdout carries it), so none are passed.
 Status RunZapd(const std::vector<std::string>& args, std::string& detail) {
     std::vector<char*> argv;
     argv.reserve(args.size());
     for (const auto& arg : args) {
         argv.push_back(const_cast<char*>(arg.c_str()));
     }
-    std::atomic<size_t> extracted = 0, total = 0;
     try {
-        zapd_report(static_cast<int>(argv.size()), argv.data(), &extracted, &total);
+        if (zapd_report(static_cast<int>(argv.size()), argv.data(), nullptr, nullptr) != 0) {
+            detail = "ZAPD reported a failed parse.";
+            return Status::ZapdFailed;
+        }
     } catch (const std::exception& e) {
-        detail = e.what();
+        detail = StripAnsi(e.what());
         return Status::ZapdFailed;
     } catch (...) {
         detail = "unknown exception";
@@ -215,22 +242,29 @@ Status ExtractArchive(const std::string& romPath, const char* zapdVersion, const
     if (ec) {
         // Across MEMFS mount points a rename can fail; copy instead.
         fs::copy_file(archive, outPath, fs::copy_options::overwrite_existing, ec);
-        fs::remove(archive, ec);
+        std::error_code cleanup;
+        fs::remove(archive, cleanup);
     }
-    return ec ? Status::NoArchive : Status::Ok;
+    return ec || !fs::exists(outPath) ? Status::NoArchive : Status::Ok;
 }
 
 std::string Quote(const std::string& s) {
+    static const char* hex = "0123456789abcdef";
     std::string out = "\"";
-    for (char c : s) {
-        if (c == '\n') {
-            out += "\\n";
-            continue;
-        }
+    for (unsigned char c : s) {
         if (c == '"' || c == '\\') {
             out += '\\';
+            out += static_cast<char>(c);
+        } else if (c == '\n') {
+            out += "\\n";
+        } else if (c < 0x20 || c == 0x7f) {
+            // JSON forbids raw control characters; ZAPD's messages carry escape codes.
+            out += "\\u00";
+            out += hex[c >> 4];
+            out += hex[c & 0xf];
+        } else {
+            out += static_cast<char>(c);
         }
-        out += c;
     }
     return out + "\"";
 }
@@ -253,7 +287,7 @@ extern "C" {
 // game does, runs ZAPD with the OTR exporter, and leaves `<outDir>/oot.o2r` or
 // `<outDir>/oot-mq.o2r` behind. Returns 0 on success or a negative Status; the reason, the
 // detected version and the archive name are in Extract_ResultJson() either way. Progress is
-// ZAPD's own stdout: one "(i / N): <xml path>" line per file.
+// ZAPD's own stdout: one "(i / N): <xml path>" line as each recipe file starts.
 //
 // One conversion per module instance: ZAPD keeps process-lifetime state between calls.
 int Extract_RomToO2r(const char* romPath, const char* outDir) {

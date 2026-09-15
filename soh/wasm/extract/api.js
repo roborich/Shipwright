@@ -7,7 +7,7 @@
 //
 // onProgress(done, total, info) runs in two phases, each counting its own units:
 //   info.phase === 'recipe'  done/total over ZAPD's recipe files; info.file names the one
-//                            just finished (ZAPD's own "(i / N): path" stdout line).
+//                            that is starting (ZAPD prints its "(i / N): path" line first).
 //   info.phase === 'write'   done/total over the archive's entries while libzip writes it.
 
 (function () {
@@ -17,11 +17,14 @@
     var used = false;
 
     function mkdirIfMissing(path) {
+        var FS = Module['FS'];
+        if (!FS.analyzePath(path).exists) FS.mkdir(path);
+    }
+
+    function unlinkIfPresent(path) {
         try {
-            Module['FS'].mkdir(path);
-        } catch (e) {
-            if (!e || e.code !== 'EEXIST') throw e;
-        }
+            Module['FS'].unlink(path);
+        } catch (e) {}
     }
 
     // Runs one conversion. Resolves to { name, version, bytes }; rejects with an Error whose
@@ -30,7 +33,9 @@
         options = options || {};
         return new Promise(function (resolve, reject) {
             if (used) {
-                reject(new Error('This converter instance has already run; create a new one per ROM.'));
+                var reuse = new Error('This converter instance has already run; create a new one per ROM.');
+                reuse.code = -8;
+                reject(reuse);
                 return;
             }
             used = true;
@@ -60,41 +65,34 @@
                 reject(error);
             }
 
-            var code;
+            // Everything that can throw is inside one funnel: a trap or an exception the C++
+            // side did not catch, a result that will not parse, an archive that is not there.
+            // Whatever happens, the hooks come down and the ROM leaves the VFS.
+            var code, result, bytes, outPath;
             try {
                 mkdirIfMissing('/rom');
                 mkdirIfMissing(OUT_DIR);
                 FS.writeFile(ROM_PATH, romBytes);
                 code = Module['ccall']('Extract_RomToO2r', 'number', ['string', 'string'], [ROM_PATH, OUT_DIR]);
+                result = JSON.parse(Module['ccall']('Extract_ResultJson', 'string'));
+                if (code === 0) {
+                    outPath = OUT_DIR + '/' + result.archive;
+                    bytes = FS.readFile(outPath);
+                }
             } catch (e) {
-                // A trap or an exception the C++ side did not catch: not an Error, and not
-                // one of the status codes. Still report it as the contract promises.
-                Module['_sohExtractLine'] = null;
-                Module['_sohExtractWrite'] = null;
-                try {
-                    FS.unlink(ROM_PATH);
-                } catch (ignored) {}
                 fail('Extraction failed: ' + ((e && e.message) || String(e)), -6);
                 return;
+            } finally {
+                Module['_sohExtractLine'] = null;
+                Module['_sohExtractWrite'] = null;
+                unlinkIfPresent(ROM_PATH);
             }
-            Module['_sohExtractLine'] = null;
-            Module['_sohExtractWrite'] = null;
-
-            var result = JSON.parse(Module['ccall']('Extract_ResultJson', 'string'));
-            try {
-                FS.unlink(ROM_PATH);
-            } catch (e) {}
 
             if (code !== 0) {
                 fail(result.error || 'Extraction failed.', code);
                 return;
             }
-
-            var outPath = OUT_DIR + '/' + result.archive;
-            var bytes = FS.readFile(outPath);
-            try {
-                FS.unlink(outPath);
-            } catch (e) {}
+            unlinkIfPresent(outPath);
             resolve({ name: result.archive, version: result.version, bytes: bytes });
         });
     };
