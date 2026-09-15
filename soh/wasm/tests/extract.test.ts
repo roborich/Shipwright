@@ -70,6 +70,25 @@ test("in-process: a file that is not a ROM is refused with the desktop's reason"
     expect(error.message).toContain("not one this build can extract");
 }, TEST_TIMEOUT);
 
+// ZAPD's own failures are caught on the C++ side, but a trap (bad data indexing past a
+// buffer) escapes the call as something that is not an Error. The wrapper still owes the
+// host an Error with a code, the stderr ZAPD left behind, and a clean VFS. A real ROM cannot
+// drive this path (it would fail the CRC check first), so the call itself is stubbed.
+test("in-process: a failure that escapes the wasm still rejects with an Error and a code", async () => {
+    const mod = await createExtractor();
+    mod.ccall = (name: string) => {
+        if (name !== "Extract_RomToO2r") throw new Error(`unexpected ccall ${name}`);
+        mod.printErr("error: something ZAPD said");
+        throw { toString: () => "[object WebAssembly.Exception]" }; // no .message, no .code
+    };
+    const error = await mod.extractRom(new Uint8Array(32 * MB), { quiet: true }).catch((e: Error) => e);
+    expect(error).toBeInstanceOf(Error);
+    expect((error as any).code).toBe(-6);
+    expect(error.message).toContain("Extraction failed");
+    expect(error.message).toContain("something ZAPD said");
+    expect(mod.FS.analyzePath("/rom/rom.z64").exists).toBe(false);
+}, TEST_TIMEOUT);
+
 test("in-process: an instance converts once", async () => {
     const mod = await createExtractor();
     await mod.extractRom(new Uint8Array(100), { quiet: true }).catch(() => {});
