@@ -661,7 +661,15 @@ json SoundJson(const SOH::SetSoundSettings& c) {
 // carry one; this is for a document-loaded scene exported again. Type and pass names come from the same tables
 // the reader scans (UnboundSchema.h); the loader never stores an id outside them.
 json ScrollLayerJson(const AnimatedMatTexScrollParams& l) {
-    return { { K::kXStep, l.xStep }, { K::kYStep, l.yStep }, { K::kWidth, l.width }, { K::kHeight, l.height } };
+    json j = { { K::kXStep, l.xStep }, { K::kYStep, l.yStep }, { K::kWidth, l.width }, { K::kHeight, l.height } };
+    // The speeds are optional keys with a zero default: written only by a layer that uses one.
+    if (l.xSpeed != 0.0f) {
+        j[K::kXSpeed] = l.xSpeed;
+    }
+    if (l.ySpeed != 0.0f) {
+        j[K::kYSpeed] = l.ySpeed;
+    }
+    return j;
 }
 
 json MaterialAnimJson(const AnimatedMaterial& a) {

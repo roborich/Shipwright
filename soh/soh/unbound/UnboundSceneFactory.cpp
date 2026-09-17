@@ -449,11 +449,20 @@ u8 ReadAnimType(const Json& e) {
     return (u8)id;
 }
 
+// The fractional part of a scroll rate. A value f32 cannot hold as a finite number reads as missing: the draw
+// code takes a modulus of it every frame, and a non-finite rate would turn the tile offset into NaN.
+f32 ReadScrollSpeed(const Json& l, const char* key) {
+    const f32 speed = (f32)NumberField(l, key);
+    return std::isfinite(speed) ? speed : 0.0f;
+}
+
 // Step and tile-size ranges are writer requirements (SPEC.md §2): an out-of-range value wraps in the byte.
 AnimatedMatTexScrollParams ReadScrollLayer(const Json& l) {
     AnimatedMatTexScrollParams p{};
     p.xStep = (s8)Field(l, K::kXStep);
     p.yStep = (s8)Field(l, K::kYStep);
+    p.xSpeed = ReadScrollSpeed(l, K::kXSpeed);
+    p.ySpeed = ReadScrollSpeed(l, K::kYSpeed);
     p.width = (u8)Field(l, K::kWidth);
     p.height = (u8)Field(l, K::kHeight);
     return p;

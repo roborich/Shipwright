@@ -7,10 +7,12 @@
 // up the scrolled tile, the interpolated colours, or the current flipbook texture.
 //
 // Differences from MM: segments are absolute and the list carries a count (no negative-segment
-// terminator); each entry chooses OPA/XLU itself; the scroll lists come from SoH's *Ex helpers so
-// the motion interpolates between game frames at high frame rates.
+// terminator); each entry chooses OPA/XLU itself; the scroll lists follow SoH's *Ex helpers, so the
+// motion interpolates between game frames at high frame rates; a scroll rate may be fractional and
+// the offset wraps at 8192 texels instead of 512.
 
 #include "global.h"
+#include "soh/OTRGlobals.h"
 
 typedef struct {
     GraphicsContext* gfxCtx;
@@ -32,27 +34,72 @@ static void MatAnim_BindSegment(MatAnimDraw* d, s32 segment, void* data) {
     }
 }
 
+// The tile offset wraps at this many quarter-texels (8192 texels). A wrap is invisible only on a texture whose
+// size divides the period, so it is a power of two far above MM's 2048 (512 texels), which jumps on a larger
+// texture. At this magnitude an f32 offset still resolves 1/512 of a quarter-texel.
+#define MAT_ANIM_SCROLL_PERIOD 32768.0
+
+/**
+ * A layer's tile offset along one axis, in quarter-texels within [0, period), at a (possibly
+ * fractional) gameplay frame. Stateless and in f64, so a slow fractional rate neither drifts nor
+ * loses precision however long the session runs.
+ */
+static f32 MatAnim_ScrollOffset(f64 rate, f64 frame) {
+    f64 offset = fmod(rate * frame, MAT_ANIM_SCROLL_PERIOD);
+
+    return (f32)(offset < 0.0 ? offset + MAT_ANIM_SCROLL_PERIOD : offset);
+}
+
+/**
+ * Writes one layer's tile size at a gameplay frame. The rate is the integer step plus the
+ * fractional speed; y runs the other way (SPEC.md §4.2).
+ */
+static Gfx* MatAnim_WriteScrollTile(Gfx* gfx, s32 tile, const AnimatedMatTexScrollParams* p, f64 frame) {
+    f32 x = MatAnim_ScrollOffset(p->xStep + p->xSpeed, frame);
+    f32 y = MatAnim_ScrollOffset(-(p->yStep + p->ySpeed), frame);
+
+    gDPSetTileSizeInterp(gfx, tile, x, y, x + ((p->width - 1) << 2), y + ((p->height - 1) << 2));
+    return gfx + 3; // the interpolated tile size is a three-word command
+}
+
+/**
+ * Generates the scroll list for `layerCount` layers on render tiles 0..n. As in SoH's *Ex scroll
+ * helpers, there is one set of tile sizes per interpolated frame, each evaluated at its own
+ * fraction of the gameplay frame, so the motion stays smooth at high frame rates.
+ */
+static Gfx* MatAnim_ScrollList(MatAnimDraw* d, const AnimatedMatTexScrollParams* layers, s32 layerCount) {
+    s32 interpFrames = Ship_GetInterpolationFrameCount();
+    Gfx* list = Graph_Alloc(d->gfxCtx, (2 + interpFrames * (1 + 3 * layerCount)) * sizeof(Gfx));
+    Gfx* gfx = list;
+    s32 i;
+    s32 tile;
+
+    gDPTileSync(gfx++);
+    for (i = 0; i < interpFrames; i++) {
+        f64 frame = d->step + (f64)i / interpFrames;
+
+        gDPSetInterpolation(gfx++, i);
+        for (tile = 0; tile < layerCount; tile++) {
+            gfx = MatAnim_WriteScrollTile(gfx, tile, &layers[tile], frame);
+        }
+    }
+    gSPEndDisplayList(gfx);
+
+    return list;
+}
+
 /**
  * Type 0: scrolls a single layer texture.
  */
 static void MatAnim_DrawTexScroll(MatAnimDraw* d, s32 segment, void* params) {
-    AnimatedMatTexScrollParams* p = params;
-    Gfx* dl =
-        Gfx_TexScrollEx(d->gfxCtx, p->xStep * d->step, -(p->yStep * d->step), p->width, p->height, p->xStep, -p->yStep);
-
-    MatAnim_BindSegment(d, segment, dl);
+    MatAnim_BindSegment(d, segment, MatAnim_ScrollList(d, params, 1));
 }
 
 /**
  * Type 1: scrolls two texture layers (render tiles 0 and 1).
  */
 static void MatAnim_DrawTwoTexScroll(MatAnimDraw* d, s32 segment, void* params) {
-    AnimatedMatTexScrollParams* p = params;
-    Gfx* dl = Gfx_TwoTexScrollEx(d->gfxCtx, 0, p[0].xStep * d->step, -(p[0].yStep * d->step), p[0].width, p[0].height,
-                                 1, p[1].xStep * d->step, -(p[1].yStep * d->step), p[1].width, p[1].height, p[0].xStep,
-                                 -p[0].yStep, p[1].xStep, -p[1].yStep);
-
-    MatAnim_BindSegment(d, segment, dl);
+    MatAnim_BindSegment(d, segment, MatAnim_ScrollList(d, params, 2));
 }
 
 /**

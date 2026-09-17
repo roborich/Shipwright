@@ -6,6 +6,22 @@ let the user build. **The contract is [`SPEC.md`](./SPEC.md)**; every entry belo
 section that defines it, and when this page and SPEC disagree, SPEC wins. Everything in the code
 is tagged `SOH [Unbound]`.
 
+## 2026-09-17 — scroll layers may move slower than a quarter-texel: `xSpeed` / `ySpeed`
+
+The slowest `materialAnims` scroll was `xStep` 1, a quarter-texel per gameplay frame — too fast for
+a large texture drifting over terrain. A scroll layer may now carry `xSpeed` and `ySpeed`: numbers
+(may be fractional, default 0) in the same unit, **added** to `xStep`/`yStep`. Version-2 addition,
+no manifest change.
+
+| Change | SPEC | Prelude must |
+|---|---|---|
+| Optional per-layer `xSpeed`/`ySpeed` numbers; the layer's rate is `xStep + xSpeed`, `yStep + ySpeed` quarter-texels per gameplay frame (20 per second). `ySpeed` follows the `yStep` sign rule. | §4.2 | Let the authoring field take a decimal rate. Simplest emit: integer part in `xStep`, remainder in `xSpeed` (or `xStep` 0 and the whole rate in `xSpeed` — the same motion). Omit a speed that is 0. `xStep`/`yStep` stay ints: a fractional value there is truncated (§2). |
+| The offset wraps at 32 768 quarter-texels (8192 texels) instead of 2048. | §4.2 | Nothing to emit. Power-of-two textures up to 8192 texels scroll without a jump; warn on a scrolled texture whose size is not a power of two. |
+| Older readers degrade silently. | §10 | Note in the export summary that fractional scroll needs Unbound 0.7+; on 0.6 the layer moves at its integer step only (still, if that is 0). Do **not** raise `requires.formatVersion`. |
+| Preview. | — | Use `xStep + xSpeed` as the rate in the `ScrollLayers` seam. |
+
+Test data: `examples/lake-hylia-slow-water/`.
+
 ## 2026-09-16 — a scene may allow Epona: the registry's `horse` key
 
 Vanilla hardcoded five horse scenes in `func_8006CFC0`, and that list gated the *whole* horse-spawn

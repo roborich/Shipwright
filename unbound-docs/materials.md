@@ -48,9 +48,26 @@ base is untouched and every existing archive is unaffected.
   configs bind per buffer, and the difference is load-bearing: Goron City binds segment 8 to a
   scroll on OPA and to a window *texture* on XLU. The opaque and translucent buffers are separate
   command streams with separate segment tables while they run, so a scene has six slots on each.
-- **Interpolating scroll lists.** The scroll handlers call SoH's `Gfx_TexScrollEx` /
-  `Gfx_TwoTexScrollEx`, which take the per-frame step and emit one tile-size command per
-  interpolation sub-frame, so the motion is smooth above 20 fps. 2Ship does the same.
+- **Interpolating scroll lists.** Like SoH's `Gfx_TexScrollEx` / `Gfx_TwoTexScrollEx` (and
+  2Ship), the scroll handlers emit one tile-size command per interpolation sub-frame, so the
+  motion is smooth above 20 fps. They build the list themselves (`MatAnim_ScrollList`) because
+  of the next two points; the vanilla helpers and their callers are untouched.
+- **Fractional scroll rates.** MM's steps are whole quarter-texels per frame, which is too fast
+  for a large texture drifting across terrain. A layer may add `xSpeed`/`ySpeed`, numbers in the
+  same unit, to its integer steps. They are separate keys, not a retyped `xStep`: §2 truncates a
+  fractional value in an integer key, so `"xStep": 0.5` already means 0 in every version-2
+  document, and changing that would be format version 3 (§10). Everything below the handler was
+  float already (the interpolated tile-size command carries raw floats and the interpreter
+  subtracts the tile origin unrounded). The offset is `fmod(rate × frame, period)` in double
+  each frame, not an accumulator: nothing drifts, and there is no state to reset between scenes.
+  Sub-texel motion only reads as smooth on a bilinear-filtered material; a point-filtered one
+  still moves in whole texels, just less often.
+- **The offset wraps at 8192 texels, not 512.** MM (and the vanilla helpers) wrap the offset at
+  2048 quarter-texels. A wrap is invisible only when the texture size divides it, so a texture
+  larger than 512 texels would jump every 2048/step frames. The period here is 32 768
+  quarter-texels; any power-of-two texture up to 8192 wraps seamlessly, and a float offset of
+  that size still resolves 1/512 of a quarter-texel. On a texture of 512 texels or less the
+  picture is identical to the old period.
 - **Runs after the draw config, always.** A custom scene keeps `drawConfig` 0 (which only resets
   8–13 to the empty list) and the list rebinds what it needs. A vanilla scene may carry a list
   too; an entry naming a segment the config also bound wins, because it is written later in the
@@ -93,3 +110,7 @@ needs more.
 and adult setups: layer 0 steps (−4, +4) where the draw config scrolls tile 0 by (+1, +1) per
 frame, layer 1 stays still as vanilla. With the mod the lake flows backwards four times faster;
 without it, vanilla; on Unbound 0.5, vanilla with no error. See `testing.md`.
+
+`examples/lake-hylia-slow-water/` is the same rebind with `xSpeed`/`ySpeed` 0.1 and zero steps: the
+lake drifts at a tenth of vanilla speed. On Unbound 0.6 the speeds are ignored and the water stands
+still.
