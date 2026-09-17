@@ -675,13 +675,19 @@ void EnHorse_IdleAnimSounds(EnHorse* this, PlayState* play) {
 // SOH [Unbound] Epona's Song calls her to the nearest off-screen entry of sHorseSpawns, which lists call
 // points for vanilla's five horse scenes only. A custom scene that allows her (SPEC.md §7 "horse") has none,
 // so one is generated: ground positions on a ring around the player, tried from directly behind him outwards,
-// taking the first that has a floor under it and is not on camera. She always arrives facing him.
+// taking the first she can actually stand on and that is not on camera. She always arrives facing him.
 #define ENHORSE_CALL_RADIUS 300.0f
 #define ENHORSE_CALL_RAYCAST_HEIGHT 200.0f
+// How far above or below the player she may arrive. Past this the ring has found the floor of a canyon or the
+// top of a ledge beside him, which is off camera and useless: she could not be ridden back to him.
+#define ENHORSE_CALL_MAX_DROP 300.0f
 
 // Offsets from "directly behind the player", in the order they are tried. The last is straight ahead of him,
 // which only wins when the camera is looking away from where he is facing.
 static const s16 sCallPointOffsets[] = { 0x0000, 0x2000, -0x2000, 0x4000, -0x4000, 0x6000, -0x6000, -0x8000 };
+
+void EnHorse_Vec3fOffset(Vec3f* src, s16 yaw, f32 dist, f32 height, Vec3f* dst);
+s32 EnHorse_CalcFloorHeight(EnHorse* this, PlayState* play, Vec3f* pos, CollisionPoly** floorPoly, f32* floorHeight);
 
 s32 EnHorse_SpawnNearPlayer(EnHorse* this, PlayState* play) {
     Player* player = GET_PLAYER(play);
@@ -689,18 +695,19 @@ s32 EnHorse_SpawnNearPlayer(EnHorse* this, PlayState* play) {
 
     for (i = 0; i < ARRAY_COUNT(sCallPointOffsets); i++) {
         s16 yaw = player->actor.shape.rot.y + 0x8000 + sCallPointOffsets[i];
-        CollisionPoly* poly;
-        s32 bgId;
+        CollisionPoly* floorPoly;
         Vec3f pos;
         f32 floorY;
 
-        pos.x = player->actor.world.pos.x + (ENHORSE_CALL_RADIUS * Math_SinS(yaw));
-        pos.y = player->actor.world.pos.y + ENHORSE_CALL_RAYCAST_HEIGHT;
-        pos.z = player->actor.world.pos.z + (ENHORSE_CALL_RADIUS * Math_CosS(yaw));
+        EnHorse_Vec3fOffset(&player->actor.world.pos, yaw, ENHORSE_CALL_RADIUS, ENHORSE_CALL_RAYCAST_HEIGHT, &pos);
 
-        floorY = BgCheck_EntityRaycastFloor4(&play->colCtx, &poly, &bgId, &this->actor, &pos);
-        if (floorY <= BGCHECK_Y_MIN) {
-            continue; // nothing to stand on
+        // The same test her own movement code applies to the ground ahead: no floor, water, a slope past 35
+        // degrees, or a horse-blocked surface all disqualify the point.
+        if (EnHorse_CalcFloorHeight(this, play, &pos, &floorPoly, &floorY) != 0) {
+            continue;
+        }
+        if (fabsf(floorY - player->actor.world.pos.y) > ENHORSE_CALL_MAX_DROP) {
+            continue; // down a cliff or up a ledge
         }
 
         pos.y = floorY;

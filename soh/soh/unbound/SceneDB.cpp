@@ -387,7 +387,7 @@ bool DetectUnboundBase() {
 
 // The registry's "horse" key (SPEC.md §7): an object whose presence lets Epona into the scene and whose
 // optional "pos"/"angle" is where she waits, or a bare boolean for "allowed, with nowhere to wait".
-SceneDB::Horse ReadHorse(const Json& def) {
+SceneDB::Horse ReadHorse(const std::string& id, const Json& def) {
     SceneDB::Horse horse;
     if (!def.contains(K::kHorse)) {
         return horse;
@@ -400,8 +400,16 @@ SceneDB::Horse ReadHorse(const Json& def) {
     horse.allowed = true;
     horse.angle = (int16_t)Field(value, K::kAngle);
     if (value.contains(K::kPos)) {
-        horse.pos = SOH::Unbound::ReadVec3f(value[K::kPos]);
-        horse.hasSpawn = true;
+        const Json& pos = value[K::kPos];
+        if (!pos.is_array() || pos.size() < 3) {
+            // ReadVec3f would hand back {0, 0, 0} and park her at the origin; no idle spot is better than a
+            // wrong one, and the scene still allows her.
+            SPDLOG_ERROR("[Unbound] scene '{}': \"{}\".\"{}\" is not an [x, y, z] array; ignoring it", id, K::kHorse,
+                         K::kPos);
+        } else {
+            horse.pos = SOH::Unbound::ReadVec3f(pos);
+            horse.hasSpawn = true;
+        }
     }
     return horse;
 }
@@ -457,7 +465,7 @@ bool SceneDB::RegisterScene(const std::string& id, const nlohmann::json& def) {
     }
     scene.sceneId = sceneId == kNextFree ? -1 : (int32_t)std::min<int64_t>(sceneId, INT32_MAX);
     scene.drawConfig = (uint8_t)drawConfig;
-    scene.horse = ReadHorse(def);
+    scene.horse = ReadHorse(id, def);
 
     Entry& entry = AddCustomScene(scene);
     if (!entry.valid) {
@@ -500,11 +508,13 @@ void SceneDB::RegisterEntrance(const Entry& scene, const std::string& key, const
 
 namespace {
 
-// gSaveContext.horseData.scene is a numeric id, and a custom one is only stable across sessions when the
-// registry assigned it explicitly. The name is saved alongside it and wins on load, the same way the scene
-// flags below are keyed by name.
-void SaveHorseScene() {
-    const SceneDB::Entry& entry = SceneDB::Instance->RetrieveEntry(gSaveContext.horseData.scene);
+// horseData.scene is a numeric id, and a custom one is only stable across sessions when the registry
+// assigned it explicitly. The name is saved alongside it and wins on load, the same way the scene flags
+// below are keyed by name. It reads the snapshot SaveSection took rather than gSaveContext: the write runs
+// on a worker thread, and a name that disagreed with the id the "base" section wrote from the same snapshot
+// would win on load and move her.
+void SaveHorseScene(const SaveContext* saveContext) {
+    const SceneDB::Entry& entry = SceneDB::Instance->RetrieveEntry(saveContext->horseData.scene);
     SaveManager::Instance->SaveData("horseScene", entry.valid && entry.isCustom ? entry.name : std::string());
 }
 
@@ -526,7 +536,7 @@ void LoadHorseScene() {
 }
 
 void SaveUnboundSection(SaveContext* saveContext, int sectionID, bool fullSave) {
-    SaveHorseScene();
+    SaveHorseScene(saveContext);
     SaveManager::Instance->SaveStruct("sceneFlags", []() {
         for (const auto& [id, flags] : sCustomSceneFlags) {
             const SceneDB::Entry& entry = SceneDB::Instance->RetrieveEntry(id);

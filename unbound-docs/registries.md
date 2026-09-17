@@ -106,8 +106,9 @@ through the registry:
 
 Presence of `horse` is the permission; `pos`/`angle` are where she waits when the player has not
 brought her. `"horse": true` allows her with no idle spot — right for a scene you only ride
-through. Vanilla's five are seeded, so vanilla answers are unchanged, and the key is additive
-(SPEC §10, version 2).
+through, but note that Epona's Song calls a horse that is *already* in the scene rather than
+creating one, so without `pos` she is only ever there because the player brought her. Vanilla's
+five are seeded, so vanilla answers are unchanged, and the key is additive (SPEC §10, version 2).
 
 What it takes besides the gate:
 
@@ -120,8 +121,12 @@ What it takes besides the gate:
 - **A call point.** `EnHorse_Spawn` moves her to the nearest *off-screen* entry of
   `sHorseSpawns[]`, 169 hand-placed points covering the five vanilla scenes. A custom scene has
   none, so `EnHorse_SpawnNearPlayer` generates one: ring positions around the player tried from
-  directly behind him outwards, each raycast down for a floor and rejected if it is on camera.
-  First hit wins and she arrives facing him. Vanilla scenes keep the table.
+  directly behind him outwards. A candidate has to pass `EnHorse_CalcFloorHeight` — the same test
+  her movement code applies to the ground ahead, which rejects no floor, water, a slope past 35°
+  and a horse-blocked surface — be within 300 units of the player vertically, and be off camera.
+  Hand-placed points made all of that implicit; a generated one has to earn it, or she arrives in a
+  lake or at the bottom of a canyon she cannot be ridden out of. First hit wins and she arrives
+  facing him. Vanilla scenes keep the table.
 - **Where she is parked.** `gSaveContext.horseData.scene` is a numeric id, stable for a custom
   scene only when the registry assigned it explicitly, so the `unbound` save section stores the
   scene *name* alongside it and that name wins on load — the same reasoning as the scene flags.

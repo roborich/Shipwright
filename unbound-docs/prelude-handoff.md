@@ -6,6 +6,27 @@ let the user build. **The contract is [`SPEC.md`](./SPEC.md)**; every entry belo
 section that defines it, and when this page and SPEC disagree, SPEC wins. Everything in the code
 is tagged `SOH [Unbound]`.
 
+## 2026-09-16 — a scene may allow Epona: the registry's `horse` key
+
+Vanilla hardcoded five horse scenes in `func_8006CFC0`, and that list gated the *whole* horse-spawn
+pass: in any other scene Epona's Song did nothing, no idle horse appeared, and riding her through
+an exit dropped her at the far side. Hand-placing an `EnHorse` worked around the first two and
+never the third. The list is now seed data in the scene registry and the gate is a registry
+lookup, so a custom scene opts in with `horse` in `unbound/scenes.json`. Version-2 addition, no
+manifest change; an older reader ignores the key and refuses her as before.
+
+| Change | SPEC | Prelude must |
+|---|---|---|
+| Optional `horse` on a scene registry entry: an object whose *presence* is the permission, with optional `pos` (`[x, y, z]`, where she waits) and `angle` (her facing there, default 0). A bare `true` allows her with no idle spot. | §7 | Add a per-scene "allow Epona" authoring toggle plus an optional idle spot; write the key only when the scene allows her. A malformed `pos` is ignored by the reader with a log line, so validate it at export. |
+| `pos` is what makes Epona's Song usable: the song calls a horse that is already in the scene rather than creating one, so a scene with `"horse": true` and no `pos` only ever has her when the player rode or parked her there. | §7 | Prompt for an idle spot on any scene the user expects to summon her in; a bare `true` is for scenes you only ride through. |
+| Her object is handled by the engine: a custom scene that allows her gets `OBJECT_HORSE` appended to every room's object list. | §7, §9 | Do **not** add `OBJECT_HORSE` to room object lists — a room that already lists it is left alone, but an unnecessary entry costs a bank slot in every room. |
+| The parked-horse scene is saved by *name* in the `unbound` save section, so it survives id reassignment. | §7 | Nothing to emit. Warn that removing a mod parks her back in Hyrule Field. |
+| Older readers degrade silently. | §10 | Note in the export summary that `horse` needs Unbound 0.7+. Do **not** raise `requires.formatVersion`. |
+
+She stays adult-only, as in vanilla, and the idle spot should be flat, dry ground: a generated call
+point is rejected for water, a slope past 35°, a horse-blocked surface or a big drop, but `horse.pos`
+is taken as given.
+
 ## 2026-09-05 — animated materials from data: `materialAnims`
 
 Vanilla animates water by a per-scene C draw config that rebinds runtime segments 8–13 every

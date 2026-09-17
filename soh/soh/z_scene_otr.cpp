@@ -154,14 +154,17 @@ bool OTRfunc_800982FC(ObjectContext* objectCtx, s32 bankIndex, s16 objectId) {
 // every one of its rooms: an object past the room's own list is dropped the next time this command runs, taking
 // the actor with it. A room that already lists her is left alone, and so is every vanilla scene — the five that
 // allow her ship object lists that already account for her.
-static std::vector<int16_t> EffectiveObjectList(PlayState* play, const std::vector<int16_t>& roomObjects) {
+// `scratch` holds the appended list when one is needed, so the common case returns the room's own list
+// without copying it.
+static const std::vector<int16_t>& EffectiveObjectList(PlayState* play, const std::vector<int16_t>& roomObjects,
+                                                       std::vector<int16_t>& scratch) {
     if (!SceneDB_IsCustom(play->sceneNum) || !SceneDB_HorseAllowed(play->sceneNum) ||
         std::find(roomObjects.begin(), roomObjects.end(), OBJECT_HORSE) != roomObjects.end()) {
         return roomObjects;
     }
-    std::vector<int16_t> withHorse = roomObjects;
-    withHorse.push_back(OBJECT_HORSE);
-    return withHorse;
+    scratch = roomObjects;
+    scratch.push_back(OBJECT_HORSE);
+    return scratch;
 }
 
 bool Scene_CommandObjectList(PlayState* play, SOH::ISceneCommand* cmd) {
@@ -171,7 +174,8 @@ bool Scene_CommandObjectList(PlayState* play, SOH::ISceneCommand* cmd) {
     s32 i;
     s32 j;
     s32 k;
-    const std::vector<int16_t> objects = EffectiveObjectList(play, cmdObj->objects);
+    std::vector<int16_t> withHorse;
+    const std::vector<int16_t>& objects = EffectiveObjectList(play, cmdObj->objects, withHorse);
 
     // Loop until a mismatch in the object lists
     // Then clear all object ids past that in the context object list and kill actors for those objects

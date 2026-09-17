@@ -461,8 +461,8 @@ One layer-merged document (§3), keyed by scene id:
 | `entrances.*.showTitleCard`, `continueBgm` | no | booleans/0-1; default false |
 | `entrances.*.endTransition`, `startTransition` | no | transition type ints; default 2 |
 | `entrances.*.layers` | reserved | not read in version 1; present → warning |
-| `horse` | no | **Epona.** Its presence lets her into the scene: she may be summoned with Epona's Song, ridden in through a scene transition, and parked here. An object (below), or a boolean/0-1 — `true` allows her with nowhere to wait. Absent or `false`, the scene refuses her, as every scene but vanilla's five does. |
-| `horse.pos` | no | vec: where she waits when she is neither parked here nor ridden in. Absent, the scene has no idle spot and she is only ever here because the player brought her. |
+| `horse` | no | **Epona.** Its presence lets her into the scene: she may be ridden in through a scene transition, parked here, and — once she is in the scene — summoned with Epona's Song. An object (below), or a boolean/0-1 — `true` allows her with nowhere to wait. Absent or `false`, the scene refuses her, as every scene but vanilla's five does. |
+| `horse.pos` | no | vec: where she waits when she is neither parked here nor ridden in. Absent, the scene has no idle spot and she is only ever here because the player brought her — and Epona's Song does nothing, since the song calls a horse that is already in the scene rather than creating one. A malformed `pos` is ignored with a log line and the scene keeps the permission. |
 | `horse.angle` | no | int: her facing at `horse.pos`; default 0 |
 
 Vanilla's five horse scenes (Hyrule Field, Lake Hylia, Gerudo Valley, Gerudo's Fortress, Lon Lon
