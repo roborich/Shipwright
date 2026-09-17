@@ -40,9 +40,10 @@ static void MatAnim_BindSegment(MatAnimDraw* d, s32 segment, void* data) {
 #define MAT_ANIM_SCROLL_PERIOD 32768.0
 
 /**
- * A layer's tile offset along one axis, in quarter-texels within [0, period), at a (possibly
+ * A layer's tile offset along one axis, in quarter-texels within [0, period], at a (possibly
  * fractional) gameplay frame. Stateless and in f64, so a slow fractional rate neither drifts nor
- * loses precision however long the session runs.
+ * loses precision however long the session runs. Narrowing to f32 can round a value just under
+ * the period up to it, which draws the same as 0.
  */
 static f32 MatAnim_ScrollOffset(f64 rate, f64 frame) {
     f64 offset = fmod(rate * frame, MAT_ANIM_SCROLL_PERIOD);
@@ -55,8 +56,9 @@ static f32 MatAnim_ScrollOffset(f64 rate, f64 frame) {
  * fractional speed; y runs the other way (SPEC.md §4.2).
  */
 static Gfx* MatAnim_WriteScrollTile(Gfx* gfx, s32 tile, const AnimatedMatTexScrollParams* p, f64 frame) {
-    f32 x = MatAnim_ScrollOffset(p->xStep + p->xSpeed, frame);
-    f32 y = MatAnim_ScrollOffset(-(p->yStep + p->ySpeed), frame);
+    // summed in f64: an f32 sum would round a small speed against a large step
+    f32 x = MatAnim_ScrollOffset((f64)p->xStep + p->xSpeed, frame);
+    f32 y = MatAnim_ScrollOffset(-((f64)p->yStep + p->ySpeed), frame);
 
     gDPSetTileSizeInterp(gfx, tile, x, y, x + ((p->width - 1) << 2), y + ((p->height - 1) << 2));
     return gfx + 3; // the interpolated tile size is a three-word command

@@ -15,6 +15,8 @@
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
+#include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <filesystem>
 #include <fstream>
@@ -263,12 +265,25 @@ json Vec(const Vec3i& v) {
     return json::array({ v.x, v.y, v.z });
 }
 
+// The double whose shortest decimal form is also the shortest that reads back as `v`. Widening an f32 directly
+// would print its binary tail (0.1f as 0.10000000149011612); nine significant digits always round-trip an f32.
+double ShortestRoundTrip(f32 v) {
+    char text[32];
+    for (int digits = 1; digits <= 9; digits++) {
+        snprintf(text, sizeof(text), "%.*g", digits, v);
+        if (strtof(text, nullptr) == v) {
+            break;
+        }
+    }
+    return strtod(text, nullptr);
+}
+
 // SOH [Unbound] world positions are f32; emit integers when integral so converted vanilla data stays tidy.
 json Num(f32 v) {
     if (v == (f32)(int64_t)v) {
         return json((int64_t)v);
     }
-    return json(v);
+    return json(ShortestRoundTrip(v));
 }
 
 json Vec(const Vec3f& v) {
@@ -664,10 +679,10 @@ json ScrollLayerJson(const AnimatedMatTexScrollParams& l) {
     json j = { { K::kXStep, l.xStep }, { K::kYStep, l.yStep }, { K::kWidth, l.width }, { K::kHeight, l.height } };
     // The speeds are optional keys with a zero default: written only by a layer that uses one.
     if (l.xSpeed != 0.0f) {
-        j[K::kXSpeed] = l.xSpeed;
+        j[K::kXSpeed] = Num(l.xSpeed);
     }
     if (l.ySpeed != 0.0f) {
-        j[K::kYSpeed] = l.ySpeed;
+        j[K::kYSpeed] = Num(l.ySpeed);
     }
     return j;
 }

@@ -601,3 +601,8 @@ Limits that remain (validation targets for tools):
   the reader's storage (a modulus, fixed arrays, 16-bit indices). No document within the ranges
   §4.2 already gave is affected. The scroll `layers` ranges wrap as §2 always said (an earlier
   reader rejected them). The hold-past-the-last-key-frame behaviour of the colour types is stated.
+- Version-2 behaviour change (2026-09-17, `materialAnims` scroll): the tile offset wraps at 32 768
+  quarter-texels instead of 2048 (§4.2). A texture whose width and height are powers of two up to
+  512 texels, the only kind the old period wrapped seamlessly, draws identically; a larger or
+  non-power-of-two texture already jumped at each wrap and now jumps less often or not at all. No
+  document changes meaning and none is rejected, so this is recorded here and not as version 3.
