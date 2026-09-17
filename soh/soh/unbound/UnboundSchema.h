@@ -248,6 +248,8 @@ inline constexpr const char* kContinueBgm = "continueBgm";
 inline constexpr const char* kEndTransition = "endTransition";
 inline constexpr const char* kStartTransition = "startTransition";
 inline constexpr const char* kLayers = "layers";
+inline constexpr const char* kHorse = "horse";
+inline constexpr const char* kAngle = "angle";
 
 // Manifest (§6)
 inline constexpr const char* kManifestPath = "unbound.json";

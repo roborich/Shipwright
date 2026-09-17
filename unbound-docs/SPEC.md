@@ -438,6 +438,7 @@ One layer-merged document (§3), keyed by scene id:
     "sceneId": 200,
     "drawConfig": 0,
     "titleCardTexture": "textures/mymod/lava_temple_title",
+    "horse": { "pos": [100, 0, -200], "angle": 0 },
     "entrances": {
       "main": { "index": 1560, "spawn": 0, "showTitleCard": true, "continueBgm": false,
                 "endTransition": 2, "startTransition": 2 }
@@ -460,6 +461,14 @@ One layer-merged document (§3), keyed by scene id:
 | `entrances.*.showTitleCard`, `continueBgm` | no | booleans/0-1; default false |
 | `entrances.*.endTransition`, `startTransition` | no | transition type ints; default 2 |
 | `entrances.*.layers` | reserved | not read in version 1; present → warning |
+| `horse` | no | **Epona.** Its presence lets her into the scene: she may be summoned with Epona's Song, ridden in through a scene transition, and parked here. An object (below), or a boolean/0-1 — `true` allows her with nowhere to wait. Absent or `false`, the scene refuses her, as every scene but vanilla's five does. |
+| `horse.pos` | no | vec: where she waits when she is neither parked here nor ridden in. Absent, the scene has no idle spot and she is only ever here because the player brought her. |
+| `horse.angle` | no | int: her facing at `horse.pos`; default 0 |
+
+Vanilla's five horse scenes (Hyrule Field, Lake Hylia, Gerudo Valley, Gerudo's Fortress, Lon Lon
+Ranch) behave as though they carried `horse`, and are otherwise untouched. A **custom** scene that
+allows her is given Epona's object in every one of its rooms whether or not its rooms list it. She
+stays adult-only, as in vanilla.
 
 A registered entrance occupies four consecutive entrance-table entries (child-day, child-night,
 adult-day, adult-night), all identical in version 1.
@@ -585,7 +594,8 @@ Limits that remain (validation targets for tools):
 - A change that makes a valid version-2 archive read differently, or makes a document this text
   calls accepted be rejected, is a breaking change and requires version 3.
 - Adding an optional key with a zero default is not breaking and is recorded here under version 2.
-  Version-2 additions so far: `sound.song` (§4.2, 2026-09-02); `materialAnims` (§4.2, 2026-09-05).
+  Version-2 additions so far: `sound.song` (§4.2, 2026-09-02); `materialAnims` (§4.2, 2026-09-05);
+  `horse` (§7, 2026-09-16).
 - Version-2 clarifications (2026-09-06, `materialAnims`): the per-entry **rejected** rules for
   `length`, `keyFrames`, `primColors`, `textures` and `frames` are now stated in §4.2; each guards
   the reader's storage (a modulus, fixed arrays, 16-bit indices). No document within the ranges

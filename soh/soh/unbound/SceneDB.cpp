@@ -42,6 +42,11 @@ const VanillaScene sVanillaScenes[] = {
 #undef DEFINE_SCENE
 #undef none
 
+// SOH [Unbound] Vanilla's horse scenes, formerly the allow-list inside func_8006CFC0 in z_horse.c. Seeding
+// them here makes SceneDB_HorseAllowed the single answer for vanilla and custom scenes alike.
+constexpr int16_t sVanillaHorseScenes[] = { SCENE_HYRULE_FIELD, SCENE_LAKE_HYLIA, SCENE_GERUDO_VALLEY,
+                                            SCENE_GERUDOS_FORTRESS, SCENE_LON_LON_RANCH };
+
 struct VanillaEntrance {
     const char* name;
     int16_t scene;
@@ -126,6 +131,8 @@ void SceneDB::SeedVanillaScenes() {
         entry.displayName = entry.name; // replaced by the pretty name in SeedVanillaDisplayNames
         entry.sceneFileName = sVanillaScenes[id].fileName;
         entry.drawConfig = sVanillaScenes[id].drawConfig;
+        entry.horse.allowed = std::find(std::begin(sVanillaHorseScenes), std::end(sVanillaHorseScenes), id) !=
+                              std::end(sVanillaHorseScenes);
         nameTable[entry.name] = id;
     }
 }
@@ -194,6 +201,7 @@ SceneDB::Entry& SceneDB::AddCustomScene(const CustomSceneInit& init) {
     entry.scenePath = init.scenePath;
     entry.titleCardTexture = init.titleCardTexture;
     entry.drawConfig = init.drawConfig;
+    entry.horse = init.horse;
     nameTable[entry.name] = id;
     nextSceneId = std::max(nextSceneId, id + 1);
     return entry;
@@ -377,6 +385,27 @@ bool DetectUnboundBase() {
     return base;
 }
 
+// The registry's "horse" key (SPEC.md §7): an object whose presence lets Epona into the scene and whose
+// optional "pos"/"angle" is where she waits, or a bare boolean for "allowed, with nowhere to wait".
+SceneDB::Horse ReadHorse(const Json& def) {
+    SceneDB::Horse horse;
+    if (!def.contains(K::kHorse)) {
+        return horse;
+    }
+    const Json& value = def[K::kHorse];
+    if (!value.is_object()) {
+        horse.allowed = SOH::Unbound::ToInt(value) != 0;
+        return horse;
+    }
+    horse.allowed = true;
+    horse.angle = (int16_t)Field(value, K::kAngle);
+    if (value.contains(K::kPos)) {
+        horse.pos = SOH::Unbound::ReadVec3f(value[K::kPos]);
+        horse.hasSpawn = true;
+    }
+    return horse;
+}
+
 } // namespace
 
 void SceneDB::LoadCustomScenes() {
@@ -428,6 +457,7 @@ bool SceneDB::RegisterScene(const std::string& id, const nlohmann::json& def) {
     }
     scene.sceneId = sceneId == kNextFree ? -1 : (int32_t)std::min<int64_t>(sceneId, INT32_MAX);
     scene.drawConfig = (uint8_t)drawConfig;
+    scene.horse = ReadHorse(def);
 
     Entry& entry = AddCustomScene(scene);
     if (!entry.valid) {
@@ -470,7 +500,33 @@ void SceneDB::RegisterEntrance(const Entry& scene, const std::string& key, const
 
 namespace {
 
+// gSaveContext.horseData.scene is a numeric id, and a custom one is only stable across sessions when the
+// registry assigned it explicitly. The name is saved alongside it and wins on load, the same way the scene
+// flags below are keyed by name.
+void SaveHorseScene() {
+    const SceneDB::Entry& entry = SceneDB::Instance->RetrieveEntry(gSaveContext.horseData.scene);
+    SaveManager::Instance->SaveData("horseScene", entry.valid && entry.isCustom ? entry.name : std::string());
+}
+
+// Runs after the numeric id the "base" section loaded: save sections live in a std::map keyed by name, so
+// "base" is always read before "unbound".
+void LoadHorseScene() {
+    std::string name;
+    SaveManager::Instance->LoadData("horseScene", name);
+    if (name.empty()) {
+        return;
+    }
+    int32_t id = SceneDB::Instance->RetrieveId(name);
+    if (id < 0) {
+        // The mod that owned the scene is gone; z_horse.c moves her back to her Hyrule Field default.
+        SPDLOG_WARN("[Unbound] the horse is parked in scene '{}', which is not registered", name);
+        return;
+    }
+    gSaveContext.horseData.scene = (s16)id;
+}
+
 void SaveUnboundSection(SaveContext* saveContext, int sectionID, bool fullSave) {
+    SaveHorseScene();
     SaveManager::Instance->SaveStruct("sceneFlags", []() {
         for (const auto& [id, flags] : sCustomSceneFlags) {
             const SceneDB::Entry& entry = SceneDB::Instance->RetrieveEntry(id);
@@ -544,6 +600,7 @@ void LoadUnboundSection() {
         }
     });
     LoadExtClearFlags();
+    LoadHorseScene();
 }
 
 void InitUnboundSection(bool isDebug) {
@@ -566,6 +623,26 @@ void SceneDB_RegisterSaveFunctions(SaveManager& saveManager) {
 
 extern "C" int32_t SceneDB_IsValid(int32_t id) {
     return SceneDB::Instance->RetrieveEntry(id).valid;
+}
+
+extern "C" int32_t SceneDB_IsCustom(int32_t id) {
+    const SceneDB::Entry& entry = SceneDB::Instance->RetrieveEntry(id);
+    return entry.valid && entry.isCustom;
+}
+
+extern "C" int32_t SceneDB_HorseAllowed(int32_t id) {
+    const SceneDB::Entry& entry = SceneDB::Instance->RetrieveEntry(id);
+    return entry.valid && entry.horse.allowed;
+}
+
+extern "C" int32_t SceneDB_GetHorseSpawn(int32_t id, Vec3f* pos, int16_t* angle) {
+    const SceneDB::Entry& entry = SceneDB::Instance->RetrieveEntry(id);
+    if (!entry.valid || !entry.horse.allowed || !entry.horse.hasSpawn) {
+        return false;
+    }
+    *pos = entry.horse.pos;
+    *angle = entry.horse.angle;
+    return true;
 }
 
 extern "C" int32_t SceneDB_GetEntryCount(void) {

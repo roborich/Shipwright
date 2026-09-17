@@ -10,6 +10,7 @@
 #include "objects/object_hni/object_hni.h"
 #include "scenes/overworld/spot09/spot09_scene.h"
 #include <assert.h>
+#include "soh/unbound/SceneDB.h"
 
 #define FLAGS ACTOR_FLAG_UPDATE_CULLING_DISABLED
 
@@ -671,6 +672,54 @@ void EnHorse_IdleAnimSounds(EnHorse* this, PlayState* play) {
     }
 }
 
+// SOH [Unbound] Epona's Song calls her to the nearest off-screen entry of sHorseSpawns, which lists call
+// points for vanilla's five horse scenes only. A custom scene that allows her (SPEC.md §7 "horse") has none,
+// so one is generated: ground positions on a ring around the player, tried from directly behind him outwards,
+// taking the first that has a floor under it and is not on camera. She always arrives facing him.
+#define ENHORSE_CALL_RADIUS 300.0f
+#define ENHORSE_CALL_RAYCAST_HEIGHT 200.0f
+
+// Offsets from "directly behind the player", in the order they are tried. The last is straight ahead of him,
+// which only wins when the camera is looking away from where he is facing.
+static const s16 sCallPointOffsets[] = { 0x0000, 0x2000, -0x2000, 0x4000, -0x4000, 0x6000, -0x6000, -0x8000 };
+
+s32 EnHorse_SpawnNearPlayer(EnHorse* this, PlayState* play) {
+    Player* player = GET_PLAYER(play);
+    s32 i;
+
+    for (i = 0; i < ARRAY_COUNT(sCallPointOffsets); i++) {
+        s16 yaw = player->actor.shape.rot.y + 0x8000 + sCallPointOffsets[i];
+        CollisionPoly* poly;
+        s32 bgId;
+        Vec3f pos;
+        f32 floorY;
+
+        pos.x = player->actor.world.pos.x + (ENHORSE_CALL_RADIUS * Math_SinS(yaw));
+        pos.y = player->actor.world.pos.y + ENHORSE_CALL_RAYCAST_HEIGHT;
+        pos.z = player->actor.world.pos.z + (ENHORSE_CALL_RADIUS * Math_CosS(yaw));
+
+        floorY = BgCheck_EntityRaycastFloor4(&play->colCtx, &poly, &bgId, &this->actor, &pos);
+        if (floorY <= BGCHECK_Y_MIN) {
+            continue; // nothing to stand on
+        }
+
+        pos.y = floorY;
+        if (func_80A5BBBC(play, this, &pos)) {
+            continue; // on camera, or right on top of the player
+        }
+
+        this->actor.world.pos = pos;
+        this->actor.prevPos = pos;
+        this->actor.world.rot.y = Math_Vec3f_Yaw(&pos, &player->actor.world.pos);
+        this->actor.shape.rot.y = this->actor.world.rot.y;
+        SkinMatrix_Vec3fMtxFMultXYZW(&play->viewProjectionMtxF, &this->actor.world.pos, &this->actor.projectedPos,
+                                     &this->actor.projectedW);
+        return true;
+    }
+
+    return false;
+}
+
 s32 EnHorse_Spawn(EnHorse* this, PlayState* play) {
     f32 minDist = 1e38f;
     s32 spawn = false;
@@ -710,6 +759,11 @@ s32 EnHorse_Spawn(EnHorse* this, PlayState* play) {
                 }
             }
         }
+    }
+
+    // SOH [Unbound] A custom scene has no entries in the table above; call her to a generated point instead.
+    if (!spawn && SceneDB_IsCustom(play->sceneNum)) {
+        return EnHorse_SpawnNearPlayer(this, play);
     }
 
     return spawn;

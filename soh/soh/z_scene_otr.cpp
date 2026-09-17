@@ -13,9 +13,12 @@
 #include <ship/resource/type/Blob.h>
 #include <memory>
 #include <cassert>
+#include <algorithm>
+#include <vector>
 #include "soh/resource/type/scenecommand/SetCameraSettings.h"
 #include "soh/resource/type/scenecommand/SetAnimatedMaterialList.h"
 #include "soh/unbound/UnboundAudio.h"
+#include "soh/unbound/SceneDB.h"
 #include "soh/resource/type/scenecommand/SetCutscenes.h"
 #include "soh/resource/type/scenecommand/SetStartPositionList.h"
 #include "soh/resource/type/scenecommand/SetActorList.h"
@@ -146,6 +149,21 @@ bool OTRfunc_800982FC(ObjectContext* objectCtx, s32 bankIndex, s16 objectId) {
     return false;
 }
 
+// SOH [Unbound] The object list a room's command actually installs. Epona is spawned from the registry rather
+// than from any room's actor list, so a custom scene that allows her (SPEC.md §7 "horse") needs her object in
+// every one of its rooms: an object past the room's own list is dropped the next time this command runs, taking
+// the actor with it. A room that already lists her is left alone, and so is every vanilla scene — the five that
+// allow her ship object lists that already account for her.
+static std::vector<int16_t> EffectiveObjectList(PlayState* play, const std::vector<int16_t>& roomObjects) {
+    if (!SceneDB_IsCustom(play->sceneNum) || !SceneDB_HorseAllowed(play->sceneNum) ||
+        std::find(roomObjects.begin(), roomObjects.end(), OBJECT_HORSE) != roomObjects.end()) {
+        return roomObjects;
+    }
+    std::vector<int16_t> withHorse = roomObjects;
+    withHorse.push_back(OBJECT_HORSE);
+    return withHorse;
+}
+
 bool Scene_CommandObjectList(PlayState* play, SOH::ISceneCommand* cmd) {
     // SOH::SetObjectList* cmdObj = static_pointer_cast<SOH::SetObjectList>(cmd);
     SOH::SetObjectList* cmdObj = (SOH::SetObjectList*)cmd;
@@ -153,18 +171,12 @@ bool Scene_CommandObjectList(PlayState* play, SOH::ISceneCommand* cmd) {
     s32 i;
     s32 j;
     s32 k;
-    ObjectStatus* status2;
-    // s16* objectEntry = SEGMENTED_TO_VIRTUAL(cmd->objectList.segment);
-    s16* objectEntry = (s16*)cmdObj->GetRawPointer();
-    void* nextPtr;
-
-    k = 0;
-    i = play->objectCtx.unk_09;
+    const std::vector<int16_t> objects = EffectiveObjectList(play, cmdObj->objects);
 
     // Loop until a mismatch in the object lists
     // Then clear all object ids past that in the context object list and kill actors for those objects
     for (i = play->objectCtx.unk_09, k = 0; i < play->objectCtx.num; i++, k++) {
-        if (k >= cmdObj->objects.size() || play->objectCtx.status[i].id != cmdObj->objects[k]) {
+        if (k >= objects.size() || play->objectCtx.status[i].id != objects[k]) {
             for (j = i; j < play->objectCtx.num; j++) {
                 play->objectCtx.status[j].id = OBJECT_INVALID;
             }
@@ -174,12 +186,12 @@ bool Scene_CommandObjectList(PlayState* play, SOH::ISceneCommand* cmd) {
     }
 
     // Continuing from the last index, add the remaining object ids from the command object list
-    for (; k < cmdObj->objects.size(); k++, i++) {
+    for (; k < objects.size(); k++, i++) {
         if (i < OBJECT_EXCHANGE_BANK_MAX) {
-            OTRfunc_800982FC(&play->objectCtx, i, cmdObj->objects[k]);
+            OTRfunc_800982FC(&play->objectCtx, i, objects[k]);
         } else {
             SPDLOG_ERROR("[Unbound] object list exceeds the bank ({} slots); dropping object {:#x}",
-                         OBJECT_EXCHANGE_BANK_MAX, cmdObj->objects[k]); // SOH [Unbound] was a silent drop
+                         OBJECT_EXCHANGE_BANK_MAX, objects[k]); // SOH [Unbound] was a silent drop
         }
     }
 

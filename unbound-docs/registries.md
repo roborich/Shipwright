@@ -85,6 +85,52 @@ custom-scene flags.
 - `SohUtils::GetSceneName` no longer asserts on custom ids; the crash handler prints the registry
   name for them.
 
+## Epona in a custom scene
+
+Vanilla allows the horse in exactly five scenes. `func_8006CFC0` in `z_horse.c` held the list, and
+`func_8006DC68` gates **the whole horse-spawn pass** on it, which is why placing an `EnHorse` in a
+custom scene by hand — the workaround before this — gets you a horse that Epona's Song cannot call
+and that does not survive a scene transition: `z_player.c` sets `AREG(6)` on a mounted exit with no
+scene check, but the arriving scene fails the gate before the code that re-spawns and re-mounts her
+can run.
+
+The list is now seed data in `SceneDB` and the gate is `SceneDB_HorseAllowed`, so a scene opts in
+through the registry:
+
+```json
+"mymod/plains": {
+  "scene": "scenes/mymod/plains/scene.json",
+  "horse": { "pos": [1200, 0, -400], "angle": 16384 }
+}
+```
+
+Presence of `horse` is the permission; `pos`/`angle` are where she waits when the player has not
+brought her. `"horse": true` allows her with no idle spot — right for a scene you only ride
+through. Vanilla's five are seeded, so vanilla answers are unchanged, and the key is additive
+(SPEC §10, version 2).
+
+What it takes besides the gate:
+
+- **Her object.** She is spawned from the registry, not from a room's actor list, so
+  `Scene_CommandObjectList` (`z_scene_otr.cpp`) appends `OBJECT_HORSE` to the object list of every
+  room of a *custom* horse scene that does not already list it. It has to be per room: an object
+  past the room's own list is dropped the next time that command runs, and `func_80031A28` kills
+  the actor with it. Mod authors do not have to think about this. Vanilla rooms are left alone —
+  the five vanilla horse scenes already ship object lists that account for her.
+- **A call point.** `EnHorse_Spawn` moves her to the nearest *off-screen* entry of
+  `sHorseSpawns[]`, 169 hand-placed points covering the five vanilla scenes. A custom scene has
+  none, so `EnHorse_SpawnNearPlayer` generates one: ring positions around the player tried from
+  directly behind him outwards, each raycast down for a floor and rejected if it is on camera.
+  First hit wins and she arrives facing him. Vanilla scenes keep the table.
+- **Where she is parked.** `gSaveContext.horseData.scene` is a numeric id, stable for a custom
+  scene only when the registry assigned it explicitly, so the `unbound` save section stores the
+  scene *name* alongside it and that name wins on load — the same reasoning as the scene flags.
+  If the mod that owned the scene is gone, the name no longer resolves and `func_8006D074` puts her
+  back at her Hyrule Field default, which is what vanilla does with a bad parked scene anyway.
+
+She stays adult-only (`func_8006DC68`), and Epona's Song itself never had a scene list — it sets
+`DREG(53)`, which only an existing `EnHorse` consumes.
+
 ## Not changed (custom scenes fall outside every vanilla range check)
 
 - Minimap / pause map (`Map_Init`, `z_map_mark`, kaleido): all keyed by dungeon or overworld
@@ -116,3 +162,6 @@ Implemented on the `unbound` branch. See the README status table for build/verif
    log line, not a crash.
 4. Names: a `scene.json` exit naming `mymod/x/main` and one naming `ENTR_KOKIRI_FOREST_0` both
    resolve; a misspelt name fails the scene with one log line.
+5. Epona: in a custom scene with `horse`, Epona's Song calls her from off camera; riding her
+   through an exit into another horse scene keeps her under Link; dismounting, saving and
+   reloading finds her where she was left; a scene without the key still refuses her.

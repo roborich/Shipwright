@@ -18,6 +18,16 @@ class SceneDB {
     // entrance table and several enhancements use as an "unused / no scene" sentinel.
     static constexpr int32_t CUSTOM_SCENE_ID_BASE = 0x80;
 
+    // SOH [Unbound] Whether Epona may be in a scene, and where she waits when she is neither parked
+    // there nor ridden in. Vanilla's five horse scenes are seeded; a custom scene opts in with the
+    // registry's "horse" key (SPEC.md §7).
+    struct Horse {
+        bool allowed = false;
+        bool hasSpawn = false;
+        Vec3f pos = { 0.0f, 0.0f, 0.0f };
+        int16_t angle = 0;
+    };
+
     struct Entry {
         int32_t id = -1;
         bool valid = false;
@@ -28,6 +38,7 @@ class SceneDB {
         std::string scenePath;        // custom only: full o2r path of the scene resource
         std::string titleCardTexture; // custom only, optional: o2r path of a title card texture
         uint8_t drawConfig = 0;       // SDC_* index
+        Horse horse;
     };
 
     struct EntranceEntry {
@@ -43,6 +54,7 @@ class SceneDB {
         std::string titleCardTexture;
         int32_t sceneId = -1; // -1: next free
         uint8_t drawConfig = 0;
+        Horse horse;
     };
 
     struct CustomEntranceInit {
@@ -108,10 +120,17 @@ extern "C" {
 #endif
 
 int32_t SceneDB_IsValid(int32_t id);
+int32_t SceneDB_IsCustom(int32_t id);
 int32_t SceneDB_GetEntryCount(void);
 uint8_t SceneDB_GetDrawConfig(int32_t id);
 const char* SceneDB_GetDisplayName(int32_t id);
 const char* SceneDB_GetTitleCardTexture(int32_t id); // NULL when the scene has none registered
+
+// Epona. SceneDB_HorseAllowed is the whole scene restriction: every horse spawn, the ride across a scene
+// transition and the parked-horse check go through it. SceneDB_GetHorseSpawn gives the idle spot a scene
+// registers for her, and returns 0 when it registers none (she is then only there parked or ridden in).
+int32_t SceneDB_HorseAllowed(int32_t id);
+int32_t SceneDB_GetHorseSpawn(int32_t id, Vec3f* pos, int16_t* angle);
 int32_t EntranceDB_GetEntryCount(void);
 int32_t EntranceDB_RetrieveIndex(const char* name); // -1 when unknown
 
