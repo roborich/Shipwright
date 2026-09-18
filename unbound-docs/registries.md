@@ -123,10 +123,23 @@ What it takes besides the gate:
   none, so `EnHorse_SpawnNearPlayer` generates one: ring positions around the player tried from
   directly behind him outwards. A candidate has to pass `EnHorse_CalcFloorHeight` — the same test
   her movement code applies to the ground ahead, which rejects no floor, water, a slope past 35°
-  and a horse-blocked surface — be within 300 units of the player vertically, and be off camera.
-  Hand-placed points made all of that implicit; a generated one has to earn it, or she arrives in a
-  lake or at the bottom of a canyon she cannot be ridden out of. First hit wins and she arrives
-  facing him. Vanilla scenes keep the table.
+  and a horse-blocked surface — and be within 300 units of the player vertically. Hand-placed
+  points made that implicit; a generated one has to earn it, or she arrives in a lake or at the
+  bottom of a canyon she cannot be ridden out of. She always arrives facing him. Vanilla scenes
+  keep the table.
+
+  Being off camera is a *preference*, not a requirement: the first candidate that is off screen
+  wins, and if every standable heading is on screen she arrives at the first of those instead. A
+  scene can be small enough to be visible all over, and a horse that appears in view is better
+  than a song that does nothing. Only ground she cannot stand on, or a point within 100 units of
+  the camera, rules a heading out entirely.
+
+  The on-screen test is `EnHorse_CallPointOnScreen`, which projects the point itself, deliberately
+  *not* vanilla's `func_80A5BBBC`. That one answers the question with the actor culling test, which
+  pads the point by `uncullZoneScale` — 600 units for a horse — because it decides whether a horse
+  standing there would be *drawn*. Vanilla's call points are thousands of units apart and clear
+  that padding; every point on a 300-unit ring falls inside it, so reusing the culling test
+  rejected all eight headings at every camera angle and the song silently did nothing.
 - **Where she is parked.** `gSaveContext.horseData.scene` is a numeric id, stable for a custom
   scene only when the registry assigned it explicitly, so the `unbound` save section stores the
   scene *name* alongside it and that name wins on load — the same reasoning as the scene flags.

@@ -675,12 +675,17 @@ void EnHorse_IdleAnimSounds(EnHorse* this, PlayState* play) {
 // SOH [Unbound] Epona's Song calls her to the nearest off-screen entry of sHorseSpawns, which lists call
 // points for vanilla's five horse scenes only. A custom scene that allows her (SPEC.md §7 "horse") has none,
 // so one is generated: ground positions on a ring around the player, tried from directly behind him outwards,
-// taking the first she can actually stand on and that is not on camera. She always arrives facing him.
+// taking the first she can actually stand on. She always arrives facing him.
 #define ENHORSE_CALL_RADIUS 300.0f
 #define ENHORSE_CALL_RAYCAST_HEIGHT 200.0f
 // How far above or below the player she may arrive. Past this the ring has found the floor of a canyon or the
 // top of a ledge beside him, which is off camera and useless: she could not be ridden back to him.
 #define ENHORSE_CALL_MAX_DROP 300.0f
+// How close to the screen edge she may arrive, in normalised device coordinates. Past 1.0 so that she is not
+// half on screen at the moment she appears.
+#define ENHORSE_CALL_SCREEN_MARGIN 1.2f
+// Vanilla's own limit, kept: a point this close to the camera would put her around it rather than in view.
+#define ENHORSE_CALL_MIN_EYE_DIST 100.0f
 
 // Offsets from "directly behind the player", in the order they are tried. The last is straight ahead of him,
 // which only wins when the camera is looking away from where he is facing.
@@ -689,38 +694,87 @@ static const s16 sCallPointOffsets[] = { 0x0000, 0x2000, -0x2000, 0x4000, -0x400
 void EnHorse_Vec3fOffset(Vec3f* src, s16 yaw, f32 dist, f32 height, Vec3f* dst);
 s32 EnHorse_CalcFloorHeight(EnHorse* this, PlayState* play, Vec3f* pos, CollisionPoly** floorPoly, f32* floorHeight);
 
-s32 EnHorse_SpawnNearPlayer(EnHorse* this, PlayState* play) {
+// Where one ring heading meets the ground, or false when she could not stand there. Vanilla's five scenes list
+// call points an author placed by hand; a generated one has to prove the ground itself.
+static s32 EnHorse_CallPointOnGround(EnHorse* this, PlayState* play, s16 offset, Vec3f* pos) {
     Player* player = GET_PLAYER(play);
+    s16 yaw = player->actor.shape.rot.y + 0x8000 + offset;
+    CollisionPoly* floorPoly;
+    f32 floorY;
+
+    EnHorse_Vec3fOffset(&player->actor.world.pos, yaw, ENHORSE_CALL_RADIUS, ENHORSE_CALL_RAYCAST_HEIGHT, pos);
+
+    // The same test her own movement code applies to the ground ahead: no floor, water, a slope past 35
+    // degrees, or a horse-blocked surface all disqualify the point.
+    if (EnHorse_CalcFloorHeight(this, play, pos, &floorPoly, &floorY) != 0) {
+        return false;
+    }
+    if (fabsf(floorY - player->actor.world.pos.y) > ENHORSE_CALL_MAX_DROP) {
+        return false; // down a cliff or up a ledge
+    }
+
+    pos->y = floorY;
+    return true;
+}
+
+// Whether the player would watch her appear at this point. This is deliberately not func_80A5BBBC, which
+// answers the question with the actor culling test: that test pads the point by uncullZoneScale (600 units for
+// a horse) because it decides whether a horse standing there would be *drawn*, and every point on a ring this
+// small falls inside 600 units of the player. Vanilla's hand-placed call points are thousands of units apart
+// and clear it; a generated ring never could, so the point itself is projected here.
+static s32 EnHorse_CallPointOnScreen(PlayState* play, Vec3f* pos) {
+    Vec3f projected;
+    f32 w;
+
+    SkinMatrix_Vec3fMtxFMultXYZW(&play->viewProjectionMtxF, pos, &projected, &w);
+
+    if (w < 1.0f) {
+        return false; // at or behind the camera
+    }
+    return fabsf(projected.x / w) < ENHORSE_CALL_SCREEN_MARGIN && fabsf(projected.y / w) < ENHORSE_CALL_SCREEN_MARGIN;
+}
+
+static void EnHorse_PlaceAtCallPoint(EnHorse* this, PlayState* play, Vec3f* pos) {
+    Player* player = GET_PLAYER(play);
+
+    this->actor.world.pos = *pos;
+    this->actor.prevPos = *pos;
+    this->actor.world.rot.y = Math_Vec3f_Yaw(pos, &player->actor.world.pos);
+    this->actor.shape.rot.y = this->actor.world.rot.y;
+    SkinMatrix_Vec3fMtxFMultXYZW(&play->viewProjectionMtxF, &this->actor.world.pos, &this->actor.projectedPos,
+                                 &this->actor.projectedW);
+}
+
+// She should arrive unseen, but a scene small enough to be on camera all over is still better served by a horse
+// that appears in view than by a song that does nothing, so an on-screen point is kept as a fallback. Only
+// ground she cannot stand on, or a point around the camera, rules a heading out entirely.
+s32 EnHorse_SpawnNearPlayer(EnHorse* this, PlayState* play) {
+    Vec3f onScreenPoint;
+    s32 haveOnScreenPoint = false;
     s32 i;
 
     for (i = 0; i < ARRAY_COUNT(sCallPointOffsets); i++) {
-        s16 yaw = player->actor.shape.rot.y + 0x8000 + sCallPointOffsets[i];
-        CollisionPoly* floorPoly;
         Vec3f pos;
-        f32 floorY;
 
-        EnHorse_Vec3fOffset(&player->actor.world.pos, yaw, ENHORSE_CALL_RADIUS, ENHORSE_CALL_RAYCAST_HEIGHT, &pos);
-
-        // The same test her own movement code applies to the ground ahead: no floor, water, a slope past 35
-        // degrees, or a horse-blocked surface all disqualify the point.
-        if (EnHorse_CalcFloorHeight(this, play, &pos, &floorPoly, &floorY) != 0) {
+        if (!EnHorse_CallPointOnGround(this, play, sCallPointOffsets[i], &pos)) {
             continue;
         }
-        if (fabsf(floorY - player->actor.world.pos.y) > ENHORSE_CALL_MAX_DROP) {
-            continue; // down a cliff or up a ledge
+        if (Math3D_Vec3f_DistXYZ(&pos, &play->view.eye) < ENHORSE_CALL_MIN_EYE_DIST) {
+            continue;
         }
 
-        pos.y = floorY;
-        if (func_80A5BBBC(play, this, &pos)) {
-            continue; // on camera, or right on top of the player
+        if (!EnHorse_CallPointOnScreen(play, &pos)) {
+            EnHorse_PlaceAtCallPoint(this, play, &pos);
+            return true;
         }
+        if (!haveOnScreenPoint) {
+            onScreenPoint = pos;
+            haveOnScreenPoint = true;
+        }
+    }
 
-        this->actor.world.pos = pos;
-        this->actor.prevPos = pos;
-        this->actor.world.rot.y = Math_Vec3f_Yaw(&pos, &player->actor.world.pos);
-        this->actor.shape.rot.y = this->actor.world.rot.y;
-        SkinMatrix_Vec3fMtxFMultXYZW(&play->viewProjectionMtxF, &this->actor.world.pos, &this->actor.projectedPos,
-                                     &this->actor.projectedW);
+    if (haveOnScreenPoint) {
+        EnHorse_PlaceAtCallPoint(this, play, &onScreenPoint);
         return true;
     }
 

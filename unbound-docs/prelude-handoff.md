@@ -6,6 +6,30 @@ let the user build. **The contract is [`SPEC.md`](./SPEC.md)**; every entry belo
 section that defines it, and when this page and SPEC disagree, SPEC wins. Everything in the code
 is tagged `SOH [Unbound]`.
 
+## 2026-09-17 — Epona in custom scenes: what the two `horse` controls actually do
+
+From a play-test of a three-scene mod where Epona's Song did nothing in any of them. Two separate
+causes, one on each side, and both are worth knowing about before the next mod that allows her.
+**No format change and no re-export**: the engine-side fix is in `EnHorse_SpawnNearPlayer`, so a mod
+exported before it works as soon as the user updates SoH.
+
+The root confusion is that `horse` reads like one feature with an optional extra, and it is not.
+The song **calls a horse that already exists in the scene** — `DREG(53)` is a flag an already-spawned
+`EnHorse` polls in `EnHorse_Inactive`; nothing anywhere creates one. So the permission and the idle
+spot are two different features, and a scene with the permission alone has nothing to call.
+
+| Change | SPEC | Prelude must |
+|---|---|---|
+| Nothing in the format. This entry is what the existing `horse` key already means, written out because the two controls look independent and are not. | §7 | Present them as one feature with two parts, not two toggles. The permission alone means "she may be ridden in, parked here, and found here again"; the idle spot is what makes **Epona's Song** work in the scene. A control that reads as an optional coordinate on an already-enabled feature will be left off by users who wanted the song. |
+| `horse.pos` is a real standing position, not just a marker: when she is *parked* in the scene she is spawned there as a live actor (`params = 1`), not as the invisible placeholder. | §7 | Validate the point at export, with the same four tests `EnHorse_CalcFloorHeight` applies: a floor poly exists under it, its surface type has `isHorseBlocked == 0`, it is not below a water box, and the floor normal has `y >= 0.819` (slope ≤ 35°). A point test, at most padded by her collider radius (**20** units). Previously this page said `horse.pos` was "taken as given"; this replaces that. |
+| A room with no objects must still emit `"objects": {}`. | §4.2 | Keep emitting the empty object list. The engine appends `OBJECT_HORSE` inside the `SetObjectList` command handler, and a setup key that is *absent* emits no command at all — so omitting it silently skips the injection. Low severity in practice (her bank index falls back to 0 and she survives), but it is a free thing to get right. |
+| Riding through an exit into a scene without `horse` loses her at the boundary. | §7 | Warn at export when a scene with `horse` has an exit into a custom scene without it. `func_8006DC68` bails on the destination's gate, so she simply does not arrive and stays parked in the scene behind. Scenes meant to be ridden between all need the key. |
+
+Nothing to author for call points. Where she arrives when summoned is generated at runtime from the
+player's position and the camera, has no representation in the scene file, and imposes no clearance
+requirement on the scene — see "A call point" in [`registries.md`](./registries.md) for why the
+earlier implementation appeared to demand one.
+
 ## 2026-09-17 — scroll layers may move slower than a quarter-texel: `xSpeed` / `ySpeed`
 
 The slowest `materialAnims` scroll was `xStep` 1, a quarter-texel per gameplay frame — too fast for
@@ -40,8 +64,9 @@ manifest change; an older reader ignores the key and refuses her as before.
 | Older readers degrade silently. | §10 | Note in the export summary that `horse` needs Unbound 0.7+. Do **not** raise `requires.formatVersion`. |
 
 She stays adult-only, as in vanilla, and the idle spot should be flat, dry ground: a generated call
-point is rejected for water, a slope past 35°, a horse-blocked surface or a big drop, but `horse.pos`
-is taken as given.
+point is rejected for water, a slope past 35°, a horse-blocked surface or a big drop. `horse.pos`
+itself is taken as given by the reader — see the 2026-09-17 entry for the checks Prelude should run
+on it at export.
 
 ## 2026-09-05 — animated materials from data: `materialAnims`
 
@@ -155,7 +180,8 @@ growable message tables (§5), objects per setup 1 024, actors per room 65 535, 
    types and water boxes; vertex resource v1 where a mesh needs it. Importing old fixtures (packed
    words, `/1`, `/2`, `origin`) is Prelude's concern alone — SoH does not read them.
 4. Lighting inspector: `fogBlendRate` and the world-fog keys.
-5. Validation updates per SPEC §9; keep the camera-data and per-room `Vtx` warnings.
+5. Validation updates per SPEC §9; keep the camera-data and per-room `Vtx` warnings. Add the
+   `horse.pos` standability check and the horse-exit warning (2026-09-17).
 6. Regenerate test fixtures from a fresh `soh --export-unbound` (works headless).
 
 ## How to verify against this build
