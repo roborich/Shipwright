@@ -17,6 +17,7 @@ pointer-level version of this class at compile time. Then play:
 | Plant a magic bean and ride it; watch Zelda's escape (Ganon's Castle collapse) | f32 path points (`Obj_Bean`, `En_Zl3`) | plant follows its path |
 | Epona: ride, save, reload | `HorseData.pos` f32 in the save | same spot |
 | Epona in a custom scene with `horse`: play Epona's Song, ride out through an exit into another horse scene, dismount + save + reload | `SceneDB_HorseAllowed` gate, `OBJECT_HORSE` injected per room, generated call point, parked scene saved by name | she comes onto flat dry ground — from off camera where the scene has anywhere off camera — stays under Link across the transition, and is where she was left |
+| Open the Better Debug Warp screen with a custom-scene mod mounted; warp to each of a custom scene's entrances as child and adult, day and night | `UnboundSceneSelect_BuildList` (registry scenes appended to `sBetterScenes`), custom entrance indices through `Select_LoadGame` | the scene is listed after `50:Debug` by its display name and every entrance lands at its spawn |
 | Torch-lit room at night (Kakariko, Market) | point lights f32 | glow at the torch |
 | Hookshot a target; climb a vine wall; kick a wall | surface types unpacked (`canHookshot`, `wallFlags`) | as vanilla |
 | Bomb a bombable wall (Dodongo's Cavern) | dyna delete + node list growth | opens, no crash |

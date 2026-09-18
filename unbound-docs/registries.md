@@ -149,6 +149,17 @@ What it takes besides the gate:
 She stays adult-only (`func_8006DC68`), and Epona's Song itself never had a scene list — it sets
 `DREG(53)`, which only an existing `EnHorse` consumes.
 
+### Better Debug Warp screen (`soh/soh/unbound/UnboundSceneSelect.{h,cpp}`)
+
+The screen (`z_select.c`) reads its list through `SelectContext.betterScenes`/`count`, so
+`Select_SwitchBetterWarpMode` points them at `UnboundSceneSelect_BuildList`: the vanilla
+`sBetterScenes` followed by one line per custom scene that has an entrance, numbered on from the
+vanilla 50 (`51:Lava Temple`). The scene's display name is used for every language; each entrance
+is labelled by its key (`main`), since SPEC §7 gives entrances no display name. A scene shows at
+most 18 entrances (the screen's fixed `entrancePairs`); the rest are logged and stay reachable from
+the console. Custom entries are never MQ. The remembered line is a list position, so a changed mod
+set can land it on another scene; the saved entrance position is clamped to that scene's entrances.
+
 ## Not changed (custom scenes fall outside every vanilla range check)
 
 - Minimap / pause map (`Map_Init`, `z_map_mark`, kaleido): all keyed by dungeon or overworld
@@ -158,8 +169,6 @@ She stays adult-only (`func_8006DC68`), and Epona's Song itself never had a scen
   treat custom ids as "other". Correct for now.
 - Title cards for vanilla scenes still come from the 66-case `switch` in `TitleCard_InitPlaceName`;
   custom scenes use the registry's `titleCardTexture`.
-- The Better Debug Warp screen (`z_select.c`) lists only vanilla entrances. Use the console
-  (`entrance mymod/lava_temple/main`) or an exit from an edited scene.
 - Randomizer entrance shuffle still copies exactly `ENTR_MAX` entries; custom entrances are never
   shuffled. Randomizer is out of scope for Unbound.
 - Per-layer entrance overrides (`layers`, SPEC §7) are reserved but not read.
@@ -183,3 +192,7 @@ Implemented on the `unbound` branch. See the README status table for build/verif
 5. Epona: in a custom scene with `horse`, Epona's Song calls her from off camera; riding her
    through an exit into another horse scene keeps her under Link; dismounting, saving and
    reloading finds her where she was left; a scene without the key still refuses her.
+6. Debug warp: with the Better Debug Warp screen on, custom scenes follow `50:Debug` under their
+   display names, C-left/right cycles their entrance keys, and A lands at the chosen entrance as
+   the chosen age and time of day; restarting without the mod drops the lines, and a remembered
+   custom line falls back to a valid one without a crash.
