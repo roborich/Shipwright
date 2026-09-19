@@ -111,9 +111,11 @@ below), so supersampling is opt-in rather than automatic.
 
 Note that a config copied from a desktop install carries everything with it, cheats
 included — `gCheats.FreezeTime` in particular will freeze the in-game clock here too.
-`gSettings.EnabledMods` is the one thing that is healed rather than honoured: names with no
-archive under `/mods` are dropped at boot (and the trimmed list is written back), so a
-desktop mod list cannot break the Mod Menu here.
+`gSettings.EnabledMods` is the one thing that is healed rather than honoured: when `/mods`
+was supplied, names with no archive under it are dropped at boot (and the trimmed list is
+written back). With no `/mods` at all the list is kept as it is, nothing is loaded, and the
+Mod Menu shows each entry as missing, so a desktop mod list cannot break the Mod Menu here
+and survives a round trip through a build without its mods.
 
 ## Diagnosing a crash or a freeze
 
