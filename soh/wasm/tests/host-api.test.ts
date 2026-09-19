@@ -69,7 +69,7 @@ test("warp refuses what it cannot parse", () =>
         expect(await game.run("warp zz")).toBe(1);
         expect(await game.run("warp -1")).toBe(1);
         expect(await game.run("warp 614")).toBe(1); // ENTR_MAX
-        expect(await game.run("warp 0 child day 300 0 0 0 0")).toBe(1); // room past s8
+        expect(await game.run("warp 0 child day 40000 0 0 0 0")).toBe(1); // room past s16
         expect(await game.run("warp 0 teen")).toBe(1); // a word that is not an age, and not a time either
         expect(await game.run("warp 0 child 10000")).toBe(1); // time past FFFF
         expect(await game.run("warp 0 child day 0 1 2")).toBe(1); // a point needs five numbers

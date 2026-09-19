@@ -427,6 +427,19 @@ static int32_t ParseWholeHex(const std::string& text) {
     } catch (std::exception const&) { return -1; }
 }
 
+// SOH [Unbound] An entrance argument: a registered entrance name (vanilla ENTR_* or "<scene id>/<entrance id>"),
+// which wins over hex since stoi would otherwise accept the hex-looking prefix of a name such as
+// "ENTR_DEKU_TREE_0", or a hex index into the entrance table (custom entrances included). -1 for neither.
+static int32_t ParseEntrance(const std::string& token) {
+    int32_t entrance = EntranceDB_RetrieveIndex(token.c_str());
+    if (entrance < 0) {
+        entrance = ParseWholeHex(token);
+    }
+    return entrance < EntranceDB_GetEntryCount() ? entrance : -1;
+}
+
+#define ENTRANCE_ARGUMENT_ERROR "[SOH] Entrance must be a registered entrance name or a hex number below %X."
+
 static bool EntranceHandler(std::shared_ptr<Ship::Console> Console, const std::vector<std::string>& args,
                             std::string* output) {
     if (args.size() < 2) {
@@ -434,14 +447,9 @@ static bool EntranceHandler(std::shared_ptr<Ship::Console> Console, const std::v
         return 1;
     }
 
-    // SOH [Unbound] a registered entrance name (vanilla ENTR_* or "<scene id>/<entrance id>") wins over hex,
-    // since stoi would otherwise accept the hex-looking prefix of a name such as "ENTR_DEKU_TREE_0".
-    int32_t entrance = EntranceDB_RetrieveIndex(args[1].c_str());
+    int32_t entrance = ParseEntrance(args[1]);
     if (entrance < 0) {
-        entrance = ParseWholeHex(args[1]);
-    }
-    if (entrance < 0) {
-        ERROR_MESSAGE("[SOH] Entrance value must be a Hex number or a registered entrance name.");
+        ERROR_MESSAGE(ENTRANCE_ARGUMENT_ERROR, EntranceDB_GetEntryCount());
         return 1;
     }
 
@@ -524,13 +532,14 @@ static bool ParsePoint(const std::vector<std::string>& tokens, size_t at, WarpPo
 static bool WarpHandler(std::shared_ptr<Ship::Console> Console, const std::vector<std::string>& args,
                         std::string* output) {
     if (args.size() < 2) {
-        ERROR_MESSAGE("[SOH] Usage: warp <entrance hex> [adult|child] [time] [room x y z yaw]");
+        ERROR_MESSAGE("[SOH] Usage: warp <entrance> [adult|child] [time] [room x y z yaw]");
         return 1;
     }
 
     WarpPoint point;
-    if (!ParseInt(args[1], 16, 0, ENTR_MAX - 1, &point.entranceId)) {
-        ERROR_MESSAGE("[SOH] Entrance must be a hex number below 614.");
+    point.entranceId = ParseEntrance(args[1]); // SOH [Unbound] a name, or hex below the table's size
+    if (point.entranceId < 0) {
+        ERROR_MESSAGE(ENTRANCE_ARGUMENT_ERROR, EntranceDB_GetEntryCount());
         return 1;
     }
 
@@ -553,7 +562,7 @@ static bool WarpHandler(std::shared_ptr<Ship::Console> Console, const std::vecto
         return 1;
     }
     if (left != 0 && left != 5) {
-        ERROR_MESSAGE("[SOH] Usage: warp <entrance hex> [adult|child] [time] [room x y z yaw]");
+        ERROR_MESSAGE("[SOH] Usage: warp <entrance> [adult|child] [time] [room x y z yaw]");
         return 1;
     }
 
@@ -1678,12 +1687,13 @@ void DebugConsole_Init(void) {
                                      } });
 
     CMD_REGISTER("entrance", { EntranceHandler,
-                               "Sends player to the entered entrance (hex)",
+                               "Sends player to the entered entrance (hex, or a registered entrance name)",
                                {
                                    { "entrance", Ship::ArgumentType::NUMBER },
                                } });
     CMD_REGISTER("warp", { WarpHandler,
-                           "Warps to an entrance (hex) as adult or child at a time of day (day, night, or hex), "
+                           "Warps to an entrance (hex, or a registered entrance name) as adult or child at a time of "
+                           "day (day, night, or hex), "
                            "optionally standing at room x y z yaw. Starts a fresh game when not in one.",
                            {
                                { "entrance", Ship::ArgumentType::NUMBER },
