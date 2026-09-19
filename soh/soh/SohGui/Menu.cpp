@@ -279,6 +279,21 @@ std::unordered_map<uint32_t, disabledInfo>& Menu::GetDisabledMap() {
     return disabledMap;
 }
 
+// audioBackendsMap names every platform's backends; a backend this build lacks would play through the null
+// player until the next launch (Audio::Init then falls back to the platform's own). Offer only what is here.
+static const std::map<Ship::AudioBackend, const char*>& AvailableAudioBackendsMap() {
+    static const std::map<Ship::AudioBackend, const char*> available = [] {
+        std::map<Ship::AudioBackend, const char*> map;
+        for (Ship::AudioBackend backend : *Ship::Context::GetInstance()->GetAudio()->GetAvailableAudioBackends()) {
+            if (auto named = audioBackendsMap.find(backend); named != audioBackendsMap.end()) {
+                map.insert(*named);
+            }
+        }
+        return map;
+    }();
+    return available;
+}
+
 void Menu::MenuDrawItem(WidgetInfo& widget, uint32_t width, UIWidgets::Colors menuThemeIndex) {
     disabledTempTooltip = "This setting is disabled because: \n";
     disabledValue = false;
@@ -343,7 +358,7 @@ void Menu::MenuDrawItem(WidgetInfo& widget, uint32_t width, UIWidgets::Colors me
                 options.tooltip = "Sets the audio API used by the game. Requires a relaunch to take effect.";
                 options.disabled = Ship::Context::GetInstance()->GetAudio()->GetAvailableAudioBackends()->size() <= 1;
                 options.disabledTooltip = "Only one audio API is available on this platform.";
-                if (UIWidgets::Combobox("Audio API", &currentAudioBackend, audioBackendsMap, options)) {
+                if (UIWidgets::Combobox("Audio API", &currentAudioBackend, AvailableAudioBackendsMap(), options)) {
                     Ship::Context::GetInstance()->GetAudio()->SetCurrentAudioBackend(currentAudioBackend);
                 }
             } break;

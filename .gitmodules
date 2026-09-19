@@ -4,7 +4,8 @@
 	branch = unbound
 [submodule "ZAPDTR"]
 	path = ZAPDTR
-	url = https://github.com/harbourmasters/ZAPDTR
+	url = https://github.com/roborich/ZAPDTR
+	branch = wasm
 [submodule "OTRExporter"]
 	path = OTRExporter
 	url = https://github.com/harbourmasters/OTRExporter

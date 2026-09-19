@@ -123,13 +123,15 @@ bool IsValidExtension(std::string extension) {
     return false;
 }
 
+// The mods folder, or an empty string when this install has none.
+static std::string ModsFolder() {
+    std::string modsPath = Ship::Context::LocateFileAcrossAppDirs("mods", appShortName);
+    return (modsPath.empty() || !std::filesystem::is_directory(modsPath)) ? "" : modsPath;
+}
+
 // Scans the mods folder into filePaths, appending any mod not yet in the enabled list.
 // Returns whether the enabled list changed.
-static bool ScanModsFolder() {
-    std::string modsPath = Ship::Context::LocateFileAcrossAppDirs("mods", appShortName);
-    if (modsPath.empty() || !std::filesystem::is_directory(modsPath)) {
-        return false;
-    }
+static bool ScanModsFolder(const std::string& modsPath) {
     std::map<std::string, std::string> newMods;
     for (const std::filesystem::directory_entry& p : std::filesystem::recursive_directory_iterator(
              modsPath, std::filesystem::directory_options::follow_directory_symlink)) {
@@ -161,9 +163,12 @@ static bool PruneMissingMods() {
     return std::erase_if(enabledModFiles, [](const std::string& mod) { return !filePaths.contains(mod); }) > 0;
 }
 
+// Mods without a file are not loaded: the folder is absent, so the list was kept as it is.
 static void LoadEnabledModArchives() {
     for (const std::string& mod : enabledModFiles) {
-        GetArchiveManager()->AddArchive(filePaths.at(mod).generic_string());
+        if (filePaths.contains(mod)) {
+            GetArchiveManager()->AddArchive(filePaths.at(mod).generic_string());
+        }
     }
 }
 
@@ -174,12 +179,17 @@ void UpdateModFiles(bool init = false, bool reset = false) {
     disabledModFiles.clear();
     unsupportedFiles.clear();
     filePaths.clear();
-    bool changed = ScanModsFolder();
-    // Pruning used to happen only while loading archives, and only when the mods folder
-    // existed. Without the folder a stale list survived, and drawing the Mod Menu threw
-    // std::out_of_range from filePaths.at(). Everything that draws or loads the list
-    // relies on each entry having a file, so prune before either.
-    changed |= PruneMissingMods();
+    bool changed = false;
+    std::string modsPath = ModsFolder();
+    if (!modsPath.empty()) {
+        changed = ScanModsFolder(modsPath);
+        // Only a scan can tell a deleted mod from one this install never had. Pruning used to
+        // happen only while loading archives; it happens before the list is drawn too, since
+        // the Mod Menu draws each entry's file. Without the folder (moved aside, an unmounted
+        // drive) the list is kept, order and all, so that putting the folder back restores it:
+        // nothing is loaded, and the Mod Menu shows each entry as missing.
+        changed |= PruneMissingMods();
+    }
     if (init) {
         LoadEnabledModArchives();
     }
@@ -211,9 +221,15 @@ void DisableMod(std::string file) {
     AfterModChange();
 }
 
-void DrawModInfo(std::string file) {
+// The mod's file name, or the enabled-list name marked missing when there is no file behind it.
+void DrawModInfo(const std::string& mod) {
     ImGui::SameLine();
-    ImGui::Text("%s", file.c_str());
+    auto path = filePaths.find(mod);
+    if (path == filePaths.end()) {
+        ImGui::Text("%s (missing)", mod.c_str());
+    } else {
+        ImGui::Text("%s", path->second.filename().generic_string().c_str());
+    }
 }
 
 void DrawMods(bool enabled) {
@@ -273,7 +289,7 @@ void DrawMods(bool enabled) {
             }
         }
 
-        DrawModInfo(filePaths.at(file).filename().generic_string());
+        DrawModInfo(file);
         if (enabled) {
             ImGui::EndGroup();
             ModsHandleDragAndDrop(selectedModFiles, i, file);
