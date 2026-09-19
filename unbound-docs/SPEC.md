@@ -406,7 +406,7 @@ top of it. The folder name for English is `eng` only.
   "format": "unbound",
   "formatVersion": 2,
   "game": "oot",
-  "source": { "romHash": "0xEC7011B7", "converter": "soh Ackbar Delta (9.2.3)" },
+  "source": { "romHash": "0xEC7011B7", "converter": "soh Ackbar Delta (9.2.3) unbound r1" },
   "features": ["scenes", "collision", "text", "paths"],
   "requires": { "formatVersion": 2 }
 }

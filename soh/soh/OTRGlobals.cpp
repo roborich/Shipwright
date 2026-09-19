@@ -408,16 +408,35 @@ namespace SohGui {
 extern std::shared_ptr<SohGui::SohMenu> mSohMenu;
 }
 
+// Stops a launch that cannot go on, telling the player (desktop) or the embedding page (browser) why.
+static void AbortStartup(const char* title, const std::string& problem) {
+    SPDLOG_ERROR("{}: {}", title, problem);
+#if defined(__EMSCRIPTEN__)
+    Soh_EmbedderError(problem.c_str());
+    // Unwinds out of main() but keeps the runtime, so the page keeps its console and can
+    // show the message. Nothing on this stack catches the unwind.
+    emscripten_exit_with_live_runtime();
+#else
+#if !defined(__SWITCH__) && !defined(__WIIU__)
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title, problem.c_str(), nullptr);
+#endif
+    exit(1);
+#endif
+}
+
 #ifdef __EMSCRIPTEN__
 // SOH [WASM] The checks RunExtract makes on desktop before it offers to extract, for a build
-// that cannot extract. Returns why the game cannot start, or an empty string.
-static std::string BrowserArchiveProblem(bool portArchiveMatches, OTRVersion vanilla, OTRVersion mq) {
+// that cannot extract. Returns why the game cannot start, or an empty string. SOH [Unbound] A
+// standalone oot-unbound.o2r is a game archive too; its version is checked once it is mounted
+// (MountUnboundBase), against the converter that made it.
+static std::string BrowserArchiveProblem(bool portArchiveMatches, OTRVersion vanilla, OTRVersion mq,
+                                         OTRVersion unboundBase) {
     if (!portArchiveMatches) {
         return "soh.o2r does not match this build (" + std::to_string(gBuildVersionMajor) + "." +
                std::to_string(gBuildVersionMinor) + "." + std::to_string(gBuildVersionPatch) + ")";
     }
-    if (vanilla.major == INT16_MAX && mq.major == INT16_MAX) {
-        return "no game archive: supply /oot.o2r or /oot-mq.o2r in Module.shipFiles";
+    if (vanilla.major == INT16_MAX && mq.major == INT16_MAX && unboundBase.major == INT16_MAX) {
+        return "no game archive: supply /oot.o2r, /oot-mq.o2r or /oot-unbound.o2r in Module.shipFiles";
     }
     if (VerifyArchiveVersion(vanilla) || VerifyArchiveVersion(mq)) {
         return "oot.o2r or oot-mq.o2r was made by an incompatible version of SoH; extract it again";
@@ -439,13 +458,10 @@ void OTRGlobals::RunExtract(int argc, char* argv[]) {
     // none; without them a missing or stale oot.o2r failed at the first resource load, in a
     // loop that never returned to the page and that no event reported.
     std::string problem = BrowserArchiveProblem(sohArchiveVersionMatch, DetectOTRVersion("oot.o2r", false),
-                                                DetectOTRVersion("oot-mq.o2r", true));
+                                                DetectOTRVersion("oot-mq.o2r", true),
+                                                DetectOTRVersion(SOH::Unbound::kBaseArchiveName, false));
     if (!problem.empty()) {
-        SPDLOG_ERROR("Cannot start: {}", problem);
-        Soh_EmbedderError(problem.c_str());
-        // Unwinds out of main() but keeps the runtime, so the page keeps its console and can
-        // show the message. Nothing on this stack catches the unwind.
-        emscripten_exit_with_live_runtime();
+        AbortStartup("Cannot start", problem);
     }
     return;
 #else
@@ -829,6 +845,36 @@ void OTRGlobals::RunExtract(int argc, char* argv[]) {
 #endif // __EMSCRIPTEN__
 }
 
+// SOH [Unbound] Mounts oot-unbound.o2r as the game archive when neither ROM archive exists (see
+// CheckStandaloneBaseArchive; the browser build installs Unbound that way). Returns whether it did.
+static bool MountStandaloneUnboundBase(const std::string& ootPath, const std::string& mqPath) {
+    std::string basePath = Ship::Context::LocateFileAcrossAppDirs(SOH::Unbound::kBaseArchiveName, appShortName);
+    if (std::filesystem::exists(ootPath) || std::filesystem::exists(mqPath) || !std::filesystem::exists(basePath)) {
+        return false;
+    }
+    return Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->AddArchive(basePath) != nullptr;
+}
+
+// SOH [Unbound] A base archive converted during this launch, reported to the embedding page by InitOTR.
+static std::string sConvertedUnboundBase;
+
+// SOH [Unbound] The converted base (oot-unbound.o2r) mounts above the vanilla archives; it is generated on first
+// launch and regenerated whenever the ROM archives or the build change. A standalone base has nothing to be
+// regenerated from, so it is only checked. Needs the resource factories.
+static void MountUnboundBase(bool standalone, const std::string& ootPath, const std::string& mqPath) {
+    if (standalone) {
+        std::string problem = SOH::Unbound::CheckStandaloneBaseArchive();
+        if (!problem.empty()) {
+            AbortStartup("Unusable Unbound base archive", problem);
+        }
+        return;
+    }
+    std::string dir = std::filesystem::path(std::filesystem::exists(ootPath) ? ootPath : mqPath).parent_path().string();
+    if (SOH::Unbound::EnsureBaseArchive(dir) == SOH::Unbound::BaseArchiveState::Converted) {
+        sConvertedUnboundBase = (std::filesystem::path(dir) / SOH::Unbound::kBaseArchiveName).string();
+    }
+}
+
 void OTRGlobals::Initialize() {
     std::string mqPath = Ship::Context::LocateFileAcrossAppDirs("oot-mq.o2r", appShortName);
     if (std::filesystem::exists(mqPath)) {
@@ -838,6 +884,7 @@ void OTRGlobals::Initialize() {
     if (std::filesystem::exists(ootPath)) {
         context->GetResourceManager()->GetArchiveManager()->AddArchive(ootPath);
     }
+    bool standaloneUnboundBase = MountStandaloneUnboundBase(ootPath, mqPath); // SOH [Unbound]
 
     std::unordered_set<uint32_t> ValidHashes = {
         OOT_PAL_MQ,     OOT_NTSC_JP_MQ, OOT_NTSC_US_MQ, OOT_PAL_GC_MQ_DBG, OOT_NTSC_US_10,
@@ -1050,11 +1097,7 @@ void OTRGlobals::Initialize() {
         }
     }
 
-    // SOH [Unbound] The converted base (oot-unbound.o2r) mounts above the vanilla archives; it is generated here on
-    // first launch and regenerated whenever the ROM archives or the build change. Needs the factories above.
-    std::string gameArchiveDir =
-        std::filesystem::path(std::filesystem::exists(ootPath) ? ootPath : mqPath).parent_path().string();
-    SOH::Unbound::EnsureBaseArchive(gameArchiveDir);
+    MountUnboundBase(standaloneUnboundBase, ootPath, mqPath); // SOH [Unbound] needs the factories above
 }
 
 OTRGlobals::~OTRGlobals() {
@@ -1670,6 +1713,11 @@ extern "C" void InitOTR(int argc, char* argv[]) {
     DebugConsole_Init();
 #ifdef __EMSCRIPTEN__
     Soh_InitEmbedderBridge();
+    if (!sConvertedUnboundBase.empty()) {
+        // SOH [Unbound] Written before the bridge watched anything, so it is reported here. The
+        // host keeps it and supplies it alone next time (HOST-API.md §1).
+        Soh_EmbedderReportFile(sConvertedUnboundBase.c_str());
+    }
 #endif
 
     Unbound_ExportFromCommandLine(argc, argv); // SOH [Unbound] exits the process when the flag is present

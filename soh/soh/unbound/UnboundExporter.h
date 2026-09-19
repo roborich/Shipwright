@@ -21,10 +21,22 @@ ExportReport ExportArchive(const std::string& outPath);
 // The converted base archive, kept beside oot.o2r.
 inline constexpr const char* kBaseArchiveName = "oot-unbound.o2r";
 
+enum class BaseArchiveState {
+    None,      // no base archive is mounted; vanilla scenes stay in vanilla format
+    Mounted,   // an existing, current base archive is mounted
+    Converted, // the base archive was written this launch, then mounted
+};
+
 // Mounts <gameArchiveDir>/oot-unbound.o2r above the vanilla archives, converting it first when it is missing
 // or was made from other ROM archives or by another SoH build. Call after the resource factories are
-// registered and before mods are mounted. Returns true when a base archive is mounted.
-bool EnsureBaseArchive(const std::string& gameArchiveDir);
+// registered and before mods are mounted.
+BaseArchiveState EnsureBaseArchive(const std::string& gameArchiveDir);
+
+// oot-unbound.o2r is a complete game archive (the converter copies every file it does not transform, the
+// version files included), so it can be installed without the ROM archives it came from: the browser build
+// is installed that way. Such a base cannot be converted again, only checked. Call once it is mounted as the
+// game archive and the resource factories are registered. Returns why it cannot be used, or an empty string.
+std::string CheckStandaloneBaseArchive();
 
 } // namespace SOH::Unbound
 

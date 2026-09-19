@@ -3,8 +3,6 @@
 
 #include <emscripten.h>
 #include <filesystem>
-#include <fstream>
-#include <iterator>
 #include <map>
 #include <string>
 #include <vector>
@@ -69,18 +67,18 @@ static void OnSceneInit(int16_t sceneNum) {
 }
 
 // The file's bytes travel as a Uint8Array copy, so the host owns them outright and the
-// event carries the same thing whether the file is JSON (config, saves) or not.
+// event carries the same thing whether the file is JSON (config, saves) or not. FS.readFile
+// copies straight out of the in-memory filesystem: staging the bytes in the wasm heap would
+// grow it for good, since wasm memory never shrinks, and the Unbound base is ~60 MB.
 static void DispatchFileSaved(const std::string& path) {
-    std::ifstream in(path, std::ios::binary);
-    std::vector<char> bytes((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
     std::string vfsPath = VfsPath(path);
     EM_ASM(
         {
-            window.dispatchEvent(new CustomEvent(
-                'soh',
-                { detail : { type : 'file-saved', path : UTF8ToString($0), bytes : HEAPU8.slice($1, $1 + $2) } }));
+            const path = UTF8ToString($0);
+            window.dispatchEvent(
+                new CustomEvent('soh', { detail : { type : 'file-saved', path : path, bytes : FS.readFile(path) } }));
         },
-        vfsPath.c_str(), bytes.data(), bytes.size());
+        vfsPath.c_str());
 }
 
 static void DispatchFileRemoved(const std::string& path) {
@@ -229,6 +227,10 @@ void Soh_EmbedderError(const char* message) {
     // choked on) would otherwise make dump() throw, and the host would never hear of it.
     std::string text = nlohmann::json(message).dump(-1, ' ', false, nlohmann::json::error_handler_t::replace);
     DispatchEvent(fmt::format(R"({{"type":"error","message":{}}})", text));
+}
+
+void Soh_EmbedderReportFile(const char* path) {
+    DispatchFileSaved(path);
 }
 
 // Inbound. Called from JS between frames: the build is single-threaded, so a ccall can

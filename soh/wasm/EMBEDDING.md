@@ -36,7 +36,7 @@ Set `Module.shipFiles` **before** `soh.js` loads. Keys are absolute VFS paths, v
 
 ```js
 Module.shipFiles = {
-  '/oot.o2r':              bytes,  // required: the game archive
+  '/oot-unbound.o2r':      bytes,  // the game archive (Unbound base; HOST-API.md §1)
   '/shipofharkinian.json': bytes,  // optional: config (CVars)
   '/Save/file1.sav':       bytes,  // optional: a save file
   '/Save/global.sav':      bytes,  // optional
@@ -49,8 +49,9 @@ Parent directories are created as needed. The files are written during `preRun`,
 
 `soh/wasm/host.html` is a worked example. Hand over only the files you have: bytes that are
 not a save (an HTTP error page, say) are moved aside as `file<N>-<timestamp>.bak` with a
-popup, not loaded. A missing or incompatible `oot.o2r` stops the game at startup with an
-`error` event instead of a black canvas.
+popup, not loaded. A missing or incompatible game archive stops the game at startup with an
+`error` event instead of a black canvas. Supplying `oot.o2r` instead of `oot-unbound.o2r`
+makes the game convert it at startup and hand the result back (HOST-API.md §1).
 
 ### What the host does *not* supply
 

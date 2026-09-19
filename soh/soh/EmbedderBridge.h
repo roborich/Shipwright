@@ -8,8 +8,9 @@
 //        "load-game"    { fileNum }                 a save was loaded and its first scene is
 //                                                  up; commands that need a play state work
 //        "scene"        { sceneNum, entranceIndex } a scene finished initialising
-//        "file-saved"   { path, bytes }             the game wrote its config or a save;
-//                                                  bytes is a Uint8Array copy of the file
+//        "file-saved"   { path, bytes }             the game wrote its config, a save or the
+//                                                  Unbound base archive; bytes is a
+//                                                  Uint8Array copy of the file
 //        "file-removed" { path }                    a watched file is gone
 //        "quit"         {}                          the main loop has stopped for good
 //        "error"        { message }                 the game stopped: an exception escaped
@@ -31,6 +32,9 @@ void Soh_EmbedderAfterFrame(void);
 void Soh_EmbedderQuit(void);
 // Called by the frame guard for an exception escaping a frame.
 void Soh_EmbedderError(const char* message);
+// Reports a file the game wrote before the bridge started watching, as "file-saved": the
+// Unbound base archive, which is converted during startup.
+void Soh_EmbedderReportFile(const char* path);
 // Called by Graph_ProcessGfxCommands with the number of frames it drew this tick; read
 // back through Soh_GetStats.
 void Soh_EmbedderCountDraws(size_t draws);

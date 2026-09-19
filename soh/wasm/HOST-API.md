@@ -11,7 +11,7 @@ Set before `soh.js` loads. Keys are absolute VFS paths, values `Uint8Array`:
 
 ```js
 Module.shipFiles = {
-  '/oot.o2r':              bytes,  // required
+  '/oot-unbound.o2r':      bytes,  // the game archive (or '/oot.o2r', see below)
   '/shipofharkinian.json': bytes,  // optional: config
   '/Save/file1.sav':       bytes,  // optional: saves (file1..3, global.sav)
   '/mods/<name>.o2r':      bytes,  // optional: mod layers, loaded in sorted filename order
@@ -19,6 +19,22 @@ Module.shipFiles = {
 ```
 
 Do not supply `soh.o2r`; it is inside the module.
+
+**The game archive (SoH: Unbound).** This build plays from `oot-unbound.o2r`, the Unbound
+base: a complete game archive converted from `oot.o2r` (scenes, collision, text and paths
+rewritten in the Unbound format, every other file copied). Supply exactly one of:
+
+- **`/oot-unbound.o2r`** alone: the normal boot. It must have been converted by this same
+  release of the game; one converted by another release stops the game with an `error` event
+  (`… was converted by soh X, not soh Y; convert the ROM again`).
+- **`/oot.o2r`** alone: the install boot. The game converts it during startup (under a second
+  in a release build; the tab stays busy) and sends the result as a `file-saved` event with path
+  `/oot-unbound.o2r`, before the title screen. Keep those bytes and supply them, without
+  `oot.o2r`, from then on. The event carries a copy of about 60 MB.
+
+Supplying both also works (desktop's layout): the base is checked against `oot.o2r` and
+converted again, and reported again, whenever it is stale. A base converted from one archive
+carries only that archive's game, so a Master Quest base comes from `oot-mq.o2r` alone.
 
 ## 2. Events out: `CustomEvent('soh')` on `window`
 
@@ -33,8 +49,8 @@ window.addEventListener('soh', ({ detail }) => { switch (detail.type) { /* ... *
 | `detail.type` | Fields | Meaning |
 |---|---|---|
 | `load-game` | `fileNum` | A save was loaded and its first scene is up; sent just before that `scene` event. Play-state commands now act on the player's game. `fileNum` is `255` for a game on the fresh debug save, which is what a `warp` outside gameplay, a boot warp, or the Debug Warp Screen starts. |
-| `scene` | `sceneNum`, `entranceIndex`, `setup` | A scene finished initialising (boot, load, warp, door). All plain numbers. `entranceIndex` is decimal here, but `entrance` and `warp` take hex: `entranceIndex.toString(16)`. `setup` is the scene layer that loaded: `0` child day, `1` child night, `2` adult day, `3` adult night, `4` and up a cutscene layer. |
-| `file-saved` | `path`, `bytes` | The game wrote `/shipofharkinian.json` or a file under `/Save/`. `bytes` is a `Uint8Array` copy of the whole file. Persist it yourself; the VFS is lost on reload. Files you supplied at boot are not echoed back. |
+| `scene` | `sceneNum`, `entranceIndex`, `setup` | A scene finished initialising (boot, load, warp, door). All plain numbers. `entranceIndex` is decimal here, but `entrance` and `warp` take hex (`entranceIndex.toString(16)`) or an entrance name (§3). `setup` is the scene layer that loaded: `0` child day, `1` child night, `2` adult day, `3` adult night, `4` and up a cutscene layer. |
+| `file-saved` | `path`, `bytes` | The game wrote `/shipofharkinian.json`, a file under `/Save/`, or converted `/oot-unbound.o2r` (§1). `bytes` is a `Uint8Array` copy of the whole file. Persist it yourself; the VFS is lost on reload. Files you supplied at boot are not echoed back. |
 | `file-removed` | `path` | A watched file is gone: a save erased in file select, or one the game moved aside as unreadable (its `file<N>-<timestamp>.bak` arrives as `file-saved`). Delete your copy, or the next boot brings it back. |
 | `quit` | — | The main loop stopped for good (for example after the `quit` command). Any final `file-saved` events arrive first. |
 | `error` | `message` | The game stopped: a C++ exception escaped a frame, or at startup the game archives were missing or from an incompatible version (then no `scene` ever arrives). Any final `file-saved` events arrive first. Treat it as `quit` with a reason. |
@@ -56,8 +72,8 @@ the first `soh` event is a safe signal. The command takes effect on the next fra
 
 | Command | Needs play state | Does |
 |---|---|---|
-| `entrance <hex>` | yes | Instant warp to an entrance index; a `scene` event follows. |
-| `warp <entrance hex> [adult\|child] [time] [room x y z yaw]` | no | Warp to an entrance as either age at a time of day, optionally standing at a point (see below); a `scene` event follows. Outside gameplay (title screen, its attract demo, file select) it first starts a fresh game on the debug save, so it is how a host boots straight into a scene: send it on the first `soh` event. |
+| `entrance <entrance>` | yes | Instant warp to an entrance (hex or name, see below); a `scene` event follows. |
+| `warp <entrance> [adult\|child] [time] [room x y z yaw]` | no | Warp to an entrance as either age at a time of day, optionally standing at a point (see below); a `scene` event follows. Outside gameplay (title screen, its attract demo, file select) it first starts a fresh game on the debug save, so it is how a host boots straight into a scene: send it on the first `soh` event. |
 | `reload` | yes | Re-enters the current entrance (reloads the scene). |
 | `void` | yes | Void out to the last respawn point. |
 | `reset` | no | Back to the title screen. |
@@ -67,7 +83,13 @@ the first `soh` event is a safe signal. The command takes effect on the next fra
 
 ### `warp` in detail
 
-`warp <entrance hex> [adult|child] [time] [room x y z yaw]`
+`warp <entrance> [adult|child] [time] [room x y z yaw]`
+
+The entrance is a name or a hex index. Names are the vanilla enum names
+(`ENTR_LINKS_HOUSE_CHILD_SPAWN`) and, for a custom scene a mod registers,
+`<scene id>/<entrance id>` from its `unbound/scenes.json`. Use the name for custom scenes:
+their indices are handed out as the mods load, so they change with the mod set. A hex index
+must be below the size of the entrance table (vanilla's `614` plus any custom entrances).
 
 The game picks the scene layer from Link's age and the time of day (`z_play.c` `Play_Init`),
 so those two arguments choose the setup. Both are optional and default to adult at noon,
@@ -148,6 +170,10 @@ A second, independent module built next to `soh.js`: `soh-extract.js` + `soh-ext
 asks for, as the desktop game would (the same ROM checks, the same ZAPD run, the same
 archive entry for entry; it accepts every ROM version ZAPD has a recipe for). It has no window, no canvas and no idea who is calling: run it in a worker, keep
 the bytes wherever you like.
+
+For SoH: Unbound it is the first half of an install: its `oot.o2r` goes to the game once,
+which converts it and sends back `oot-unbound.o2r` (§1). The conversion needs the game's own
+resource loaders and scene registry, so it runs in `soh.js`, not here.
 
 ```js
 // In a module worker (or a page, or node):

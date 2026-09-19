@@ -92,19 +92,20 @@ startMemtrace();
 
 // --- Host files -------------------------------------------------------------------------
 // Writes Module.shipFiles (VFS path -> bytes, see HOST-API.md) into the filesystem during
-// preRun. oot.o2r is required. soh.o2r is not the page's to supply: it is packaged in
+// preRun. A game archive is required: oot-unbound.o2r, or oot.o2r for the game to convert
+// (HOST-API.md §1). soh.o2r is not the page's to supply: it is packaged in
 // soh.data, version-locked to the binary, and unpacked after preRun, where a copy written
 // here would make the unpack fail.
 function writeHostFiles() {
   const files = Module.shipFiles || {};
-  if (!files['/oot.o2r']) {
+  if (!files['/oot-unbound.o2r'] && !files['/oot.o2r']) {
     const msg = 'No game archive.\n\n' +
-      'The page must supply oot.o2r. Set Module.shipFiles before loading soh.js:\n\n' +
-      "  Module.shipFiles = { '/oot.o2r': bytes };\n\n" +
+      'The page must supply oot-unbound.o2r or oot.o2r. Set Module.shipFiles before loading soh.js:\n\n' +
+      "  Module.shipFiles = { '/oot-unbound.o2r': bytes };\n\n" +
       'See soh/wasm/HOST-API.md.';
     showStatus(msg);
     console.error(msg);
-    throw new Error('shipFiles: no /oot.o2r provided');
+    throw new Error('shipFiles: no /oot-unbound.o2r or /oot.o2r provided');
   }
   let written = 0;
   for (const [path, bytes] of Object.entries(files)) {
@@ -136,9 +137,12 @@ var Module = {
   onAbort: w => showStatus('aborted: ' + w),
 };
 
-// The files this page hands over, and whether the boot can go on without each one.
+// The files this page hands over, and whether the boot can go on without each one. One of
+// the two game archives must be there; with only oot.o2r the game converts it at startup.
+const GAME_ARCHIVES = ['/oot-unbound.o2r', '/oot.o2r'];
 const HOST_FILES = {
-  '/oot.o2r':              { url: 'hostfiles/oot.o2r',             required: true },
+  '/oot-unbound.o2r':      { url: 'hostfiles/oot-unbound.o2r',     required: false },
+  '/oot.o2r':              { url: 'hostfiles/oot.o2r',             required: false },
   '/shipofharkinian.json': { url: 'hostfiles/shipofharkinian.json', required: false },
   '/Save/file1.sav':       { url: 'hostfiles/Save/file1.sav',       required: false },
   '/Save/global.sav':      { url: 'hostfiles/Save/global.sav',      required: false },
@@ -158,6 +162,9 @@ async function fetchBytes(url) {
     if (bytes) files[vfsPath] = bytes;
     else if (required) throw new Error(`${url} was not found`);
     else console.warn(`host: ${url} was not found; booting without it`);
+  }
+  if (!GAME_ARCHIVES.some(path => files[path])) {
+    throw new Error('neither hostfiles/oot-unbound.o2r nor hostfiles/oot.o2r was found');
   }
   Module.shipFiles = files;
   console.log('host: fetched files, loading module');
