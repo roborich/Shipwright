@@ -25,6 +25,12 @@ design notes are `wasm-rom-extract.md` in the repo root. The two must come from 
 build: the archive it writes carries the port version, and the game refuses one from any
 other.
 
+It also builds the Unbound converter, `soh-unbound-convert.js` + `soh-unbound-convert.wasm`
+(15 MB raw, **2.5 MB brotli**), which turns that `oot.o2r` into the `oot-unbound.o2r` this
+build boots from, without starting the game. It links the game's own objects, so the game
+builds first; `-DSOH_WASM_UNBOUND_CONVERTER=OFF` skips it. Contract: HOST-API.md §7. It too
+must come from the same build as the game.
+
 `soh.data` holds `soh.o2r` and nothing else. The game archive, config and saves always come
 from the page, so the output contains nothing extracted from a ROM and can be published as is.
 For local play, `bun run serve` in `soh/wasm/tests` serves the build with `host.html`.

@@ -1,0 +1,22 @@
+<!doctype html>
+<!-- Stands in for a host page that prepares SoH: Unbound in a worker. The test calls
+     window.__unbound({ romUrl } | { o2rUrl }) and reads back what the worker reported. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SoH wasm Unbound converter test page</title>
+</head>
+<body>
+<script>
+window.__unbound = (source) => new Promise((resolve, reject) => {
+  const worker = new Worker('/page/unbound-worker.js', { type: 'module' });
+  worker.onmessage = ({ data }) => {
+    if (data.type === 'done') resolve(data);
+    else reject(Object.assign(new Error(data.message), { code: data.code }));
+  };
+  worker.onerror = (event) => reject(new Error(event.message || 'worker error'));
+  worker.postMessage({ ...source, extractorUrl: '/build/soh-extract.js', converterUrl: '/build/soh-unbound-convert.js' });
+});
+</script>
+</body>
+</html>

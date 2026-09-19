@@ -4,7 +4,10 @@ import { join } from "node:path";
 import { BUILD_DIR } from "./lib/env";
 import { largestFunctions, mostLocals } from "./lib/wasm";
 
-const wasm = () => new Uint8Array(readFileSync(join(BUILD_DIR, "soh.wasm")));
+// The game, and the Unbound converter linked from the game's objects (which it reaches through their static
+// initialisers, without the game's -export-dynamic, so the same inlining traps apply).
+const MODULES = ["soh.wasm", "soh-unbound-convert.wasm"];
+const wasm = (name: string) => new Uint8Array(readFileSync(join(BUILD_DIR, name)));
 
 // RegionTable_Init reached 3.3 MB when Binaryen inlined its builders, and V8's optimising
 // compiler crashed the renderer on it. See wasm-port.md, "Other traps".
@@ -15,8 +18,8 @@ test("HOST-API.md ships next to soh.js", () => {
     expect(existsSync(join(BUILD_DIR, "HOST-API.md"))).toBe(true);
 });
 
-test("no function is large enough to endanger V8's optimising compiler", () => {
-    const tooBig = largestFunctions(wasm(), 5)
+test.each(MODULES)("%s: no function is large enough to endanger V8's optimising compiler", (name) => {
+    const tooBig = largestFunctions(wasm(name), 5)
         .filter((f) => f.size >= LARGEST_FUNCTION_BYTES)
         .map((f) => `${f.name}: ${f.size} bytes`);
     expect(tooBig).toEqual([]);
@@ -28,8 +31,8 @@ test("no function is large enough to endanger V8's optimising compiler", () => {
 // largest count in a healthy build is a few hundred.
 const MOST_LOCALS = 2000;
 
-test("no function declares so many locals that V8 cannot compile it", () => {
-    const tooMany = mostLocals(wasm(), 5)
+test.each(MODULES)("%s: no function declares so many locals that V8 cannot compile it", (name) => {
+    const tooMany = mostLocals(wasm(name), 5)
         .filter((f) => f.locals >= MOST_LOCALS)
         .map((f) => `${f.name}: ${f.locals} locals`);
     expect(tooMany).toEqual([]);

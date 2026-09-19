@@ -18,6 +18,10 @@ struct ExportReport {
 // Writes a complete oot-unbound.o2r (stored zip) to outPath from the currently mounted base archive.
 ExportReport ExportArchive(const std::string& outPath);
 
+// The converter's name and revision as a base's manifest records it (`source.converter`); a base written by
+// another is stale.
+std::string ConverterName();
+
 // The converted base archive, kept beside oot.o2r.
 inline constexpr const char* kBaseArchiveName = "oot-unbound.o2r";
 

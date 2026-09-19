@@ -79,6 +79,10 @@ error, which arrive over the protocol and so survive a stuck main thread.
 - `page/extract.html` + `page/extract-worker.js` stand in for a host converting a ROM in a
   module worker with `soh-extract.js`; `extract.test.ts` also runs the converter in-process
   and holds its archive to the desktop-extracted one in `SOH_WASM_FILES`, entry for entry.
+- `page/unbound.html` + `page/unbound-worker.js` stand in for a host preparing SoH: Unbound in a
+  worker: `soh-extract.js` then `soh-unbound-convert.js` from a ROM, or the converter alone from
+  an `oot.o2r`. `unbound-convert.test.ts` holds the base to `oot-unbound.o2r` in
+  `SOH_WASM_FILES` byte for byte when that file was converted from the same `oot.o2r`.
 - `unit/` tests the pure helpers under `lib/`.
 - `knownBug(...)` marks a test for a bug that is not fixed yet. It is skipped unless
   `SOH_WASM_KNOWN_BUGS=1`; the commit that fixes the bug turns it into a plain `test`.

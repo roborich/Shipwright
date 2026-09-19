@@ -1063,6 +1063,14 @@ void CopyUntouchedFiles(ExportContext& ctx, std::shared_ptr<Ship::Archive> base)
 // browser, refused until the ROM is converted again).
 constexpr int kConverterRevision = 1;
 
+} // namespace
+
+std::string ConverterName() {
+    return std::string("soh ") + gBuildVersion + " unbound r" + std::to_string(kConverterRevision);
+}
+
+namespace {
+
 // Provenance of a conversion: the converter build and every mounted ROM archive (SPEC.md §6 `source`).
 // A base whose provenance differs from the running game is stale and is converted again.
 json CurrentProvenance() {
@@ -1079,7 +1087,7 @@ json CurrentProvenance() {
         hashes.push_back(Hex(v));
     }
     source[K::kRomHashes] = hashes;
-    source[K::kConverter] = std::string("soh ") + gBuildVersion + " unbound r" + std::to_string(kConverterRevision);
+    source[K::kConverter] = ConverterName();
     return source;
 }
 

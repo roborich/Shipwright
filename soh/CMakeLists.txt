@@ -857,4 +857,10 @@ if(EMSCRIPTEN)
                    ${CMAKE_CURRENT_BINARY_DIR}/host.html COPYONLY)
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wasm/HOST-API.md
                    ${CMAKE_CURRENT_BINARY_DIR}/HOST-API.md COPYONLY)
+
+    # SOH [Unbound] oot.o2r -> oot-unbound.o2r without the game (HOST-API.md §7).
+    option(SOH_WASM_UNBOUND_CONVERTER "Also build soh-unbound-convert, the oot.o2r -> oot-unbound.o2r module" ON)
+    if(SOH_WASM_UNBOUND_CONVERTER)
+        include(${CMAKE_CURRENT_SOURCE_DIR}/wasm/convert/UnboundConvert.cmake)
+    endif()
 endif()
