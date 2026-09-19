@@ -85,6 +85,9 @@ class OTRGlobals {
     ImFont* CreateDefaultFontWithSize(float size);
     ImFont* CreateFontWithSize(float size, std::string fontPath, bool isJapaneseFont = false);
 };
+
+// Registers every resource factory the game reads with. Also used by the wasm Unbound converter.
+void SOH_RegisterResourceFactories(std::shared_ptr<Ship::ResourceLoader> loader);
 #endif
 
 #ifndef __cplusplus
