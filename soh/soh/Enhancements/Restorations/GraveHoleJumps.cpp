@@ -6,11 +6,12 @@
 #include "soh/resource/type/Scene.h"
 #include "soh/resource/type/scenecommand/SceneCommand.h"
 #include "soh/resource/type/scenecommand/SetCollisionHeader.h"
+#include "soh/unbound/SceneDB.h"
+#include <spdlog/spdlog.h>
 
 #define CVAR_GRAVE_HOLE_NAME CVAR_ENHANCEMENT("GraveHoles")
 #define GRAVE_HOLES_DEFAULT 0
 #define CVAR_GRAVE_HOLE_VALUE CVarGetInteger(CVAR_GRAVE_HOLE_NAME, GRAVE_HOLES_DEFAULT)
-#define GRAVEYARD_SCENE_FILEPATH "scenes/shared/spot02_scene/spot02_scene"
 #define CUSTOM_SURFACE_TYPE 32
 
 const static std::array<std::pair<std::pair<u16, u16>, std::pair<u16, u16>>, 6> graveyardGeometryPatches = { {
@@ -29,8 +30,14 @@ CollisionHeader* getGraveyardCollisionHeader() {
      * dspot02_sceneCollisionHeader_003C54. We have to scroll through the scene cmds to get the header the same way the
      * game does.
      */
-    SOH::Scene* scene =
-        (SOH::Scene*)Ship::Context::GetInstance()->GetResourceManager()->LoadResource(GRAVEYARD_SCENE_FILEPATH).get();
+    // SOH [Unbound] The scene the game loads: with an Unbound base mounted that is scene.json, and a base installed
+    // without oot.o2r (the browser build) has no vanilla scene file at all.
+    std::string scenePath = SceneDB::Instance->GetScenePath(SCENE_GRAVEYARD);
+    SOH::Scene* scene = (SOH::Scene*)Ship::Context::GetInstance()->GetResourceManager()->LoadResource(scenePath).get();
+    if (scene == nullptr) {
+        SPDLOG_ERROR("Grave Hole Jumps: cannot load {}", scenePath);
+        return nullptr;
+    }
     SOH::SetCollisionHeader* sceneCmd = nullptr;
     for (size_t i = 0; i < scene->commands.size(); i++) {
         auto cmd = scene->commands[i];
@@ -38,6 +45,10 @@ CollisionHeader* getGraveyardCollisionHeader() {
             sceneCmd = static_cast<SOH::SetCollisionHeader*>(cmd.get());
             break;
         }
+    }
+    if (sceneCmd == nullptr || sceneCmd->collisionHeader == nullptr) {
+        SPDLOG_ERROR("Grave Hole Jumps: {} has no collision", scenePath);
+        return nullptr;
     }
     CollisionHeader* graveyardColHeader = (CollisionHeader*)sceneCmd->GetRawPointer();
     uint32_t surfaceTypesCount = sceneCmd->collisionHeader->surfaceTypesCount;
@@ -57,6 +68,9 @@ CollisionHeader* getGraveyardCollisionHeader() {
 
 void ApplyGraveyardGeometryPatches() {
     static CollisionHeader* graveyardColHeader = getGraveyardCollisionHeader();
+    if (graveyardColHeader == nullptr) {
+        return;
+    }
     for (auto& mappingPatch : graveyardGeometryPatches) {
         for (int i = mappingPatch.first.first; i <= mappingPatch.first.second; i++) {
             CollisionPoly* poly = &graveyardColHeader->polyList[i];
