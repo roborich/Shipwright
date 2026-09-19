@@ -845,101 +845,6 @@ void OTRGlobals::RunExtract(int argc, char* argv[]) {
 #endif // __EMSCRIPTEN__
 }
 
-// Every resource type the game reads, binary, XML and (SOH [Unbound]) JSON. Shared with the wasm Unbound converter
-// (soh/wasm/convert), which loads the same vanilla resources without the rest of the game.
-void SOH_RegisterResourceFactories(std::shared_ptr<Ship::ResourceLoader> loader) {
-    loader->RegisterResourceFactory(std::make_shared<Fast::ResourceFactoryBinaryTextureV0>(), RESOURCE_FORMAT_BINARY,
-                                    "Texture", static_cast<uint32_t>(Fast::ResourceType::Texture), 0);
-    loader->RegisterResourceFactory(std::make_shared<Fast::ResourceFactoryBinaryTextureV1>(), RESOURCE_FORMAT_BINARY,
-                                    "Texture", static_cast<uint32_t>(Fast::ResourceType::Texture), 1);
-    loader->RegisterResourceFactory(std::make_shared<Fast::ResourceFactoryBinaryVertexV0>(), RESOURCE_FORMAT_BINARY,
-                                    "Vertex", static_cast<uint32_t>(Fast::ResourceType::Vertex), 0);
-    loader->RegisterResourceFactory(std::make_shared<Fast::ResourceFactoryBinaryVertexV1>(), RESOURCE_FORMAT_BINARY,
-                                    "Vertex", static_cast<uint32_t>(Fast::ResourceType::Vertex), 1);
-    loader->RegisterResourceFactory(std::make_shared<Fast::ResourceFactoryXMLVertexV0>(), RESOURCE_FORMAT_XML, "Vertex",
-                                    static_cast<uint32_t>(Fast::ResourceType::Vertex), 0);
-    loader->RegisterResourceFactory(std::make_shared<Fast::ResourceFactoryBinaryDisplayListV0>(),
-                                    RESOURCE_FORMAT_BINARY, "DisplayList",
-                                    static_cast<uint32_t>(Fast::ResourceType::DisplayList), 0);
-    loader->RegisterResourceFactory(std::make_shared<Fast::ResourceFactoryXMLDisplayListV0>(), RESOURCE_FORMAT_XML,
-                                    "DisplayList", static_cast<uint32_t>(Fast::ResourceType::DisplayList), 0);
-    loader->RegisterResourceFactory(std::make_shared<Fast::ResourceFactoryBinaryMatrixV0>(), RESOURCE_FORMAT_BINARY,
-                                    "Matrix", static_cast<uint32_t>(Fast::ResourceType::Matrix), 0);
-    loader->RegisterResourceFactory(std::make_shared<Ship::ResourceFactoryBinaryBlobV0>(), RESOURCE_FORMAT_BINARY,
-                                    "Blob", static_cast<uint32_t>(Ship::ResourceType::Blob), 0);
-    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryArrayV0>(), RESOURCE_FORMAT_BINARY,
-                                    "Array", static_cast<uint32_t>(SOH::ResourceType::SOH_Array), 0);
-    // SOH [Unbound] v1: vertex arrays with s32 positions (SPEC.md §8.1)
-    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryArrayV1>(), RESOURCE_FORMAT_BINARY,
-                                    "Array", static_cast<uint32_t>(SOH::ResourceType::SOH_Array), 1);
-    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryAnimationV0>(), RESOURCE_FORMAT_BINARY,
-                                    "Animation", static_cast<uint32_t>(SOH::ResourceType::SOH_Animation), 0);
-    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryPlayerAnimationV0>(),
-                                    RESOURCE_FORMAT_BINARY, "PlayerAnimation",
-                                    static_cast<uint32_t>(SOH::ResourceType::SOH_PlayerAnimation), 0);
-    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinarySceneV0>(), RESOURCE_FORMAT_BINARY,
-                                    "Room", static_cast<uint32_t>(SOH::ResourceType::SOH_Room),
-                                    0); // Is room scene? maybe?
-    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryXMLSceneV0>(), RESOURCE_FORMAT_XML, "Room",
-                                    static_cast<uint32_t>(SOH::ResourceType::SOH_Room), 0); // Is room scene? maybe?
-    // SOH [Unbound] JSON scene format: existing resource types, RESOURCE_FORMAT_JSON + the "$schema" version.
-    // Scene and room share one factory instance registered under both type names (LUS aliases same-instance
-    // re-registrations); the collision factory reads both bin layouts and registers under versions 1 and 2.
-    auto jsonScene = std::make_shared<SOH::ResourceFactoryJsonSceneV1>();
-    loader->RegisterResourceFactory(jsonScene, RESOURCE_FORMAT_JSON, SOH::Unbound::Schema::kSceneType,
-                                    static_cast<uint32_t>(SOH::ResourceType::SOH_Room), 1);
-    loader->RegisterResourceFactory(jsonScene, RESOURCE_FORMAT_JSON, SOH::Unbound::Schema::kRoomType,
-                                    static_cast<uint32_t>(SOH::ResourceType::SOH_Room), 1);
-    auto jsonCollision = std::make_shared<SOH::ResourceFactoryJsonCollisionHeaderV3>();
-    loader->RegisterResourceFactory(jsonCollision, RESOURCE_FORMAT_JSON, SOH::Unbound::Schema::kCollisionType,
-                                    static_cast<uint32_t>(SOH::ResourceType::SOH_CollisionHeader), 3);
-    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryJsonPathV1>(), RESOURCE_FORMAT_JSON,
-                                    SOH::Unbound::Schema::kPathsType,
-                                    static_cast<uint32_t>(SOH::ResourceType::SOH_Path), 1);
-    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryCollisionHeaderV0>(),
-                                    RESOURCE_FORMAT_BINARY, "CollisionHeader",
-                                    static_cast<uint32_t>(SOH::ResourceType::SOH_CollisionHeader), 0);
-    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryXMLCollisionHeaderV0>(), RESOURCE_FORMAT_XML,
-                                    "CollisionHeader", static_cast<uint32_t>(SOH::ResourceType::SOH_CollisionHeader),
-                                    0);
-    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinarySkeletonV0>(), RESOURCE_FORMAT_BINARY,
-                                    "Skeleton", static_cast<uint32_t>(SOH::ResourceType::SOH_Skeleton), 0);
-    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryXMLSkeletonV0>(), RESOURCE_FORMAT_XML,
-                                    "Skeleton", static_cast<uint32_t>(SOH::ResourceType::SOH_Skeleton), 0);
-    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinarySkeletonLimbV0>(),
-                                    RESOURCE_FORMAT_BINARY, "SkeletonLimb",
-                                    static_cast<uint32_t>(SOH::ResourceType::SOH_SkeletonLimb), 0);
-    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryXMLSkeletonLimbV0>(), RESOURCE_FORMAT_XML,
-                                    "SkeletonLimb", static_cast<uint32_t>(SOH::ResourceType::SOH_SkeletonLimb), 0);
-    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryPathV0>(), RESOURCE_FORMAT_BINARY,
-                                    "Path", static_cast<uint32_t>(SOH::ResourceType::SOH_Path), 0);
-    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryXMLPathV0>(), RESOURCE_FORMAT_XML, "Path",
-                                    static_cast<uint32_t>(SOH::ResourceType::SOH_Path), 0);
-    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryCutsceneV0>(), RESOURCE_FORMAT_BINARY,
-                                    "Cutscene", static_cast<uint32_t>(SOH::ResourceType::SOH_Cutscene), 0);
-    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryTextV0>(), RESOURCE_FORMAT_BINARY,
-                                    "Text", static_cast<uint32_t>(SOH::ResourceType::SOH_Text), 0);
-    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryXMLTextV0>(), RESOURCE_FORMAT_XML, "Text",
-                                    static_cast<uint32_t>(SOH::ResourceType::SOH_Text), 0);
-    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryAudioSampleV2>(), RESOURCE_FORMAT_BINARY,
-                                    "AudioSample", static_cast<uint32_t>(SOH::ResourceType::SOH_AudioSample), 2);
-
-    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryXMLAudioSampleV0>(), RESOURCE_FORMAT_XML,
-                                    "Sample", static_cast<uint32_t>(SOH::ResourceType::SOH_AudioSample), 0);
-    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryAudioSoundFontV2>(),
-                                    RESOURCE_FORMAT_BINARY, "AudioSoundFont",
-                                    static_cast<uint32_t>(SOH::ResourceType::SOH_AudioSoundFont), 2);
-    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryXMLSoundFontV0>(), RESOURCE_FORMAT_XML,
-                                    "SoundFont", static_cast<uint32_t>(SOH::ResourceType::SOH_AudioSoundFont), 0);
-    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryAudioSequenceV2>(),
-                                    RESOURCE_FORMAT_BINARY, "AudioSequence",
-                                    static_cast<uint32_t>(SOH::ResourceType::SOH_AudioSequence), 2);
-    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryXMLAudioSequenceV0>(), RESOURCE_FORMAT_XML,
-                                    "Sequence", static_cast<uint32_t>(SOH::ResourceType::SOH_AudioSequence), 0);
-    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryBackgroundV0>(), RESOURCE_FORMAT_BINARY,
-                                    "Background", static_cast<uint32_t>(SOH::ResourceType::SOH_Background), 0);
-}
-
 // SOH [Unbound] Mounts oot-unbound.o2r as the game archive when neither ROM archive exists (see
 // CheckStandaloneBaseArchive; the browser build installs Unbound that way). Returns whether it did.
 static bool MountStandaloneUnboundBase(const std::string& ootPath, const std::string& mqPath) {
@@ -1103,6 +1008,101 @@ void OTRGlobals::Initialize() {
     }
 
     MountUnboundBase(standaloneUnboundBase, ootPath, mqPath); // SOH [Unbound] needs the factories above
+}
+
+// Every resource type the game reads, binary, XML and (SOH [Unbound]) JSON. Shared with the wasm Unbound converter
+// (soh/wasm/convert), which loads the same vanilla resources without the rest of the game.
+void SOH_RegisterResourceFactories(std::shared_ptr<Ship::ResourceLoader> loader) {
+    loader->RegisterResourceFactory(std::make_shared<Fast::ResourceFactoryBinaryTextureV0>(), RESOURCE_FORMAT_BINARY,
+                                    "Texture", static_cast<uint32_t>(Fast::ResourceType::Texture), 0);
+    loader->RegisterResourceFactory(std::make_shared<Fast::ResourceFactoryBinaryTextureV1>(), RESOURCE_FORMAT_BINARY,
+                                    "Texture", static_cast<uint32_t>(Fast::ResourceType::Texture), 1);
+    loader->RegisterResourceFactory(std::make_shared<Fast::ResourceFactoryBinaryVertexV0>(), RESOURCE_FORMAT_BINARY,
+                                    "Vertex", static_cast<uint32_t>(Fast::ResourceType::Vertex), 0);
+    loader->RegisterResourceFactory(std::make_shared<Fast::ResourceFactoryBinaryVertexV1>(), RESOURCE_FORMAT_BINARY,
+                                    "Vertex", static_cast<uint32_t>(Fast::ResourceType::Vertex), 1);
+    loader->RegisterResourceFactory(std::make_shared<Fast::ResourceFactoryXMLVertexV0>(), RESOURCE_FORMAT_XML, "Vertex",
+                                    static_cast<uint32_t>(Fast::ResourceType::Vertex), 0);
+    loader->RegisterResourceFactory(std::make_shared<Fast::ResourceFactoryBinaryDisplayListV0>(),
+                                    RESOURCE_FORMAT_BINARY, "DisplayList",
+                                    static_cast<uint32_t>(Fast::ResourceType::DisplayList), 0);
+    loader->RegisterResourceFactory(std::make_shared<Fast::ResourceFactoryXMLDisplayListV0>(), RESOURCE_FORMAT_XML,
+                                    "DisplayList", static_cast<uint32_t>(Fast::ResourceType::DisplayList), 0);
+    loader->RegisterResourceFactory(std::make_shared<Fast::ResourceFactoryBinaryMatrixV0>(), RESOURCE_FORMAT_BINARY,
+                                    "Matrix", static_cast<uint32_t>(Fast::ResourceType::Matrix), 0);
+    loader->RegisterResourceFactory(std::make_shared<Ship::ResourceFactoryBinaryBlobV0>(), RESOURCE_FORMAT_BINARY,
+                                    "Blob", static_cast<uint32_t>(Ship::ResourceType::Blob), 0);
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryArrayV0>(), RESOURCE_FORMAT_BINARY,
+                                    "Array", static_cast<uint32_t>(SOH::ResourceType::SOH_Array), 0);
+    // SOH [Unbound] v1: vertex arrays with s32 positions (SPEC.md §8.1)
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryArrayV1>(), RESOURCE_FORMAT_BINARY,
+                                    "Array", static_cast<uint32_t>(SOH::ResourceType::SOH_Array), 1);
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryAnimationV0>(), RESOURCE_FORMAT_BINARY,
+                                    "Animation", static_cast<uint32_t>(SOH::ResourceType::SOH_Animation), 0);
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryPlayerAnimationV0>(),
+                                    RESOURCE_FORMAT_BINARY, "PlayerAnimation",
+                                    static_cast<uint32_t>(SOH::ResourceType::SOH_PlayerAnimation), 0);
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinarySceneV0>(), RESOURCE_FORMAT_BINARY,
+                                    "Room", static_cast<uint32_t>(SOH::ResourceType::SOH_Room),
+                                    0); // Is room scene? maybe?
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryXMLSceneV0>(), RESOURCE_FORMAT_XML, "Room",
+                                    static_cast<uint32_t>(SOH::ResourceType::SOH_Room), 0); // Is room scene? maybe?
+    // SOH [Unbound] JSON scene format: existing resource types, RESOURCE_FORMAT_JSON + the "$schema" version.
+    // Scene and room share one factory instance registered under both type names (LUS aliases same-instance
+    // re-registrations); the collision factory reads both bin layouts and registers under versions 1 and 2.
+    auto jsonScene = std::make_shared<SOH::ResourceFactoryJsonSceneV1>();
+    loader->RegisterResourceFactory(jsonScene, RESOURCE_FORMAT_JSON, SOH::Unbound::Schema::kSceneType,
+                                    static_cast<uint32_t>(SOH::ResourceType::SOH_Room), 1);
+    loader->RegisterResourceFactory(jsonScene, RESOURCE_FORMAT_JSON, SOH::Unbound::Schema::kRoomType,
+                                    static_cast<uint32_t>(SOH::ResourceType::SOH_Room), 1);
+    auto jsonCollision = std::make_shared<SOH::ResourceFactoryJsonCollisionHeaderV3>();
+    loader->RegisterResourceFactory(jsonCollision, RESOURCE_FORMAT_JSON, SOH::Unbound::Schema::kCollisionType,
+                                    static_cast<uint32_t>(SOH::ResourceType::SOH_CollisionHeader), 3);
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryJsonPathV1>(), RESOURCE_FORMAT_JSON,
+                                    SOH::Unbound::Schema::kPathsType,
+                                    static_cast<uint32_t>(SOH::ResourceType::SOH_Path), 1);
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryCollisionHeaderV0>(),
+                                    RESOURCE_FORMAT_BINARY, "CollisionHeader",
+                                    static_cast<uint32_t>(SOH::ResourceType::SOH_CollisionHeader), 0);
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryXMLCollisionHeaderV0>(), RESOURCE_FORMAT_XML,
+                                    "CollisionHeader", static_cast<uint32_t>(SOH::ResourceType::SOH_CollisionHeader),
+                                    0);
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinarySkeletonV0>(), RESOURCE_FORMAT_BINARY,
+                                    "Skeleton", static_cast<uint32_t>(SOH::ResourceType::SOH_Skeleton), 0);
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryXMLSkeletonV0>(), RESOURCE_FORMAT_XML,
+                                    "Skeleton", static_cast<uint32_t>(SOH::ResourceType::SOH_Skeleton), 0);
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinarySkeletonLimbV0>(),
+                                    RESOURCE_FORMAT_BINARY, "SkeletonLimb",
+                                    static_cast<uint32_t>(SOH::ResourceType::SOH_SkeletonLimb), 0);
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryXMLSkeletonLimbV0>(), RESOURCE_FORMAT_XML,
+                                    "SkeletonLimb", static_cast<uint32_t>(SOH::ResourceType::SOH_SkeletonLimb), 0);
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryPathV0>(), RESOURCE_FORMAT_BINARY,
+                                    "Path", static_cast<uint32_t>(SOH::ResourceType::SOH_Path), 0);
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryXMLPathV0>(), RESOURCE_FORMAT_XML, "Path",
+                                    static_cast<uint32_t>(SOH::ResourceType::SOH_Path), 0);
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryCutsceneV0>(), RESOURCE_FORMAT_BINARY,
+                                    "Cutscene", static_cast<uint32_t>(SOH::ResourceType::SOH_Cutscene), 0);
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryTextV0>(), RESOURCE_FORMAT_BINARY,
+                                    "Text", static_cast<uint32_t>(SOH::ResourceType::SOH_Text), 0);
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryXMLTextV0>(), RESOURCE_FORMAT_XML, "Text",
+                                    static_cast<uint32_t>(SOH::ResourceType::SOH_Text), 0);
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryAudioSampleV2>(), RESOURCE_FORMAT_BINARY,
+                                    "AudioSample", static_cast<uint32_t>(SOH::ResourceType::SOH_AudioSample), 2);
+
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryXMLAudioSampleV0>(), RESOURCE_FORMAT_XML,
+                                    "Sample", static_cast<uint32_t>(SOH::ResourceType::SOH_AudioSample), 0);
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryAudioSoundFontV2>(),
+                                    RESOURCE_FORMAT_BINARY, "AudioSoundFont",
+                                    static_cast<uint32_t>(SOH::ResourceType::SOH_AudioSoundFont), 2);
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryXMLSoundFontV0>(), RESOURCE_FORMAT_XML,
+                                    "SoundFont", static_cast<uint32_t>(SOH::ResourceType::SOH_AudioSoundFont), 0);
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryAudioSequenceV2>(),
+                                    RESOURCE_FORMAT_BINARY, "AudioSequence",
+                                    static_cast<uint32_t>(SOH::ResourceType::SOH_AudioSequence), 2);
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryXMLAudioSequenceV0>(), RESOURCE_FORMAT_XML,
+                                    "Sequence", static_cast<uint32_t>(SOH::ResourceType::SOH_AudioSequence), 0);
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryBackgroundV0>(), RESOURCE_FORMAT_BINARY,
+                                    "Background", static_cast<uint32_t>(SOH::ResourceType::SOH_Background), 0);
 }
 
 OTRGlobals::~OTRGlobals() {
