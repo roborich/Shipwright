@@ -158,7 +158,9 @@ vanilla 50 (`51:Lava Temple`). The scene's display name is used for every langua
 is labelled by its key (`main`), since SPEC §7 gives entrances no display name. A scene shows at
 most 18 entrances (the screen's fixed `entrancePairs`); the rest are logged and stay reachable from
 the console. Custom entries are never MQ. The remembered line is a list position, so a changed mod
-set can land it on another scene; the saved entrance position is clamped to that scene's entrances.
+set can land it on another scene; the saved entrance position is clamped to that scene's entrances,
+and a saved scroll window that no longer holds the line (it wrapped at the old list length) is
+re-anchored on it, since the screen only scrolls to follow a line that starts inside the window.
 
 ## Not changed (custom scenes fall outside every vanilla range check)
 
