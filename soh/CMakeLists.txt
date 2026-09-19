@@ -93,7 +93,8 @@ if (NOT TARGET libultraship)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../libultraship ${CMAKE_BINARY_DIR}/libultraship)
 endif()
 
-if (NOT TARGET ZAPDLib)
+# SOH [WASM] ZAPD is a host tool; a wasm build consumes pre-built .o2r archives.
+if (NOT TARGET ZAPDLib AND NOT EMSCRIPTEN)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../ZAPDTR/ZAPD ${CMAKE_BINARY_DIR}/ZAPD)
 endif()
 
@@ -164,7 +165,16 @@ endif()
 # soh/Extractor {{{
 list(FILTER ship__ EXCLUDE REGEX "soh/Extractor/*")
 
-if(NOT CMAKE_SYSTEM_NAME MATCHES "NintendoSwitch|CafeOS")
+# SOH [WASM] The ROM extractor links against ZAPD, which is not in the cross build. The
+# filter above targets `ship__`, a variable that does not exist here, so the Extractor
+# sources still arrive through the recursive `soh__` glob -- exclude them explicitly.
+if(EMSCRIPTEN)
+    list(FILTER soh__ EXCLUDE REGEX "soh/Extractor/")
+endif()
+
+# SOH [WASM] Emscripten joins the consoles in taking headers only: the ROM extractor
+# links against ZAPD, which is not part of the cross build.
+if(NOT CMAKE_SYSTEM_NAME MATCHES "NintendoSwitch|CafeOS" AND NOT EMSCRIPTEN)
     file(GLOB_RECURSE soh__Extractor RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
         "soh/Extractor/*.c"
         "soh/Extractor/*.cpp"
@@ -582,13 +592,22 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
             >
             $<$<COMPILE_LANGUAGE:CXX>:-fpermissive>
             $<$<COMPILE_LANGUAGE:CXX>:-Wno-deprecated-enum-enum-conversion>
-            -pthread
+            # SOH [WASM] -pthread under Emscripten requests a shared-memory build, which
+            # needs SharedArrayBuffer and COOP/COEP. The wasm target is single-threaded.
+            $<$<NOT:$<BOOL:${EMSCRIPTEN}>>:-pthread>
         ${CPU_OPTION}
         )
 
         target_link_options(${PROJECT_NAME} PRIVATE
-            -pthread
+            $<$<NOT:$<BOOL:${EMSCRIPTEN}>>:-pthread>
                 #-fsanitize=address
+            # SOH [WASM] Kept for the Emscripten link too, though there it exports ~1600 symbols
+            # that nothing calls. Exported functions are never inlined, and without that Binaryen
+            # inlines small helpers thousands of times into the randomizer's table builders
+            # (HintTable_Init_*, InitLocationTable, CreateOptions): 7 locals became 19168, and V8
+            # crashed the renderer compiling them, with either compiler, seconds after boot.
+            # Dropping the exports needs a Binaryen inlining limit that prevents that first; the
+            # artifacts test in soh/wasm/tests checks the locals.
             -Wl,-export-dynamic
         )
     endif()
@@ -621,7 +640,8 @@ endif()
 add_dependencies(${PROJECT_NAME}
     libultraship
 )
-if(NOT CMAKE_SYSTEM_NAME MATCHES "NintendoSwitch|CafeOS")
+# SOH [WASM] Emscripten joins the consoles in not building ZAPD.
+if(NOT CMAKE_SYSTEM_NAME MATCHES "NintendoSwitch|CafeOS" AND NOT EMSCRIPTEN)
 add_dependencies(${PROJECT_NAME}
     ZAPDLib
 )
@@ -692,6 +712,14 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "CafeOS")
     )
     target_include_directories(${PROJECT_NAME} PRIVATE
         ${DEVKITPRO}/portlibs/wiiu/include/
+    )
+elseif(EMSCRIPTEN)
+    # SOH [WASM] SDL2, Ogg and Vorbis come from Emscripten ports (requested globally in
+    # the root CMakeLists), so there is nothing to find_package here and no ZAPDLib.
+    # Opus and OpusFile have no Emscripten port; the two functions that use them are
+    # stubbed in soh/mixer.c, which costs custom streamed Opus audio and nothing else.
+    set(ADDITIONAL_LIBRARY_DEPENDENCIES
+        "libultraship;"
     )
 else()
     find_package(SDL2)
@@ -775,4 +803,58 @@ wut_create_wuhb(${PROJECT_NAME}
 
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/soh.rpx ${CMAKE_CURRENT_BINARY_DIR}/soh.wuhb DESTINATION . COMPONENT ship)
 
+endif()
+
+################################################################################
+# SOH [WASM] Emscripten packaging
+################################################################################
+if(EMSCRIPTEN)
+    # Where the pre-built soh.o2r lives. It is produced by a desktop build (ZAPD is a host
+    # tool), then packaged into the module's virtual filesystem at the path
+    # LocateFileAcrossAppDirs searches. Override to point at your own copy.
+    set(SOH_WASM_ASSET_DIR "${CMAKE_SOURCE_DIR}/build-cmake/soh" CACHE PATH
+        "Directory holding a pre-built soh.o2r for the wasm build")
+
+    # soh.o2r is the only game file the build carries: it is built from this repo and
+    # version-checked against gBuildVersion, so a host supplying it could only pair a stale
+    # port archive with a newer binary. Everything else -- oot.o2r, the config, saves, mods --
+    # the page embedding the build hands over as bytes (Module.shipFiles; see
+    # soh/wasm/HOST-API.md and host.html). Nothing extracted from a ROM ends up in the output.
+    if(NOT EXISTS "${SOH_WASM_ASSET_DIR}/soh.o2r")
+        message(FATAL_ERROR
+            "soh.o2r not found in ${SOH_WASM_ASSET_DIR}. Build it from a desktop build "
+            "(`make GenerateSohOtr`) and point -DSOH_WASM_ASSET_DIR at it.")
+    endif()
+
+    target_link_options(${PROJECT_NAME} PRIVATE
+        "SHELL:--preload-file ${SOH_WASM_ASSET_DIR}/soh.o2r@/soh.o2r"
+        -sFORCE_FILESYSTEM=1
+        # The host page writes game files into MEMFS during preRun. HEAPU8 lets it read
+        # the wasm heap size (memtrace); Emscripten keeps Module.HEAPU8 current across
+        # memory growth only when it is exported.
+        "SHELL:-sEXPORTED_RUNTIME_METHODS=FS,callMain,ccall,cwrap,HEAPU8"
+        # Keep function names in the wasm so a browser stack trace reads
+        # Menu::Draw rather than $func11146. Costs a name section, nothing at runtime.
+        --profiling-funcs
+        # Binaryen inlines any function that has exactly one caller, whatever its size.
+        # That folded the 35 RegionTable_Init_* area builders into one 3.3 MB
+        # RegionTable_Init, and V8's optimising compiler died on it a few minutes into
+        # every session (the check tracker runs it on each game load). Cap the size of
+        # single-caller functions that get inlined; the biggest ones are table builders
+        # that gain nothing from it.
+        "SHELL:-sBINARYEN_EXTRA_PASSES=--one-caller-inline-max-function-size=1000"
+        -sALLOW_MEMORY_GROWTH=1
+        -sINITIAL_MEMORY=536870912
+        -sSTACK_SIZE=4194304
+        -sEXIT_RUNTIME=0
+    )
+
+    # --preload-file inputs reach the link only as options, and CMake does not treat those as
+    # dependencies: a regenerated soh.o2r would leave soh up to date and soh.data stale.
+    set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY LINK_DEPENDS "${SOH_WASM_ASSET_DIR}/soh.o2r")
+
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wasm/host.html
+                   ${CMAKE_CURRENT_BINARY_DIR}/host.html COPYONLY)
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wasm/HOST-API.md
+                   ${CMAKE_CURRENT_BINARY_DIR}/HOST-API.md COPYONLY)
 endif()

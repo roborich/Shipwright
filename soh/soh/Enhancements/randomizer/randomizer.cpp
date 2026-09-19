@@ -22,6 +22,7 @@
 #include <ship/window/FileDropMgr.h>
 #include "static_data.h"
 #include "soh/Enhancements/game-interactor/GameInteractor.h"
+#include "soh/ShipInit.hpp"
 #include "trial.h"
 #include "settings.h"
 #include "soh/util.h"
@@ -3456,6 +3457,14 @@ RandomizerCheck Randomizer::GetCheckFromRandomizerInf(RandomizerInf randomizerIn
 
 std::thread randoThread;
 
+// SOH [WASM] `generated` is set by GenerateRandomizerImgui whether it ran on randoThread or
+// inline, so the flag alone no longer implies there is a thread to join.
+static void JoinRandoThread() {
+    if (randoThread.joinable()) {
+        randoThread.join();
+    }
+}
+
 void GenerateRandomizerImgui(std::string seed = "") {
     CVarSetInteger(CVAR_GENERAL("RandoGenerating"), 1);
     Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
@@ -3503,13 +3512,49 @@ void GenerateRandomizerImgui(std::string seed = "") {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnGenerationCompletion>();
 }
 
+#ifdef __EMSCRIPTEN__
+// SOH [WASM] Generation blocks the tab, so it runs on the game frame after the click rather
+// than from it. File select only plays the horse music, then the fanfare or the error sound,
+// if it sees RandoGenerating set on a frame of its own; generating inside the clicking frame
+// cleared it again before file select looked. OnGameFrameUpdate fires at the end of a game
+// frame, after file select has run and inside the frame guard, so a throw here is reported
+// like any other.
+static std::string sPendingSeed;
+static bool sGenerationPending = false;
+
+static void RunPendingGeneration() {
+    if (sGenerationPending) {
+        sGenerationPending = false;
+        GenerateRandomizerImgui(sPendingSeed);
+    }
+}
+
+static void GenerateOnNextFrame(const std::string& seed) {
+    CVarSetInteger(CVAR_GENERAL("RandoGenerating"), 1);
+    sPendingSeed = seed;
+    sGenerationPending = true;
+}
+
+static RegisterShipInitFunc initFunc_PendingGeneration([]() {
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnGameFrameUpdate>(RunPendingGeneration);
+});
+#endif
+
 bool GenerateRandomizer(std::string seed /*= ""*/) {
     if (generated) {
         generated = 0;
-        randoThread.join();
+        JoinRandoThread();
     }
     if (CVarGetInteger(CVAR_GENERAL("RandoGenerating"), 0) == 0) {
+#ifdef __EMSCRIPTEN__
+        // SOH [WASM] Single-threaded: generate on the next game frame (see GenerateOnNextFrame).
+        // This blocks the browser tab until the seed is done, where desktop keeps drawing a
+        // progress UI -- but blocking beats the alternative, since constructing a std::thread
+        // aborts in a build without pthreads.
+        GenerateOnNextFrame(seed);
+#else
         randoThread = std::thread(&GenerateRandomizerImgui, seed);
+#endif
 
         return true;
     }
@@ -3522,7 +3567,7 @@ static bool tricksTabOpen = false;
 void JoinRandoGenerationThread() {
     if (generated) {
         generated = 0;
-        randoThread.join();
+        JoinRandoThread();
     }
 }
 

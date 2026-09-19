@@ -693,7 +693,20 @@ bool Combobox(std::string label, T* value, const std::map<T, const char*>& combo
     ImGui::BeginDisabled(options.disabled);
     PushStyleCombobox(options.color);
 
-    const char* longest;
+    // SOH [Port] A selection that is not in the map -- a config carried over from a build
+    // with different options, e.g. a desktop audio backend opened under Emscripten -- used
+    // to reach comboMap.at() below and throw std::out_of_range. On desktop that takes the
+    // process down; in a browser it escapes the frame callback and Emscripten stops the
+    // main loop, freezing the game with no message. Fall back to the first entry and heal
+    // the stored value instead. Returning dirty is what gets the healed value written back:
+    // callers only store the value, save the config and run callbacks when this returns true.
+    if (!comboMap.empty() && !comboMap.count(*value)) {
+        *value = comboMap.begin()->first;
+        dirty = true;
+    }
+    const char* preview = comboMap.empty() ? "" : comboMap.at(*value);
+
+    const char* longest = comboMap.empty() ? "" : comboMap.begin()->second;
     size_t length = 0;
     for (auto& [index, string] : comboMap) {
         size_t len = strlen(string);
@@ -724,7 +737,7 @@ bool Combobox(std::string label, T* value, const std::map<T, const char*>& combo
     }
 
     ImGui::SetNextItemWidth(comboWidth);
-    if (ImGui::BeginCombo(invisibleLabel, comboMap.at(*value), options.flags)) {
+    if (!comboMap.empty() && ImGui::BeginCombo(invisibleLabel, preview, options.flags)) {
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10.0f, 10.0f));
         for (const auto& pair : comboMap) {
             if (strlen(pair.second) > 1) {
@@ -744,7 +757,7 @@ bool Combobox(std::string label, T* value, const std::map<T, const char*>& combo
                 ImGui::SameLine();
                 ImGui::Text("%s", trueLabel.c_str());
             } else if (options.labelPosition == LabelPositions::Far) {
-                float width = ImGui::CalcTextSize(comboMap.at(*value)).x + ImGui::GetStyle().FramePadding.x * 2;
+                float width = ImGui::CalcTextSize(preview).x + ImGui::GetStyle().FramePadding.x * 2;
                 ImGui::SameLine(ImGui::GetContentRegionAvail().x - width);
                 ImGui::Text("%s", trueLabel.c_str());
             }
@@ -768,6 +781,13 @@ bool Combobox(std::string label, T* value, const std::vector<const char*>& combo
               const ComboboxOptions& options = {}) {
     bool dirty = false;
     size_t currentValueIndex = static_cast<size_t>(*value);
+    // SOH [Port] Same guard as the map overload above: an index from a stale config can sit
+    // past the end of the vector, and std::vector::at would throw out of the frame callback.
+    if (!comboVector.empty() && currentValueIndex >= comboVector.size()) {
+        currentValueIndex = 0;
+        *value = 0;
+        dirty = true;
+    }
     std::string invisibleLabelStr = "##" + std::string(label);
     const char* invisibleLabel = invisibleLabelStr.c_str();
     std::string trueLabel = label.substr(0, label.find("#"));
@@ -776,7 +796,7 @@ bool Combobox(std::string label, T* value, const std::vector<const char*>& combo
     ImGui::BeginDisabled(options.disabled);
     PushStyleCombobox(options.color);
 
-    const char* longest;
+    const char* longest = comboVector.empty() ? "" : comboVector.front();
     size_t length = 0;
     for (auto& string : comboVector) {
         size_t len = strlen(string);
@@ -806,8 +826,9 @@ bool Combobox(std::string label, T* value, const std::vector<const char*>& combo
         }
     }
 
+    const char* preview = comboVector.empty() ? "" : comboVector.at(currentValueIndex);
     ImGui::SetNextItemWidth(comboWidth);
-    if (ImGui::BeginCombo(invisibleLabel, comboVector.at(currentValueIndex), options.flags)) {
+    if (!comboVector.empty() && ImGui::BeginCombo(invisibleLabel, preview, options.flags)) {
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10.0f, 10.0f));
         for (size_t i = 0; i < comboVector.size(); ++i) {
             auto newValue = static_cast<T>(i);
@@ -828,7 +849,7 @@ bool Combobox(std::string label, T* value, const std::vector<const char*>& combo
                 ImGui::SameLine();
                 ImGui::Text("%s", trueLabel.c_str());
             } else if (options.labelPosition == LabelPositions::Far) {
-                float width = ImGui::CalcTextSize(comboVector.at(*value)).x + ImGui::GetStyle().FramePadding.x * 2;
+                float width = ImGui::CalcTextSize(preview).x + ImGui::GetStyle().FramePadding.x * 2;
                 ImGui::SameLine(ImGui::GetContentRegionAvail().x - width);
                 ImGui::Text("%s", trueLabel.c_str());
             }
@@ -853,6 +874,13 @@ bool Combobox(std::string label, T* value, const std::vector<std::string>& combo
               const ComboboxOptions& options = {}) {
     bool dirty = false;
     size_t currentValueIndex = static_cast<size_t>(*value);
+    // SOH [Port] Same guard as the map overload above: an index from a stale config can sit
+    // past the end of the vector, and std::vector::at would throw out of the frame callback.
+    if (!comboVector.empty() && currentValueIndex >= comboVector.size()) {
+        currentValueIndex = 0;
+        *value = 0;
+        dirty = true;
+    }
     std::string invisibleLabelStr = "##" + std::string(label);
     const char* invisibleLabel = invisibleLabelStr.c_str();
     std::string trueLabel = label.substr(0, label.find("#"));
@@ -891,8 +919,9 @@ bool Combobox(std::string label, T* value, const std::vector<std::string>& combo
         }
     }
 
+    const char* preview = comboVector.empty() ? "" : comboVector.at(currentValueIndex).c_str();
     ImGui::SetNextItemWidth(comboWidth);
-    if (ImGui::BeginCombo(invisibleLabel, comboVector.at(currentValueIndex).c_str(), options.flags)) {
+    if (!comboVector.empty() && ImGui::BeginCombo(invisibleLabel, preview, options.flags)) {
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10.0f, 10.0f));
         for (size_t i = 0; i < comboVector.size(); ++i) {
             auto newValue = static_cast<T>(i);
@@ -913,8 +942,7 @@ bool Combobox(std::string label, T* value, const std::vector<std::string>& combo
                 ImGui::SameLine();
                 ImGui::Text("%s", trueLabel.c_str());
             } else if (options.labelPosition == LabelPositions::Far) {
-                float width =
-                    ImGui::CalcTextSize(comboVector.at(*value).c_str()).x + ImGui::GetStyle().FramePadding.x * 2;
+                float width = ImGui::CalcTextSize(preview).x + ImGui::GetStyle().FramePadding.x * 2;
                 ImGui::SameLine(ImGui::GetContentRegionAvail().x - width);
                 ImGui::Text("%s", trueLabel.c_str());
             }
@@ -938,8 +966,12 @@ template <typename T = size_t, size_t N>
 bool Combobox(std::string label, T* value, const char* (&comboArray)[N], const ComboboxOptions& options = {}) {
     bool dirty = false;
     size_t currentValueIndex = static_cast<size_t>(*value);
+    // SOH [Port] Same guard as the map overload above. This one already clamped the index, but
+    // left the stale value in place for the far label below to index with.
     if (currentValueIndex >= N) {
         currentValueIndex = 0;
+        *value = 0;
+        dirty = true;
     }
     std::string invisibleLabelStr = "##" + std::string(label);
     const char* invisibleLabel = invisibleLabelStr.c_str();
@@ -949,7 +981,7 @@ bool Combobox(std::string label, T* value, const char* (&comboArray)[N], const C
     ImGui::BeginDisabled(options.disabled);
     PushStyleCombobox(options.color);
 
-    const char* longest;
+    const char* longest = comboArray[0];
     size_t length = 0;
     for (size_t i = 0; i < N; i++) {
         size_t len = strlen(comboArray[i]);
@@ -1001,7 +1033,8 @@ bool Combobox(std::string label, T* value, const char* (&comboArray)[N], const C
                 ImGui::SameLine();
                 ImGui::Text("%s", trueLabel.c_str());
             } else if (options.labelPosition == LabelPositions::Far) {
-                float width = ImGui::CalcTextSize(comboArray[*value]).x + ImGui::GetStyle().FramePadding.x * 2;
+                float width =
+                    ImGui::CalcTextSize(comboArray[currentValueIndex]).x + ImGui::GetStyle().FramePadding.x * 2;
                 ImGui::SameLine(ImGui::GetContentRegionAvail().x - width);
                 ImGui::Text("%s", trueLabel.c_str());
             }

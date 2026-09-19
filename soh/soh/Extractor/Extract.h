@@ -6,6 +6,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include "RomInfo.h"
 
 // Values come from windows.h
 #ifndef IDYES
@@ -15,11 +16,6 @@
 #define IDNO 7
 #endif
 
-static constexpr size_t MB_BASE = 1024 * 1024;
-static constexpr size_t MB32 = 32 * MB_BASE;
-static constexpr size_t MB54 = 54 * MB_BASE;
-static constexpr size_t MB64 = 64 * MB_BASE;
-
 enum class RomSearchMode {
     Both = 0,
     Vanilla = 1,
@@ -27,7 +23,7 @@ enum class RomSearchMode {
 };
 
 class Extractor {
-    std::unique_ptr<unsigned char[]> mRomData = std::make_unique<unsigned char[]>(MB64);
+    std::unique_ptr<unsigned char[]> mRomData = std::make_unique<unsigned char[]>(RomInfo::MB64);
     std::string mCurrentRomPath;
     std::string mSearchPath;
     size_t mCurRomSize = 0;

@@ -8,7 +8,12 @@
 
 #include "soh/Enhancements/gameconsole.h"
 #include "soh/OTRGlobals.h"
+#include "soh/EmbedderBridge.h"
 #include "libultraship/bridge.h"
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
 
 #define GFXPOOL_HEAD_MAGIC 0x1234
 #define GFXPOOL_TAIL_MAGIC 0x5678
@@ -515,10 +520,76 @@ static void RunFrame() {
     exit(0);
 }
 
+#ifdef __EMSCRIPTEN__
+// SOH [WASM] When the next tick is due. Ticks are scheduled against this running deadline
+// rather than "period after this one started", so neither setTimeout's lateness nor the
+// whole-millisecond timer resolution accumulates into a slow or fast game.
+typedef struct {
+    double nextTickMs;
+    s32 updateRate;
+} TickClock;
+
+// Advances the clock past the tick that started at tickStartMs and returns the delay, in ms
+// from that start, until the next one. A new update rate, or a loop more than three ticks
+// behind (a background tab, a long synchronous load), restarts the deadline from now rather
+// than racing to catch up.
+static s32 TickClock_Advance(TickClock* clock, double tickStartMs, s32 updateRate) {
+    double periodMs = 1000.0 * updateRate / 60.0;
+    if (updateRate != clock->updateRate || clock->nextTickMs < tickStartMs - 3.0 * periodMs) {
+        clock->updateRate = updateRate;
+        clock->nextTickMs = tickStartMs;
+    }
+    clock->nextTickMs += periodMs;
+    double delayMs = clock->nextTickMs - tickStartMs;
+    return delayMs > 0.0 ? (s32)(delayMs + 0.5) : 0;
+}
+
+// SOH [WASM] A browser tab must return to its event loop to draw anything or receive
+// input, so the game cannot own an infinite loop. RunFrame() is already a resumable state
+// machine (see RunFrameContext above), which makes it usable as a callback directly.
+//
+// The tick rate is the game's, not the display's. It is not constant: the game runs at
+// 60/R_UPDATE_RATE Hz and changes R_UPDATE_RATE per game state, so the delay to the next
+// callback is re-derived after every frame (see below). setTimeout-driven rather than
+// requestAnimationFrame, which would run at the display's rate and desynchronise both the
+// game speed and the audio. See wasm-port.md.
+static void Graph_EmscriptenFrame(void) {
+    static TickClock sClock;
+    // Emscripten's setTimeout scheduler measures the delay from when this callback started.
+    double tickStartMs = emscripten_get_now();
+
+    if (!WindowIsRunning()) {
+        Soh_EmbedderQuit();
+        emscripten_cancel_main_loop();
+        return;
+    }
+    Soh_RunFrameGuarded(RunFrame);
+    Soh_EmbedderAfterFrame();
+
+    // SOH [WASM] R_UPDATE_RATE is the N64's vsync divisor: the game runs at 60/R_UPDATE_RATE
+    // Hz and synthesises R_UPDATE_RATE audio buffers per frame, so the two cancel and audio
+    // always comes out at 32 kHz. Game states change it -- 3 while playing, 2 in the pause
+    // menu (z_kaleido_setup.c), 1 on the title and map-select screens -- and a loop pinned
+    // to one rate breaks that cancellation: at a fixed 20 Hz, pausing produced 2/3 of the
+    // samples per second and the music played slow, map select 1/3.
+    if (R_UPDATE_RATE > 0) {
+        emscripten_set_main_loop_timing(EM_TIMING_SETTIMEOUT, TickClock_Advance(&sClock, tickStartMs, R_UPDATE_RATE));
+    }
+}
+#endif
+
 void Graph_ThreadEntry(void* arg0) {
+#ifdef __EMSCRIPTEN__
+    // 20 Hz is the R_UPDATE_RATE == 3 case; Graph_EmscriptenFrame re-derives the rate from
+    // R_UPDATE_RATE after each frame, so this is only the starting value.
+    // simulate_infinite_loop = 1: unwinds this stack without running destructors, so
+    // everything Main() set up stays alive for the callbacks. It does not return.
+    emscripten_set_main_loop(Graph_EmscriptenFrame, 20, 1);
+#else
     while (WindowIsRunning()) {
         RunFrame();
     }
+#endif
 }
 
 void* Graph_Alloc(GraphicsContext* gfxCtx, size_t size) {

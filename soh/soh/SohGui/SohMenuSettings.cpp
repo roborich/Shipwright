@@ -372,6 +372,9 @@ void SohMenu::AddMenuSettings() {
                 .Max(8)
                 .DefaultValue(1));
 #endif
+#ifndef __EMSCRIPTEN__
+    // SOH [WASM] The browser build draws one frame per game tick and the page's timer paces it,
+    // not the display, so frame interpolation and VSync have nothing to act on there.
     auto fps = CVarGetInteger(CVAR_SETTING("InterpolationFPS"), 20);
     const char* fpsFormat = fps == 20 ? "Original (%d)" : "%d";
     AddWidget(path, "Current FPS", WIDGET_CVAR_SLIDER_INT)
@@ -395,7 +398,9 @@ void SohMenu::AddMenuSettings() {
         .CVar(CVAR_SETTING("MatchRefreshRate"))
         .RaceDisable(false)
         .Options(CheckboxOptions().Tooltip("Matches interpolation value to the refresh rate of your display."));
+#endif
     AddWidget(path, "Renderer API (Needs reload)", WIDGET_VIDEO_BACKEND).RaceDisable(false);
+#ifndef __EMSCRIPTEN__
     AddWidget(path, "Enable Vsync", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_VSYNC_ENABLED)
         .RaceDisable(false)
@@ -403,6 +408,7 @@ void SohMenu::AddMenuSettings() {
         .Options(CheckboxOptions()
                      .Tooltip("Removes tearing, but clamps your max FPS to your displays refresh rate.")
                      .DefaultValue(true));
+#endif
     AddWidget(path, "Windowed Fullscreen", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_SDL_WINDOWED_FULLSCREEN)
         .RaceDisable(false)

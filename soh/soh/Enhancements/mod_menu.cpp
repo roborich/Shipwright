@@ -123,60 +123,68 @@ bool IsValidExtension(std::string extension) {
     return false;
 }
 
+// Scans the mods folder into filePaths, appending any mod not yet in the enabled list.
+// Returns whether the enabled list changed.
+static bool ScanModsFolder() {
+    std::string modsPath = Ship::Context::LocateFileAcrossAppDirs("mods", appShortName);
+    if (modsPath.empty() || !std::filesystem::is_directory(modsPath)) {
+        return false;
+    }
+    std::map<std::string, std::string> newMods;
+    for (const std::filesystem::directory_entry& p : std::filesystem::recursive_directory_iterator(
+             modsPath, std::filesystem::directory_options::follow_directory_symlink)) {
+        if (p.is_directory()) {
+            continue;
+        }
+        std::string filename =
+            p.path().filename().generic_string().substr(0, p.path().filename().generic_string().rfind("."));
+        std::string extension = p.path().extension().generic_string();
+        if (!IsValidExtension(extension)) {
+            continue;
+        }
+        bool enabled = std::find(enabledModFiles.begin(), enabledModFiles.end(), filename) != enabledModFiles.end();
+        if (!enabled) {
+            newMods.emplace(p.path().lexically_normal().generic_string(), filename);
+        }
+        filePaths.emplace(filename, p.path());
+    }
+    for (auto& [path, name] : newMods) {
+        enabledModFiles.push_back(name);
+    }
+    return !newMods.empty();
+}
+
+// Drops enabled mods with no file behind them. The list is saved in the config, so it can
+// name mods this install does not have: a config written by another install (a desktop
+// config handed to a browser build), or a file deleted since. Returns whether any were dropped.
+static bool PruneMissingMods() {
+    return std::erase_if(enabledModFiles, [](const std::string& mod) { return !filePaths.contains(mod); }) > 0;
+}
+
+static void LoadEnabledModArchives() {
+    for (const std::string& mod : enabledModFiles) {
+        GetArchiveManager()->AddArchive(filePaths.at(mod).generic_string());
+    }
+}
+
 void UpdateModFiles(bool init = false, bool reset = false) {
     if (init || reset) {
-        enabledModFiles.clear();
         enabledModFiles = GetEnabledModsFromCVar();
     }
     disabledModFiles.clear();
     unsupportedFiles.clear();
     filePaths.clear();
-    bool changed = false;
-    std::string modsPath = Ship::Context::LocateFileAcrossAppDirs("mods", appShortName);
-    std::map<std::string, std::string> tempMods;
-    if (modsPath.length() > 0 && std::filesystem::exists(modsPath)) {
-        std::vector<std::filesystem::path> enabledFiles;
-        if (std::filesystem::is_directory(modsPath)) {
-            for (const std::filesystem::directory_entry& p : std::filesystem::recursive_directory_iterator(
-                     modsPath, std::filesystem::directory_options::follow_directory_symlink)) {
-                if (p.is_directory()) {
-                    continue;
-                }
-                std::string filename =
-                    p.path().filename().generic_string().substr(0, p.path().filename().generic_string().rfind("."));
-                std::string extension = p.path().extension().generic_string();
-                if (!IsValidExtension(extension)) {
-                    continue;
-                }
-                bool enabled =
-                    std::find(enabledModFiles.begin(), enabledModFiles.end(), filename) != enabledModFiles.end();
-                if (!enabled) {
-                    tempMods.emplace(p.path().lexically_normal().generic_string(), filename);
-                }
-                filePaths.emplace(filename, p.path());
-            }
-            if (tempMods.size() > 0) {
-                changed = true;
-                for (auto [path, name] : tempMods) {
-                    enabledModFiles.push_back(name);
-                }
-                tempMods.clear();
-            }
-            if (init) {
-                std::vector<std::string> enabledTemp(enabledModFiles);
-                for (std::string mod : enabledTemp) {
-                    if (filePaths.contains(mod)) {
-                        GetArchiveManager()->AddArchive(filePaths.at(mod).generic_string());
-                    } else {
-                        enabledModFiles.erase(std::find(enabledModFiles.begin(), enabledModFiles.end(), mod));
-                        changed = true;
-                    }
-                }
-            }
-        }
-        if (changed) {
-            SetEnabledModsCVarValue();
-        }
+    bool changed = ScanModsFolder();
+    // Pruning used to happen only while loading archives, and only when the mods folder
+    // existed. Without the folder a stale list survived, and drawing the Mod Menu threw
+    // std::out_of_range from filePaths.at(). Everything that draws or loads the list
+    // relies on each entry having a file, so prune before either.
+    changed |= PruneMissingMods();
+    if (init) {
+        LoadEnabledModArchives();
+    }
+    if (changed) {
+        SetEnabledModsCVarValue();
     }
     if (init) {
         SceneDB::Instance->LoadCustomScenes(); // SOH [Unbound] archives are all mounted now

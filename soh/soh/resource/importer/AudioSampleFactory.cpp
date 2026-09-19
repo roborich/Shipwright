@@ -20,6 +20,9 @@
 #include <vorbis/codec.h>
 #include "vorbis/vorbisfile.h"
 #include <tinyxml2.h>
+#include <functional>
+#include <thread>
+#include <utility>
 
 struct OggFileData {
     void* data;
@@ -115,6 +118,17 @@ static OggType GetOggType(OggFileData* data) {
     ogg_stream_clear(&os);
     ogg_sync_clear(&oy);
     return type;
+}
+
+// SOH [WASM] Streamed samples are decoded on a detached worker so the load does not stall.
+// A wasm build has no threads to detach to, so it decodes inline instead: the sample is
+// ready when this returns rather than shortly after, at the cost of a longer load.
+template <typename Worker, typename... Args> static void DecodeSampleAsync(Worker&& worker, Args&&... args) {
+#ifdef __EMSCRIPTEN__
+    std::invoke(std::forward<Worker>(worker), std::forward<Args>(args)...);
+#else
+    std::thread(std::forward<Worker>(worker), std::forward<Args>(args)...).detach();
+#endif
 }
 
 static void Mp3DecoderWorker(std::shared_ptr<SOH::AudioSample> audioSample, std::shared_ptr<Ship::File> sampleFile) {
@@ -310,16 +324,13 @@ ResourceFactoryXMLAudioSampleV0::ReadResource(std::shared_ptr<Ship::File> file,
             drwav_read_pcm_frames_s16(&wav, numFrames, (int16_t*)audioSample->sample.sampleAddr);
             return audioSample;
         } else if (strcmp(customFormatStr, "mp3") == 0) {
-            std::thread fileDecoderThread = std::thread(Mp3DecoderWorker, audioSample, sampleFile);
-            fileDecoderThread.detach();
+            DecodeSampleAsync(Mp3DecoderWorker, audioSample, sampleFile);
             return audioSample;
         } else if (strcmp(customFormatStr, "ogg") == 0) {
-            std::thread fileDecoderThread = std::thread(OggDecoderWorker, audioSample, sampleFile, initData);
-            fileDecoderThread.detach();
+            DecodeSampleAsync(OggDecoderWorker, audioSample, sampleFile, initData);
             return audioSample;
         } else if (strcmp(customFormatStr, "flac") == 0) {
-            std::thread fileDecoderThread = std::thread(FlacDecoderWorker, audioSample, sampleFile);
-            fileDecoderThread.detach();
+            DecodeSampleAsync(FlacDecoderWorker, audioSample, sampleFile);
             return audioSample;
         }
     }

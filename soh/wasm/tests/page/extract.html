@@ -1,0 +1,24 @@
+<!doctype html>
+<!-- Stands in for a host page that converts a ROM in a worker. The test calls
+     window.__extract(romUrl) and reads back what the worker reported. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SoH wasm extractor test page</title>
+</head>
+<body>
+<script>
+window.__extract = (romUrl) => new Promise((resolve, reject) => {
+  const worker = new Worker('/page/extract-worker.js', { type: 'module' });
+  const progress = [];
+  worker.onmessage = ({ data }) => {
+    if (data.type === 'progress') progress.push([data.done, data.total, data.info]);
+    else if (data.type === 'done') resolve({ ...data, progress });
+    else reject(new Error(data.message));
+  };
+  worker.onerror = (event) => reject(new Error(event.message || 'worker error'));
+  worker.postMessage({ romUrl, moduleUrl: '/build/soh-extract.js' });
+});
+</script>
+</body>
+</html>

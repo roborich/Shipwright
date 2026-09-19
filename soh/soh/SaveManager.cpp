@@ -130,7 +130,9 @@ SaveManager::SaveManager() {
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnExitGame>(
         [this](uint32_t fileNum) { ThreadPoolWait(); });
 
+#ifndef __EMSCRIPTEN__
     smThreadPool = std::make_shared<BS::thread_pool>(1);
+#endif // SOH [WASM] no pool: saves run inline, see SaveSection below
 
     for (SaveFileMetaInfo& info : fileMetaInfo) {
         info.valid = false;
@@ -438,15 +440,18 @@ void SaveManager::Init() {
         std::ifstream input(sGlobalPath);
 
         nlohmann::json globalBlock;
-        input >> globalBlock;
-
-        if (!globalBlock.contains("version")) {
-            SPDLOG_WARN("Global save does not contain a version. We are reconstructing it.");
-            CreateDefaultGlobal();
-            return;
+        try {
+            input >> globalBlock;
+        } catch (const std::exception& e) {
+            // Treated like a global save with no version, below: it is rebuilt.
+            SPDLOG_WARN("Global save could not be read: {}", e.what());
+            globalBlock = nlohmann::json::object();
         }
 
-        switch (globalBlock["version"].get<int>()) {
+        // SOH [Port] A rebuilt global save is not a reason to skip the save slots below: an
+        // early return here left every slot looking empty until the next boot.
+        int version = globalBlock.is_object() ? globalBlock.value("version", 0) : 0;
+        switch (version) {
             case 1:
                 currentJsonContext = &globalBlock;
                 LoadData("audioSetting", gSaveContext.audioSetting);
@@ -454,7 +459,7 @@ void SaveManager::Init() {
                 LoadData("language", gSaveContext.language);
                 break;
             default:
-                SPDLOG_WARN("Global save has a unrecognized version. We are reconstructing it.");
+                SPDLOG_WARN("Global save has no version or an unrecognized one. We are reconstructing it.");
                 CreateDefaultGlobal();
                 break;
         }
@@ -472,6 +477,30 @@ void SaveManager::Init() {
     OTRGlobals::Instance->gRandoContext->ClearItemLocations();
 }
 
+int copy_file(const char* src, const char* dst);
+
+// Moves a save aside as file<N>-<timestamp>.bak, so the next boot does not read it again, and
+// returns the new path. The caller tells the player why.
+static std::string MoveSaveAside(int fileNum, const std::filesystem::path& fileName) {
+    std::string newFileName =
+        Ship::Context::GetPathRelativeToAppDirectory("Save") +
+        ("/file" + std::to_string(fileNum + 1) + "-" + std::to_string(GetUnixTimestamp()) + ".bak");
+#if defined(__SWITCH__) || defined(__WIIU__)
+    copy_file(fileName.c_str(), newFileName.c_str());
+    std::filesystem::remove(fileName);
+#else
+    std::filesystem::rename(fileName, newFileName);
+#endif
+    return newFileName;
+}
+
+static void ReportCorruptSave(int fileNum) {
+    SohGui::RegisterPopup("Error loading save file", "A problem occurred loading the save in slot " +
+                                                         std::to_string(fileNum + 1) +
+                                                         ".\nSave file corruption is suspected.\n" +
+                                                         "The file has been renamed to prevent further issues.");
+}
+
 void SaveManager::StartupCheckAndInitMeta(int fileNum) {
     saveMtx.lock();
     SPDLOG_INFO("Init Meta - fileNum: {}", fileNum);
@@ -481,7 +510,18 @@ void SaveManager::StartupCheckAndInitMeta(int fileNum) {
 
     bool deleteRando = false;
     nlohmann::json metaSaveBlock = nlohmann::json::object();
-    input >> metaSaveBlock;
+    try {
+        input >> metaSaveBlock;
+    } catch (const std::exception& e) {
+        // Unlike LoadFile, this read had no handler: a save that is not JSON threw out of Init
+        // and left saveMtx locked.
+        input.close();
+        saveMtx.unlock();
+        SPDLOG_ERROR("Save at {} could not be read: {}", fileName.string(), e.what());
+        MoveSaveAside(fileNum, fileName);
+        ReportCorruptSave(fileNum);
+        return;
+    }
     input.close();
     saveMtx.unlock();
     if (!metaSaveBlock.contains("version")) {
@@ -512,15 +552,7 @@ void SaveManager::StartupCheckAndInitMeta(int fileNum) {
         s16 patch = metaSaveBlock["sections"]["sohStats"]["data"]["buildVersionPatch"];
         // block loading outdated rando save
         if (!(major == gBuildVersionMajor && minor == gBuildVersionMinor && patch == gBuildVersionPatch)) {
-            std::string newFileName =
-                Ship::Context::GetPathRelativeToAppDirectory("Save") +
-                ("/file" + std::to_string(fileNum + 1) + "-" + std::to_string(GetUnixTimestamp()) + ".bak");
-#if defined(__SWITCH__) || defined(__WIIU__)
-            copy_file(fileName.c_str(), newFileName.c_str());
-            std::filesystem::remove(fileName);
-#else
-            std::filesystem::rename(fileName, newFileName);
-#endif
+            std::string newFileName = MoveSaveAside(fileNum, fileName);
             SohGui::RegisterPopup("Outdated Randomizer Save",
                                   "The SoH version in the file in slot " + std::to_string(fileNum + 1) +
                                       " does not match the currently running version.\n" +
@@ -1224,7 +1256,9 @@ void SaveManager::SaveSection(int fileNum, int sectionID, bool threaded) {
     }
     auto saveContext = new SaveContext;
     memcpy(saveContext, &gSaveContext, sizeof(gSaveContext));
-    if (threaded) {
+    // SOH [WASM] smThreadPool is null in a single-threaded build, so saves take the
+    // synchronous path that already exists here. ThreadPoolWait() is already null-guarded.
+    if (threaded && smThreadPool) {
         smThreadPool->detach_task(std::bind(&SaveManager::SaveFileThreaded, this, fileNum, saveContext, sectionID));
     } else {
         SaveFileThreaded(fileNum, saveContext, sectionID);
@@ -1312,19 +1346,8 @@ void SaveManager::LoadFile(int fileNum) {
         GameInteractor::Instance->ExecuteHooks<GameInteractor::OnLoadFile>(fileNum);
     } catch (const std::exception& e) {
         input.close();
-        std::string newFileName =
-            Ship::Context::GetPathRelativeToAppDirectory("Save") +
-            ("/file" + std::to_string(fileNum + 1) + "-" + std::to_string(GetUnixTimestamp()) + ".bak");
-#if defined(__SWITCH__) || defined(__WIIU__)
-        copy_file(fileName.c_str(), newFileName.c_str());
-        std::filesystem::remove(fileName);
-#else
-        std::filesystem::rename(fileName, newFileName);
-#endif
-        SohGui::RegisterPopup("Error loading save file", "A problem occurred loading the save in slot " +
-                                                             std::to_string(fileNum + 1) +
-                                                             ".\nSave file corruption is suspected.\n" +
-                                                             "The file has been renamed to prevent further issues.");
+        MoveSaveAside(fileNum, fileName);
+        ReportCorruptSave(fileNum);
     }
     saveMtx.unlock();
 }
