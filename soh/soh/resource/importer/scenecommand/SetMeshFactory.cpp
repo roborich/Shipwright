@@ -32,7 +32,9 @@ std::shared_ptr<Ship::IResource> SetMeshFactory::ReadResource(std::shared_ptr<Sh
     if (setMesh->meshHeader.base.type == 2) {
         setMesh->dlists2.reserve(polyNum);
     } else {
-        setMesh->dlists.reserve(setMesh->meshHeader.polygon0.num);
+        // SOH [Unbound] polyNum, not polygon0.num: for a type 1 mesh that union member overlaps unread fields, and
+        // since num is u32 an uninitialised value asks for up to 4G entries (std::length_error on wasm32)
+        setMesh->dlists.reserve(polyNum);
     }
 
     for (int32_t i = 0; i < polyNum; i++) {
@@ -129,7 +131,11 @@ std::shared_ptr<Ship::IResource> SetMeshFactory::ReadResource(std::shared_ptr<Sh
     } else if (setMesh->meshHeader.base.type == 0) {
         setMesh->meshHeader.polygon0.start = setMesh->dlists.data();
     } else if (setMesh->meshHeader.base.type == 1) {
-        setMesh->meshHeader.polygon1.multi.list = setMesh->images.data();
+        // SOH [Unbound] multi only: single shares these bytes, and the pointer overwrote single.unk_0C, which the
+        // Unbound converter writes out (a heap address in the archive made its output differ run to run)
+        if (setMesh->meshHeader.polygon1.format != 1) {
+            setMesh->meshHeader.polygon1.multi.list = setMesh->images.data();
+        }
         setMesh->meshHeader.polygon1.dlist = (Gfx*)setMesh->dlists.data();
     } else {
         SPDLOG_ERROR("Tried to load mesh in SetMesh scene header with type that doesn't exist: {}",
@@ -169,7 +175,9 @@ std::shared_ptr<Ship::IResource> SetMeshFactoryXML::ReadResource(std::shared_ptr
     if (setMesh->meshHeader.base.type == 2) {
         setMesh->dlists2.reserve(polyNum);
     } else {
-        setMesh->dlists.reserve(setMesh->meshHeader.polygon0.num);
+        // SOH [Unbound] polyNum, not polygon0.num: for a type 1 mesh that union member overlaps unread fields, and
+        // since num is u32 an uninitialised value asks for up to 4G entries (std::length_error on wasm32)
+        setMesh->dlists.reserve(polyNum);
     }
 
     auto child = reader->FirstChildElement();
@@ -280,7 +288,11 @@ std::shared_ptr<Ship::IResource> SetMeshFactoryXML::ReadResource(std::shared_ptr
     } else if (setMesh->meshHeader.base.type == 0) {
         setMesh->meshHeader.polygon0.start = setMesh->dlists.data();
     } else if (setMesh->meshHeader.base.type == 1) {
-        setMesh->meshHeader.polygon1.multi.list = setMesh->images.data();
+        // SOH [Unbound] multi only: single shares these bytes, and the pointer overwrote single.unk_0C, which the
+        // Unbound converter writes out (a heap address in the archive made its output differ run to run)
+        if (setMesh->meshHeader.polygon1.format != 1) {
+            setMesh->meshHeader.polygon1.multi.list = setMesh->images.data();
+        }
         setMesh->meshHeader.polygon1.dlist = (Gfx*)setMesh->dlists.data();
     } else {
         SPDLOG_ERROR("Tried to load mesh in SetMesh scene header with type that doesn't exist: {}",
