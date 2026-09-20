@@ -39,7 +39,9 @@ void to_json(nlohmann::json& j, const WarpPoint& p) {
 void from_json(const nlohmann::json& j, WarpPoint& p) {
     const WarpPoint defaults;
     p.entranceId = j.value("entranceId", defaults.entranceId);
-    p.entranceName = j.value("entranceName", defaults.entranceName);
+    // A host writing the block itself may spell "no name" as null; treat anything but a string as unnamed.
+    const auto name = j.find("entranceName");
+    p.entranceName = (name != j.end() && name->is_string()) ? name->get<std::string>() : defaults.entranceName;
     p.roomNum = j.value("roomNum", defaults.roomNum);
     p.pos = j.value("pos", defaults.pos);
     p.rotY = j.value("rotY", defaults.rotY);
