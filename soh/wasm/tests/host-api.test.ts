@@ -92,6 +92,14 @@ test("a boot warp point loads at its own age and time, skipping the title screen
         expect(await game.problems()).toEqual([]);
     }), TEST_TIMEOUT);
 
+test("a boot warp point can name its entrance, and the name wins over the index", () =>
+    withGame(suite, { inlineFiles: playFiles(bootWarpConfig({ entranceName: "ENTR_DEKU_TREE_ENTRANCE", linkAge: 1 })) }, async (game) => {
+        const { event } = await bootToScene(game);
+        expect(event.entranceIndex).toBe(0);
+        expect(event.setup).toBe(0);
+        expect(await game.problems()).toEqual([]);
+    }), TEST_TIMEOUT);
+
 test("a boot warp point saved without an age or time still means adult at noon", () =>
     withGame(suite, { inlineFiles: playFiles(bootWarpConfig({})) }, async (game) => {
         const { event } = await bootToScene(game);

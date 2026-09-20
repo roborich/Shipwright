@@ -136,6 +136,7 @@ int32_t SceneDB_HorseAllowed(int32_t id);
 int32_t SceneDB_GetHorseSpawn(int32_t id, Vec3f* pos, int16_t* angle);
 int32_t EntranceDB_GetEntryCount(void);
 int32_t EntranceDB_RetrieveIndex(const char* name); // -1 when unknown
+const char* EntranceDB_RetrieveName(int32_t index); // "" for a vanilla or unknown entrance
 
 // Saved scene flags for any scene id: vanilla ids map into gSaveContext.sceneFlags, custom ids into
 // registry-owned storage that SaveManager persists by scene name.

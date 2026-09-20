@@ -7,6 +7,8 @@
 #include "functions.h"
 #include "soh/SohGui/MenuTypes.h"
 #include "soh/util.h"
+#include "soh/unbound/SceneDB.h"
+#include <spdlog/spdlog.h>
 
 extern "C" {
 #include "z64.h"
@@ -29,11 +31,15 @@ void to_json(nlohmann::json& j, const WarpPoint& p) {
         { "entranceId", p.entranceId },   { "roomNum", p.roomNum }, { "pos", p.pos },        { "rotY", p.rotY },
         { "bootToPoint", p.bootToPoint }, { "linkAge", p.linkAge }, { "dayTime", p.dayTime }
     };
+    if (!p.entranceName.empty()) {
+        j["entranceName"] = p.entranceName;
+    }
 }
 
 void from_json(const nlohmann::json& j, WarpPoint& p) {
     const WarpPoint defaults;
     p.entranceId = j.value("entranceId", defaults.entranceId);
+    p.entranceName = j.value("entranceName", defaults.entranceName);
     p.roomNum = j.value("roomNum", defaults.roomNum);
     p.pos = j.value("pos", defaults.pos);
     p.rotY = j.value("rotY", defaults.rotY);
@@ -132,8 +138,8 @@ static void ApplyDayTime(s32 dayTime) {
 
 // Spawn standing at the point instead of at the entrance's spawn, through the void-out
 // respawn, without the void damage it normally inflicts.
-static void RespawnAtPoint(const WarpPoint& point) {
-    gSaveContext.respawn[RESPAWN_MODE_DOWN].entranceIndex = point.entranceId;
+static void RespawnAtPoint(int32_t entranceId, const WarpPoint& point) {
+    gSaveContext.respawn[RESPAWN_MODE_DOWN].entranceIndex = entranceId;
     gSaveContext.respawn[RESPAWN_MODE_DOWN].roomIndex = point.roomNum;
     gSaveContext.respawn[RESPAWN_MODE_DOWN].pos = point.pos;
     gSaveContext.respawn[RESPAWN_MODE_DOWN].yaw = point.rotY;
@@ -157,9 +163,22 @@ void Warping_WarpToEntrance(int32_t entranceId, int32_t linkAge, int32_t dayTime
     ApplyDayTime(dayTime);
 }
 
-void Warping_WarpToPoint(const WarpPoint& point) {
-    Warping_WarpToEntrance(point.entranceId, point.linkAge, point.dayTime);
-    RespawnAtPoint(point);
+int32_t Warping_ResolveEntrance(const WarpPoint& point) {
+    int32_t entranceId =
+        point.entranceName.empty() ? point.entranceId : EntranceDB_RetrieveIndex(point.entranceName.c_str());
+    return entranceId >= 0 && entranceId < EntranceDB_GetEntryCount() ? entranceId : -1;
+}
+
+bool Warping_WarpToPoint(const WarpPoint& point) {
+    int32_t entranceId = Warping_ResolveEntrance(point);
+    if (entranceId < 0) {
+        SPDLOG_WARN("[Unbound] warp point's entrance '{}' ({:#x}) is not registered; is its mod loaded?",
+                    point.entranceName, point.entranceId);
+        return false;
+    }
+    Warping_WarpToEntrance(entranceId, point.linkAge, point.dayTime);
+    RespawnAtPoint(entranceId, point);
+    return true;
 }
 
 // Play_Init's threshold for the night flag.
@@ -194,6 +213,7 @@ void WarpPointsWidget(WidgetInfo& info) {
 
             warpPoints[warpNameInput] = WarpPoint{
                 .entranceId = gSaveContext.entranceIndex,
+                .entranceName = EntranceDB_RetrieveName(gSaveContext.entranceIndex), // "" for vanilla
                 .roomNum = gPlayState->roomCtx.curRoom.num,
                 .pos = player->actor.world.pos,
                 .rotY = player->actor.shape.rot.y,
@@ -219,6 +239,10 @@ void WarpPointsWidget(WidgetInfo& info) {
         if (it->second.bootToPoint) {
             ImGui::SameLine();
             ImGui::TextColored(ImVec4(0.85f, 0.55f, 0.0f, 1.0f), "[Boot]");
+        }
+        if (Warping_ResolveEntrance(it->second) < 0) { // SOH [Unbound] a custom entrance whose mod is not loaded
+            ImGui::SameLine();
+            ImGui::TextColored(ImVec4(0.9f, 0.3f, 0.3f, 1.0f), "[Mod not loaded]");
         }
         ImGui::SameLine(ImGui::GetContentRegionAvail().x - 115.0f);
         if (UIWidgets::Button(ICON_FA_PLANE, { .size = UIWidgets::Sizes::Inline })) {
@@ -247,6 +271,14 @@ void WarpPointsWidget(WidgetInfo& info) {
     }
 }
 
+static void OpenDebugWarpScreen(TitleContext* titleContext) {
+    gSaveContext.seqId = (u8)NA_BGM_DISABLED;
+    gSaveContext.natureAmbienceId = 0xFF;
+    gSaveContext.gameMode = GAMEMODE_NORMAL;
+    titleContext->state.running = false;
+    SET_NEXT_GAMESTATE(&titleContext->state, Select_Init, SelectContext);
+}
+
 void RegisterWarping() {
     static bool loadedConfig = false;
     if (!loadedConfig) {
@@ -254,32 +286,18 @@ void RegisterWarping() {
         loadedConfig = true;
     }
 
-    COND_HOOK(OnZTitleUpdate, CVAR_BOOTSEQUENCE_VALUE == BOOTSEQUENCE_DEBUGWARPSCREEN, [](void* gameState) {
-        TitleContext* titleContext = (TitleContext*)gameState;
+    COND_HOOK(OnZTitleUpdate, CVAR_BOOTSEQUENCE_VALUE == BOOTSEQUENCE_DEBUGWARPSCREEN,
+              [](void* gameState) { OpenDebugWarpScreen((TitleContext*)gameState); });
 
-        gSaveContext.seqId = (u8)NA_BGM_DISABLED;
-        gSaveContext.natureAmbienceId = 0xFF;
-        gSaveContext.gameMode = GAMEMODE_NORMAL;
-        titleContext->state.running = false;
-        SET_NEXT_GAMESTATE(&titleContext->state, Select_Init, SelectContext);
-    });
-
+    // The Debug Warp Screen when no point is marked to boot to, or the marked one names an
+    // entrance no loaded mod registers.
     COND_HOOK(OnZTitleUpdate, CVAR_BOOTSEQUENCE_VALUE == BOOTSEQUENCE_WARPPOINT, [](void* gameState) {
         for (auto& wp : warpPoints) {
-            if (wp.second.bootToPoint) {
-                Warping_WarpToPoint(wp.second);
+            if (wp.second.bootToPoint && Warping_WarpToPoint(wp.second)) {
                 return;
             }
         }
-
-        // Fallback to Debug Warp Screen if no warp point is set to boot to
-        TitleContext* titleContext = (TitleContext*)gameState;
-
-        gSaveContext.seqId = (u8)NA_BGM_DISABLED;
-        gSaveContext.natureAmbienceId = 0xFF;
-        gSaveContext.gameMode = GAMEMODE_NORMAL;
-        titleContext->state.running = false;
-        SET_NEXT_GAMESTATE(&titleContext->state, Select_Init, SelectContext);
+        OpenDebugWarpScreen((TitleContext*)gameState);
     });
 }
 

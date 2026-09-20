@@ -149,6 +149,22 @@ opens the Debug Warp Screen instead. `linkAge` is `0` adult or `1` child, and `d
 writes the block back into the config it saves, so a host that owns the config should set
 the point it wants on every boot.
 
+`entranceId` is a decimal index here (`187` for `bb`). A point may name the entrance instead
+with `entranceName`, which takes what `warp` takes: a vanilla enum name, or a custom scene's
+`<scene id>/<entrance id>` from its `unbound/scenes.json`. Use the name for a custom scene,
+since its index depends on the mod set. When both are given the name wins. The name is
+looked up after the mods have loaded; one no loaded mod registers is logged, and the game
+opens the Debug Warp Screen as if no point were marked.
+
+```json
+"WarpPoints": {
+  "my scene": {
+    "bootToPoint": true, "entranceName": "my-mod/hub", "linkAge": 1, "dayTime": 32768,
+    "roomNum": 0, "pos": { "x": 0, "y": 0, "z": 0 }, "rotY": 0
+  }
+}
+```
+
 ## 5. Diagnostics: `Soh_GetStats` (unstable)
 
 For tests and profiling, not for building on: the fields can change without notice.

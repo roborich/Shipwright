@@ -829,6 +829,10 @@ extern "C" int32_t EntranceDB_RetrieveIndex(const char* name) {
     return SceneDB::Instance->RetrieveEntranceIndex(name);
 }
 
+extern "C" const char* EntranceDB_RetrieveName(int32_t index) {
+    return SceneDB::Instance->RetrieveEntranceName(index).c_str();
+}
+
 extern "C" SavedSceneFlags* SceneFlags_Get(int32_t sceneNum) {
     if (sceneNum >= 0 && sceneNum < SCENE_ID_MAX) {
         return &gSaveContext.sceneFlags[sceneNum];
