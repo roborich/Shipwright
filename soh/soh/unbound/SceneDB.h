@@ -80,6 +80,9 @@ class SceneDB {
     const std::vector<Entry>& Entries() const;
 
     int32_t RetrieveEntranceIndex(const std::string& name) const;
+    // The name of the custom entrance whose layer group holds `index`, or "" for a vanilla index or one
+    // no mod registered. Used to persist an entrance in a save file, where the number is not stable.
+    const std::string& RetrieveEntranceName(int32_t index) const;
     size_t GetEntranceCount() const;
     const std::vector<EntranceEntry>& CustomEntrances() const;
 

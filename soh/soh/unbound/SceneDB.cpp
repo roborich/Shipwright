@@ -278,6 +278,17 @@ int32_t SceneDB::RetrieveEntranceIndex(const std::string& name) const {
     return it == entranceNameTable.end() ? -1 : it->second;
 }
 
+const std::string& SceneDB::RetrieveEntranceName(int32_t index) const {
+    static const std::string none;
+    int32_t group = index - index % kEntranceLayerCount;
+    for (const EntranceEntry& entrance : customEntrances) {
+        if (entrance.index == group) {
+            return entrance.name;
+        }
+    }
+    return none;
+}
+
 size_t SceneDB::GetEntranceCount() const {
     return entranceTable.size();
 }
@@ -527,8 +538,124 @@ void LoadHorseScene() {
     gSaveContext.horseData.scene = (s16)id;
 }
 
+// ---- custom entrances in a save file --------------------------------------------------------------
+//
+// The number a custom entrance gets is handed out at load and depends on which mods are mounted, so a save
+// file records the registered name and resolves it back on load. The "base" section still writes the raw
+// number — old builds and vanilla entrances need it — and a name here overrides it, the same way
+// horseScene overrides horseData.scene. Without this, adding or removing a mod moved a saved player to
+// whichever entrance had inherited the number.
+
+// The layer within the entrance's 4-entry group. Vanilla adds the scene setup separately and always leaves
+// this 0, but it is what makes the saved number exact, so it round-trips rather than being assumed.
+constexpr const char* kSavedEntranceName = "name";
+constexpr const char* kSavedEntranceLayer = "layer";
+
+// Reads the snapshot SaveSection took rather than gSaveContext: the write runs on a worker thread, and a
+// name that disagreed with the number "base" wrote from the same snapshot would win on load.
+//
+// Writes the key even for a vanilla entrance, with an empty name — like SaveHorseScene, and for the same
+// reason. SaveManager keeps one json block for the whole session and a section's save function writes into
+// what is already there, so a key it skips keeps the value the last save or load left in it. Skipping here
+// would leave the name of a custom entrance in the file after the player saved somewhere vanilla, and that
+// stale name would win on load.
+void SaveEntranceName(const char* key, int32_t entranceIndex) {
+    const std::string& name = SceneDB::Instance->RetrieveEntranceName(entranceIndex);
+    SaveManager::Instance->SaveStruct(key, [&]() {
+        SaveManager::Instance->SaveData(kSavedEntranceName, name);
+        SaveManager::Instance->SaveData(kSavedEntranceLayer, name.empty() ? 0 : entranceIndex % kEntranceLayerCount);
+    });
+}
+
+struct SavedEntrance {
+    bool present = false; // the save named an entrance here; false for a vanilla one or a save without it
+    std::string name;
+    int32_t index = -1; // -1 when no mounted mod registers `name`
+};
+
+SavedEntrance LoadEntranceName(const char* key) {
+    SavedEntrance saved;
+    int32_t layer = 0;
+    SaveManager::Instance->LoadStruct(key, [&]() {
+        SaveManager::Instance->LoadData(kSavedEntranceName, saved.name);
+        SaveManager::Instance->LoadData(kSavedEntranceLayer, layer);
+    });
+    if (saved.name.empty()) {
+        return saved;
+    }
+    saved.present = true;
+    int32_t group = SceneDB::Instance->RetrieveEntranceIndex(saved.name);
+    if (group >= 0) {
+        saved.index = group + layer;
+    }
+    return saved;
+}
+
+// Where a save with no usable entrance sends Link, matching the fallback in Sram_OpenSave's default branch.
+int32_t DefaultSpawnEntrance() {
+    return LINK_AGE_IN_YEARS == YEARS_CHILD ? ENTR_LINKS_HOUSE_CHILD_SPAWN : ENTR_TEMPLE_OF_TIME_WARP_PAD;
+}
+
+// Runs before Sram_OpenSave picks the spawn, so the number it sees is already the resolved one. With
+// Remember Save Location off the value is overwritten there anyway; with it on this is what keeps the
+// player in the custom scene they saved in.
+void LoadEntranceIndex() {
+    SavedEntrance saved = LoadEntranceName("entrance");
+    if (!saved.present) {
+        return;
+    }
+    if (saved.index < 0) {
+        SPDLOG_WARN("[Unbound] the save is at entrance '{}', which is not registered; spawning at the default",
+                    saved.name);
+        gSaveContext.entranceIndex = DefaultSpawnEntrance();
+        return;
+    }
+    gSaveContext.entranceIndex = saved.index;
+}
+
+// Farore's Wind, and the backup copy the port keeps so the warp point survives a scene the game would have
+// cleared it in. A warp into a scene the player no longer has is cleared rather than pointed somewhere else.
+void LoadFWEntrance(const char* key, FaroresWindData& fw) {
+    SavedEntrance saved = LoadEntranceName(key);
+    if (!saved.present) {
+        return;
+    }
+    if (saved.index < 0) {
+        SPDLOG_WARN("[Unbound] the Farore's Wind warp is at entrance '{}', which is not registered; clearing it",
+                    saved.name);
+        fw.set = 0;
+        return;
+    }
+    fw.entranceIndex = saved.index;
+}
+
+// savedSceneNum is read alongside the entrance, so it is keyed by name for the same reason.
+void SaveSavedSceneName(const SaveContext* saveContext) {
+    const SceneDB::Entry& entry = SceneDB::Instance->RetrieveEntry(saveContext->savedSceneNum);
+    SaveManager::Instance->SaveData("savedScene", entry.valid && entry.isCustom ? entry.name : std::string());
+}
+
+void LoadSavedSceneName() {
+    std::string name;
+    SaveManager::Instance->LoadData("savedScene", name);
+    if (name.empty()) {
+        return;
+    }
+    int32_t id = SceneDB::Instance->RetrieveId(name);
+    if (id < 0) {
+        SPDLOG_WARN("[Unbound] the save is in scene '{}', which is not registered", name);
+        gSaveContext.savedSceneNum = SCENE_LINKS_HOUSE;
+        return;
+    }
+    gSaveContext.savedSceneNum = (s16)id;
+}
+
 void SaveUnboundSection(SaveContext* saveContext, int sectionID, bool fullSave) {
     SaveHorseScene(saveContext);
+    SaveSavedSceneName(saveContext);
+    SaveEntranceName("entrance", saveContext->entranceIndex);
+    SaveEntranceName("fwEntrance", saveContext->fw.entranceIndex);
+    SaveEntranceName("backupFwEntrance", saveContext->ship.backupFW.entranceIndex);
     SaveManager::Instance->SaveStruct("sceneFlags", []() {
         for (const auto& [id, flags] : sCustomSceneFlags) {
             const SceneDB::Entry& entry = SceneDB::Instance->RetrieveEntry(id);
@@ -603,6 +730,10 @@ void LoadUnboundSection() {
     });
     LoadExtClearFlags();
     LoadHorseScene();
+    LoadSavedSceneName();
+    LoadEntranceIndex();
+    LoadFWEntrance("fwEntrance", gSaveContext.fw);
+    LoadFWEntrance("backupFwEntrance", gSaveContext.ship.backupFW);
 }
 
 void InitUnboundSection(bool isDebug) {

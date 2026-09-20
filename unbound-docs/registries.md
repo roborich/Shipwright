@@ -77,6 +77,23 @@ mod stacks and never touch the positional vanilla array (old saves stay valid).
 Known gap: save states (`savestates.cpp`) `memcpy` `gSaveContext` only, so they don't capture
 custom-scene flags.
 
+### Saved entrances
+
+For the same reason, a save file records a custom entrance by **name**. Scene ids and entrance
+groups are handed out at load and depend on which mods are mounted and in what order, so a raw
+number in a save means something different once a mod is added or removed — the player reloads
+into another mod's scene. The `"unbound"` section keys `savedScene` and the three entrance fields
+(`entrance`, `fwEntrance`, `backupFwEntrance` — the last two are Farore's Wind and the port's
+backup copy) by registered name plus the layer within the group. `"base"` still writes the raw
+numbers for older builds and for vanilla entrances; `"unbound"` sorts after `"base"`, so the names
+win on load. An entrance whose mod is gone spawns Link at the `Sram_OpenSave` default instead, and
+a Farore's Wind warp into one is cleared.
+
+Each of those keys is written on every save even when the entrance is vanilla, with an empty name.
+`SaveManager` keeps one json block for the session and a section's save function writes into what
+is already there, so a key it skips keeps whatever the last save or load left in it — `horseScene`
+is written the same way and for the same reason.
+
 ### Guards added
 
 - `Play_Init`: an entrance index outside the registry (a save from a different mod stack, or a

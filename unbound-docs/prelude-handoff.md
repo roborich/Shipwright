@@ -6,6 +6,27 @@ let the user build. **The contract is [`SPEC.md`](./SPEC.md)**; every entry belo
 section that defines it, and when this page and SPEC disagree, SPEC wins. Everything in the code
 is tagged `SOH [Unbound]`.
 
+## 2026-09-19 — a custom entrance is its name; numbers never leave the game
+
+From a report of two Prelude exports that both pinned `"index": 1556` — the first free custom
+entrance number, so the obvious one for any exporter to pick. The second mod's entrance did not
+register at all, leaving its scene with no way in. The same collision existed for `sceneId`, where
+the loser's whole scene failed to load.
+
+The number a custom scene or entrance gets is assigned at load and depends on which mods are mounted
+and in what order. It is therefore never stable between players, and now never appears outside the
+running game.
+
+| Change | SPEC | Prelude must |
+|---|---|---|
+| `sceneId` and `entrances.*.index` are **ignored**, with a warning naming the scene or entrance. The game assigns both, in registry order. | §7 | Stop emitting them (already done on `unbound-entrance-numbers`). Old exports keep loading. |
+| A numeric exit is **rejected** when it falls between `ENTR_MAX` (1556) and 0x7FF8 — the custom range. Vanilla indices below 1556 and the dynamic return entrances 0x7FF9–0x7FFF are unchanged. | §4.2 | Write every custom exit as `"<scene id>/<entrance id>"`. Vanilla scene exports are unaffected: grottos and fairy fountains keep their 0x7FFF. |
+| The auto-assigned ceiling is 0x7FF4, not 0x7FFC: a group any higher reached into the return-entrance range, where `z_player.c` intercepts an exit before it ever indexes the table. | §7 | Nothing. |
+| A save file stores `savedScene` and the three entrance fields by **name** in the `"unbound"` section. Adding or removing a mod no longer moves a saved player into another mod's scene, and a Farore's Wind warp into a scene the player no longer has is cleared rather than repointed. | — | Nothing; save-side only. |
+
+**No format-version bump and no re-export.** An old export with `index`/`sceneId` still loads; only a
+numeric custom exit — which nothing Prelude ships has ever written — is newly rejected.
+
 ## 2026-09-17 — Epona in custom scenes: what the two `horse` controls actually do
 
 From a play-test of a three-scene mod where Epona's Song did nothing in any of them. Two separate
