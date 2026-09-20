@@ -21,10 +21,26 @@ void Select_LoadGame(SelectContext* selectContext, s32 entranceIndex);
 #define CVAR_BOOTSEQUENCE_VALUE CVarGetInteger(CVAR_BOOTSEQUENCE_NAME, CVAR_BOOTSEQUENCE_DEFAULT)
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Vec3f, x, y, z)
-// _WITH_DEFAULT: a point saved before linkAge and dayTime existed loads with the struct's
-// defaults, which are what the boot warp always used (adult, noon).
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(WarpPoint, entranceId, roomNum, pos, rotY, bootToPoint, linkAge,
-                                                dayTime)
+// Written out rather than NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT: the Linux release builds on
+// Ubuntu 22.04, whose nlohmann-json (3.10) predates that macro. A point saved before linkAge and dayTime
+// existed loads with the struct's defaults, which are what the boot warp always used (adult, noon).
+void to_json(nlohmann::json& j, const WarpPoint& p) {
+    j = nlohmann::json{
+        { "entranceId", p.entranceId },   { "roomNum", p.roomNum }, { "pos", p.pos },        { "rotY", p.rotY },
+        { "bootToPoint", p.bootToPoint }, { "linkAge", p.linkAge }, { "dayTime", p.dayTime }
+    };
+}
+
+void from_json(const nlohmann::json& j, WarpPoint& p) {
+    const WarpPoint defaults;
+    p.entranceId = j.value("entranceId", defaults.entranceId);
+    p.roomNum = j.value("roomNum", defaults.roomNum);
+    p.pos = j.value("pos", defaults.pos);
+    p.rotY = j.value("rotY", defaults.rotY);
+    p.bootToPoint = j.value("bootToPoint", defaults.bootToPoint);
+    p.linkAge = j.value("linkAge", defaults.linkAge);
+    p.dayTime = j.value("dayTime", defaults.dayTime);
+}
 std::map<std::string, WarpPoint> warpPoints;
 
 void LoadConfig() {
