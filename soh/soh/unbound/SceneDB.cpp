@@ -64,6 +64,13 @@ const VanillaEntrance sVanillaEntrances[] = {
 };
 #undef DEFINE_ENTRANCE
 
+// ReturnEntranceIndex in z64scene.h, in order from ENTR_RETURN_YOUSEI_IZUMI_YOKO.
+const char* const sReturnEntranceNames[] = {
+    "ENTR_RETURN_YOUSEI_IZUMI_YOKO", "ENTR_RETURN_SYATEKIJYOU", "ENTR_RETURN_2", "ENTR_RETURN_SHOP1", "ENTR_RETURN_4",
+    "ENTR_RETURN_DAIYOUSEI_IZUMI",   "ENTR_RETURN_GROTTO",
+};
+static_assert(std::size(sReturnEntranceNames) == ENTR_RETURN_GROTTO - ENTR_RETURN_YOUSEI_IZUMI_YOKO + 1);
+
 uint16_t PackEntranceField(bool continueBgm, bool displayTitleCard, uint8_t endTransType, uint8_t startTransType) {
     return (continueBgm ? ENTRANCE_INFO_CONTINUE_BGM_FLAG : 0) |
            (displayTitleCard ? ENTRANCE_INFO_DISPLAY_TITLE_CARD_FLAG : 0) |
@@ -159,6 +166,11 @@ void SceneDB::SeedVanillaEntrances() {
         info.field = PackEntranceField(v.continueBgm, v.displayTitleCard, v.endTransType, v.startTransType);
         entranceTable.push_back(info);
         entranceNameTable[v.name] = index;
+    }
+    // The dynamic return entrances live above the table (z64scene.h ReturnEntranceIndex); z_player.c resolves
+    // them before indexing. They are vanilla enum names, so a document may spell them out like any other.
+    for (int32_t index = ENTR_RETURN_YOUSEI_IZUMI_YOKO; index <= ENTR_RETURN_GROTTO; index++) {
+        entranceNameTable[sReturnEntranceNames[index - ENTR_RETURN_YOUSEI_IZUMI_YOKO]] = index;
     }
     nextEntranceIndex = (ENTR_MAX + kEntranceLayerCount - 1) / kEntranceLayerCount * kEntranceLayerCount;
     RefreshEntranceTablePointer();
@@ -584,6 +596,11 @@ SavedEntrance LoadEntranceName(const char* key) {
         return saved;
     }
     saved.present = true;
+    if (layer < 0 || layer >= kEntranceLayerCount) {
+        // Anything else would walk into the next group, which is another entrance entirely.
+        SPDLOG_WARN("[Unbound] the save's entrance '{}' has layer {}; using 0", saved.name, layer);
+        layer = 0;
+    }
     int32_t group = SceneDB::Instance->RetrieveEntranceIndex(saved.name);
     if (group >= 0) {
         saved.index = group + layer;
@@ -591,9 +608,15 @@ SavedEntrance LoadEntranceName(const char* key) {
     return saved;
 }
 
-// Where a save with no usable entrance sends Link, matching the fallback in Sram_OpenSave's default branch.
+// Where a save with no usable entrance or scene sends Link, matching the fallback in Sram_OpenSave's default
+// branch. The scene is the one that entrance leads to, so the two fallbacks never disagree: Sram_OpenSave
+// special-cases SCENE_LINKS_HOUSE, and naming it for an adult would send them to the child spawn.
 int32_t DefaultSpawnEntrance() {
     return LINK_AGE_IN_YEARS == YEARS_CHILD ? ENTR_LINKS_HOUSE_CHILD_SPAWN : ENTR_TEMPLE_OF_TIME_WARP_PAD;
+}
+
+int32_t DefaultSpawnScene() {
+    return LINK_AGE_IN_YEARS == YEARS_CHILD ? SCENE_LINKS_HOUSE : SCENE_TEMPLE_OF_TIME;
 }
 
 // Runs before Sram_OpenSave picks the spawn, so the number it sees is already the resolved one. With
@@ -644,7 +667,7 @@ void LoadSavedSceneName() {
     int32_t id = SceneDB::Instance->RetrieveId(name);
     if (id < 0) {
         SPDLOG_WARN("[Unbound] the save is in scene '{}', which is not registered", name);
-        gSaveContext.savedSceneNum = SCENE_LINKS_HOUSE;
+        gSaveContext.savedSceneNum = (s16)DefaultSpawnScene();
         return;
     }
     gSaveContext.savedSceneNum = (s16)id;

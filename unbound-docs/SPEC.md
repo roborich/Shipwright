@@ -165,8 +165,9 @@ The vanilla `SetCsCamera` command (0x02) carries no data in SoH and has no JSON 
 
 **Exit value** — one of:
 
-- a string naming an entrance: a vanilla entrance enum name (`"ENTR_HYRULE_FIELD_0"`) or a custom
-  entrance `"<scene id>/<entrance id>"` from §7. A string that is not a registered name and not
+- a string naming an entrance: a vanilla entrance enum name (`"ENTR_HYRULE_FIELD_0"`, or a
+  dynamic return entrance such as `"ENTR_RETURN_GROTTO"`) or a custom entrance
+  `"<scene id>/<entrance id>"` from §7. A string that is not a registered name and not
   an integer in the §2 string form makes the document **rejected**;
 - a non-negative JSON integer (the §2 boolean and fractional forms are not accepted here): an
   index into the entrance table. Only an index that is the same for every player may be written as
