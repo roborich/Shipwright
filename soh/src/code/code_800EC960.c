@@ -5203,6 +5203,12 @@ void Audio_PlayNatureAmbienceSequence(u8 natureAmbienceId) {
     u8 port;
     u8 val;
 
+    // SOH [Unbound] A scene can carry any byte here; past the table the IO data is garbage and the nature
+    // sequence jumps through it. Play nothing, as the callers do for NATURE_ID_NONE (they never pass it here).
+    if (natureAmbienceId >= ARRAY_COUNT(sNatureAmbienceDataIO)) {
+        return;
+    }
+
     if ((gActiveSeqs[SEQ_PLAYER_BGM_MAIN].seqId == NA_BGM_DISABLED) ||
         !(sSeqFlags[((u8)gActiveSeqs[SEQ_PLAYER_BGM_MAIN].seqId) & 0xFF] & 0x80)) {
 

@@ -16,6 +16,7 @@
 #include <limits>
 
 #include "z64environment.h"
+#include "sequence.h"
 #include "soh/resource/type/CollisionHeader.h"
 #include "soh/resource/type/Cutscene.h"
 #include "soh/resource/type/Path.h"
@@ -160,10 +161,30 @@ Command BuildSkybox(CommandBuilder& b, const Json& s) {
     return cmd;
 }
 
+// A `sound` id the engine indexes tables with. Invalid values are substituted (not rejected: the setup keeps
+// its other sound settings) and logged, so a bad exporter sentinel cannot reach the audio thread.
+template <typename IsValid>
+int64_t SoundIdOrNone(CommandBuilder& b, const Json& s, const char* key, IsValid isValid, int64_t none,
+                      const char* what) {
+    const int64_t v = Field(s, key);
+    if (isValid(v)) {
+        return v;
+    }
+    SPDLOG_WARN("[Unbound] {}: sound.{} {} is not {}; using none ({})", b.docPath, key, v, what, none);
+    return none;
+}
+
 Command BuildSound(CommandBuilder& b, const Json& s) {
     auto cmd = b.Make<SetSoundSettings>(SceneCommandID::SetSoundSettings);
-    cmd->settings.seqId = (uint8_t)Field(s, K::kSeq);
-    cmd->settings.natureAmbienceId = (uint8_t)Field(s, K::kNatureAmbience);
+    // Out-of-range ids are not just wrong, they crash: the engine indexes a 20-entry nature-ambience table
+    // and the sequence table with these bytes unchecked (a 255 "none" sentinel killed the audio thread at the
+    // first sunset). Anything invalid becomes the engine's own "none" with a log line (SPEC §4.2).
+    cmd->settings.seqId = (uint8_t)SoundIdOrNone(
+        b, s, K::kSeq, [](int64_t v) { return v >= 0 && (v <= NA_BGM_VARIOUS_SFX || v == NA_BGM_NO_MUSIC); },
+        NA_BGM_NO_MUSIC, "a vanilla sequence id");
+    cmd->settings.natureAmbienceId = (uint8_t)SoundIdOrNone(
+        b, s, K::kNatureAmbience, [](int64_t v) { return v >= 0 && v <= NATURE_ID_NONE; }, NATURE_ID_NONE,
+        "a nature ambience id");
     cmd->settings.reverb = (uint8_t)Field(s, K::kReverb);
     // The scene keeps its vanilla `seq` as the theme the game QUEUES; a bound song replaces it when the
     // theme is resolved for playback (AudioCollection::GetReplacementSequence) — so the u8 seqId, the
@@ -175,6 +196,10 @@ Command BuildSound(CommandBuilder& b, const Json& s) {
         if (cmd->unboundSongSeqId == 0) {
             SPDLOG_ERROR("[Unbound] {}: song {} is not a loaded sequence (no mounted archive provides it)", b.docPath,
                          song);
+        } else if (cmd->settings.seqId == NA_BGM_NO_MUSIC) {
+            // The song plays where the theme would; a no-music scene never queues one, so the song is silent.
+            SPDLOG_WARN("[Unbound] {}: song {} is bound but sound.seq is no music ({}); the song will not play",
+                        b.docPath, song, (int)NA_BGM_NO_MUSIC);
         }
     }
     return cmd;

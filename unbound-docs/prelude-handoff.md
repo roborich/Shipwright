@@ -6,6 +6,16 @@ let the user build. **The contract is [`SPEC.md`](./SPEC.md)**; every entry belo
 section that defines it, and when this page and SPEC disagree, SPEC wins. Everything in the code
 is tagged `SOH [Unbound]`.
 
+## 2026-09-20 — `sound` sentinels: none is `natureAmbience: 19`, no music is `seq: 127`
+
+From a player's crash log: four identical audio-thread crashes at the first in-game sunset in
+Prelude-exported scenes. Every crashing scene had `"natureAmbience": 255`; the engine's table has ids
+0–19 and reads garbage past it. `"seq": 255` appeared alongside and is equally wrong (no music is 127).
+
+| Change | SPEC | Prelude must |
+|---|---|---|
+| `sound.seq` is `0..109` or `127` (none); `sound.natureAmbience` is `0..19`, `19` = none. The reader now maps anything else to the "none" value and logs it; the engine clamps too. Older readers crash on the bad byte. | §4.2 | Emit `19` for no nature ambience and `127` for no music; never `255`. A bound `song` still sits on a real vanilla `seq` (2, Hyrule Field, is a fine default). Reject out-of-range values at the UI and exporter. |
+
 ## 2026-09-19 — a custom entrance is its name; numbers never leave the game
 
 From a report of two Prelude exports that both pinned `"index": 1556` — the first free custom

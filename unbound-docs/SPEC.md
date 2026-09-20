@@ -139,7 +139,7 @@ A setup object holds:
 |---|---|---|
 | `specialObjects` | `{ elfMessage: int, globalObject: int }` | Navi hint id, global object id |
 | `skybox` | `{ id, weather, indoors, unk }` ints | vanilla skybox settings |
-| `sound` | `{ seq, natureAmbience, reverb }` ints, optional `song`: path | vanilla sound settings. `song` names a custom sequence (`custom/music/<Name>`, a streamed or `.seq` sequence any mounted archive provides) that plays wherever the setup's theme would: `seq` **must stay a vanilla id** — a song is referred to only by path, custom sequences having no stable numeric id — and remains the theme heard when no mounted layer provides the song (the reader logs the miss). `null` unbinds. |
+| `sound` | `{ seq, natureAmbience, reverb }` ints, optional `song`: path | vanilla sound settings. `song` names a custom sequence (`custom/music/<Name>`, a streamed or `.seq` sequence any mounted archive provides) that plays wherever the setup's theme would: `seq` **must stay a vanilla id** — a song is referred to only by path, custom sequences having no stable numeric id — and remains the theme heard when no mounted layer provides the song (the reader logs the miss). `null` unbinds. **Ranges:** `seq` is `0..109` or `127` (no music); `natureAmbience` is `0..19`, `19` meaning none. Unlike the §2 rule, an out-of-range value does not wrap: the reader stores the "none" value and logs it, because the engine indexes tables with these bytes and an out-of-range id crashes it. A `song` bound on a `seq` of `127` never plays (there is no theme for it to replace); the reader logs that too. |
 | `cameraSettings` | `{ cameraMovement, worldMapArea }` ints | vanilla camera settings |
 | `cutscene` | path | cutscene resource |
 | `paths` | array of paths | pathway documents (§4.5); their `paths` lists are concatenated in array order, and a path index is a position in that concatenation |
@@ -611,3 +611,6 @@ Limits that remain (validation targets for tools):
   512 texels, the only kind the old period wrapped seamlessly, draws identically; a larger or
   non-power-of-two texture already jumped at each wrap and now jumps less often or not at all. No
   document changes meaning and none is rejected, so this is recorded here and not as version 3.
+- Version-2 clarification (2026-09-20, `sound`): `seq` and `natureAmbience` have stated ranges
+  (§4.2) and an out-of-range value reads as "none" instead of wrapping, since the wrapped byte
+  crashed the audio thread. No document within the ranges changes meaning and none is rejected.
