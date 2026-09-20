@@ -165,11 +165,16 @@ The vanilla `SetCsCamera` command (0x02) carries no data in SoH and has no JSON 
 
 **Exit value** — one of:
 
-- a non-negative JSON integer (the §2 boolean and fractional forms are not accepted here): an
-  index into the entrance table (vanilla numbering; custom entrances have the index from §7);
 - a string naming an entrance: a vanilla entrance enum name (`"ENTR_HYRULE_FIELD_0"`) or a custom
   entrance `"<scene id>/<entrance id>"` from §7. A string that is not a registered name and not
-  an integer in the §2 string form makes the document **rejected**.
+  an integer in the §2 string form makes the document **rejected**;
+- a non-negative JSON integer (the §2 boolean and fractional forms are not accepted here): an
+  index into the entrance table. Only an index that is the same for every player may be written as
+  a number — below `ENTR_MAX` (1556), or one of the dynamic return entrances 0x7FF9–0x7FFF
+  (grottos, fairy fountains, the shooting gallery, the Bazaar). **A number in between is
+  rejected**: that is the range the game hands out custom entrances from, and which number a given
+  custom entrance gets depends on the player's mod stack, so a custom entrance is addressed by
+  name or not at all.
 
 Any other JSON type makes the document **rejected**.
 
@@ -435,12 +440,11 @@ One layer-merged document (§3), keyed by scene id:
   "mymod/lava_temple": {
     "name": "Lava Temple",
     "scene": "scenes/mymod/lava_temple/scene.json",
-    "sceneId": 200,
     "drawConfig": 0,
     "titleCardTexture": "textures/mymod/lava_temple_title",
     "horse": { "pos": [100, 0, -200], "angle": 0 },
     "entrances": {
-      "main": { "index": 1560, "spawn": 0, "showTitleCard": true, "continueBgm": false,
+      "main": { "spawn": 0, "showTitleCard": true, "continueBgm": false,
                 "endTransition": 2, "startTransition": 2 }
     }
   }
@@ -452,11 +456,11 @@ One layer-merged document (§3), keyed by scene id:
 | key | — | scene id: any unique, non-empty string that is not a vanilla scene enum name. It is also the key under which the scene's saved flags are stored. An entry that is not an object is ignored. |
 | `name` | no | display name; default = the key |
 | `scene` | yes | path of the scene resource: a `scene.json` (§4.2) or a vanilla-format scene resource. An entry without it is **rejected**. |
-| `sceneId` | no | explicit numeric scene id, **128–32 767**; a value outside that range is **rejected**, as is an id already taken. Default: one more than the highest id registered so far (starting at 128), in registry order. |
+| `sceneId` | **deprecated** | **Ignored**, with a warning. A scene's numeric id is assigned by the game: one more than the highest registered so far, starting at 128, in registry order. Two mods that pinned the same id used to collide, and the loser did not load at all. |
 | `drawConfig` | no | scene draw config 0–(vanilla count − 1); out of range → rejected entry |
 | `titleCardTexture` | no | path of a texture shown when an entrance has `showTitleCard` |
 | `entrances` | no | keyed list; the key is the entrance id, and the entrance is addressable everywhere as `"<scene id>/<entrance id>"`. A rejected entrance does not reject its scene. |
-| `entrances.*.index` | no | explicit first entrance-table index of the entrance's 4-entry layer group: **≥ 1556, ≤ 32 764, and a multiple of 4**; a value outside that range or a taken index is **rejected**. Default: the group after the highest registered so far, in registry order. Needed only when a vanilla-format scene's exit list refers to the entrance by number. |
+| `entrances.*.index` | **deprecated** | **Ignored**, with a warning. The entrance's 4-entry layer group is assigned by the game: the group after the highest registered so far, in registry order, up to 0x7FF4. Two mods that pinned the same index used to collide, and the loser's entrance did not register — leaving its scene with no way in. A custom entrance is addressed everywhere by name, so a vanilla-format scene resource cannot exit into one. |
 | `entrances.*.spawn` | no | index into the scene's `spawns`, 0–127; default 0 |
 | `entrances.*.showTitleCard`, `continueBgm` | no | booleans/0-1; default false |
 | `entrances.*.endTransition`, `startTransition` | no | transition type ints; default 2 |

@@ -72,7 +72,11 @@ uint16_t PackEntranceField(bool continueBgm, bool displayTitleCard, uint8_t endT
 }
 
 constexpr int32_t kEntranceLayerCount = 4; // child day/night, adult day/night
-constexpr int64_t kMaxEntranceIndex = INT16_MAX + 1 - kEntranceLayerCount;
+// The last group that is wholly below ENTR_RETURN_YOUSEI_IZUMI_YOKO (0x7FF9). z_player.c reads any exit
+// value from there up as a dynamic return entrance before it ever indexes the table, so a group that
+// reached into that range would hand out entrances no exit could name.
+constexpr int64_t kMaxEntranceIndex =
+    (ENTR_RETURN_YOUSEI_IZUMI_YOKO - kEntranceLayerCount) / kEntranceLayerCount * kEntranceLayerCount;
 
 // Saved flags for custom scenes; vanilla ids live in gSaveContext.sceneFlags.
 std::unordered_map<int32_t, SavedSceneFlags> sCustomSceneFlags;
@@ -174,14 +178,9 @@ SceneDB::Entry& SceneDB::AddCustomScene(const CustomSceneInit& init) {
         return invalid;
     }
 
-    int32_t id = init.sceneId >= 0 ? init.sceneId : nextSceneId;
-    if (id < CUSTOM_SCENE_ID_BASE || id > kMaxSceneId) {
-        SPDLOG_ERROR("[Unbound] scene '{}' requests id {:#x}; must be {:#x}-{}", init.name, id, CUSTOM_SCENE_ID_BASE,
-                     kMaxSceneId);
-        return invalid;
-    }
-    if (id < (int32_t)db.size() && db[id].valid) {
-        SPDLOG_ERROR("[Unbound] scene '{}' requests id {:#x} already taken by '{}'", init.name, id, db[id].name);
+    int32_t id = nextSceneId;
+    if (id > kMaxSceneId) {
+        SPDLOG_ERROR("[Unbound] scene '{}' has no free scene id left; {} is the last one", init.name, kMaxSceneId);
         return invalid;
     }
     if (init.drawConfig >= SDC_MAX) {
@@ -228,14 +227,10 @@ int32_t SceneDB::AddCustomEntrance(const CustomEntranceInit& init) {
         return -1;
     }
 
-    int32_t index = init.index >= 0 ? init.index : nextEntranceIndex;
-    if (index < ENTR_MAX || index > kMaxEntranceIndex || index % kEntranceLayerCount != 0) {
-        SPDLOG_ERROR("[Unbound] entrance '{}' requests index {:#x}; must be {:#x}-{} and a multiple of {}", init.name,
-                     index, (int)ENTR_MAX, kMaxEntranceIndex, kEntranceLayerCount);
-        return -1;
-    }
-    if (index < (int32_t)entranceTable.size() && entranceTable[index].scene != SCENE_ID_MAX) {
-        SPDLOG_ERROR("[Unbound] entrance '{}' requests index {:#x} which is already taken", init.name, index);
+    int32_t index = nextEntranceIndex;
+    if (index > kMaxEntranceIndex) {
+        SPDLOG_ERROR("[Unbound] entrance '{}' has no free entrance-table group left; {:#x} is the last one", init.name,
+                     kMaxEntranceIndex);
         return -1;
     }
 
@@ -334,8 +329,17 @@ namespace K = SOH::Unbound::Schema;
 using SOH::Unbound::Field;
 using SOH::Unbound::Json;
 
-// Sentinel for "no explicit value" in the registry; every legal explicit id/index is >= 0.
-constexpr int64_t kNextFree = INT64_MIN;
+// A pinned scene id or entrance index is no longer read: the number a custom scene or entrance gets
+// depends on which mods are mounted and in what order, so two mods that pinned the same one used to
+// collide and the loser vanished. Everything addresses them by name now (SPEC.md §7), and the game
+// hands out the numbers itself. Older mods still carry the keys, so say plainly that they do nothing.
+void WarnNumberIgnored(const Json& def, const char* key, const std::string& owner) {
+    if (def.contains(key)) {
+        SPDLOG_WARN("[Unbound] '{}': \"{}\" is deprecated and ignored; the game assigns the number and "
+                    "everything addresses this by name (SPEC.md §7)",
+                    owner, key);
+    }
+}
 // The manifest "features" entry that marks a base layer (SPEC.md §1.3).
 constexpr const char* kFeatureScenes = "scenes";
 
@@ -448,22 +452,16 @@ bool SceneDB::RegisterScene(const std::string& id, const nlohmann::json& def) {
     scene.displayName = def.contains(K::kName) && def[K::kName].is_string() ? def[K::kName].get<std::string>() : id;
     scene.scenePath = SOH::Unbound::PathField(def, K::kScene);
     scene.titleCardTexture = SOH::Unbound::PathField(def, K::kTitleCardTexture);
-    int64_t sceneId = Field(def, K::kSceneId, kNextFree);
     int64_t drawConfig = Field(def, K::kDrawConfig);
     if (scene.scenePath.empty()) {
         SPDLOG_ERROR("[Unbound] {}: scene '{}' has no \"{}\" path", K::kRegistryPath, id, K::kScene);
         return false;
     }
-    if (sceneId != kNextFree && (sceneId < CUSTOM_SCENE_ID_BASE || sceneId > kMaxSceneId)) {
-        SPDLOG_ERROR("[Unbound] scene '{}' requests id {}; must be {:#x}-{} (SPEC.md §7)", id, sceneId,
-                     CUSTOM_SCENE_ID_BASE, kMaxSceneId);
-        return false;
-    }
+    WarnNumberIgnored(def, K::kSceneId, id);
     if (drawConfig < 0 || drawConfig >= SDC_MAX) {
         SPDLOG_ERROR("[Unbound] scene '{}' requests draw config {} (max {})", id, drawConfig, SDC_MAX - 1);
         return false;
     }
-    scene.sceneId = sceneId == kNextFree ? -1 : (int32_t)std::min<int64_t>(sceneId, INT32_MAX);
     scene.drawConfig = (uint8_t)drawConfig;
     scene.horse = ReadHorse(id, def);
 
@@ -486,15 +484,9 @@ void SceneDB::RegisterEntrance(const Entry& scene, const std::string& key, const
         SPDLOG_WARN("[Unbound] {}/{}: \"{}\" is reserved and not read yet; all four layers are identical", scene.name,
                     key, K::kLayers);
     }
-    int64_t index = Field(def, K::kIndex, kNextFree);
-    if (index != kNextFree && (index < ENTR_MAX || index > kMaxEntranceIndex)) {
-        SPDLOG_ERROR("[Unbound] entrance '{}/{}' requests index {}; must be {:#x}-{} and a multiple of {}", scene.name,
-                     key, index, (int)ENTR_MAX, kMaxEntranceIndex, kEntranceLayerCount);
-        return;
-    }
     CustomEntranceInit entrance;
     entrance.name = scene.name + "/" + key;
-    entrance.index = index == kNextFree ? -1 : (int32_t)std::min<int64_t>(index, INT32_MAX);
+    WarnNumberIgnored(def, K::kIndex, entrance.name);
     entrance.sceneId = scene.id;
     entrance.spawn = (int8_t)Field(def, K::kSpawn);
     entrance.continueBgm = Field(def, K::kContinueBgm) != 0;

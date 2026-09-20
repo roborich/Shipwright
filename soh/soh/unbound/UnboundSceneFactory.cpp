@@ -264,10 +264,31 @@ Command BuildStartPositions(CommandBuilder& b, const Json& list) {
     return cmd;
 }
 
+// A numeric exit may only name an entrance whose number is fixed for every player: a vanilla index below
+// ENTR_MAX, or one of the dynamic return entrances at the top of the range (grottos, fairy fountains, the
+// shooting gallery, the Bazaar), which z_player.c reads before it ever indexes the table. Everything in
+// between is where the registry hands out custom entrances, and which number a custom entrance gets depends
+// on the player's mod stack — so a document addresses one by name or not at all (SPEC.md §4.2).
+bool IsStableEntranceIndex(int64_t index) {
+    return index < ENTR_MAX || (index >= ENTR_RETURN_YOUSEI_IZUMI_YOKO && index <= ENTR_RETURN_GROTTO);
+}
+
 // An exit is an entrance table index, or the name of a vanilla (ENTR_*) or registered custom entrance.
 uint16_t ResolveExit(CommandBuilder& b, const std::string& key, const Json& value) {
+    auto reject = [&](const std::string& what) {
+        return Unbound::DocumentError(b.docPath + " " + K::kExits + "/" + key + ": " + what);
+    };
+    auto fromNumber = [&](int64_t index) {
+        if (!IsStableEntranceIndex(index)) {
+            throw reject("exit " + std::to_string(index) +
+                         " is in the range the game assigns to custom entrances; address one by name, "
+                         "\"<scene>/<entrance>\"");
+        }
+        return (uint16_t)index;
+    };
+
     if (value.is_number_integer() && value.get<int64_t>() >= 0) {
-        return (uint16_t)value.get<int64_t>();
+        return fromNumber(value.get<int64_t>());
     }
     if (value.is_string()) {
         std::string name = value.get<std::string>();
@@ -277,11 +298,11 @@ uint16_t ResolveExit(CommandBuilder& b, const std::string& key, const Json& valu
         }
         int64_t parsed = 0;
         if (Unbound::ParseIntString(name, parsed) && parsed >= 0) { // "0x0211" is still an index, not a name
-            return (uint16_t)parsed;
+            return fromNumber(parsed);
         }
-        throw Unbound::DocumentError(b.docPath + " " + K::kExits + "/" + key + ": unknown entrance '" + name + "'");
+        throw reject("unknown entrance '" + name + "'");
     }
-    throw Unbound::DocumentError(b.docPath + " " + K::kExits + "/" + key + ": an exit is an index or an entrance name");
+    throw reject("an exit is an index or an entrance name");
 }
 
 Command BuildExitList(CommandBuilder& b, const Json& list) {

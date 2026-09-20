@@ -52,14 +52,12 @@ class SceneDB {
         std::string displayName;
         std::string scenePath;
         std::string titleCardTexture;
-        int32_t sceneId = -1; // -1: next free
         uint8_t drawConfig = 0;
         Horse horse;
     };
 
     struct CustomEntranceInit {
         std::string name;
-        int32_t index = -1; // -1: next free; otherwise must be >= ENTR_MAX and a multiple of 4
         int32_t sceneId = -1;
         int8_t spawn = 0;
         bool continueBgm = false;
@@ -70,6 +68,8 @@ class SceneDB {
 
     SceneDB();
 
+    // Both take the next free number: a mod never picks one, because which numbers are free depends on
+    // the player's mod stack (SPEC.md §7). Everything addresses scenes and entrances by name instead.
     Entry& AddCustomScene(const CustomSceneInit& init);
     int32_t AddCustomEntrance(const CustomEntranceInit& init);
 
