@@ -267,9 +267,9 @@ void SohMenu::AddMenuSettings() {
     path.column = SECTION_COLUMN_2;
 
     AddWidget(path, "About", WIDGET_SEPARATOR_TEXT);
-    AddWidget(path, "Ship Of Harkinian", WIDGET_TEXT);
+    AddWidget(path, gBuildForkName, WIDGET_TEXT);
     if (gGitCommitTag[0] != 0) {
-        AddWidget(path, gBuildVersion, WIDGET_TEXT);
+        AddWidget(path, gBuildForkVersion, WIDGET_TEXT);
     } else {
         AddWidget(path, ("Branch: " + std::string(gGitBranch)), WIDGET_TEXT);
         AddWidget(path, ("Commit: " + std::string(gGitCommitHash)), WIDGET_TEXT);

@@ -53,6 +53,8 @@ extern "C"
 	extern const char gGitCommitHash[];
 	extern u8 gGitCommitTag[];
 	extern u8 gBuildTeam[];
+	extern const char gBuildForkName[];
+	extern const char gBuildForkVersion[];
 	extern u8 gBuildDate[];
 	extern u8 gBuildMakeOption[];
 	extern OSMesgQueue gPiMgrCmdQ;

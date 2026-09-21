@@ -121,7 +121,13 @@ Pushing a release branch warms the CI caches; pushing a tag builds macOS, Linux 
 publishes the release with assets `SoH-<tag>-{Mac.dmg,Linux.appimage,Win64.zip}`. Release notes are
 generated from the previous tag of the *same* product, prefixed by `.github/release-notes/<product>.md`.
 
+**Before tagging, bump the in-app version.** Nothing derives it from the tag: set `PROJECT_FORK_VERSION`
+in the root `CMakeLists.txt` to the tag's suffix (`unbound0.8` for tag `9.2.3-unbound0.8`) and commit
+it. It is shown under Settings > General > About as `<SoH version>-<suffix>`; `gBuildVersion` itself
+stays the vanilla SoH version because spoiler logs, `soh.o2r` and the Unbound exporter check against it.
+
 ```
+# 1. bump PROJECT_FORK_VERSION in CMakeLists.txt and commit
 git checkout unbound && git push origin unbound        # warm caches (optional)
 git tag 9.2.3-unbound0.1 && git push origin 9.2.3-unbound0.1
 ```

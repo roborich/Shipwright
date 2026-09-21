@@ -942,8 +942,8 @@ void OTRGlobals::Initialize() {
     context->InitAudio({ .SampleRate = 32000, .SampleLength = 1024, .DesiredBuffered = 1680 });
 #endif
 
-    SPDLOG_INFO("Starting Ship of Harkinian version {} (Branch: {} | Commit: {})", (char*)gBuildVersion,
-                (char*)gGitBranch, (char*)gGitCommitHash);
+    SPDLOG_INFO("Starting {} {} (Ship of Harkinian {}; Branch: {} | Commit: {})", (char*)gBuildForkName,
+                (char*)gBuildForkVersion, (char*)gBuildVersion, (char*)gGitBranch, (char*)gGitCommitHash);
 
     SOH_RegisterResourceFactories(context->GetResourceManager()->GetResourceLoader());
 

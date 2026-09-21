@@ -10,5 +10,8 @@ const char gGitCommitHash[] = "@CMAKE_PROJECT_GIT_COMMIT_HASH@";
 const char gGitCommitTag[] = "@CMAKE_PROJECT_GIT_COMMIT_TAG@";
 
 const char gBuildTeam[] = "@PROJECT_TEAM@";
+// SOH [Unbound] The fork's own name and release version (the release tag), kept apart from gBuildVersion.
+const char gBuildForkName[] = "@PROJECT_FORK_NAME@";
+const char gBuildForkVersion[] = "@CMAKE_PROJECT_VERSION@-@PROJECT_FORK_VERSION@";
 const char gBuildDate[] = __DATE__ " " __TIME__;
 const char gBuildMakeOption[] = "";

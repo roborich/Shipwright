@@ -46,6 +46,11 @@ list(GET NATO_PHONETIC_ALPHABET ${PATCH_INDEX} PROJECT_PATCH_WORD)
 
 set(PROJECT_BUILD_NAME "Ackbar ${PROJECT_PATCH_WORD}" CACHE STRING "" FORCE)
 set(PROJECT_TEAM "github.com/harbourmasters" CACHE STRING "" FORCE)
+# SOH [Unbound] Fork release suffix. Nothing derives it from the git tag, so bump it by hand as part of
+# cutting a release: the tag is "${PROJECT_VERSION}-${PROJECT_FORK_VERSION}" (see unbound-docs/README.md,
+# "Releasing"). Shown under Settings > General > About; gBuildVersion stays the vanilla SoH version.
+set(PROJECT_FORK_NAME "SoH: Unbound" CACHE STRING "" FORCE)
+set(PROJECT_FORK_VERSION "unbound0.8" CACHE STRING "" FORCE)
 
 execute_process(
     COMMAND git branch --show-current
