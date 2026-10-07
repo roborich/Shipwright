@@ -2,8 +2,11 @@
 #include "variables.h"
 #include "OTRGlobals.h"
 
+// SOH [Port] Declared in a C++ header with forceFixedAspect defaulted, which C cannot see, so
+// it is passed explicitly. The five-argument declaration this replaces left it as whatever was
+// in the register natively, and in a wasm build the mismatched call is a trap.
 int gfx_create_framebuffer(uint32_t width, uint32_t height, uint32_t native_width, uint32_t native_height,
-                           uint8_t resize);
+                           uint8_t resize, bool forceFixedAspect);
 
 s32 gPauseFrameBuffer = -1;
 s32 gBlurFrameBuffer = -1;
@@ -16,19 +19,23 @@ s32 gN64ResFrameBuffer = -1;
 
 void FB_CreateFramebuffers(void) {
     if (gPauseFrameBuffer == -1) {
-        gPauseFrameBuffer = gfx_create_framebuffer(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT, true);
+        gPauseFrameBuffer =
+            gfx_create_framebuffer(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT, true, false);
     }
 
     if (gBlurFrameBuffer == -1) {
-        gBlurFrameBuffer = gfx_create_framebuffer(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT, true);
+        gBlurFrameBuffer =
+            gfx_create_framebuffer(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT, true, false);
     }
 
     if (gReusableFrameBuffer == -1) {
-        gReusableFrameBuffer = gfx_create_framebuffer(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT, true);
+        gReusableFrameBuffer =
+            gfx_create_framebuffer(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT, true, false);
     }
 
     if (gN64ResFrameBuffer == -1) {
-        gN64ResFrameBuffer = gfx_create_framebuffer(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT, false);
+        gN64ResFrameBuffer =
+            gfx_create_framebuffer(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT, false, false);
     }
 }
 
