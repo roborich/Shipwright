@@ -80,6 +80,17 @@ test("in-process: a file that is not a ROM is refused with the desktop's reason"
     expect(error.message).toContain("not one this build can extract");
 }, TEST_TIMEOUT);
 
+// A 7z starts with '7' (0x37), the same first byte as a .v64 dump; the archive check has to
+// see it before the byte-order swap scrambles its signature.
+test("in-process: a 7z archive is refused as compressed", async () => {
+    const mod = await createExtractor();
+    const sevenZip = new Uint8Array(1 * MB);
+    sevenZip.set([0x37, 0x7a, 0xbc, 0xaf, 0x27, 0x1c]);
+    const error = await mod.extractRom(sevenZip, { quiet: true }).catch((e: Error) => e);
+    expect(error).toBeInstanceOf(Error);
+    expect((error as any).code).toBe(-3);
+}, TEST_TIMEOUT);
+
 // Torch's own failures are caught on the C++ side, but a trap (bad data indexing past a
 // buffer) escapes the call as something that is not an Error. The wrapper still owes the
 // host an Error with a code, the stderr the converter left behind, and a clean VFS. A real ROM cannot

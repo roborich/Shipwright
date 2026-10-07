@@ -66,7 +66,11 @@
                 mkdirIfMissing('/rom');
                 mkdirIfMissing(OUT_DIR);
                 FS.writeFile(ROM_PATH, romBytes);
-                code = Module['ccall']('Extract_RomToO2r', 'number', ['string', 'string'], [ROM_PATH, OUT_DIR]);
+                code = Module['ccall']('Extract_RomToO2r', 'number', ['string', 'string', 'number'], [
+                    ROM_PATH,
+                    OUT_DIR,
+                    options.quiet === true ? 1 : 0,
+                ]);
                 result = JSON.parse(Module['ccall']('Extract_ResultJson', 'string'));
                 if (code === 0) {
                     outPath = OUT_DIR + '/' + result.archive;

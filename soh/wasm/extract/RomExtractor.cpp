@@ -77,6 +77,8 @@ std::string gLastResultJson;
 // Torch logs through spdlog's default logger. Warnings and errors go to stderr, where api.js
 // collects them for a failed run's message; the rest stays on stdout, which `quiet` drops.
 // That includes `critical`, which Torch uses for its always-shown banner and timing lines.
+// Under `quiet` the sink's own level drops info and below before they are formatted or cross
+// into JS; it has to be the sink's, because Torch's Init resets every logger to debug.
 class SplitConsoleSink final : public spdlog::sinks::base_sink<std::mutex> {
   protected:
     void sink_it_(const spdlog::details::log_msg& msg) override {
@@ -92,8 +94,12 @@ class SplitConsoleSink final : public spdlog::sinks::base_sink<std::mutex> {
     }
 };
 
-void InstallLogger() {
-    spdlog::set_default_logger(std::make_shared<spdlog::logger>("soh-extract", std::make_shared<SplitConsoleSink>()));
+void InstallLogger(bool quiet) {
+    auto sink = std::make_shared<SplitConsoleSink>();
+    if (quiet) {
+        sink->set_level(spdlog::level::warn);
+    }
+    spdlog::set_default_logger(std::make_shared<spdlog::logger>("soh-extract", sink));
 }
 
 void ReportProgress(size_t done, size_t total) {
@@ -121,10 +127,11 @@ Status CheckRom(std::vector<uint8_t>& rom) {
     if (rom.size() < kHeaderBytes) {
         return Status::BadSize;
     }
-    RomInfo::ToBigEndian(rom.data(), rom.size());
+    // Before the byte swap: a 7z starts with '7' (0x37), which is also the .v64 marker.
     if (RomInfo::LooksCompressed(rom.data(), rom.size())) {
         return Status::Compressed;
     }
+    RomInfo::ToBigEndian(rom.data(), rom.size());
     if (!RomInfo::IsValidSize(rom.size())) {
         return Status::BadSize;
     }
@@ -212,13 +219,17 @@ extern "C" {
 // `<outDir>/oot-mq.o2r` behind. Returns 0 on success or a negative Status; the reason, the
 // detected version and the archive name are in Extract_ResultJson() either way. Progress goes
 // to Module._sohExtractProgress(done, total), once per recipe file as Torch finishes parsing it.
+// Nonzero `quiet` keeps log lines below warn from being written at all. The ROM file is removed
+// once read, so the run does not hold a second copy of it.
 //
 // One conversion per module instance, as with the ZAPD converter this replaced.
-int Extract_RomToO2r(const char* romPath, const char* outDir) {
-    InstallLogger();
+int Extract_RomToO2r(const char* romPath, const char* outDir, int quiet) {
+    InstallLogger(quiet != 0);
     Result result;
 
     std::vector<uint8_t> rom = ReadFile(romPath);
+    std::error_code ec;
+    fs::remove(romPath, ec);
     if (rom.empty()) {
         result.status = Status::CannotRead;
         return Finish(result);
