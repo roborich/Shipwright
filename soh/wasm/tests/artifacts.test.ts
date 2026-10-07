@@ -7,8 +7,11 @@ import { largestFunctions, mostLocals } from "./lib/wasm";
 const wasm = () => new Uint8Array(readFileSync(join(BUILD_DIR, "soh.wasm")));
 
 // RegionTable_Init reached 3.3 MB when Binaryen inlined its builders, and V8's optimising
-// compiler crashed the renderer on it. See wasm-port.md, "Other traps".
-const LARGEST_FUNCTION_BYTES = 1_000_000;
+// compiler crashed the renderer on it. See wasm-port.md, "Other traps". The largest healthy
+// function is straight-line table code that grows with upstream's text: the randomizer's
+// HintTable_Init_Exclude_Overworld went from 0.85 MB on 9.2.3 to 1.03 MB on 9.3.0, and
+// survives eager tier-up (smoke-tiering.test.ts).
+const LARGEST_FUNCTION_BYTES = 1_500_000;
 
 test("HOST-API.md ships next to soh.js", () => {
     expect(existsSync(join(BUILD_DIR, "soh.js"))).toBe(true);
