@@ -12,13 +12,13 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/fmt.h>
 #include <libultraship/libultraship.h>
+#include <libultraship/bridge/audiobridge.h>
 #include "soh/Enhancements/game-interactor/GameInteractor.h"
 
 extern "C" {
 #include <z64.h>
 #include <variables.h>
 extern PlayState* gPlayState;
-int AudioPlayer_Buffered(void);
 }
 
 // ---- outbound ----------------------------------------------------------------------------
@@ -65,7 +65,7 @@ static void OnSceneInit(int16_t sceneNum) {
         sLoadedFileNum = -1;
     }
     sHeldEvents.push_back(fmt::format(R"({{"type":"scene","sceneNum":{},"entranceIndex":{},"setup":{}}})", sceneNum,
-                                      gSaveContext.entranceIndex, gSaveContext.sceneSetupIndex));
+                                      gSaveContext.entranceIndex, gSaveContext.sceneLayer));
 }
 
 // The file's bytes travel as a Uint8Array copy, so the host owns them outright and the
@@ -194,7 +194,7 @@ void Soh_EmbedderCountAudioDrop(void) {
 extern "C" EMSCRIPTEN_KEEPALIVE const char* Soh_GetStats(void) {
     static std::string json;
     json = fmt::format(R"({{"ticks":{},"draws":{},"updateRate":{},"audioBuffered":{},"audioDrops":{},"sceneNum":{}}})",
-                       sTicks, sDraws, R_UPDATE_RATE, AudioPlayer_Buffered(), sAudioDrops,
+                       sTicks, sDraws, R_UPDATE_RATE, AudioPlayerBuffered(), sAudioDrops,
                        gPlayState != nullptr ? gPlayState->sceneNum : -1);
     return json.c_str();
 }
@@ -240,7 +240,7 @@ void Soh_EmbedderError(const char* message) {
 // exists, -2 for a command the console does not know. The last case is separate because
 // Console::Run reports "unknown command" as 0, the same value as success.
 extern "C" EMSCRIPTEN_KEEPALIVE int32_t Soh_RunConsoleCommand(const char* command) {
-    auto context = Ship::Context::GetInstance();
+    auto context = Ship::Context::GetRawInstance();
     if (context == nullptr || context->GetConsole() == nullptr) {
         SPDLOG_WARN("Soh_RunConsoleCommand(\"{}\") before the console exists; ignored", command);
         return -1;

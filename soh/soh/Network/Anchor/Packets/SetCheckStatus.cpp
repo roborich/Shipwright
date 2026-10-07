@@ -1,8 +1,10 @@
-#include "soh/Network/Anchor/Anchor.h"
 #include <nlohmann/json.hpp>
-#include <libultraship/libultraship.h>
-#include "soh/Enhancements/game-interactor/GameInteractor.h"
+
+#include "soh/Network/Anchor/Anchor.h"
 #include "soh/OTRGlobals.h"
+#include "soh/Enhancements/randomizer/randomizer_check_tracker.h"
+#include "soh/Enhancements/randomizer/randomizer.h"
+#include "soh/Enhancements/randomizer/randomizerEnumStrings.h"
 
 static bool isResultOfHandling = false;
 
@@ -38,9 +40,13 @@ void Anchor::HandlePacket_SetCheckStatus(nlohmann::json payload) {
 
     auto randoContext = Rando::Context::GetInstance();
 
-    RandomizerCheck rc = payload["rc"].get<RandomizerCheck>();
-    RandomizerCheckStatus status = payload["status"].get<RandomizerCheckStatus>();
-    bool skipped = payload["skipped"].get<bool>();
+    RandomizerCheck rc = payload.at("rc").get<RandomizerCheck>();
+    if (rc < 0 || rc >= RC_MAX) {
+        SPDLOG_ERROR("[Anchor] SET_CHECK_STATUS: {} out of range", rc);
+        return;
+    }
+    RandomizerCheckStatus status = payload.at("status").get<RandomizerCheckStatus>();
+    bool skipped = payload.at("skipped").get<bool>();
 
     isResultOfHandling = true;
 

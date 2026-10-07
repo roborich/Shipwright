@@ -54,7 +54,7 @@ typedef struct BossDodongo {
     /* 0x01CA */ char unk_1CA[0x2];
     /* 0x01CC */ s16 unk_1CC;
     /* 0x01CE */ char unk_1CE[0xC];
-    /* 0x01DA */ s16 unk_1DA; 
+    /* 0x01DA */ s16 unk_1DA;
     /* 0x01DC */ s16 unk_1DC;
     /* 0x01DE */ s16 unk_1DE;
     /* 0x01E0 */ s16 unk_1E0;
@@ -72,7 +72,7 @@ typedef struct BossDodongo {
     /* 0x020C */ f32 unk_20C;
     /* 0x0210 */ f32 colorFilterR;
     /* 0x0214 */ f32 colorFilterG;
-    /* 0x0214 */ f32 colorFilterB;
+    /* 0x0218 */ f32 colorFilterB;
     /* 0x021C */ f32 colorFilterMin;
     /* 0x0220 */ f32 colorFilterMax;
     /* 0x0224 */ f32 unk_224;
