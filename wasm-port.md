@@ -5,6 +5,14 @@ Goal: SoH running in a browser tab so Prelude of Light can boot a user's scene e
 in-game. Supersedes the threading analysis in `prelude-integration.md` (branch
 `prelude-integration`), which assumed a far more multithreaded program than this one is.
 
+**Moved to SoH 9.3.0 on 2026-10-07** (branch `wasm-9.3.0`, a merge of tag `9.3.0`; LUS
+`wasm-9.3.0` on `62e973ae`). The host-side asset tool is now Torch rather than ZAPD /
+OTRExporter, and the wasm game build leaves it out the same way. What the move needed beyond
+conflicts: `framebuffer_effects.c` called `gfx_create_framebuffer` with one argument too few
+(a trap in wasm), and 9.3.0 always builds the network layer, so SDL2_net comes from the
+Emscripten port and `Network::Enable` does nothing in a browser. The ROM converter's re-port
+is in `wasm-rom-extract.md`, "9.3.0: Torch". Line references below are to 9.2.3.
+
 ## Scope for the first pass
 
 Deliberately narrow, so the port is a port and not a rewrite:

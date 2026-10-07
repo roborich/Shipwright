@@ -9,13 +9,17 @@
 // and the names Torch and the archive take from that. Pure functions over the ROM bytes, so
 // the desktop Extractor (with its message boxes) and the wasm converter share one truth.
 //
-// The bytes are expected in big-endian (.z64) order; see BitConverter::RomToBigEndian.
+// The bytes are expected in big-endian (.z64) order; see ToBigEndian.
 namespace RomInfo {
 
 static constexpr size_t MB_BASE = 1024 * 1024;
 static constexpr size_t MB32 = 32 * MB_BASE;
 static constexpr size_t MB54 = 54 * MB_BASE;
 static constexpr size_t MB64 = 64 * MB_BASE;
+
+// Puts a dump in any byte order (.z64, .v64, .n64) into big-endian (.z64) order, in place,
+// judged by its first byte. Anything else is left alone, for the checks below to refuse.
+void ToBigEndian(uint8_t* rom, size_t romSize);
 
 // The header CRC word at 0x10, which identifies the game version. 0 for a file too short
 // to hold one.

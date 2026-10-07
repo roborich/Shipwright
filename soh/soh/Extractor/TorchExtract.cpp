@@ -34,6 +34,16 @@ size_t CountAssetFiles(const std::string& ymlDir) {
 
 std::string Extract(std::vector<uint8_t> rom, const std::string& srcDir, const std::string& destDir,
                     const std::string& portVersion, std::atomic<size_t>* progress) {
+    return ExtractWithCallbacks(std::move(rom), srcDir, destDir, portVersion, [progress]() {
+        if (progress != nullptr) {
+            (*progress)++;
+        }
+    });
+}
+
+std::string ExtractWithCallbacks(std::vector<uint8_t> rom, const std::string& srcDir, const std::string& destDir,
+                                 const std::string& portVersion, const std::function<void()>& onFile,
+                                 const std::function<void(const std::string&)>& onError) {
     std::string archiveName;
 
     try {
@@ -41,14 +51,20 @@ std::string Extract(std::vector<uint8_t> rom, const std::string& srcDir, const s
         auto companion = std::make_unique<Companion>(std::move(rom), ArchiveType::O2R, false, srcDir, destDir);
         Companion::Instance = companion.get();
         companion->SetVersion(portVersion);
-        companion->SetPhaseCallback([progress](int) {
-            if (progress != nullptr) {
-                (*progress)++;
+        companion->SetPhaseCallback([&onFile](int) {
+            if (onFile) {
+                onFile();
             }
         });
 
         // Init is the whole run; it calls Process() internally.
         companion->Init(ExportType::Binary);
+#ifdef __EMSCRIPTEN__
+        // SOH [WASM] ...except in an Emscripten build, where Torch leaves Process() for its own
+        // web API to call.
+        std::atomic<size_t> assetCount{ 0 };
+        companion->Process(assetCount);
+#endif
 
         // config.yml names the archive per rom; ask rather than guess, and ask before the
         // companion goes away.
@@ -60,10 +76,16 @@ std::string Extract(std::vector<uint8_t> rom, const std::string& srcDir, const s
     } catch (const std::exception& e) {
         SPDLOG_ERROR("Torch extraction failed: {}", e.what());
         Companion::Instance = nullptr;
+        if (onError) {
+            onError(e.what());
+        }
         return "";
     } catch (...) {
         SPDLOG_ERROR("Torch extraction failed with an unknown exception");
         Companion::Instance = nullptr;
+        if (onError) {
+            onError("unknown exception");
+        }
         return "";
     }
 

@@ -256,8 +256,7 @@ add_compile_definitions(CONTROLLERBUTTONS_T=uint32_t)
 # someone else already produced (see wasm-port.md, "Assets are provided, never extracted").
 # The browser's ROM converter, soh-extract, is its own module and the only wasm user of Torch.
 if(EMSCRIPTEN)
-    # Off until soh-extract is re-ported from ZAPD onto Torch.
-    option(SOH_WASM_EXTRACTOR "Also build soh-extract, the ROM -> o2r converter module" OFF)
+    option(SOH_WASM_EXTRACTOR "Also build soh-extract, the ROM -> o2r converter module" ON)
 endif()
 if(NOT EMSCRIPTEN OR SOH_WASM_EXTRACTOR)
 find_package(ZLIB REQUIRED)
@@ -352,6 +351,14 @@ quiet_dependency_tree(${CMAKE_CURRENT_SOURCE_DIR}/torch)
 
 target_compile_definitions(torch INTERFACE YAML_CPP_STATIC_DEFINE)
 
+# SOH [WASM] Torch's src/lib/web.cpp is its own browser API (embind). It also defines
+# Companion::Instance, as main.cpp does, so a static link took the symbol from it and dragged
+# in embind. soh-extract has its own entry point and gets Instance from main.cpp.
+if(EMSCRIPTEN)
+    get_target_property(_torch_sources torch SOURCES)
+    list(FILTER _torch_sources EXCLUDE REGEX "/src/lib/web\\.cpp$")
+    set_target_properties(torch PROPERTIES SOURCES "${_torch_sources}")
+endif()
 endif() # NOT EMSCRIPTEN OR SOH_WASM_EXTRACTOR
 
 # SOH [WASM] The host-side asset tools and targets below are not part of a cross build.

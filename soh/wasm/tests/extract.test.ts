@@ -44,7 +44,7 @@ test.skipIf(!ROM)(
         const produced = zipIndex(result.bytes);
         expect(produced.get("version")).toBeDefined();
         expect(produced.get("portVersion")).toBeDefined();
-        expectTwoPhases(progress, produced.size);
+        expectRecipeProgress(progress);
 
         // The desktop-extracted archive the other tests boot from is the reference, when it
         // came from the same ROM version (its `version` entry holds the ROM CRC).
@@ -59,28 +59,17 @@ test.skipIf(!ROM)(
     TEST_TIMEOUT,
 );
 
-type ProgressInfo = { phase: "recipe" | "write"; file?: string };
+type ProgressInfo = { phase: "recipe" };
 type Progress = [number, number, ProgressInfo];
 
-// Every recipe file in order, each named, then the archive's entries as they are written.
-function expectTwoPhases(progress: Progress[], entries: number): void {
-    const firstWrite = progress.findIndex(([, , info]) => info.phase === "write");
-    expect(firstWrite).toBeGreaterThan(100);
-    const recipe = progress.slice(0, firstWrite);
-    const write = progress.slice(firstWrite);
-
-    expect(recipe.every(([, , info]) => info.phase === "recipe")).toBe(true);
-    expect(recipe.map(([done]) => done)).toEqual(recipe.map((_, i) => i + 1));
-    const total = recipe[0][1];
-    expect(recipe.at(-1)![0]).toBe(total);
-    expect(recipe.every(([, , info]) => info.file?.startsWith("assets/xml/") && info.file.endsWith(".xml"))).toBe(true);
-
-    expect(write.every(([, , info]) => info.phase === "write")).toBe(true);
-    expect(write.length).toBeGreaterThan(10);
-    expect(write[0]).toEqual([0, entries, { phase: "write" }]);
-    expect(write.at(-1)).toEqual([entries, entries, { phase: "write" }]);
-    const dones = write.map(([done]) => done);
-    expect(dones).toEqual([...dones].sort((a, b) => a - b));
+// (0, total) before the first recipe file, then one call per file counting up to the total.
+function expectRecipeProgress(progress: Progress[]): void {
+    expect(progress.length).toBeGreaterThan(100);
+    expect(progress.every(([, , info]) => info.phase === "recipe")).toBe(true);
+    const total = progress[0][1];
+    expect(progress.every(([, t]) => t === total)).toBe(true);
+    expect(progress.map(([done]) => done)).toEqual(progress.map((_, i) => i));
+    expect(progress.at(-1)![0]).toBe(total);
 }
 
 test("in-process: a file that is not a ROM is refused with the desktop's reason", async () => {
@@ -91,43 +80,43 @@ test("in-process: a file that is not a ROM is refused with the desktop's reason"
     expect(error.message).toContain("not one this build can extract");
 }, TEST_TIMEOUT);
 
-// ZAPD's own failures are caught on the C++ side, but a trap (bad data indexing past a
+// Torch's own failures are caught on the C++ side, but a trap (bad data indexing past a
 // buffer) escapes the call as something that is not an Error. The wrapper still owes the
-// host an Error with a code, the stderr ZAPD left behind, and a clean VFS. A real ROM cannot
+// host an Error with a code, the stderr the converter left behind, and a clean VFS. A real ROM cannot
 // drive this path (it would fail the CRC check first), so the call itself is stubbed.
 test("in-process: a failure that escapes the wasm still rejects with an Error and a code", async () => {
     const mod = await createExtractor();
     mod.ccall = (name: string) => {
         if (name !== "Extract_RomToO2r") throw new Error(`unexpected ccall ${name}`);
-        mod.printErr("error: something ZAPD said");
+        mod.printErr("error: something Torch said");
         throw { toString: () => "[object WebAssembly.Exception]" }; // no .message, no .code
     };
     const error = await mod.extractRom(new Uint8Array(32 * MB), { quiet: true }).catch((e: Error) => e);
     expect(error).toBeInstanceOf(Error);
     expect((error as any).code).toBe(-6);
     expect(error.message).toContain("Extraction failed");
-    expect(error.message).toContain("something ZAPD said");
+    expect(error.message).toContain("something Torch said");
     expect(mod.FS.analyzePath("/rom/rom.z64").exists).toBe(false);
 }, TEST_TIMEOUT);
 
-// The real -6 path: ZAPD throws on a recipe file it cannot parse. Its message is coloured
-// for a terminal and holds control characters, which the result JSON has to survive.
+// The real -6 path: Torch throws on a recipe file it cannot parse, and its reason reaches
+// the host in the message.
 test.skipIf(!ROM)(
-    "in-process: a ZAPD failure rejects with its message and code -6",
+    "in-process: a Torch failure rejects with its message and code -6",
     async () => {
         const mod = await createExtractor();
         // Whichever version the ROM is, one of its object recipes is now unparseable.
-        const recipeDir = "/work/assets/xml";
-        for (const version of mod.FS.readdir(recipeDir).filter((name: string) => !name.startsWith("."))) {
+        const recipeDir = "/work/assets";
+        for (const version of mod.FS.readdir(recipeDir).filter((name: string) => !name.includes("."))) {
             const objects = `${recipeDir}/${version}/objects`;
-            const victim = mod.FS.readdir(objects).find((name: string) => name.endsWith(".xml"));
-            mod.FS.writeFile(`${objects}/${victim}`, "<Root><this is not xml");
+            const victim = mod.FS.readdir(objects).find((name: string) => name.endsWith(".yml"));
+            mod.FS.writeFile(`${objects}/${victim}`, "a: [unclosed\n");
         }
         const error = await mod.extractRom(new Uint8Array(readFileSync(ROM!)), { quiet: true }).catch((e: Error) => e);
         expect(error).toBeInstanceOf(Error);
         expect((error as any).code).toBe(-6);
         expect(error.message).toContain("Extraction failed");
-        expect(error.message).toMatch(/invalid XML|XML/);
+        expect(error.message.length).toBeGreaterThan("Extraction failed.".length);
         expect(error.message).not.toContain("\x1b");
         expect(mod.FS.analyzePath("/rom/rom.z64").exists).toBe(false);
     },
@@ -172,8 +161,7 @@ test.skipIf(!ROM)(
             const report = await page.page.evaluate((url) => (window as any).__extract(url), romUrl);
             expect(["oot.o2r", "oot-mq.o2r"]).toContain(report.name);
             expect(report.byteLength).toBeGreaterThan(20 * MB);
-            const entries = report.progress.at(-1)[1];
-            expectTwoPhases(report.progress, entries);
+            expectRecipeProgress(report.progress);
             console.log(`worker extracted ${report.name} (${report.version}) in ${report.seconds.toFixed(1)}s`);
         } finally {
             await page.close();

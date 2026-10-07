@@ -2,6 +2,7 @@
 
 #include <array>
 #include <unordered_map>
+#include <utility>
 
 extern "C" uint32_t CRC32C(unsigned char* data, size_t dataSize);
 
@@ -58,6 +59,22 @@ static constexpr std::array<const uint32_t, 21> goodCrcs = {
     0x2BC6C6FD, // GC NTSC JP Collector's Edition
     0x02CD974C, // GC MQ NTSC JP
 };
+
+void ToBigEndian(uint8_t* rom, size_t romSize) {
+    if (romSize == 0) {
+        return;
+    }
+    if (rom[0] == 0x37) { // .v64: each 16-bit half swapped
+        for (size_t i = 0; i + 1 < romSize; i += 2) {
+            std::swap(rom[i], rom[i + 1]);
+        }
+    } else if (rom[0] == 0x40) { // .n64: each 32-bit word reversed
+        for (size_t i = 0; i + 3 < romSize; i += 4) {
+            std::swap(rom[i], rom[i + 3]);
+            std::swap(rom[i + 1], rom[i + 2]);
+        }
+    }
+}
 
 uint32_t HeaderCrc(const uint8_t* rom, size_t romSize) {
     if (romSize < 0x14) {

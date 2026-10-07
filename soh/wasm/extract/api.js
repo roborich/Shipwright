@@ -5,15 +5,12 @@
 //   const mod = await createSohExtractor();
 //   const { name, version, bytes } = await mod.extractRom(romBytes, { onProgress });
 //
-// onProgress(done, total, info) runs in two phases, each counting its own units:
-//   info.phase === 'recipe'  done/total over ZAPD's recipe files; info.file names the one
-//                            that is starting (ZAPD prints its "(i / N): path" line first).
-//   info.phase === 'write'   done/total over the archive's entries while libzip writes it.
+// onProgress(done, total, info) counts the ROM version's recipe files (info.phase is always
+// 'recipe'): (0, total) before the first, then one call as Torch finishes parsing each.
 
 (function () {
     var ROM_PATH = '/rom/rom.z64';
     var OUT_DIR = '/out';
-    var PROGRESS_LINE = /^\((\d+) \/ (\d+)\): /;
     var used = false;
 
     function mkdirIfMissing(path) {
@@ -48,14 +45,10 @@
                     errorLines.push(line);
                     return false;
                 }
-                var m = PROGRESS_LINE.exec(line);
-                if (m && onProgress) {
-                    onProgress(Number(m[1]), Number(m[2]), { phase: 'recipe', file: line.slice(m[0].length) });
-                }
                 return options.quiet === true;
             };
-            Module['_sohExtractWrite'] = function (done, total) {
-                if (onProgress) onProgress(done, total, { phase: 'write' });
+            Module['_sohExtractProgress'] = function (done, total) {
+                if (onProgress) onProgress(done, total, { phase: 'recipe' });
             };
 
             function fail(message, code) {
@@ -84,7 +77,7 @@
                 return;
             } finally {
                 Module['_sohExtractLine'] = null;
-                Module['_sohExtractWrite'] = null;
+                Module['_sohExtractProgress'] = null;
                 unlinkIfPresent(ROM_PATH);
             }
 

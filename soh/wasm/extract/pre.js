@@ -1,8 +1,8 @@
 // SOH [WASM] Runs before the runtime captures Module.print / Module.printErr, which is the
 // only moment they can be intercepted: MODULARIZE binds them once, at startup. api.js
-// installs a line handler here while a conversion runs (ZAPD's "(i / N): path" progress
-// lines and its error output are ordinary stdout/stderr) and leaves everything else to the
-// host's own print functions, or the console.
+// installs a line handler here while a conversion runs (Torch's warnings and errors are
+// ordinary stderr, its other log lines stdout) and leaves everything else to the host's own
+// print functions, or the console.
 (function () {
     var hostPrint = Module['print'] || console.log.bind(console);
     var hostPrintErr = Module['printErr'] || console.error.bind(console);
