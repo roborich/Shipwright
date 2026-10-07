@@ -11,9 +11,9 @@
 #include <fstream>
 #include <iterator>
 #include <string>
-#include <utility>
 #include <vector>
 
+#include "RomInfo.h"
 #include "TorchExtract.h"
 
 namespace fs = std::filesystem;
@@ -28,31 +28,15 @@ static bool IsRom(const fs::path& path) {
     return ext == ".z64" || ext == ".n64" || ext == ".v64";
 }
 
-// SohTorch::Extract takes big-endian (.z64) bytes. A .v64 dump swaps each 16-bit half and a
-// .n64 dump each 32-bit word; the first byte of the header tells which.
-static void RomToBigEndian(std::vector<uint8_t>& rom) {
-    if (rom.empty() || rom[0] == 0x80) {
-        return;
-    }
-    if (rom[0] == 0x37) {
-        for (size_t i = 0; i + 1 < rom.size(); i += 2) {
-            std::swap(rom[i], rom[i + 1]);
-        }
-    } else if (rom[0] == 0x40) {
-        for (size_t i = 0; i + 3 < rom.size(); i += 4) {
-            std::swap(rom[i], rom[i + 3]);
-            std::swap(rom[i + 1], rom[i + 2]);
-        }
-    }
-}
-
+// SohTorch::Extract takes big-endian (.z64) bytes; a .v64 or .n64 dump is swapped into that
+// order the same way the game's extractor and the browser converter do it.
 static bool ReadRom(const std::string& path, std::vector<uint8_t>& rom) {
     std::ifstream in(path, std::ios::binary);
     if (!in) {
         return false;
     }
     rom.assign(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
-    RomToBigEndian(rom);
+    RomInfo::ToBigEndian(rom.data(), rom.size());
     return true;
 }
 

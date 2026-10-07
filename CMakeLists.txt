@@ -368,6 +368,9 @@ if(NOT EMSCRIPTEN)
 add_executable(soh-torch EXCLUDE_FROM_ALL
     ${CMAKE_CURRENT_SOURCE_DIR}/soh/assets/tools/torch-cli/main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/soh/soh/Extractor/TorchExtract.cpp
+    # RomInfo supplies the byte-order swap; its CRC check pulls in FastCrc32C.
+    ${CMAKE_CURRENT_SOURCE_DIR}/soh/soh/Extractor/RomInfo.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/soh/soh/Extractor/FastCrc32C.c
 )
 target_include_directories(soh-torch PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/soh/soh/Extractor)
 target_link_libraries(soh-torch PRIVATE torch)

@@ -1,7 +1,7 @@
 [submodule "libultraship"]
 	path = libultraship
 	url = https://github.com/roborich/libultraship.git
-	branch = wasm-9.3.0
+	branch = wasm
 [submodule "torch"]
 	path = torch
 	url = https://github.com/HarbourMasters/Torch.git
