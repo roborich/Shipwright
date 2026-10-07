@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test";
-import { staleDesktopConfig } from "./lib/configs";
+import { playConfig, playFiles, staleDesktopConfig } from "./lib/configs";
 import { BOOT_TIMEOUT, TEST_TIMEOUT } from "./lib/env";
+import { PAD } from "./lib/game";
 import { useSuite, withGame } from "./lib/suite";
 
 const suite = useSuite();
@@ -33,4 +34,26 @@ test("a stale desktop config opens Settings on the Mod Menu without stopping the
         const from = await game.eventCount();
         expect(await game.run("reload")).toBe(0);
         await game.waitForEvent("scene", { from, timeout: 30_000 });
+    }), TEST_TIMEOUT);
+
+// Map select's text is GfxPrint: a font and palette compiled into the game, so drawn from raw
+// pointers low in linear memory. LUS once dropped every such SETTIMG as an unresolved N64
+// segment address, and the screen came up black (or showed whatever texture was loaded last).
+const debugConfig = () => {
+    const config = playConfig();
+    config.CVars.gDeveloperTools = { ...config.CVars.gDeveloperTools, DebugEnabled: 1 };
+    return config;
+};
+
+test("map select draws its text", () =>
+    withGame(suite, { inlineFiles: playFiles(debugConfig()) }, async (game) => {
+        await game.waitForEvent("scene", { timeout: BOOT_TIMEOUT });
+        expect(await game.run("file_select")).toBe(0);
+        await Bun.sleep(3000);
+        await game.pressButton(PAD.A); // file 1
+        await Bun.sleep(1500);
+        await game.pressButton(PAD.A); // "Yes", which opens map select in debug mode
+        await Bun.sleep(5000); // past the fade, so the lit file select cannot pass for it
+        expect(await game.waitForPicture(0.02)).toBeGreaterThan(0.02);
+        expect(await game.problems()).toEqual([]);
     }), TEST_TIMEOUT);
