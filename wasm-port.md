@@ -1,12 +1,14 @@
 # SoH in the browser — WebAssembly port plan
 
-Working plan for branch `wasm` (SoH `cb71e22a7` = tag `9.2.3`; LUS `wasm` off `fdcaf633`).
+Working plan for branch `wasm` (SoH 9.3.0 since 2026-10-07; begun on tag `9.2.3`, `cb71e22a7`,
+with LUS `wasm` off `fdcaf633`).
 Goal: SoH running in a browser tab so Prelude of Light can boot a user's scene edits
 in-game. Supersedes the threading analysis in `prelude-integration.md` (branch
 `prelude-integration`), which assumed a far more multithreaded program than this one is.
 
-**Moved to SoH 9.3.0 on 2026-10-07** (branch `wasm-9.3.0`, a merge of tag `9.3.0`; LUS
-`wasm-9.3.0` on `62e973ae`). The host-side asset tool is now Torch rather than ZAPD /
+**Moved to SoH 9.3.0 on 2026-10-07** (a merge of tag `9.3.0`, done on branch `wasm-9.3.0` and
+fast-forwarded into `wasm`; LUS `wasm` now carries the wasm commits rebased onto `62e973ae`,
+merged over the 9.2.3-based ones so the older Shipwright commits still resolve). The host-side asset tool is now Torch rather than ZAPD /
 OTRExporter, and the wasm game build leaves it out the same way. What the move needed beyond
 conflicts: `framebuffer_effects.c` called `gfx_create_framebuffer` with one argument too few
 (a trap in wasm), and 9.3.0 always builds the network layer, so SDL2_net comes from the
