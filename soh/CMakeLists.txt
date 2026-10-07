@@ -872,8 +872,17 @@ if(EMSCRIPTEN)
         # single-caller functions that get inlined; the biggest ones are table builders
         # that gain nothing from it.
         "SHELL:-sBINARYEN_EXTRA_PASSES=--one-caller-inline-max-function-size=1000"
+        # Static data, then the stack, then the heap, all from 256 MB up. Desktop pointers
+        # never fall in the N64 segmented range (<= 0x0FFFFFFF), and LUS's SETTIMG guard
+        # treats an address there that no loaded module owns as an unresolved segment address
+        # and drops it. Emscripten's dladdr owns nothing, so with data at the default base the
+        # guard dropped GfxPrint's static font (map select drew no text); above it, the
+        # stock guard applies unchanged and a bad segment address is dropped as on desktop.
+        # The 256 MB below the base is never touched, so the browser never commits it; the
+        # initial size keeps the 512 MB the game had above it.
+        -sGLOBAL_BASE=268435456
         -sALLOW_MEMORY_GROWTH=1
-        -sINITIAL_MEMORY=536870912
+        -sINITIAL_MEMORY=805306368
         -sSTACK_SIZE=4194304
         -sEXIT_RUNTIME=0
     )

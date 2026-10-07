@@ -13,6 +13,14 @@ conflicts: `framebuffer_effects.c` called `gfx_create_framebuffer` with one argu
 Emscripten port and `Network::Enable` does nothing in a browser. The ROM converter's re-port
 is in `wasm-rom-extract.md`, "9.3.0: Torch". Line references below are to 9.2.3.
 
+The wasm game links with `-sGLOBAL_BASE=268435456`, so its static data, stack and heap all sit
+above 0x0FFFFFFF, where desktop pointers always are. 9.3.0's LUS SETTIMG guard treats a lower
+address that no loaded module owns as an unresolved N64 segment address and skips the texture;
+Emscripten's `dladdr` owns nothing, so with data at the default base the guard skipped
+GfxPrint's static font (map select drew no text). With the base moved, the stock guard runs
+unchanged and a bad segment address is skipped exactly as on desktop. The 256 MB below the base
+is never touched; `INITIAL_MEMORY` is 768 MB, which keeps the 512 MB the game had above it.
+
 ## Scope for the first pass
 
 Deliberately narrow, so the port is a port and not a rewrite:

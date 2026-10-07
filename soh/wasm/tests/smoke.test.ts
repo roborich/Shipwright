@@ -37,8 +37,10 @@ test("a stale desktop config opens Settings on the Mod Menu without stopping the
     }), TEST_TIMEOUT);
 
 // Map select's text is GfxPrint: a font and palette compiled into the game, so drawn from raw
-// pointers low in linear memory. LUS once dropped every such SETTIMG as an unresolved N64
-// segment address, and the screen came up black (or showed whatever texture was loaded last).
+// pointers into static data. LUS drops a SETTIMG address at or below 0x0FFFFFFF that no loaded
+// module owns as an unresolved N64 segment address; with static data at Emscripten's default
+// base that was this font, and the screen came up black (or showed whatever texture was loaded
+// last). -sGLOBAL_BASE (soh/CMakeLists.txt) keeps every real pointer above that range.
 const debugConfig = () => {
     const config = playConfig();
     config.CVars.gDeveloperTools = { ...config.CVars.gDeveloperTools, DebugEnabled: 1 };
