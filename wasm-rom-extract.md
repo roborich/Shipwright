@@ -322,4 +322,3 @@ compressed bytes. The file does not match byte for byte, for two reasons that do
 the game, which looks entries up by name: the zip timestamps (two desktop runs differ there
 too), and the order of some `audio/fonts` entries, which come out of a hash container that
 iterates differently with a 32-bit `size_t`.
-
