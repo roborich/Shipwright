@@ -34,7 +34,7 @@ void Grotto_ForceGrottoReturnOnSpecialEntrance(void);
 void Grotto_ForceGrottoReturn(void);
 void Grotto_ForceRegularVoidOut(void);
 void Grotto_SanitizeEntranceType(void);
-s16 Grotto_GetRenamedGrottoIndexFromOriginal(s8 content, s8 scene);
+s16 Grotto_GetRenamedGrottoIndexFromOriginal(s8 content, s16 scene); // SOH [Unbound] scene s8 -> s16
 s8 Grotto_CurrentGrotto();
 #ifdef __cplusplus
 };

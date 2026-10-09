@@ -2446,7 +2446,7 @@ void InternalRecalculateAvailableChecks(RandomizerRegion startingRegion, RandoAg
     if (startingRegion == RR_ROOT && entranceIndex >= 0 && entranceIndex < ENTR_MAX) {
         // Try to find a mapped entrance
         // e.g. ENTR_DEKU_TREE_0_1 (index 1) is not mapped, but ENTR_DEKU_TREE_ENTRANCE (index 0) is mapped
-        const int8_t scene = gEntranceTable[entranceIndex].scene;
+        const int16_t scene = gEntranceTable[entranceIndex].scene; // SOH [Unbound] int8_t -> int16_t
         for (; entranceIndex >= 0 && gEntranceTable[entranceIndex].scene == scene; entranceIndex--) {
             const auto entrance = Rando::EntranceShuffler::GetEntranceByIndex(entranceIndex);
             if (entrance != nullptr) {

@@ -61,7 +61,7 @@ inline void from_json(const json& j, AnchorClient& client) {
     client.isSaveLoaded = j.value("isSaveLoaded", false);
     client.isGameComplete = j.value("isGameComplete", false);
     client.sceneNum = j.value("sceneNum", (s16)SCENE_ID_MAX);
-    client.curRoomNum = j.value("curRoomNum", (s8)-1);
+    client.curRoomNum = j.value("curRoomNum", (s16)-1); // SOH [Unbound] s8 -> s16
     client.entranceIndex = j.value("entranceIndex", (s32)0);
     client.self = j.value("self", false);
 }
