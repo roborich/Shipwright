@@ -148,12 +148,12 @@ void func_800981B8(ObjectContext* objectCtx) {
 
     for (i = 0; i < objectCtx->num; i++) {
         id = objectCtx->status[i].id;
-        size = id < gObjectTableSize ? gObjectTable[id].vromEnd - gObjectTable[id].vromStart : 0; // SOH [Unbound]
+        size = (u32)id < gObjectTableSize ? gObjectTable[id].vromEnd - gObjectTable[id].vromStart : 0; // SOH [Unbound]
         osSyncPrintf("OBJECT[%d] SIZE %fK SEG=%x\n", objectCtx->status[i].id, size / 1024.0f,
                      objectCtx->status[i].segment);
         osSyncPrintf("num=%d adrs=%x end=%x\n", objectCtx->num, (uintptr_t)objectCtx->status[i].segment + size,
                      objectCtx->spaceEnd);
-        if (id < gObjectTableSize) { // SOH [Unbound]
+        if ((u32)id < gObjectTableSize) { // SOH [Unbound]
             DmaMgr_SendRequest1(objectCtx->status[i].segment, gObjectTable[id].vromStart, size, __FILE__, __LINE__);
         }
     }

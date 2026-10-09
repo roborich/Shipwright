@@ -153,8 +153,7 @@ typedef struct SaveStateInfo {
     std::unique_ptr<uint8_t[]> enHeishi1State;
     std::unique_ptr<uint8_t[]> playerState;
 
-    u8 transitionActorCount_copy;
-    s16 transitionActorIds_copy[256];
+    std::vector<s16> transitionActorIds_copy; // SOH [Unbound] a scene may have more than 255 transition actors
 
 } SaveStateInfo;
 
@@ -336,15 +335,15 @@ void SaveState::LoadOverlayStaticData(void) {
 }
 
 void SaveState::SaveTransitionActors(void) {
-    info->transitionActorCount_copy = gPlayState->transiActorCtx.numActors;
-    for (u32 i = 0; i < info->transitionActorCount_copy; i++) {
+    info->transitionActorIds_copy.resize(gPlayState->transiActorCtx.numActors);
+    for (size_t i = 0; i < info->transitionActorIds_copy.size(); i++) {
         info->transitionActorIds_copy[i] = gPlayState->transiActorCtx.list[i].id;
     }
 }
 
 void SaveState::LoadTransitionActors(void) {
-    u32 numActors = std::min(info->transitionActorCount_copy, gPlayState->transiActorCtx.numActors);
-    for (u32 i = 0; i < numActors; i++) {
+    size_t numActors = std::min(info->transitionActorIds_copy.size(), (size_t)gPlayState->transiActorCtx.numActors);
+    for (size_t i = 0; i < numActors; i++) {
         gPlayState->transiActorCtx.list[i].id = info->transitionActorIds_copy[i];
     }
 }

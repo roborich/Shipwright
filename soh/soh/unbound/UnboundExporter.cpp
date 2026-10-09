@@ -223,7 +223,7 @@ struct SceneRefs {
 };
 
 std::shared_ptr<Ship::ResourceManager> ResMgr() {
-    return Ship::Context::GetInstance()->GetResourceManager();
+    return Ship::Context::GetRawInstance()->GetResourceManager();
 }
 
 template <typename T> std::shared_ptr<T> LoadAs(const std::string& path) {
@@ -934,7 +934,7 @@ std::string SceneDirName(const std::string& fileLeaf, bool mq) {
 }
 
 void ConvertAllScenes(ExportContext& ctx) {
-    auto archives = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager();
+    auto archives = Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager();
     for (const auto& entry : SceneDB::Instance->Entries()) {
         if (!entry.valid || entry.isCustom) {
             continue;
@@ -988,7 +988,7 @@ void ConvertMessages(ExportContext& ctx) {
         { "jpn", { "text/jpn_message_data_static/jpn_message_data_static" } },
         { "staff", { "text/staff_message_data_static/staff_message_data_static" } },
     };
-    auto archives = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager();
+    auto archives = Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager();
     for (const auto& lang : langs) {
         for (const char* base : lang.basePaths) {
             if (!archives->HasFile(base)) {
@@ -1022,7 +1022,7 @@ void ConvertMessages(ExportContext& ctx) {
 // Verbatim copy of everything else in the base archive
 // ---------------------------------------------------------------------------------------------
 std::shared_ptr<Ship::Archive> FindBaseArchive() {
-    auto archives = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager();
+    auto archives = Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager();
     for (const auto& entry : SceneDB::Instance->Entries()) {
         if (!entry.valid || entry.isCustom) {
             continue;
@@ -1074,7 +1074,7 @@ namespace {
 // Provenance of a conversion: the converter build and every mounted ROM archive (SPEC.md §6 `source`).
 // A base whose provenance differs from the running game is stale and is converted again.
 json CurrentProvenance() {
-    auto archives = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager();
+    auto archives = Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager();
     std::vector<uint32_t> versions = archives->GetGameVersions();
     std::sort(versions.begin(), versions.end());
     versions.erase(std::unique(versions.begin(), versions.end()), versions.end());
@@ -1092,7 +1092,7 @@ json CurrentProvenance() {
 }
 
 void WriteManifest(ExportContext& ctx) {
-    auto archives = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager();
+    auto archives = Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager();
     json doc;
     doc[K::kFormatName] = "unbound";
     doc[K::kFormatVersion] = K::kCurrentFormatVersion;
@@ -1144,7 +1144,7 @@ namespace {
 
 // The `source` object of the manifest in the topmost mounted archive that has one.
 json MountedManifestSource() {
-    auto file = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->LoadFile(K::kManifestPath);
+    auto file = Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager()->LoadFile(K::kManifestPath);
     if (file == nullptr || file->Buffer == nullptr) {
         return json::object();
     }
@@ -1162,7 +1162,7 @@ bool ProvenanceMatches(const json& source, const json& current) {
 } // namespace
 
 BaseArchiveState EnsureBaseArchive(const std::string& gameArchiveDir) {
-    auto archives = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager();
+    auto archives = Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager();
     if (archives->GetGameVersions().empty()) {
         return BaseArchiveState::None; // no ROM archive: nothing to convert
     }

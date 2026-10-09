@@ -528,6 +528,8 @@ typedef struct {
 #define PARAMS_MAKE_MASK(s, n) PARAMS_GET_NOSHIFT(~0, s, n)
 
 #define TRANSITION_ACTOR_PARAMS_INDEX_SHIFT 10
-#define GET_TRANSITION_ACTOR_INDEX(actor) PARAMS_GET_NOMASK((u16)(actor)->params, 10)
+// SOH [Unbound] Upstream reads the 6-bit index packed into params; Unbound keeps the list index on the actor
+// (TRANSITION_ACTOR_INDEX), so a scene may have more than 64 transition actors.
+#define GET_TRANSITION_ACTOR_INDEX(actor) TRANSITION_ACTOR_INDEX(actor)
 
 #endif

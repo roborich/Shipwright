@@ -7,8 +7,8 @@
 // up the scrolled tile, the interpolated colours, or the current flipbook texture.
 //
 // Differences from MM: segments are absolute and the list carries a count (no negative-segment
-// terminator); each entry chooses OPA/XLU itself; the scroll lists follow SoH's *Ex helpers, so the
-// motion interpolates between game frames at high frame rates; a scroll rate may be fractional and
+// terminator); each entry chooses OPA/XLU itself; the scroll lists follow SoH's *Ex helpers (a lerped tile
+// size), so the motion interpolates between game frames at high frame rates; a scroll rate may be fractional and
 // the offset wraps at 8192 texels instead of 512.
 
 #include "global.h"
@@ -52,38 +52,39 @@ static f32 MatAnim_ScrollOffset(f64 rate, f64 frame) {
 }
 
 /**
- * Writes one layer's tile size at a gameplay frame. The rate is the integer step plus the
+ * Writes one layer's tile size for a gameplay frame: where it is at the frame and where it will be one frame on,
+ * lerped between at draw time (G_SETTILESIZE_LERP, as SoH's *Ex helpers do). The rate is the integer step plus the
  * fractional speed; y runs the other way (SPEC.md §4.2).
  */
 static Gfx* MatAnim_WriteScrollTile(Gfx* gfx, s32 tile, const AnimatedMatTexScrollParams* p, f64 frame) {
     // summed in f64: an f32 sum would round a small speed against a large step
-    f32 x = MatAnim_ScrollOffset((f64)p->xStep + p->xSpeed, frame);
-    f32 y = MatAnim_ScrollOffset(-((f64)p->yStep + p->ySpeed), frame);
+    f64 xRate = (f64)p->xStep + p->xSpeed;
+    f64 yRate = -((f64)p->yStep + p->ySpeed);
+    f32 x0 = MatAnim_ScrollOffset(xRate, frame);
+    f32 y0 = MatAnim_ScrollOffset(yRate, frame);
+    // One frame's motion past the start, not the offset at the next frame: that one wraps, and a lerp across the
+    // wrap would sweep the whole period backwards.
+    f32 x1 = (f32)(x0 + xRate);
+    f32 y1 = (f32)(y0 + yRate);
+    f32 w = (f32)((p->width - 1) << 2);
+    f32 h = (f32)((p->height - 1) << 2);
 
-    gDPSetTileSizeInterp(gfx, tile, x, y, x + ((p->width - 1) << 2), y + ((p->height - 1) << 2));
-    return gfx + 3; // the interpolated tile size is a three-word command
+    gDPSetTileSizeLerp(gfx, tile, x0, y0, x0 + w, y0 + h, x1, y1, x1 + w, y1 + h);
+    return gfx + 5; // the lerped tile size is a five-word command
 }
 
 /**
- * Generates the scroll list for `layerCount` layers on render tiles 0..n. As in SoH's *Ex scroll
- * helpers, there is one set of tile sizes per interpolated frame, each evaluated at its own
- * fraction of the gameplay frame, so the motion stays smooth at high frame rates.
+ * Generates the scroll list for `layerCount` layers on render tiles 0..n: one lerped tile size per
+ * layer, so the motion stays smooth at high frame rates and the list does not grow with them.
  */
 static Gfx* MatAnim_ScrollList(MatAnimDraw* d, const AnimatedMatTexScrollParams* layers, s32 layerCount) {
-    s32 interpFrames = Ship_GetInterpolationFrameCount();
-    Gfx* list = Graph_Alloc(d->gfxCtx, (2 + interpFrames * (1 + 3 * layerCount)) * sizeof(Gfx));
+    Gfx* list = Graph_Alloc(d->gfxCtx, (2 + 5 * layerCount) * sizeof(Gfx));
     Gfx* gfx = list;
-    s32 i;
     s32 tile;
 
     gDPTileSync(gfx++);
-    for (i = 0; i < interpFrames; i++) {
-        f64 frame = d->step + (f64)i / interpFrames;
-
-        gDPSetInterpolation(gfx++, i);
-        for (tile = 0; tile < layerCount; tile++) {
-            gfx = MatAnim_WriteScrollTile(gfx, tile, &layers[tile], frame);
-        }
+    for (tile = 0; tile < layerCount; tile++) {
+        gfx = MatAnim_WriteScrollTile(gfx, tile, &layers[tile], d->step);
     }
     gSPEndDisplayList(gfx);
 

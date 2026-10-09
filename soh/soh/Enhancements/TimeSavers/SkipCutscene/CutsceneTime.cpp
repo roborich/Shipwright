@@ -13,6 +13,7 @@
 #include "soh/resource/type/scenecommand/SetCutscenes.h"
 #include "soh/resource/type/scenecommand/SetRoomList.h"
 #include "soh/resource/type/scenecommand/SetTimeSettings.h"
+#include "soh/unbound/SceneDB.h"
 
 extern "C" {
 #include "z64.h"
@@ -63,15 +64,9 @@ static SOH::Scene* LayerHeader(SOH::Scene* scene, int32_t sceneLayer) {
     return headers->headers[sceneLayer - 1].get();
 }
 
-// Same path as OTRPlay_SpawnScene
+// Same path as OTRPlay_SpawnScene. SOH [Unbound] SceneDB names custom scenes too, which gSceneTable does not reach.
 static std::string ScenePath(int32_t sceneNum) {
-    std::string version = "shared";
-    if ((sceneNum >= SCENE_DEKU_TREE && sceneNum <= SCENE_ICE_CAVERN) || sceneNum == SCENE_GERUDO_TRAINING_GROUND ||
-        sceneNum == SCENE_INSIDE_GANONS_CASTLE) {
-        version = ResourceMgr_IsGameMasterQuest() ? "mq" : "nonmq";
-    }
-    const char* file = gSceneTable[sceneNum].sceneFile.fileName;
-    return "scenes/" + version + "/" + file + "/" + file;
+    return SceneDB::Instance->GetScenePath(sceneNum);
 }
 
 static bool IsNight(uint16_t time) {

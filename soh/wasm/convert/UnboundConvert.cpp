@@ -41,8 +41,8 @@ struct ConvertResult {
 
 ConvertResult sResult;
 bool sRan = false;
-// Ship::Context keeps only a weak reference to itself; the game's is owned by OTRGlobals, this one by us.
-std::shared_ptr<Ship::Context> sContext;
+// Ship::Context owns its single instance; this is the handle CreateUninitializedInstance returns for setting it up.
+Ship::Context* sContext = nullptr;
 
 void StartResourceManager(const std::string& sourcePath) {
     sContext = Ship::Context::CreateUninitializedInstance("Ship of Harkinian", "soh", "shipofharkinian.json");
@@ -68,7 +68,7 @@ int ReadPortVersionMajor(std::shared_ptr<Ship::ArchiveManager> archives) {
 // Why the mounted source cannot be converted, as a code and a message; kConvertOk when it can.
 ConvertResult CheckSourceArchive() {
     ConvertResult result;
-    auto archives = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager();
+    auto archives = Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager();
     if (!archives->IsLoaded() || archives->GetGameVersions().empty()) {
         result.code = kConvertNoArchive;
         result.error = "not an OoT game archive: supply the oot.o2r (or oot-mq.o2r) that soh-extract produced";

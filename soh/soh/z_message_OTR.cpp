@@ -88,7 +88,7 @@ struct MessageTable {
         entry.textId = id;
         entry.typePos = typePos;
         entry.segment = owned.c_str();
-        entry.msgSize = owned.size();
+        entry.msgSize = static_cast<u32>(owned.size());
 
         auto it = index.find(id);
         if (it != index.end()) {

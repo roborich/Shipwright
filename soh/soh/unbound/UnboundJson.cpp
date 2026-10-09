@@ -53,7 +53,7 @@ static void StripDirectives(Json& doc) {
 }
 
 Json LoadMergedJson(const std::string& path) {
-    auto layers = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->LoadFileFromAllLayers(path);
+    auto layers = Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager()->LoadFileFromAllLayers(path);
     Json merged;
     if (layers.size() > 1) {
         SPDLOG_DEBUG("[Unbound] {}: merging {} archive layers", path, layers.size());
@@ -111,7 +111,7 @@ static std::string RegistryName(const std::string& dir, const std::string& path)
 // when one name starts another ("npc-old.json" < "npc.json"). The archive manager lists each path once.
 static std::vector<RegistryFile> ListRegistryFiles(const std::string& dir) {
     std::string mask = dir + "*" + std::string(kRegistryFileSuffix);
-    auto listed = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->ListFiles(mask);
+    auto listed = Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager()->ListFiles(mask);
     std::vector<RegistryFile> files;
     for (const auto& path : *listed) {
         files.push_back({ RegistryName(dir, path), path });
@@ -386,7 +386,7 @@ Vec3i ReadVec3i(const Json& v) {
 }
 
 std::vector<char> LoadBulk(const std::string& path) {
-    auto file = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->LoadFile(path);
+    auto file = Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager()->LoadFile(path);
     if (file == nullptr || file->Buffer == nullptr) {
         return {};
     }

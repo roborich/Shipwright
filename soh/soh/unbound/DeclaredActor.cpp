@@ -402,7 +402,7 @@ void UpdateTalk(DeclaredActor* self, PlayState* play) {
     if (self->talking) {
         CloseEventBox(play);
     } else if (!Actor_ProcessTalkRequest(&self->actor, play)) {
-        func_8002F2CC(&self->actor, play, self->type->talkRange); // offer to talk
+        Actor_OfferTalk(&self->actor, play, self->type->talkRange);
     }
 }
 
@@ -463,8 +463,8 @@ void TurnHead(DeclaredActor* self, s32 limbIndex, Vec3f* pos, Vec3s* rot) {
     Vec3f pivot = HeadPivot(*self->type);
     Matrix_TranslateRotateZYX(pos, rot);
     Matrix_Translate(pivot.x, pivot.y, pivot.z, MTXMODE_APPLY);
-    RotateAbout(BINANG_TO_RAD(self->interactInfo.headRot.y), self->type->turnAxis);
-    RotateAbout(BINANG_TO_RAD(self->interactInfo.headRot.x), self->type->nodAxis);
+    RotateAbout((f32)BINANG_TO_RAD(self->interactInfo.headRot.y), self->type->turnAxis);
+    RotateAbout((f32)BINANG_TO_RAD(self->interactInfo.headRot.x), self->type->nodAxis);
     Matrix_Translate(-pivot.x, -pivot.y, -pivot.z, MTXMODE_APPLY);
     *pos = { 0.0f, 0.0f, 0.0f };
     *rot = { 0, 0, 0 };

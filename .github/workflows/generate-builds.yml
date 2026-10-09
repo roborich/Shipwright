@@ -2,13 +2,14 @@ name: generate-builds
 # SOH [fork] This repo ships two products from one workflow:
 #   - "SoH (cel-shading fork)"  branch wind-waker-style-cel-shading, tags <SoH-version>-celshade<X.Y>
 #   - "SoH: Unbound"            branch unbound,                      tags <SoH-version>-unbound<X.Y>
-# Pushes to a release branch build all three platforms and save the ccache/deps/vcpkg/macports caches.
+# Pushes to a release branch build all three platforms and save the ccache/deps/vcpkg caches.
 # Pushing a release tag builds nothing itself: a run on a tag ref cannot read caches saved by a branch
 # (only its own ref's and the default branch's), so it would build cold. It starts this workflow on
 # the tag's product branch instead (workflow_dispatch with the tag as input), which reads that
 # branch's caches, checks out the tag so the build sees it (the About box shows the release version
-# only for a tagged commit), and publishes the release. Keep this file identical on both branches;
-# the tag decides everything else (release-product.sh).
+# only for a tagged commit), and publishes the release. The tag decides everything else
+# (release-product.sh). Unbound is on SoH 9.3.0 ahead of the cel-shading branch, so the two copies of this
+# file differ in their build steps until that branch moves too; keep the release logic the same in both.
 on:
   push:
     branches:

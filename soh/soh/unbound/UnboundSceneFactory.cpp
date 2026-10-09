@@ -88,7 +88,7 @@ struct CommandBuilder {
 };
 
 std::shared_ptr<Ship::IResource> LoadSub(const std::string& path) {
-    return Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(path.c_str());
+    return Ship::Context::GetRawInstance()->GetResourceManager()->LoadResourceProcess(path.c_str());
 }
 
 // SOH [Unbound] A string `id` that is not a number names an actor (unbound-docs/actors.md).
