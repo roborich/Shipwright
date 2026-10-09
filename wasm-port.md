@@ -38,6 +38,9 @@ Deliberately narrow, so the port is a port and not a rewrite:
 - **Enhancements and GUI stay compiled in.** See "What not to strip" — removing them is
   more work than keeping them.
 - **Single-threaded.** No pthreads, no SharedArrayBuffer, no COOP/COEP. See below.
+- **Stock behavior, bugs included.** The wasm builds carry only what building or booting in a
+  browser needs, never a behavior fix the release lacks, so a mod fails here where it fails on
+  desktop. The libultraship `alt-assets-cache-precheck` branch stays out for that reason.
 - **20 fps during gameplay, and that is accepted** (decided 2026-09-11). Gameplay's logic
   tick is 20 Hz and the frame loop yields once per tick. Rendering gameplay faster needs a
   second yield point inside the sub-frame loop (§1); explicitly **out of scope**.

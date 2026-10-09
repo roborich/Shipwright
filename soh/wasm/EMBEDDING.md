@@ -138,6 +138,9 @@ and survives a round trip through a build without its mods.
 
 ## Limits you should know about
 
+- **Streamed Opus audio is silent.** Opus and OpusFile have no Emscripten port and are stubbed
+  (`wasm-port.md`), so a mod's custom Opus song plays nothing where desktop plays it. Building
+  both for the browser is the fix, once a modder needs Opus.
 - **Writes do not persist on their own.** The filesystem is in-memory: a save the game
   writes is gone on reload unless the host keeps the `file-saved` copy (see `HOST-API.md`).
 - **Scenes are addressed by entrance index, not by name.** `HOST-API.md` has two ways to

@@ -167,6 +167,7 @@ const { name, version, bytes } = await mod.extractRom(romBytes, {
   (Torch reports a file without naming it) and no `'write'` phase (the archive is compressed
   entry by entry during the run, and what follows the last call is about 6% of it). The order
   is the same on every run for a ROM version, so a host can weight a bar by `done` itself.
+  If Torch skipped a file, one more `(total, total)` call follows the silent tail.
   Expect about 6 s in all, in a worker on a desktop machine.
 - **One conversion per instance.** Call the factory again for the next ROM; a second
   `extractRom` on the same instance rejects.
@@ -180,8 +181,8 @@ const { name, version, bytes } = await mod.extractRom(romBytes, {
   | `-3` | looks like a zip / rar / 7z |
   | `-4` | header CRC is not a version this build has a recipe for |
   | `-5` | whole-file CRC is not a known-good dump |
-  | `-6` | extraction failed part-way; what Torch said is in the message |
-  | `-7` | extraction finished but wrote no archive |
+  | `-6` | extraction failed and Torch said why; that is in the message |
+  | `-7` | extraction wrote no archive without saying why, or wrote one under another name (the message names it) |
   | `-8` | this instance has already converted; make a new one |
 
   Warnings and errors the converter logged during a failed run are appended to the message.
