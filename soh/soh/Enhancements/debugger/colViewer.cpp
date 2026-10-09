@@ -388,7 +388,7 @@ void DrawDynapoly(std::vector<Gfx>& dl, CollisionHeader* col, int32_t bgId) {
     // This saves several hundred commands in larger scenes
     bool previousPoly = false;
 
-    for (int i = 0; i < col->numPolygons; i++) {
+    for (u32 i = 0; i < col->numPolygons; i++) { // SOH [Unbound] numPolygons is u32
         CollisionPoly* poly = &col->polyList[i];
 
         if (SurfaceType_IsHookshotSurface(&gPlayState->colCtx, poly, bgId)) {
@@ -592,7 +592,7 @@ void DrawColCheckList(std::vector<Gfx>& dl, Collider** objects, int32_t count) {
                     SkinMatrix_SetTranslate(&mf, sph->dim.worldSphere.center.x, sph->dim.worldSphere.center.y,
                                             sph->dim.worldSphere.center.z);
                     MtxF ms;
-                    int32_t radius = sph->dim.worldSphere.radius == 0 ? 1 : sph->dim.worldSphere.radius;
+                    f32 radius = sph->dim.worldSphere.radius == 0 ? 1.0f : sph->dim.worldSphere.radius; // SOH [Unbound]
                     SkinMatrix_SetScale(&ms, radius / 128.0f, radius / 128.0f, radius / 128.0f);
                     MtxF dest;
                     SkinMatrix_MtxFMtxFMult(&mf, &ms, &dest);
@@ -613,7 +613,7 @@ void DrawColCheckList(std::vector<Gfx>& dl, Collider** objects, int32_t count) {
                                         static_cast<f32>(cyl->dim.pos.y + cyl->dim.yShift),
                                         static_cast<f32>(cyl->dim.pos.z));
                 MtxF ms;
-                int32_t radius = cyl->dim.radius == 0 ? 1 : cyl->dim.radius;
+                f32 radius = cyl->dim.radius == 0 ? 1.0f : cyl->dim.radius; // SOH [Unbound] f32
                 SkinMatrix_SetScale(&ms, radius / 128.0f, cyl->dim.height / 128.0f, radius / 128.0f);
                 MtxF dest;
                 SkinMatrix_MtxFMtxFMult(&mt, &ms, &dest);

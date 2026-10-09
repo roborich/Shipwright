@@ -299,7 +299,7 @@ void LogMeshAsXML(std::shared_ptr<Ship::IResource> resource) {
     if (setMesh->meshHeader.base.type == 0) {
         root->SetAttribute("PolyNum", setMesh->meshHeader.polygon0.num);
         PolygonDlist* dlist = (PolygonDlist*)setMesh->meshHeader.polygon0.start;
-        for (int i = 0; i < setMesh->meshHeader.polygon0.num; i += 1) {
+        for (u32 i = 0; i < setMesh->meshHeader.polygon0.num; i += 1) { // SOH [Unbound] num is u32
             tinyxml2::XMLElement* polygon = doc.NewElement("Polygon");
             polygon->SetAttribute("PolyType", "0");
             polygon->SetAttribute("MeshOpa", TrimOTRSignature(dlist->opa ? (char*)dlist->opa : ""));
@@ -366,7 +366,7 @@ void LogMeshAsXML(std::shared_ptr<Ship::IResource> resource) {
     } else if (setMesh->meshHeader.base.type == 2) {
         root->SetAttribute("PolyNum", setMesh->meshHeader.polygon2.num);
         PolygonDlist2* dlist = (PolygonDlist2*)setMesh->meshHeader.polygon2.start;
-        for (int i = 0; i < setMesh->meshHeader.polygon2.num; i += 1) {
+        for (u32 i = 0; i < setMesh->meshHeader.polygon2.num; i += 1) { // SOH [Unbound] num is u32
             tinyxml2::XMLElement* polygon = doc.NewElement("Polygon");
             polygon->SetAttribute("PolyType", "0");
 

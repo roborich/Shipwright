@@ -784,9 +784,9 @@ void RegisterEnemyRandomizer() {
         Actor** actor = va_arg(args, Actor**);
 
         s16 actorId = actorEntry->id;
-        s16 posX = actorEntry->pos.x;
-        s16 posY = actorEntry->pos.y;
-        s16 posZ = actorEntry->pos.z;
+        s16 posX = static_cast<s16>(actorEntry->pos.x); // SOH [Unbound] pos is f32
+        s16 posY = static_cast<s16>(actorEntry->pos.y); // SOH [Unbound] pos is f32
+        s16 posZ = static_cast<s16>(actorEntry->pos.z); // SOH [Unbound] pos is f32
         s16 rotX = actorEntry->rot.x;
         s16 rotY = actorEntry->rot.y;
         s16 rotZ = actorEntry->rot.z;
