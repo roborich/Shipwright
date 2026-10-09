@@ -1,18 +1,23 @@
 #include "Warping.h"
-#include <libultraship/bridge.h>
+#include <ship/Context.h>
+#include <ship/config/Config.h>
+
 #include "soh/Enhancements/Cheats/FreezeTime.h"
 #include "soh/Enhancements/game-interactor/GameInteractor.h"
 #include "soh/Enhancements/game-interactor/GameInteractor_Hooks.h"
 #include "soh/ShipInit.hpp"
-#include "functions.h"
 #include "soh/SohGui/MenuTypes.h"
+#include "soh/SohGui/UIWidgets.hpp"
 #include "soh/util.h"
 #include "soh/unbound/SceneDB.h"
 #include <spdlog/spdlog.h>
+#include "soh/Enhancements/gameconsole.h"
 
 extern "C" {
+#include "functions.h"
+#include "macros.h"
+#include "variables.h"
 #include "z64.h"
-#include "global.h"
 #include "soh/Enhancements/enhancementTypes.h"
 void Sram_InitDebugSave(void);
 void Select_LoadGame(SelectContext* selectContext, s32 entranceIndex);
@@ -52,7 +57,7 @@ void from_json(const nlohmann::json& j, WarpPoint& p) {
 std::map<std::string, WarpPoint> warpPoints;
 
 void LoadConfig() {
-    auto allConfig = Ship::Context::GetInstance()->GetConfig()->GetNestedJson();
+    auto allConfig = Ship::Context::GetRawInstance()->GetConfig()->GetNestedJson();
     if (allConfig.find("WarpPoints") == allConfig.end() || !allConfig["WarpPoints"].is_object()) {
         allConfig["WarpPoints"] = nlohmann::json::object();
     }
@@ -60,10 +65,10 @@ void LoadConfig() {
 }
 
 void SaveConfig() {
-    auto allConfig = Ship::Context::GetInstance()->GetConfig()->GetNestedJson();
+    auto allConfig = Ship::Context::GetRawInstance()->GetConfig()->GetNestedJson();
     allConfig["WarpPoints"] = warpPoints;
-    Ship::Context::GetInstance()->GetConfig()->SetBlock("WarpPoints", warpPoints);
-    Ship::Context::GetInstance()->GetConfig()->Save();
+    Ship::Context::GetRawInstance()->GetConfig()->SetBlock("WarpPoints", warpPoints);
+    Ship::Context::GetRawInstance()->GetConfig()->Save();
 }
 
 // Outside gameplay (the title screen, its attract demo, file select) a warp starts a fresh
@@ -92,7 +97,7 @@ static void InitDebugSaveAs(s32 linkAge) {
 static void StartFreshGame(s32 entranceId, s32 linkAge) {
     gSaveContext.gameMode = GAMEMODE_NORMAL;
     InitDebugSaveAs(linkAge);
-    gSaveContext.sceneSetupIndex = 0;
+    gSaveContext.sceneLayer = 0;
     gSaveContext.cutsceneIndex = 0;
     gSaveContext.respawnFlag = 0;
 
@@ -100,7 +105,8 @@ static void StartFreshGame(s32 entranceId, s32 linkAge) {
     for (int buttonIndex = 0; buttonIndex < ARRAY_COUNT(gSaveContext.buttonStatus); buttonIndex++) {
         gSaveContext.buttonStatus[buttonIndex] = BTN_ENABLED;
     }
-    gSaveContext.forceRisingButtonAlphas = gSaveContext.unk_13E8 = gSaveContext.unk_13EA = gSaveContext.unk_13EC = 0;
+    gSaveContext.nextHudVisibilityMode = gSaveContext.hudVisibilityMode = gSaveContext.hudVisibilityModeTimer = 0;
+    gSaveContext.forceRisingButtonAlphas = 0;
     Audio_QueueSeqCmd(SEQ_PLAYER_BGM_MAIN << 24 | NA_BGM_STOP);
     gSaveContext.entranceIndex = entranceId;
 

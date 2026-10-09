@@ -1,8 +1,9 @@
+#include <tinyxml2.h>
+
 #include "soh/resource/importer/scenecommand/SetLightListFactory.h"
 #include "soh/resource/type/scenecommand/SetLightList.h"
 #include "soh/resource/logging/SceneCommandLoggers.h"
 #include "spdlog/spdlog.h"
-#include <tinyxml2.h>
 #include <cstddef>
 #include "z64light.h"
 
@@ -81,7 +82,7 @@ std::shared_ptr<Ship::IResource> SetLightListFactoryXML::ReadResource(std::share
         child = child->NextSiblingElement();
     }
 
-    setLightList->numLights = setLightList->lightList.size();
+    setLightList->numLights = static_cast<u32>(setLightList->lightList.size());
 
     return setLightList;
 }

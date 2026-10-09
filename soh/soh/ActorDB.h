@@ -27,6 +27,7 @@ typedef struct {
 struct ActorDBInit {
     std::string name;
     std::string desc;
+    int id = -1; // -1 assigns the next free id, otherwise an ActorIDExtra
     int category = 0;
     u32 flags = 0;
     int objectId = 0;
@@ -66,8 +67,6 @@ class ActorDB {
     Entry& RetrieveEntry(const int id);
     int RetrieveId(const std::string& name);
 
-    static void AddBuiltInCustomActors();
-
     int GetEntryCount();
 
   private:
@@ -77,7 +76,7 @@ class ActorDB {
 
     std::vector<Entry> db;
     std::unordered_map<std::string, int> nameTable;
-    size_t nextFreeId = 0;
+    size_t nextFreeId = ACTOR_ID_EXTRA_MAX;
 };
 
 #else

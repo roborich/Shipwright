@@ -2,6 +2,7 @@
 
 #include <array>
 #include <unordered_map>
+#include <utility>
 
 extern "C" uint32_t CRC32C(unsigned char* data, size_t dataSize);
 
@@ -59,7 +60,26 @@ static constexpr std::array<const uint32_t, 21> goodCrcs = {
     0x02CD974C, // GC MQ NTSC JP
 };
 
-uint32_t HeaderCrc(const uint8_t* rom) {
+void ToBigEndian(uint8_t* rom, size_t romSize) {
+    if (romSize == 0) {
+        return;
+    }
+    if (rom[0] == 0x37) { // .v64: each 16-bit half swapped
+        for (size_t i = 0; i + 1 < romSize; i += 2) {
+            std::swap(rom[i], rom[i + 1]);
+        }
+    } else if (rom[0] == 0x40) { // .n64: each 32-bit word reversed
+        for (size_t i = 0; i + 3 < romSize; i += 4) {
+            std::swap(rom[i], rom[i + 3]);
+            std::swap(rom[i + 1], rom[i + 2]);
+        }
+    }
+}
+
+uint32_t HeaderCrc(const uint8_t* rom, size_t romSize) {
+    if (romSize < 0x14) {
+        return 0;
+    }
     return ((uint32_t)rom[0x10] << 24) | ((uint32_t)rom[0x11] << 16) | ((uint32_t)rom[0x12] << 8) | (uint32_t)rom[0x13];
 }
 
@@ -84,36 +104,36 @@ bool IsMasterQuest(uint32_t headerCrc) {
     }
 }
 
-const char* ZapdVersionString(uint32_t headerCrc) {
+const char* TorchVersionDir(uint32_t headerCrc) {
     switch (headerCrc) {
         case OOT_PAL_GC:
-            return "GC_NMQ_PAL_F";
+            return "pal_gc";
         case OOT_PAL_MQ:
-            return "GC_MQ_PAL_F";
+            return "pal_mq";
         case OOT_PAL_GC_DBG1:
-            return "GC_NMQ_D";
+            return "pal_gc_dbg";
         case OOT_PAL_GC_MQ_DBG:
-            return "GC_MQ_D";
+            return "pal_mq_dbg";
         case OOT_PAL_10:
-            return "N64_PAL_10";
+            return "pal_1-0";
         case OOT_PAL_11:
-            return "N64_PAL_11";
+            return "pal_1-1";
         case OOT_NTSC_US_GC:
-            return "GC_NMQ_NTSC_U";
+            return "ntsc_u_gc";
         case OOT_NTSC_JP_GC:
-            return "GC_NMQ_NTSC_J";
+            return "ntsc_j_gc";
         case OOT_NTSC_JP_GC_CE:
-            return "GC_NMQ_NTSC_J_CE";
+            return "ntsc_j_gc_collection";
         case OOT_NTSC_US_MQ:
-            return "GC_MQ_NTSC_U";
+            return "ntsc_u_mq";
         case OOT_NTSC_JP_MQ:
-            return "GC_MQ_NTSC_J";
+            return "ntsc_j_mq";
         case OOT_NTSC_10:
-            return "N64_NTSC_10";
+            return "ntsc_1-0";
         case OOT_NTSC_11:
-            return "N64_NTSC_11";
+            return "ntsc_1-1";
         case OOT_NTSC_12:
-            return "N64_NTSC_12";
+            return "ntsc_1-2";
         default:
             return nullptr;
     }
@@ -127,7 +147,11 @@ bool IsValidSize(size_t romSize) {
     return romSize == MB32 || romSize == MB54 || romSize == MB64;
 }
 
-bool LooksCompressed(const uint8_t* rom) {
+bool LooksCompressed(const uint8_t* rom, size_t romSize) {
+    // Too small to hold any header below; the size check rejects it
+    if (romSize < 6) {
+        return false;
+    }
     // ZIP file header
     if (rom[0] == 'P' && rom[1] == 'K' && rom[2] == 0x03 && rom[3] == 0x04) {
         return true;
@@ -143,13 +167,14 @@ bool LooksCompressed(const uint8_t* rom) {
     return false;
 }
 
-bool FixAndCheckCrc(uint8_t* rom, size_t romSize) {
-    // The MQ debug rom sometimes has the header patched to look like a US rom. Change it back
-    if (HeaderCrc(rom) == OOT_PAL_GC_MQ_DBG) {
+bool MatchesKnownDump(uint8_t* rom, size_t romSize) {
+    const uint8_t region = rom[0x3E];
+    if (HeaderCrc(rom, romSize) == OOT_PAL_GC_MQ_DBG) {
         rom[0x3E] = 'P';
     }
 
     const uint32_t actualCrc = CRC32C(rom, romSize);
+    rom[0x3E] = region;
 
     for (const uint32_t crc : goodCrcs) {
         if (actualCrc == crc) {

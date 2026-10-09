@@ -1,9 +1,27 @@
 # SoH in the browser — WebAssembly port plan
 
-Working plan for branch `wasm` (SoH `cb71e22a7` = tag `9.2.3`; LUS `wasm` off `fdcaf633`).
+Working plan for branch `wasm` (SoH 9.3.0 since 2026-10-07; begun on tag `9.2.3`, `cb71e22a7`,
+with LUS `wasm` off `fdcaf633`).
 Goal: SoH running in a browser tab so Prelude of Light can boot a user's scene edits
 in-game. Supersedes the threading analysis in `prelude-integration.md` (branch
 `prelude-integration`), which assumed a far more multithreaded program than this one is.
+
+**Moved to SoH 9.3.0 on 2026-10-07** (a merge of tag `9.3.0`, done on branch `wasm-9.3.0` and
+fast-forwarded into `wasm`; LUS `wasm` now carries the wasm commits rebased onto `62e973ae`,
+merged over the 9.2.3-based ones so the older Shipwright commits still resolve). The host-side asset tool is now Torch rather than ZAPD /
+OTRExporter, and the wasm game build leaves it out the same way. What the move needed beyond
+conflicts: `framebuffer_effects.c` called `gfx_create_framebuffer` with one argument too few
+(a trap in wasm), and 9.3.0 always builds the network layer, so SDL2_net comes from the
+Emscripten port and `Network::Enable` does nothing in a browser. The ROM converter's re-port
+is in `wasm-rom-extract.md`, "9.3.0: Torch". Line references below are to 9.2.3.
+
+The wasm game links with `-sGLOBAL_BASE=268435456`, so its static data, stack and heap all sit
+above 0x0FFFFFFF, where desktop pointers always are. 9.3.0's LUS SETTIMG guard treats a lower
+address that no loaded module owns as an unresolved N64 segment address and skips the texture;
+Emscripten's `dladdr` owns nothing, so with data at the default base the guard skipped
+GfxPrint's static font (map select drew no text). With the base moved, the stock guard runs
+unchanged and a bad segment address is skipped exactly as on desktop. The 256 MB below the base
+is never touched; `INITIAL_MEMORY` is 768 MB, which keeps the 512 MB the game had above it.
 
 ## Scope for the first pass
 
@@ -20,6 +38,9 @@ Deliberately narrow, so the port is a port and not a rewrite:
 - **Enhancements and GUI stay compiled in.** See "What not to strip" — removing them is
   more work than keeping them.
 - **Single-threaded.** No pthreads, no SharedArrayBuffer, no COOP/COEP. See below.
+- **Stock behavior, bugs included.** The wasm builds carry only what building or booting in a
+  browser needs, never a behavior fix the release lacks, so a mod fails here where it fails on
+  desktop. The libultraship `alt-assets-cache-precheck` branch stays out for that reason.
 - **20 fps during gameplay, and that is accepted** (decided 2026-09-11). Gameplay's logic
   tick is 20 Hz and the frame loop yields once per tick. Rendering gameplay faster needs a
   second yield point inside the sub-frame loop (§1); explicitly **out of scope**.

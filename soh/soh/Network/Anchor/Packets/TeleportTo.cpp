@@ -1,6 +1,5 @@
 #include "soh/Network/Anchor/Anchor.h"
 #include <nlohmann/json.hpp>
-#include <libultraship/libultraship.h>
 #include "soh/Enhancements/game-interactor/GameInteractor.h"
 #include "soh/Network/Anchor/JsonConversions.hpp"
 
@@ -37,9 +36,15 @@ void Anchor::HandlePacket_TeleportTo(nlohmann::json payload) {
         return;
     }
 
-    s32 entranceIndex = payload["entranceIndex"].get<s32>();
-    s16 roomIndex = payload["roomIndex"].get<s16>(); // SOH [Unbound]
-    PosRot posRot = payload["posRot"].get<PosRot>();
+    s32 entranceIndex = payload.at("entranceIndex").get<s32>();
+    s16 roomIndex = payload.at("roomIndex").get<s16>(); // SOH [Unbound]
+
+    if (entranceIndex < 0 || roomIndex < 0) {
+        SPDLOG_ERROR("[Anchor] TELEPORT_TO: invalid entranceIndex {} or roomIndex {}", entranceIndex, (int)roomIndex);
+        return;
+    }
+
+    PosRot posRot = payload.at("posRot").get<PosRot>();
 
     gPlayState->nextEntranceIndex = entranceIndex;
     gPlayState->transitionTrigger = TRANS_TRIGGER_START;

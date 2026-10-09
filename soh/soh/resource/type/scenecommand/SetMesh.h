@@ -3,10 +3,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
-#include <memory>
-#include <ship/resource/Resource.h>
 #include "SceneCommand.h"
-#include "libultraship/libultra.h"
 #include "z64math.h"
 
 namespace SOH {

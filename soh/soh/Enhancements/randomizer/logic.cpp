@@ -1,21 +1,23 @@
-#include "soh/unbound/SceneDB.h"
+#include <spdlog/spdlog.h>
+
 #include "logic.h"
+#include "bean_patches.h"
 #include "../debugger/performanceTimer.h"
-
-#include <string>
-#include <vector>
-
+#include "soh/Enhancements/randomizer/randomizerEnums.h"
 #include "soh/OTRGlobals.h"
+#include "randomizer.h"
+#include "randomizerEnumStrings.h"
 #include "dungeon.h"
 #include "SeedContext.h"
+#include "randomizer.h"
+#include "location_access.h"
+
+extern "C" {
 #include "macros.h"
 #include "variables.h"
-#include <spdlog/spdlog.h>
-#include <ship/utils/StringHelper.h>
-#include "soh/resource/type/Scene.h"
-#include "soh/resource/type/scenecommand/SetTransitionActorList.h"
-#include "src/overlays/actors/ovl_En_Door/z_en_door.h"
-#include "src/overlays/actors/ovl_Door_Shutter/z_door_shutter.h"
+}
+
+extern "C" PlayState* gPlayState;
 
 namespace Rando {
 
@@ -76,12 +78,13 @@ bool Logic::HasItem(RandomizerGet itemName) {
         case RG_IRON_BOOTS:
         case RG_HOVER_BOOTS:
             return CheckEquipment(RandoGetToEquipFlag.at(itemName));
+        case RG_PROGRESSIVE_GORONSWORD:
         case RG_GIANTS_KNIFE:
-            return CheckEquipment(RandoGetToEquipFlag.at(itemName)) || Get(LOGIC_MEDIGORON);
+            // progressive leaves Medigoron replacing broken knives, so the first one has to be found
+            return CheckEquipment(EQUIP_FLAG_SWORD_BGS) ||
+                   (!ctx->GetOption(RSK_PROGRESSIVE_GORON_SWORD) && Get(LOGIC_MEDIGORON));
         case RG_BIGGORON_SWORD:
-            return CheckEquipment(RandoGetToEquipFlag.at(itemName)) && mSaveContext->bgsFlag;
-        case RG_POWER_BRACELET:
-            return CheckRandoInf(RAND_INF_CAN_GRAB);
+            return CheckEquipment(EQUIP_FLAG_SWORD_BGS) && mSaveContext->bgsFlag;
         case RG_GORONS_BRACELET:
             return CurrentUpgrade(UPG_STRENGTH);
         case RG_SILVER_GAUNTLETS:
@@ -123,34 +126,44 @@ bool Logic::HasItem(RandomizerGet itemName) {
         case RG_DOUBLE_DEFENSE:
             return GetSaveContext()->isDoubleDefenseAcquired;
             // Masks
+        case RG_KEATON_MASK:
+            return CheckRandoInf(RAND_INF_CHILD_TRADES_HAS_MASK_KEATON) ||
+                   (!ctx->GetOption(RSK_SHUFFLE_MASKS) && Get(LOGIC_CAN_BORROW_MASKS));
         case RG_SKULL_MASK:
-            switch (ctx->GetOption(RSK_MASK_QUEST).Get()) {
-                case RO_MASK_QUEST_VANILLA:
-                    return Get(LOGIC_BORROW_SKULL_MASK);
-                case RO_MASK_QUEST_COMPLETED:
-                    return HasItem(RG_ZELDAS_LETTER) && Get(LOGIC_KAKARIKO_GATE_OPEN);
-                case RO_MASK_QUEST_SHUFFLE:
-                    return CheckRandoInf(RAND_INF_CHILD_TRADES_HAS_MASK_SKULL);
-                default:
-                    assert(false);
-                    return false;
-            }
+            return CheckRandoInf(RAND_INF_CHILD_TRADES_HAS_MASK_SKULL) ||
+                   (!ctx->GetOption(RSK_SHUFFLE_MASKS) && Get(LOGIC_CAN_BORROW_MASKS) && Get(LOGIC_SOLD_KEATON_MASK));
+        case RG_SPOOKY_MASK:
+            return CheckRandoInf(RAND_INF_CHILD_TRADES_HAS_MASK_SPOOKY) ||
+                   (!ctx->GetOption(RSK_SHUFFLE_MASKS) && Get(LOGIC_CAN_BORROW_MASKS) && Get(LOGIC_SOLD_SKULL_MASK));
+        case RG_BUNNY_HOOD:
+            return CheckRandoInf(RAND_INF_CHILD_TRADES_HAS_MASK_BUNNY) ||
+                   (!ctx->GetOption(RSK_SHUFFLE_MASKS) && Get(LOGIC_CAN_BORROW_MASKS) && Get(LOGIC_SOLD_SPOOKY_MASK));
         case RG_MASK_OF_TRUTH:
-            switch (ctx->GetOption(RSK_MASK_QUEST).Get()) {
-                case RO_MASK_QUEST_VANILLA:
-                    return Get(LOGIC_BORROW_RIGHT_MASKS);
-                case RO_MASK_QUEST_COMPLETED:
-                    return HasItem(RG_ZELDAS_LETTER) && Get(LOGIC_KAKARIKO_GATE_OPEN);
-                case RO_MASK_QUEST_SHUFFLE:
-                    return CheckRandoInf(RAND_INF_CHILD_TRADES_HAS_MASK_TRUTH);
-                default:
-                    assert(false);
-                    return false;
-            }
+            return CheckRandoInf(RAND_INF_CHILD_TRADES_HAS_MASK_TRUTH) ||
+                   (!ctx->GetOption(RSK_SHUFFLE_MASKS) && Get(LOGIC_CAN_BORROW_MASKS) && Get(LOGIC_SOLD_KEATON_MASK) &&
+                    Get(LOGIC_SOLD_SKULL_MASK) && Get(LOGIC_SOLD_SPOOKY_MASK) && Get(LOGIC_SOLD_BUNNY_HOOD));
+        case RG_POWER_BRACELET:
+        case RG_CHILD_WALLET:
         case RG_FISHING_POLE:
+        case RG_SCARECROWS_SONG:
+        case RG_BRONZE_SCALE:
+        case RG_CLIMB:
+        case RG_CRAWL:
+        case RG_OPEN_CHEST:
         case RG_ZELDAS_LETTER:
         case RG_WEIRD_EGG:
         case RG_GREG_RUPEE:
+            // Adult Trade
+        case RG_COJIRO:
+        case RG_ODD_MUSHROOM:
+        case RG_ODD_POTION:
+        case RG_POACHERS_SAW:
+        case RG_BROKEN_SWORD:
+        case RG_PRESCRIPTION:
+        case RG_EYEBALL_FROG:
+        case RG_EYEDROPS:
+        case RG_CLAIM_CHECK:
+            // Jabber Nuts
         case RG_SPEAK_DEKU:
         case RG_SPEAK_GERUDO:
         case RG_SPEAK_GORON:
@@ -174,6 +187,9 @@ bool Logic::HasItem(RandomizerGet itemName) {
         case RG_LOST_WOODS_BRIDGE_BEAN_SOUL:
         case RG_LOST_WOODS_BEAN_SOUL:
         case RG_ZORAS_RIVER_BEAN_SOUL:
+        case RG_SKELETON_KEY:
+        case RG_RUTOS_LETTER:
+            return CheckRandoInf(StaticData::RandoGetToRandInf.at(itemName));
             // Boss Souls
         case RG_GOHMA_SOUL:
         case RG_KING_DODONGO_SOUL:
@@ -183,8 +199,10 @@ bool Logic::HasItem(RandomizerGet itemName) {
         case RG_MORPHA_SOUL:
         case RG_BONGO_BONGO_SOUL:
         case RG_TWINROVA_SOUL:
+            return !ctx->GetOption(RSK_SHUFFLE_BOSS_SOULS) || CheckRandoInf(StaticData::RandoGetToRandInf.at(itemName));
         case RG_GANON_SOUL:
-        case RG_SKELETON_KEY:
+            return ctx->GetOption(RSK_GANONS_SOUL).Is(RO_GANONS_SOUL_STARTWITH) ||
+                   CheckRandoInf(StaticData::RandoGetToRandInf.at(itemName));
             // Overworld Keys
         case RG_GUARD_HOUSE_KEY:
         case RG_MARKET_BAZAAR_KEY:
@@ -210,8 +228,8 @@ bool Logic::HasItem(RandomizerGet itemName) {
         case RG_BACK_TOWER_KEY:
         case RG_HYLIA_LAB_KEY:
         case RG_FISHING_HOLE_KEY:
-        case RG_RUTOS_LETTER:
-            return CheckRandoInf(RandoGetToRandInf.at(itemName));
+            return !ctx->GetOption(RSK_LOCK_OVERWORLD_DOORS) || HasItem(RG_SKELETON_KEY) ||
+                   CheckRandoInf(StaticData::RandoGetToRandInf.at(itemName));
             // Boss Keys
         case RG_FOREST_TEMPLE_BOSS_KEY:
         case RG_FIRE_TEMPLE_BOSS_KEY:
@@ -245,8 +263,6 @@ bool Logic::HasItem(RandomizerGet itemName) {
         case RG_ICE_CAVERN_COMPASS:
             return CheckDungeonItem(DUNGEON_COMPASS, RandoGetToDungeonScene.at(itemName));
             // Wallets
-        case RG_CHILD_WALLET:
-            return CheckRandoInf(RAND_INF_HAS_WALLET);
         case RG_ADULT_WALLET:
             return CurrentUpgrade(UPG_WALLET) >= 1;
         case RG_GIANT_WALLET:
@@ -254,31 +270,46 @@ bool Logic::HasItem(RandomizerGet itemName) {
         case RG_TYCOON_WALLET:
             return CurrentUpgrade(UPG_WALLET) >= 3;
             // Scales
-        case RG_BRONZE_SCALE:
-            return CheckRandoInf(RAND_INF_CAN_SWIM);
         case RG_SILVER_SCALE:
             return CurrentUpgrade(UPG_SCALE) >= 1;
         case RG_GOLDEN_SCALE:
             return CurrentUpgrade(UPG_SCALE) >= 2;
-        case RG_CLIMB:
-            return CheckRandoInf(RAND_INF_CAN_CLIMB);
-        case RG_CRAWL:
-            return CheckRandoInf(RAND_INF_CAN_CRAWL);
-        case RG_OPEN_CHEST:
-            return CheckRandoInf(RAND_INF_CAN_OPEN_CHEST);
+            // Silver Rupees
+        case RG_SHADOW_SILVER_BLADES:
+        case RG_SHADOW_SILVER_PIT:
+        case RG_SHADOW_SILVER_SPIKES:
+        case RG_SPIRIT_SILVER_CHILD:
+        case RG_SPIRIT_SILVER_SUN:
+        case RG_SPIRIT_SILVER_BOULDERS:
+        case RG_BOTW_SILVER:
+        case RG_ICE_CAVERN_SILVER_BLADES:
+        case RG_ICE_CAVERN_SILVER_BLOCK:
+        case RG_GTG_SILVER_SLOPE:
+        case RG_GTG_SILVER_LAVA:
+        case RG_GTG_SILVER_WATER:
+        case RG_GANONS_CASTLE_SILVER_LIGHT:
+        case RG_GANONS_CASTLE_SILVER_FOREST:
+        case RG_GANONS_CASTLE_SILVER_FIRE:
+        case RG_GANONS_CASTLE_SILVER_SPIRIT:
+        case RG_DODONGOS_CAVERN_MQ_SILVER:
+        case RG_SHADOW_MQ_SILVER_INVISIBLE_BLADES:
+        case RG_SPIRIT_MQ_SILVER_LOBBY:
+        case RG_SPIRIT_MQ_SILVER_BIG_WALL:
+        case RG_GANONS_CASTLE_MQ_SILVER_WATER:
+        case RG_GANONS_CASTLE_MQ_SILVER_SHADOW: {
+            if (!ctx->GetOption(RSK_SHUFFLE_SILVER)) {
+                return Get((LogicVal)(LOGIC_SHADOW_SILVER_BLADES + (itemName - RG_SHADOW_SILVER_BLADES)));
+            } else if (ctx->GetOption(RSK_SHUFFLE_SILVER).Is(RO_SHUFFLE_SILVER_STARTWITH)) {
+                return true;
+            } else {
+                s8 field = *Randomizer::SilverFieldFromSaveContext(mSaveContext, itemName);
+                return field >= Randomizer::SilverTotal(itemName);
+            }
+        }
+            // Trade Items
         case RG_POCKET_EGG:
             return CheckRandoInf(RAND_INF_ADULT_TRADES_HAS_POCKET_EGG) ||
                    CheckRandoInf(RAND_INF_ADULT_TRADES_HAS_POCKET_CUCCO);
-        case RG_COJIRO:
-        case RG_ODD_MUSHROOM:
-        case RG_ODD_POTION:
-        case RG_POACHERS_SAW:
-        case RG_BROKEN_SWORD:
-        case RG_PRESCRIPTION:
-        case RG_EYEBALL_FROG:
-        case RG_EYEDROPS:
-        case RG_CLAIM_CHECK:
-            return CheckRandoInf(itemName - RG_COJIRO + RAND_INF_ADULT_TRADES_HAS_COJIRO);
         case RG_BOTTLE_WITH_BIG_POE:
         case RG_BOTTLE_WITH_BLUE_FIRE:
         case RG_BOTTLE_WITH_BLUE_POTION:
@@ -294,10 +325,213 @@ bool Logic::HasItem(RandomizerGet itemName) {
         default:
             break;
     }
-    SPDLOG_ERROR("HasItem reached `return false;`. Missing case for RandomizerGet of {}",
-                 static_cast<uint32_t>(itemName));
+    SPDLOG_ERROR("HasItem reached `return false;`. Missing case for RandomizerGet of {}", itemName);
     assert(false);
     return false;
+}
+
+/* based on sRestrictionFlags in z_parameter.c */
+bool Logic::ItemUseAllowed(RandomizerGet itemName) {
+    switch (itemName) {
+        case RG_KOKIRI_SWORD:
+        case RG_MASTER_SWORD:
+        case RG_PROGRESSIVE_GORONSWORD:
+        case RG_GIANTS_KNIFE:
+        case RG_BIGGORON_SWORD:
+            return BAllowed();
+        case RG_DEKU_SHIELD:
+        case RG_HYLIAN_SHIELD:
+        case RG_MIRROR_SHIELD:
+        case RG_GORON_TUNIC:
+        case RG_ZORA_TUNIC:
+        case RG_IRON_BOOTS:
+        case RG_HOVER_BOOTS:
+        case RG_MAGIC_SINGLE:
+        case RG_SILVER_GAUNTLETS:
+        case RG_GOLDEN_GAUNTLETS:
+        case RG_ZELDAS_LULLABY:
+        case RG_EPONAS_SONG:
+        case RG_PRELUDE_OF_LIGHT:
+        case RG_SARIAS_SONG:
+        case RG_SONG_OF_TIME:
+        case RG_BOLERO_OF_FIRE:
+        case RG_REQUIEM_OF_SPIRIT:
+        case RG_SONG_OF_STORMS:
+        case RG_MINUET_OF_FOREST:
+        case RG_SERENADE_OF_WATER:
+        case RG_NOCTURNE_OF_SHADOW:
+        case RG_CRAWL:
+            return true;
+        default:
+            break;
+    }
+
+    // hacky fix for underwater sections TODO this properly with a flag in regions
+    if (CurrentRegionKey == RR_LH_LAB_UNDERWATER) {
+        return itemName == RG_HOOKSHOT || itemName == RG_LONGSHOT;
+    }
+
+    switch (RegionTable(CurrentRegionKey)->scene) {
+        case SCENE_DEKU_TREE:
+        case SCENE_DODONGOS_CAVERN:
+        case SCENE_JABU_JABU:
+        case SCENE_FOREST_TEMPLE:
+        case SCENE_FIRE_TEMPLE:
+        case SCENE_WATER_TEMPLE:
+        case SCENE_SPIRIT_TEMPLE:
+        case SCENE_SHADOW_TEMPLE:
+        case SCENE_BOTTOM_OF_THE_WELL:
+        case SCENE_ICE_CAVERN:
+        case SCENE_ID_MAX:
+            return true;
+        case SCENE_HYRULE_FIELD:
+        case SCENE_GANONS_TOWER:
+        case SCENE_GERUDO_TRAINING_GROUND:
+        case SCENE_THIEVES_HIDEOUT:
+        case SCENE_INSIDE_GANONS_CASTLE:
+        case SCENE_GREAT_FAIRYS_FOUNTAIN_MAGIC:
+        case SCENE_FAIRYS_FOUNTAIN:
+        case SCENE_GREAT_FAIRYS_FOUNTAIN_SPELLS:
+        case SCENE_GROTTOS:
+        case SCENE_GRAVE_WITH_FAIRYS_FOUNTAIN:
+        case SCENE_REDEAD_GRAVE:
+        case SCENE_ROYAL_FAMILYS_TOMB:
+        case SCENE_KAKARIKO_VILLAGE:
+        case SCENE_GRAVEYARD:
+        case SCENE_ZORAS_RIVER:
+        case SCENE_KOKIRI_FOREST:
+        case SCENE_SACRED_FOREST_MEADOW:
+        case SCENE_LAKE_HYLIA:
+        case SCENE_ZORAS_DOMAIN:
+        case SCENE_ZORAS_FOUNTAIN:
+        case SCENE_GERUDO_VALLEY:
+        case SCENE_LOST_WOODS:
+        case SCENE_DESERT_COLOSSUS:
+        case SCENE_GERUDOS_FORTRESS:
+        case SCENE_HAUNTED_WASTELAND:
+        case SCENE_HYRULE_CASTLE:
+        case SCENE_DEATH_MOUNTAIN_TRAIL:
+        case SCENE_DEATH_MOUNTAIN_CRATER:
+        case SCENE_GORON_CITY:
+        case SCENE_LON_LON_RANCH:
+        case SCENE_OUTSIDE_GANONS_CASTLE:
+            return !(itemName == RG_FARORES_WIND);
+        case SCENE_GANONS_TOWER_COLLAPSE_INTERIOR:
+        case SCENE_INSIDE_GANONS_CASTLE_COLLAPSE:
+        case SCENE_GANONS_TOWER_COLLAPSE_EXTERIOR:
+            return !(itemName == RG_FARORES_WIND || itemName == RG_FAIRY_OCARINA || itemName == RG_OCARINA_OF_TIME);
+        case SCENE_CASTLE_COURTYARD_ZELDA:
+            return !(StaticData::restrictSpells.contains(itemName) || itemName == RG_FAIRY_OCARINA ||
+                     itemName == RG_OCARINA_OF_TIME);
+        case SCENE_DEKU_TREE_BOSS:
+        case SCENE_DODONGOS_CAVERN_BOSS:
+        case SCENE_JABU_JABU_BOSS:
+        case SCENE_FOREST_TEMPLE_BOSS:
+        case SCENE_FIRE_TEMPLE_BOSS:
+        case SCENE_WATER_TEMPLE_BOSS:
+        case SCENE_SPIRIT_TEMPLE_BOSS:
+        case SCENE_SHADOW_TEMPLE_BOSS:
+        case SCENE_GANONDORF_BOSS:
+        case SCENE_GANON_BOSS:
+            return !(StaticData::restrictTrade.contains(itemName) || itemName == RG_FARORES_WIND ||
+                     itemName == RG_FAIRY_OCARINA || itemName == RG_OCARINA_OF_TIME);
+        case SCENE_WINDMILL_AND_DAMPES_GRAVE:
+            return !(StaticData::restrictSpells.contains(itemName));
+        case SCENE_MARKET_GUARD_HOUSE:
+            return !(StaticData::restrictSpells.contains(itemName) || itemName == RG_HOOKSHOT ||
+                     itemName == RG_LONGSHOT);
+        case SCENE_MARKET_ENTRANCE_DAY: // test
+        case SCENE_MARKET_ENTRANCE_NIGHT:
+        case SCENE_MARKET_ENTRANCE_RUINS:
+        case SCENE_BACK_ALLEY_DAY:
+        case SCENE_BACK_ALLEY_NIGHT:
+        case SCENE_MARKET_DAY:
+        case SCENE_MARKET_NIGHT:
+        case SCENE_MARKET_RUINS:
+        case SCENE_TEMPLE_OF_TIME_EXTERIOR_DAY:
+        case SCENE_TEMPLE_OF_TIME_EXTERIOR_NIGHT:
+        case SCENE_TEMPLE_OF_TIME_EXTERIOR_RUINS:
+        case SCENE_KNOW_IT_ALL_BROS_HOUSE:
+        case SCENE_TWINS_HOUSE:
+        case SCENE_MIDOS_HOUSE:
+        case SCENE_SARIAS_HOUSE:
+        case SCENE_KAKARIKO_CENTER_GUEST_HOUSE:
+        case SCENE_BACK_ALLEY_HOUSE:
+        case SCENE_BAZAAR:
+        case SCENE_KOKIRI_SHOP:
+        case SCENE_GORON_SHOP:
+        case SCENE_ZORA_SHOP:
+        case SCENE_POTION_SHOP_KAKARIKO:
+        case SCENE_BOMBCHU_SHOP:
+        case SCENE_HAPPY_MASK_SHOP:
+        case SCENE_LINKS_HOUSE:
+        case SCENE_DOG_LADY_HOUSE:
+        case SCENE_STABLE:
+        case SCENE_IMPAS_HOUSE:
+        case SCENE_LAKESIDE_LABORATORY:
+        case SCENE_CARPENTERS_TENT:
+        case SCENE_GRAVEKEEPERS_HUT:
+        case SCENE_TEMPLE_OF_TIME:
+        case SCENE_LON_LON_BUILDINGS:
+        case SCENE_HOUSE_OF_SKULLTULA:
+            return StaticData::allowBottleMaskTrade.contains(itemName) || itemName == RG_FAIRY_OCARINA ||
+                   itemName == RG_OCARINA_OF_TIME;
+        case SCENE_TREASURE_BOX_SHOP:
+            return StaticData::allowBottleMaskTrade.contains(itemName) || itemName == RG_LENS_OF_TRUTH;
+        case SCENE_POTION_SHOP_GRANNY:
+            return StaticData::allowBottleMaskTrade.contains(itemName);
+        case SCENE_SHOOTING_GALLERY:
+        case SCENE_CASTLE_COURTYARD_GUARDS_DAY:
+        case SCENE_CASTLE_COURTYARD_GUARDS_NIGHT:
+        case SCENE_BOMBCHU_BOWLING_ALLEY:
+            return StaticData::allowMasks.contains(itemName);
+        case SCENE_FISHING_POND:
+            return itemName == RG_FISHING_POLE;
+        default:
+            SPDLOG_INFO("ItemUseAllowed reached `default` with item {} in Scene {}.", itemName,
+                        static_cast<uint32_t>(RegionTable(CurrentRegionKey)->scene));
+            return true;
+    }
+}
+
+bool Logic::BAllowed() {
+    // hacky fix for underwater sections TODO this properly with a flag in regions
+    if (CurrentRegionKey == RR_LH_LAB_UNDERWATER) {
+        return false;
+    }
+
+    switch (RegionTable(CurrentRegionKey)->scene) {
+        case SCENE_TREASURE_BOX_SHOP:
+        case SCENE_KNOW_IT_ALL_BROS_HOUSE:
+        case SCENE_TWINS_HOUSE:
+        case SCENE_MIDOS_HOUSE:
+        case SCENE_SARIAS_HOUSE:
+        case SCENE_KAKARIKO_CENTER_GUEST_HOUSE:
+        case SCENE_BACK_ALLEY_HOUSE:
+        case SCENE_BAZAAR:
+        case SCENE_KOKIRI_SHOP:
+        case SCENE_GORON_SHOP:
+        case SCENE_ZORA_SHOP:
+        case SCENE_POTION_SHOP_KAKARIKO:
+        case SCENE_BOMBCHU_SHOP:
+        case SCENE_HAPPY_MASK_SHOP:
+        case SCENE_LINKS_HOUSE:
+        case SCENE_DOG_LADY_HOUSE:
+        case SCENE_STABLE:
+        case SCENE_IMPAS_HOUSE:
+        case SCENE_LAKESIDE_LABORATORY:
+        case SCENE_CARPENTERS_TENT:
+        case SCENE_GRAVEKEEPERS_HUT:
+        case SCENE_SHOOTING_GALLERY:
+        case SCENE_BOMBCHU_BOWLING_ALLEY:
+        case SCENE_POTION_SHOP_GRANNY:
+        case SCENE_CASTLE_COURTYARD_GUARDS_DAY:
+        case SCENE_CASTLE_COURTYARD_GUARDS_NIGHT:
+        case SCENE_FISHING_POND:
+            return false;
+        default:
+            return true;
+    }
 }
 
 // Can the passed in item be used?
@@ -305,6 +539,10 @@ bool Logic::HasItem(RandomizerGet itemName) {
 bool Logic::CanUse(RandomizerGet itemName) {
     if (!HasItem(itemName))
         return false;
+
+    if (!ItemUseAllowed(itemName)) {
+        return false;
+    }
 
     switch (itemName) {
         // Magic items
@@ -341,6 +579,7 @@ bool Logic::CanUse(RandomizerGet itemName) {
             return IsAdult; // || MirrorShieldAsChild;
         case RG_MASTER_SWORD:
             return IsAdult; // || MasterSwordAsChild;
+        case RG_PROGRESSIVE_GORONSWORD:
         case RG_GIANTS_KNIFE:
         case RG_BIGGORON_SWORD:
             return IsAdult; // || BiggoronSwordAsChild;
@@ -387,34 +626,35 @@ bool Logic::CanUse(RandomizerGet itemName) {
             return IsChild;
         case RG_SKULL_MASK:
         case RG_MASK_OF_TRUTH:
-            return IsChild;
+        case RG_BUNNY_HOOD:
+            return IsChild || ctx->GetOption(RSK_MASKS_AS_ADULT);
 
         // Songs
         case RG_ZELDAS_LULLABY:
         case RG_EPONAS_SONG:
         case RG_PRELUDE_OF_LIGHT:
-            return HasItem(RG_FAIRY_OCARINA) && HasItem(RG_OCARINA_C_LEFT_BUTTON) &&
+            return CanUse(RG_FAIRY_OCARINA) && HasItem(RG_OCARINA_C_LEFT_BUTTON) &&
                    HasItem(RG_OCARINA_C_RIGHT_BUTTON) && HasItem(RG_OCARINA_C_UP_BUTTON);
         case RG_SARIAS_SONG:
-            return HasItem(RG_FAIRY_OCARINA) && HasItem(RG_OCARINA_C_LEFT_BUTTON) &&
+            return CanUse(RG_FAIRY_OCARINA) && HasItem(RG_OCARINA_C_LEFT_BUTTON) &&
                    HasItem(RG_OCARINA_C_RIGHT_BUTTON) && HasItem(RG_OCARINA_C_DOWN_BUTTON);
         case RG_SUNS_SONG:
-            return HasItem(RG_FAIRY_OCARINA) && HasItem(RG_OCARINA_C_RIGHT_BUTTON) && HasItem(RG_OCARINA_C_UP_BUTTON) &&
+            return CanUse(RG_FAIRY_OCARINA) && HasItem(RG_OCARINA_C_RIGHT_BUTTON) && HasItem(RG_OCARINA_C_UP_BUTTON) &&
                    HasItem(RG_OCARINA_C_DOWN_BUTTON);
         case RG_SONG_OF_TIME:
         case RG_BOLERO_OF_FIRE:
         case RG_REQUIEM_OF_SPIRIT:
-            return HasItem(RG_FAIRY_OCARINA) && HasItem(RG_OCARINA_A_BUTTON) && HasItem(RG_OCARINA_C_RIGHT_BUTTON) &&
+            return CanUse(RG_FAIRY_OCARINA) && HasItem(RG_OCARINA_A_BUTTON) && HasItem(RG_OCARINA_C_RIGHT_BUTTON) &&
                    HasItem(RG_OCARINA_C_DOWN_BUTTON);
         case RG_SONG_OF_STORMS:
             return HasItem(RG_FAIRY_OCARINA) && HasItem(RG_OCARINA_A_BUTTON) && HasItem(RG_OCARINA_C_UP_BUTTON) &&
                    HasItem(RG_OCARINA_C_DOWN_BUTTON);
         case RG_MINUET_OF_FOREST:
-            return HasItem(RG_FAIRY_OCARINA) && HasItem(RG_OCARINA_A_BUTTON) && HasItem(RG_OCARINA_C_LEFT_BUTTON) &&
+            return CanUse(RG_FAIRY_OCARINA) && HasItem(RG_OCARINA_A_BUTTON) && HasItem(RG_OCARINA_C_LEFT_BUTTON) &&
                    HasItem(RG_OCARINA_C_RIGHT_BUTTON) && HasItem(RG_OCARINA_C_UP_BUTTON);
         case RG_SERENADE_OF_WATER:
         case RG_NOCTURNE_OF_SHADOW:
-            return HasItem(RG_FAIRY_OCARINA) && HasItem(RG_OCARINA_A_BUTTON) && HasItem(RG_OCARINA_C_LEFT_BUTTON) &&
+            return CanUse(RG_FAIRY_OCARINA) && HasItem(RG_OCARINA_A_BUTTON) && HasItem(RG_OCARINA_C_LEFT_BUTTON) &&
                    HasItem(RG_OCARINA_C_RIGHT_BUTTON) && HasItem(RG_OCARINA_C_DOWN_BUTTON);
 
         // Misc. Items
@@ -433,9 +673,12 @@ bool Logic::CanUse(RandomizerGet itemName) {
         case RG_BOTTLE_WITH_FAIRY:
             return Get(LOGIC_FAIRY_ACCESS);
 
+        case RG_FAIRY_OCARINA:
+        case RG_OCARINA_OF_TIME:
+            return true;
+
         default:
-            SPDLOG_INFO("CanUse reached `default` for {}. using HasItem is a minor Optimisation.",
-                        static_cast<uint32_t>(itemName));
+            SPDLOG_INFO("CanUse reached `default` for {}. using HasItem is a minor Optimisation.", itemName);
             return true;
     }
 }
@@ -448,41 +691,6 @@ bool Logic::HasProjectile(HasProjectileAge age) {
             (CanUse(RG_HOOKSHOT) || CanUse(RG_FAIRY_BOW))) ||
            (age == HasProjectileAge::Either &&
             (CanUse(RG_FAIRY_SLINGSHOT) || CanUse(RG_BOOMERANG) || CanUse(RG_HOOKSHOT) || CanUse(RG_FAIRY_BOW)));
-}
-
-bool Logic::HasBossSoul(RandomizerGet itemName) {
-    if (!ctx->GetOption(RSK_SHUFFLE_BOSS_SOULS)) {
-        return true;
-    }
-    switch (itemName) {
-        case RG_GOHMA_SOUL:
-        case RG_KING_DODONGO_SOUL:
-        case RG_BARINADE_SOUL:
-        case RG_PHANTOM_GANON_SOUL:
-        case RG_VOLVAGIA_SOUL:
-        case RG_MORPHA_SOUL:
-        case RG_BONGO_BONGO_SOUL:
-        case RG_TWINROVA_SOUL:
-            return HasItem(itemName);
-        case RG_GANON_SOUL:
-            return ctx->GetOption(RSK_SHUFFLE_BOSS_SOULS).Is(RO_BOSS_SOULS_ON_PLUS_GANON) ? HasItem(RG_GANON_SOUL)
-                                                                                          : true;
-        default:
-            return false;
-    }
-}
-
-// RANDOMISERTODO intergrate into HasItem
-bool Logic::CanOpenOverworldDoor(RandomizerGet key) {
-    if (!ctx->GetOption(RSK_LOCK_OVERWORLD_DOORS)) {
-        return true;
-    }
-
-    if (HasItem(RG_SKELETON_KEY)) {
-        return true;
-    }
-
-    return HasItem(key);
 }
 
 bool Logic::CanGroundJump(bool hasBombflower) {
@@ -503,6 +711,10 @@ bool Logic::CanMiddairGroundJump(bool hasBombflower) {
 bool Logic::CanOpenUnderwaterChest() {
     return ctx->GetTrickOption(RT_OPEN_UNDERWATER_CHEST) && CanUse(RG_IRON_BOOTS) && CanUse(RG_HOOKSHOT) &&
            HasItem(RG_OPEN_CHEST);
+}
+
+bool Logic::CanOpenLargeChest() {
+    return CheckRandoInf(RAND_INF_CAN_OPEN_LARGE_CHEST);
 }
 
 uint8_t GetDifficultyValueFromString(Rando::Option& glitchOption) {
@@ -793,33 +1005,33 @@ bool Logic::CanKillEnemy(RandomizerEnemy enemy, EnemyDistance distance, bool wal
             // without shenanigans anyway. Bunny makes it free
             return CanUse(RG_KOKIRI_SWORD) || CanUse(RG_STICKS) || CanUse(RG_MASTER_SWORD);
         case RE_GOHMA:
-            return HasBossSoul(RG_GOHMA_SOUL) && CanJumpslash() &&
+            return HasItem(RG_GOHMA_SOUL) && CanJumpslash() &&
                    (CanUse(RG_NUTS) || CanUse(RG_FAIRY_SLINGSHOT) || CanUse(RG_FAIRY_BOW) || HookshotOrBoomerang());
         case RE_KING_DODONGO:
-            return HasBossSoul(RG_KING_DODONGO_SOUL) && CanJumpslash() &&
+            return HasItem(RG_KING_DODONGO_SOUL) && CanJumpslash() &&
                    (CanUse(RG_BOMB_BAG) || HasItem(RG_GORONS_BRACELET) ||
                     (ctx->GetTrickOption(RT_DC_DODONGO_CHU) && IsAdult && CanUse(RG_BOMBCHU_5)));
         case RE_BARINADE:
-            return HasBossSoul(RG_BARINADE_SOUL) && CanUse(RG_BOOMERANG) &&
+            return HasItem(RG_BARINADE_SOUL) && CanUse(RG_BOOMERANG) &&
                    (CanJumpslashExceptHammer() ||
                     (ctx->GetTrickOption(RT_JABU_BARINADE_POTS) && HasItem(RG_POWER_BRACELET)));
         case RE_PHANTOM_GANON:
-            return HasBossSoul(RG_PHANTOM_GANON_SOUL) && CanUseSword() &&
+            return HasItem(RG_PHANTOM_GANON_SOUL) && CanUseSword() &&
                    (CanUse(RG_HOOKSHOT) || CanUse(RG_FAIRY_BOW) || CanUse(RG_FAIRY_SLINGSHOT));
         case RE_VOLVAGIA:
-            return HasBossSoul(RG_VOLVAGIA_SOUL) && CanUse(RG_MEGATON_HAMMER);
+            return HasItem(RG_VOLVAGIA_SOUL) && CanUse(RG_MEGATON_HAMMER);
         case RE_MORPHA:
-            return HasBossSoul(RG_MORPHA_SOUL) &&
+            return HasItem(RG_MORPHA_SOUL) &&
                    (CanUse(RG_HOOKSHOT) ||
                     (ctx->GetTrickOption(RT_WATER_MORPHA_WITHOUT_HOOKSHOT) && HasItem(RG_BRONZE_SCALE))) &&
                    (CanUseSword() || CanUse(RG_MEGATON_HAMMER));
         case RE_BONGO_BONGO:
-            return HasBossSoul(RG_BONGO_BONGO_SOUL) &&
-                   (CanUse(RG_LENS_OF_TRUTH) || ctx->GetTrickOption(RT_LENS_BONGO)) && CanUseSword() &&
+            return HasItem(RG_BONGO_BONGO_SOUL) && (CanUse(RG_LENS_OF_TRUTH) || ctx->GetTrickOption(RT_LENS_BONGO)) &&
+                   CanUseSword() &&
                    (CanUse(RG_HOOKSHOT) || CanUse(RG_FAIRY_BOW) || CanUse(RG_FAIRY_SLINGSHOT) ||
                     ctx->GetTrickOption(RT_SHADOW_BONGO));
         case RE_TWINROVA:
-            return HasBossSoul(RG_TWINROVA_SOUL) && CanUse(RG_MIRROR_SHIELD) &&
+            return HasItem(RG_TWINROVA_SOUL) && CanUse(RG_MIRROR_SHIELD) &&
                    (CanUseSword() || CanUse(RG_MEGATON_HAMMER));
         case RE_GANONDORF:
             // RANDOTODO: Trick to use hammer (no jumpslash) or stick (only jumpslash) instead of a sword to reflect the
@@ -829,9 +1041,9 @@ bool Logic::CanKillEnemy(RandomizerEnemy enemy, EnemyDistance distance, bool wal
             // for killing ganondorf and all of those can reflect the energy ball
             // This will not be the case once ammo logic in taken into account as
             // sticks are limited and using a bottle might become a requirement in that case
-            return HasBossSoul(RG_GANON_SOUL) && CanUse(RG_LIGHT_ARROWS) && CanUseSword();
+            return HasItem(RG_GANON_SOUL) && CanUse(RG_LIGHT_ARROWS) && CanUseSword();
         case RE_GANON:
-            return HasBossSoul(RG_GANON_SOUL) && CanUse(RG_MASTER_SWORD);
+            return HasItem(RG_GANON_SOUL) && CanUse(RG_MASTER_SWORD);
         case RE_DARK_LINK:
             // RANDOTODO make a function to track our ammo vs his HP when ammo capacity is taken into account in logic
             //  all swords can at least trade blows with dark link, and even with 1 damage a slash it works out
@@ -852,7 +1064,7 @@ bool Logic::CanKillEnemy(RandomizerEnemy enemy, EnemyDistance distance, bool wal
         case RE_BEAMOS:
             return HasExplosives();
         case RE_PURPLE_LEEVER:
-            // dies on it's own, so this is the conditions to spawn it (killing 10 normal leevers)
+            // dies on its own, so this is the conditions to spawn it (killing 10 normal leevers)
             // Sticks and Ice arrows work but will need ammo capacity logic
             // other methods can damage them but not kill them, and they run when hit, making them impractical
             return CanUse(RG_MASTER_SWORD) || CanUse(RG_BIGGORON_SWORD);
@@ -863,7 +1075,7 @@ bool Logic::CanKillEnemy(RandomizerEnemy enemy, EnemyDistance distance, bool wal
                    CanUse(RG_STICKS) || CanUse(RG_DINS_FIRE) || (TakeDamage() && CanUseSword());
         case RE_SHABOM:
             return CanUse(RG_BOOMERANG) || CanUse(RG_NUTS) || CanJumpslash() || CanUse(RG_DINS_FIRE) ||
-                   CanUse(RG_ICE_ARROWS) || EffectiveHealth() * 2 > quantity;
+                   CanUse(RG_ICE_ARROWS) || EffectiveHealth() > quantity * 4;
         case RE_OCTOROK:
             return CanReflectNuts() || HookshotOrBoomerang() || CanUse(RG_FAIRY_BOW) || CanUse(RG_FAIRY_SLINGSHOT) ||
                    CanUse(RG_BOMB_BAG) || (wallOrFloor && CanUse(RG_BOMBCHU_5));
@@ -967,11 +1179,12 @@ bool Logic::CanPassEnemy(RandomizerEnemy enemy, EnemyDistance distance, bool wal
 
 // Can we avoid this enemy while climbing up a wall, or doing a difficult platforming challenge?
 // use grounded if the challenge is such that the enemy interfears even if it cannot hit link out of the air
-bool Logic::CanAvoidEnemy(RandomizerEnemy enemy, bool grounded, uint8_t quantity) {
+bool Logic::CanAvoidEnemy(RandomizerEnemy enemy, EnemyDistance distance, bool grounded, uint8_t quantity) {
     // DISTANCE AND WALL ASSUMED, add more arguments later if needed
-    if (CanKillEnemy(enemy, ED_CLOSE, true, quantity)) {
+    if (CanKillEnemy(enemy, distance, true, quantity)) {
         return true;
     }
+    bool avoided = false;
     switch (enemy) {
         case RE_GOLD_SKULLTULA:
         case RE_GOHMA_LARVA:
@@ -1004,8 +1217,32 @@ bool Logic::CanAvoidEnemy(RandomizerEnemy enemy, bool grounded, uint8_t quantity
         case RE_WALLTULA:
             return true;
         case RE_BEAMOS:
-            return !grounded || CanUse(RG_NUTS) || CanUse(RG_DINS_FIRE) ||
-                   (quantity == 1 && (CanUse(RG_FAIRY_BOW) || CanUse(RG_FAIRY_SLINGSHOT)));
+            if (!grounded) {
+                return true;
+            }
+            switch (distance) {
+                    // melee can stun, but doing so means getting close anyway
+                case ED_CLOSE:
+                case ED_SHORT_JUMPSLASH:
+                case ED_MASTER_SWORD_JUMPSLASH:
+                case ED_LONG_JUMPSLASH:
+                case ED_BOMB_THROW:
+                    avoided = CanUse(RG_DINS_FIRE) || CanUse(RG_NUTS);
+                    [[fallthrough]];
+                case ED_BOOMERANG:
+                    avoided = avoided || CanUse(RG_BOOMERANG);
+                    [[fallthrough]];
+                case ED_HOOKSHOT:
+                    avoided = avoided || CanUse(RG_HOOKSHOT);
+                    [[fallthrough]];
+                case ED_LONGSHOT:
+                    avoided = avoided || CanUse(RG_LONGSHOT);
+                    [[fallthrough]];
+                case ED_FAR:
+                    avoided = avoided || CanUse(RG_FAIRY_SLINGSHOT) || CanUse(RG_FAIRY_BOW);
+                    break;
+            }
+            return avoided;
         case RE_MAD_SCRUB:
             return !grounded || CanUse(RG_NUTS);
         case RE_KEESE:
@@ -1089,18 +1326,91 @@ bool Logic::CanDetonateBombFlowers() {
 bool Logic::CanDetonateUprightBombFlower() {
     return CanDetonateBombFlowers() || HasItem(RG_GORONS_BRACELET) ||
            (ctx->GetTrickOption(RT_BLUE_FIRE_MUD_WALLS) && CanUse(RG_BOTTLE_WITH_BLUE_FIRE) &&
-            (EffectiveHealth() != 1 || CanUse(RG_NAYRUS_LOVE)));
+            (EffectiveHealth() > 8 || CanUse(RG_NAYRUS_LOVE)));
 }
 
-bool Logic::CanHammerRecoilHover(bool needShield) {
-    return CanUse(RG_HOVER_BOOTS) && ctx->GetTrickOption(RT_HOVER_BOOST_SIMPLE) && CanUse(RG_MEGATON_HAMMER) &&
-           (!needShield || CanStandingShield());
+bool Logic::BeanPlanted(LogicVal beanEvent) {
+    // rely on Get, rest is to track bean being planted out of logic
+    if (Get(beanEvent)) {
+        return true;
+    }
+
+    // if we don't have the bean soul, the bean isn't really planted.
+    if (!HasItem(static_cast<RandomizerGet>(beanEvent - LOGIC_PLANT_DEATH_MOUNTAIN_CRATER_BEAN +
+                                            RG_DEATH_MOUNTAIN_CRATER_BEAN_SOUL))) {
+        return false;
+    }
+
+    const BeanPatch* patch = FindBeanPatch(beanEvent);
+    if (patch == nullptr) {
+        assert(false);
+        return false;
+    }
+
+    // Get the swch value for the scene
+    uint32_t swch;
+    if (gPlayState != nullptr && gPlayState->sceneNum == patch->scene) {
+        swch = gPlayState->actorCtx.flags.swch;
+    } else {
+        swch = GetSaveContext()->sceneFlags[patch->scene].swch;
+    }
+
+    return swch >> patch->swchFlag & 1;
+}
+
+bool Logic::CanRecoilHover(RecoilRequirements req) {
+    if (!(CanUse(RG_HOVER_BOOTS) && ctx->GetTrickOption(RT_HOVER_BOOST_SIMPLE))) {
+        return false;
+    }
+    bool can = false;
+    switch (req) {
+        case RECOIL_SWORD:
+            can = CanJumpslash();
+            break;
+        case RECOIL_SWORD_AND_SHIELD:
+            // hammer without shield gives better recoils than sword and shield
+            can = (CanJumpslash() && CanStandingShield());
+            [[fallthrough]];
+        case RECOIL_HAMMER:
+            can = can || CanUse(RG_MEGATON_HAMMER);
+            break;
+        case RECOIL_HAMMER_AND_SHIELD:
+            can = (CanUse(RG_MEGATON_HAMMER) && CanStandingShield());
+        default:
+            break;
+    }
+    return can;
+}
+
+// some actors seem to normalise recoil distance, so the only thing that can matter is attack range
+bool Logic::CanRecoilHoverFromObject(TorchRecoilRequirements req) {
+    if (!(CanUse(RG_HOVER_BOOTS) && ctx->GetTrickOption(RT_HOVER_BOOST_SIMPLE))) {
+        return false;
+    }
+    bool can = false;
+    switch (req) {
+        case TRECOIL_LONG_AND_SHIELD:
+            can = (CanUse(RG_STICKS) || CanUse(RG_BIGGORON_SWORD)) && CanStandingShield();
+            break;
+        case TRECOIL_SHORT:
+            can = CanUse(RG_MEGATON_HAMMER) || CanUse(RG_KOKIRI_SWORD);
+            [[fallthrough]];
+        case TRECOIL_MASTER:
+            can = can || CanUse(RG_MASTER_SWORD);
+            [[fallthrough]];
+        case TRECOIL_LONG:
+            can = can || CanUse(RG_STICKS) || CanUse(RG_BIGGORON_SWORD);
+            break;
+        default:
+            break;
+    }
+    return can;
 }
 
 bool Logic::Water3FCentralToHighEmblem() {
-    return (IsAdult && (CanUse(RG_HOVER_BOOTS) ||
-                        (ctx->GetTrickOption(RT_DAMAGE_BOOST_SIMPLE) && CanUse(RG_BOMB_BAG) && TakeDamage()))) ||
-           CanMiddairGroundJump() || (Get(LOGIC_WATER_SCARECROW) && CanUse(RG_HOOKSHOT));
+    return (IsAdult && CanUse(RG_HOVER_BOOTS)) || CanMiddairGroundJump() ||
+           (Get(LOGIC_WATER_SCARECROW) && CanUse(RG_HOOKSHOT) ||
+            ((logic->IsAdult || logic->BunnyHood()) && ctx->GetTrickOption(RT_WATER_HIGH_EMBLEM_JUMP)));
 }
 
 bool Logic::WaterRisingTargetTo3FCentral() {
@@ -1109,7 +1419,7 @@ bool Logic::WaterRisingTargetTo3FCentral() {
             HasExplosives() && CanUse(RG_HOVER_BOOTS));
 }
 
-/* Water level has 7 events that govern it's logic.
+/* Water level has 7 events that govern its logic.
  * LOGIC_WATER_LOW, LOGIC_WATER_MIDDLE say that the player for sure can set the water to this level
  * the COULD varients of these 2, as well as LOGIC_WATER_HIGH instead check for if using those emblems would be possible
  * if the player had a specific water level and ZL
@@ -1270,6 +1580,28 @@ bool Logic::BombchusEnabled() {
                                                                       : HasItem(RG_BOMB_BAG);
 }
 
+// With the shop shield/tunic gate enabled, a shop slot selling a shield/tunic is considered not-for-sale
+// in logic until the matching item has been found in the world (which sets its RandomizerInf). Shop slots
+// are randomized, so this keys off the item actually placed in the slot rather than a fixed location.
+bool Logic::ShopItemNotForSale(RandomizerCheck loc) {
+    if (ctx->GetOption(RSK_SHOP_SHIELDS_AND_TUNICS_ONLY_REFILL).IsNot(RO_GENERIC_ON) ||
+        StaticData::GetLocation(loc)->GetRCType() != RCTYPE_SHOP) {
+        return false;
+    }
+    switch (ctx->GetItemLocation(loc)->GetPlacedRandomizerGet()) {
+        case RG_BUY_DEKU_SHIELD:
+            return !CheckRandoInf(RAND_INF_HAS_FOUND_DEKU_SHIELD);
+        case RG_BUY_HYLIAN_SHIELD:
+            return !CheckRandoInf(RAND_INF_HAS_FOUND_HYLIAN_SHIELD);
+        case RG_BUY_GORON_TUNIC:
+            return !CheckRandoInf(RAND_INF_HAS_FOUND_GORON_TUNIC);
+        case RG_BUY_ZORA_TUNIC:
+            return !CheckRandoInf(RAND_INF_HAS_FOUND_ZORA_TUNIC);
+        default:
+            return false;
+    }
+}
+
 // TODO: Implement Ammo Drop Setting in place of bombchu drops
 bool Logic::BombchuRefill() {
     return Get(LOGIC_BUY_BOMBCHUS) || Get(LOGIC_COULD_PLAY_BOWLING) || Get(LOGIC_CARPET_MERCHANT) ||
@@ -1281,8 +1613,8 @@ bool Logic::HookshotOrBoomerang() {
 }
 
 bool Logic::ScarecrowsSong() {
-    return (ctx->GetOption(RSK_SKIP_SCARECROWS_SONG) && HasItem(RG_FAIRY_OCARINA) && OcarinaButtons() >= 2) ||
-           (Get(LOGIC_CHILD_SCARECROW) && Get(LOGIC_ADULT_SCARECROW));
+    return (HasItem(RG_SCARECROWS_SONG) && HasItem(RG_FAIRY_OCARINA) && OcarinaButtons() >= 2) ||
+           (!ctx->GetOption(RSK_SHUFFLE_SCARECROWS_SONG) && Get(LOGIC_CHILD_SCARECROW) && Get(LOGIC_ADULT_SCARECROW));
 }
 
 bool Logic::BlueFire() {
@@ -1331,7 +1663,15 @@ bool Logic::CanBreakSmallCrates() {
     return CanJumpslash() || HasExplosives() || HasItem(RG_POWER_BRACELET);
 }
 
+bool Logic::CanBreakRocks() {
+    return BlastOrSmash() || HasItem(RG_POWER_BRACELET);
+}
+
 bool Logic::CanBonkTrees() {
+    return true;
+}
+
+bool Logic::CanRead() {
     return true;
 }
 
@@ -1369,31 +1709,24 @@ bool Logic::CallGossipFairy() {
     return CallGossipFairyExceptSuns() || CanUse(RG_SUNS_SONG);
 }
 
-// the number returned by this is in half heart hits taken.
-// RANDOTODO work in OoT side health instead for greater applicability (16 per heart)
-uint8_t Logic::EffectiveHealth() {
-    /* Multiplier will be:
-    0 for half daamge
-    1 for normal damage
-    2 for double damage
-    3 for quad damage
-    4 for 8* damage
-    5 for 16* damage
-    10 for OHKO.
-    This is the number of shifts to apply, not a real multiplier
-    */
-    uint8_t Multiplier =
-        (ctx->GetOption(RSK_DAMAGE_MULTIPLIER).Get() < 6) ? ctx->GetOption(RSK_DAMAGE_MULTIPLIER).Get() : 10;
-    //(Hearts() << (2 + HasItem(RG_DOUBLE_DEFENSE))) is quarter hearts after DD
-    //>> Multiplier halves on normal and does nothing on half, meaning we're working with half hearts on normal damage
-    return ((Hearts() << (2 + HasItem(RG_DOUBLE_DEFENSE))) >> Multiplier) +
-           // As 1 is a quarter heart, (1 << Multiplier) is effectivly half-hearts of unmodified damage
-           // Adds an extra hit if the damage is not exact lethal
-           ((Hearts() << (2 + HasItem(RG_DOUBLE_DEFENSE))) % (1 << Multiplier) > 0);
+// Our health pool in OoT health units (16 per heart). Environmental damage, such as the hot/cold and
+// underwater timers, is subtracted from health directly, so it ignores the multiplier and double defense
+uint16_t Logic::Health() {
+    return GetSaveContext()->healthCapacity;
 }
 
-uint8_t Logic::Hearts() {
-    return GetSaveContext()->healthCapacity / 16;
+// Our health pool in OoT health units (16 per heart), scaled by how much damage taking a hit costs us
+uint16_t Logic::EffectiveHealth() {
+    uint8_t Multiplier = ctx->GetOption(RSK_DAMAGE_MULTIPLIER).Get();
+    // any damage at all is lethal on OHKO
+    if (Multiplier >= RO_DAMAGE_MULTIPLIER_OHKO) {
+        return 1;
+    }
+    // Double defense halves the damage we take, which is the same as doubling the health it has to chew through.
+    // The extra shift up cancels out the -1 in the multiplier's exponent.
+    uint32_t health = Health() << (1 + HasItem(RG_DOUBLE_DEFENSE));
+    // round up, as damage that leaves us on exactly 0 health still kills
+    return (health + (1 << Multiplier) - 1) >> Multiplier;
 }
 
 uint8_t Logic::DungeonCount() {
@@ -1422,18 +1755,36 @@ uint8_t Logic::MedallionCount() {
            HasItem(RG_SPIRIT_MEDALLION) + HasItem(RG_SHADOW_MEDALLION) + HasItem(RG_LIGHT_MEDALLION);
 }
 
-uint8_t Logic::FireTimer() {
-    return CanUse(RG_GORON_TUNIC) ? 255 : (ctx->GetTrickOption(RT_FEWER_TUNIC_REQUIREMENTS)) ? (Hearts() * 8) : 0;
+uint16_t Logic::FireTimer() {
+    if (CanUse(RG_GORON_TUNIC)) {
+        return UINT16_MAX;
+    }
+    return ctx->GetTrickOption(RT_FEWER_TUNIC_REQUIREMENTS) ? Health() / 2 : 0;
 }
 
 // Tunic is not required if you are using irons to do something that a simple gold scale dive could do, and you are not
 // in water temple. (celing swimming and long walks through water do not count)
-uint8_t Logic::WaterTimer() {
-    return CanUse(RG_ZORA_TUNIC) ? 255 : (ctx->GetTrickOption(RT_FEWER_TUNIC_REQUIREMENTS)) ? (Hearts() * 8) : 0;
+uint16_t Logic::WaterTimer() {
+    if (CanUse(RG_ZORA_TUNIC)) {
+        return UINT16_MAX;
+    }
+    return ctx->GetTrickOption(RT_FEWER_TUNIC_REQUIREMENTS) ? Health() / 2 : 0;
 }
 
 bool Logic::TakeDamage() {
-    return CanUse(RG_BOTTLE_WITH_FAIRY) || EffectiveHealth() != 1 || CanUse(RG_NAYRUS_LOVE);
+    return CanUse(RG_BOTTLE_WITH_FAIRY) || EffectiveHealth() > 8 || CanUse(RG_NAYRUS_LOVE);
+}
+
+// Voiding out, be it swimming too far or falling in a pit, costs a heart.
+// Void damage skips damage multiplier, but double defense still halves it & OHKO still kills.
+bool Logic::CanVoid() {
+    if (HasItem(RG_BOTTLE_WITH_FAIRY)) {
+        return true;
+    }
+    if (ctx->GetOption(RSK_DAMAGE_MULTIPLIER).Is(RO_DAMAGE_MULTIPLIER_OHKO)) {
+        return false;
+    }
+    return Health() > (FULL_HEART_HEALTH >> (HasItem(RG_DOUBLE_DEFENSE) ? 1 : 0));
 }
 
 bool Logic::CanOpenBombGrotto() {
@@ -1469,48 +1820,14 @@ bool Logic::SunlightArrows() {
     return ctx->GetOption(RSK_SUNLIGHT_ARROWS) && CanUse(RG_LIGHT_ARROWS);
 }
 
-// Is this best off signaling what you have already traded, or what step you are currently on?
-bool Logic::TradeQuestStep(RandomizerGet rg) {
-    if (ctx->GetOption(RSK_SHUFFLE_ADULT_TRADE)) {
-        return false; // This does not apply when we are shuffling trade items
-    }
-    bool hasState = false;
-    // Falling through each case to test each possibility
-    switch (rg) {
-        case RG_POCKET_EGG:
-            hasState = hasState || HasItem(RG_POCKET_EGG);
-            [[fallthrough]];
-        case RG_COJIRO:
-            hasState = hasState || HasItem(RG_COJIRO);
-            [[fallthrough]];
-        case RG_ODD_MUSHROOM:
-            hasState = hasState || HasItem(RG_ODD_MUSHROOM);
-            [[fallthrough]];
-        case RG_ODD_POTION:
-            hasState = hasState || HasItem(RG_ODD_POTION);
-            [[fallthrough]];
-        case RG_POACHERS_SAW:
-            hasState = hasState || HasItem(RG_POACHERS_SAW);
-            [[fallthrough]];
-        case RG_BROKEN_SWORD:
-            hasState = hasState || HasItem(RG_BROKEN_SWORD);
-            [[fallthrough]];
-        case RG_PRESCRIPTION:
-            hasState = hasState || HasItem(RG_PRESCRIPTION);
-            [[fallthrough]];
-        case RG_EYEDROPS:
-            hasState = hasState || HasItem(RG_EYEDROPS);
-            [[fallthrough]];
-        case RG_CLAIM_CHECK:
-            hasState = hasState || HasItem(RG_CLAIM_CHECK);
-            break;
-        default:
-            SPDLOG_ERROR("TradeQuestStep reached `return false;`. Missing case for RandomizerGet of {}",
-                         static_cast<uint32_t>(rg));
-            assert(false);
-            return false;
-    }
-    return hasState;
+// Bunny Hood grants the Majora's Mask run speed and jump distance boost
+bool Logic::BunnyHood() {
+    return ctx->GetOption(RSK_BUNNY_HOOD) && CanUse(RG_BUNNY_HOOD);
+}
+
+// Hovering with the extra speed the hood gives
+bool Logic::BunnyHovers() {
+    return CanUse(RG_HOVER_BOOTS) && BunnyHood();
 }
 
 bool Logic::CanStandingShield() {
@@ -1546,28 +1863,95 @@ bool Logic::CanBuildRainbowBridge() {
                 ctx->GetOption(RSK_RAINBOW_BRIDGE_DUNGEON_COUNT).Get()) ||
            (ctx->GetOption(RSK_RAINBOW_BRIDGE).Is(RO_BRIDGE_TOKENS) &&
             GetGSCount() >= ctx->GetOption(RSK_RAINBOW_BRIDGE_TOKEN_COUNT).Get()) ||
+           (ctx->GetOption(RSK_RAINBOW_BRIDGE).Is(RO_BRIDGE_TRIFORCE_PIECES) &&
+            GetTriforcePieceCount() >= ctx->GetOption(RSK_RAINBOW_BRIDGE_TRIFORCE_COUNT).Get()) ||
            (ctx->GetOption(RSK_RAINBOW_BRIDGE).Is(RO_BRIDGE_GREG) && HasItem(RG_GREG_RUPEE));
 }
 
-bool Logic::CanTriggerLACS() {
-    return (ctx->LACSCondition() == RO_LACS_VANILLA && HasItem(RG_SHADOW_MEDALLION) && HasItem(RG_SPIRIT_MEDALLION)) ||
-           (ctx->LACSCondition() == RO_LACS_STONES &&
-            StoneCount() + (HasItem(RG_GREG_RUPEE) && ctx->GetOption(RSK_LACS_OPTIONS).Is(RO_LACS_GREG_REWARD)) >=
-                ctx->GetOption(RSK_LACS_STONE_COUNT).Get()) ||
-           (ctx->LACSCondition() == RO_LACS_MEDALLIONS &&
-            MedallionCount() + (HasItem(RG_GREG_RUPEE) && ctx->GetOption(RSK_LACS_OPTIONS).Is(RO_LACS_GREG_REWARD)) >=
-                ctx->GetOption(RSK_LACS_MEDALLION_COUNT).Get()) ||
-           (ctx->LACSCondition() == RO_LACS_REWARDS &&
-            StoneCount() + MedallionCount() +
-                    (HasItem(RG_GREG_RUPEE) && ctx->GetOption(RSK_LACS_OPTIONS).Is(RO_LACS_GREG_REWARD)) >=
-                ctx->GetOption(RSK_LACS_REWARD_COUNT).Get()) ||
-           (ctx->LACSCondition() == RO_LACS_DUNGEONS &&
-            DungeonCount() + (HasItem(RG_GREG_RUPEE) && ctx->GetOption(RSK_LACS_OPTIONS).Is(RO_LACS_GREG_REWARD)) >=
-                ctx->GetOption(RSK_LACS_DUNGEON_COUNT).Get()) ||
-           (ctx->LACSCondition() == RO_LACS_TOKENS && GetGSCount() >= ctx->GetOption(RSK_LACS_TOKEN_COUNT).Get());
+bool Logic::CanTriggerGBK() {
+    switch (ctx->GBKCondition()) {
+        case RO_CHECK_TRIGGER_STONES:
+            return StoneCount() +
+                       (HasItem(RG_GREG_RUPEE) && ctx->GetOption(RSK_GBK_OPTIONS).Is(RO_CHECK_TRIGGER_GREG_REWARD)) >=
+                   ctx->GetOption(RSK_GBK_STONE_COUNT).Get();
+        case RO_CHECK_TRIGGER_MEDALLIONS:
+            return MedallionCount() +
+                       (HasItem(RG_GREG_RUPEE) && ctx->GetOption(RSK_GBK_OPTIONS).Is(RO_CHECK_TRIGGER_GREG_REWARD)) >=
+                   ctx->GetOption(RSK_GBK_MEDALLION_COUNT).Get();
+        case RO_CHECK_TRIGGER_REWARDS:
+            return StoneCount() + MedallionCount() +
+                       (HasItem(RG_GREG_RUPEE) && ctx->GetOption(RSK_GBK_OPTIONS).Is(RO_CHECK_TRIGGER_GREG_REWARD)) >=
+                   ctx->GetOption(RSK_GBK_REWARD_COUNT).Get();
+        case RO_CHECK_TRIGGER_DUNGEONS:
+            return DungeonCount() +
+                       (HasItem(RG_GREG_RUPEE) && ctx->GetOption(RSK_GBK_OPTIONS).Is(RO_CHECK_TRIGGER_GREG_REWARD)) >=
+                   ctx->GetOption(RSK_GBK_DUNGEON_COUNT).Get();
+        case RO_CHECK_TRIGGER_TOKENS:
+            return GetGSCount() >= ctx->GetOption(RSK_GBK_TOKEN_COUNT).Get();
+        case RO_CHECK_TRIGGER_TRIFORCE_PIECES:
+            return GetTriforcePieceCount() >= ctx->GetOption(RSK_GBK_TRIFORCE_COUNT).Get();
+        default:
+            return false;
+    }
 }
 
-bool Logic::SmallKeys(s16 scene, uint8_t requiredAmount) {
+bool Logic::CanTriggerGanonsSoul() {
+    switch (ctx->GanonsSoulCondition()) {
+        case RO_CHECK_TRIGGER_STONES:
+            return StoneCount() + (HasItem(RG_GREG_RUPEE) &&
+                                   ctx->GetOption(RSK_GANONS_SOUL_OPTIONS).Is(RO_CHECK_TRIGGER_GREG_REWARD)) >=
+                   ctx->GetOption(RSK_GANONS_SOUL_STONE_COUNT).Get();
+        case RO_CHECK_TRIGGER_MEDALLIONS:
+            return MedallionCount() + (HasItem(RG_GREG_RUPEE) &&
+                                       ctx->GetOption(RSK_GANONS_SOUL_OPTIONS).Is(RO_CHECK_TRIGGER_GREG_REWARD)) >=
+                   ctx->GetOption(RSK_GANONS_SOUL_MEDALLION_COUNT).Get();
+        case RO_CHECK_TRIGGER_REWARDS:
+            return StoneCount() + MedallionCount() +
+                       (HasItem(RG_GREG_RUPEE) &&
+                        ctx->GetOption(RSK_GANONS_SOUL_OPTIONS).Is(RO_CHECK_TRIGGER_GREG_REWARD)) >=
+                   ctx->GetOption(RSK_GANONS_SOUL_REWARD_COUNT).Get();
+        case RO_CHECK_TRIGGER_DUNGEONS:
+            return DungeonCount() + (HasItem(RG_GREG_RUPEE) &&
+                                     ctx->GetOption(RSK_GANONS_SOUL_OPTIONS).Is(RO_CHECK_TRIGGER_GREG_REWARD)) >=
+                   ctx->GetOption(RSK_GANONS_SOUL_DUNGEON_COUNT).Get();
+        case RO_CHECK_TRIGGER_TOKENS:
+            return GetGSCount() >= ctx->GetOption(RSK_GANONS_SOUL_TOKEN_COUNT).Get();
+        case RO_CHECK_TRIGGER_TRIFORCE_PIECES:
+            return GetTriforcePieceCount() >= ctx->GetOption(RSK_GANONS_SOUL_TRIFORCE_COUNT).Get();
+        default:
+            return false;
+    }
+}
+
+bool Logic::CanTriggerWincon() {
+    switch (ctx->WinCondition()) {
+        case RO_WINCON_STONES:
+            return StoneCount() + (HasItem(RG_GREG_RUPEE) &&
+                                   ctx->GetOption(RSK_WINCON_OPTIONS).Is(RO_CHECK_TRIGGER_GREG_REWARD)) >=
+                   ctx->GetOption(RSK_WINCON_STONE_COUNT).Get();
+        case RO_WINCON_MEDALLIONS:
+            return MedallionCount() + (HasItem(RG_GREG_RUPEE) &&
+                                       ctx->GetOption(RSK_WINCON_OPTIONS).Is(RO_CHECK_TRIGGER_GREG_REWARD)) >=
+                   ctx->GetOption(RSK_WINCON_MEDALLION_COUNT).Get();
+        case RO_WINCON_REWARDS:
+            return StoneCount() + MedallionCount() +
+                       (HasItem(RG_GREG_RUPEE) &&
+                        ctx->GetOption(RSK_WINCON_OPTIONS).Is(RO_CHECK_TRIGGER_GREG_REWARD)) >=
+                   ctx->GetOption(RSK_WINCON_REWARD_COUNT).Get();
+        case RO_WINCON_DUNGEONS:
+            return DungeonCount() + (HasItem(RG_GREG_RUPEE) &&
+                                     ctx->GetOption(RSK_WINCON_OPTIONS).Is(RO_CHECK_TRIGGER_GREG_REWARD)) >=
+                   ctx->GetOption(RSK_WINCON_DUNGEON_COUNT).Get();
+        case RO_WINCON_TOKENS:
+            return GetGSCount() >= ctx->GetOption(RSK_WINCON_TOKEN_COUNT).Get();
+        case RO_WINCON_TRIFORCE_PIECES:
+            return GetTriforcePieceCount() >= ctx->GetOption(RSK_WINCON_TRIFORCE_COUNT).Get();
+        default:
+            return false;
+    }
+}
+
+bool Logic::SmallKeys(SceneID scene, uint8_t requiredAmount) {
     if (HasItem(RG_SKELETON_KEY)) {
         return true;
     }
@@ -1585,9 +1969,32 @@ std::map<RandomizerGet, uint32_t> Logic::RandoGetToEquipFlag = {
     { RG_HOVER_BOOTS, EQUIP_FLAG_BOOTS_HOVER }
 };
 
-std::map<RandomizerGet, uint32_t> Logic::RandoGetToRandInf = {
+std::map<RandomizerGet, uint32_t> StaticData::RandoGetToRandInf = {
+    { RG_BRONZE_SCALE, RAND_INF_CAN_SWIM },
+    { RG_POWER_BRACELET, RAND_INF_CAN_GRAB },
     { RG_ZELDAS_LETTER, RAND_INF_ZELDAS_LETTER },
+    { RG_CLIMB, RAND_INF_CAN_CLIMB },
+    { RG_CRAWL, RAND_INF_CAN_CRAWL },
+    { RG_OPEN_CHEST, RAND_INF_CAN_OPEN_CHEST },
+    { RG_CHILD_WALLET, RAND_INF_HAS_WALLET },
+    { RG_QUIVER_INF, RAND_INF_HAS_INFINITE_QUIVER },
+    { RG_BOMB_BAG_INF, RAND_INF_HAS_INFINITE_BOMB_BAG },
+    { RG_BULLET_BAG_INF, RAND_INF_HAS_INFINITE_BULLET_BAG },
+    { RG_STICK_UPGRADE_INF, RAND_INF_HAS_INFINITE_STICK_UPGRADE },
+    { RG_NUT_UPGRADE_INF, RAND_INF_HAS_INFINITE_NUT_UPGRADE },
+    { RG_MAGIC_INF, RAND_INF_HAS_INFINITE_MAGIC_METER },
+    { RG_BOMBCHU_INF, RAND_INF_HAS_INFINITE_BOMBCHUS },
+    { RG_WALLET_INF, RAND_INF_HAS_INFINITE_MONEY },
     { RG_WEIRD_EGG, RAND_INF_WEIRD_EGG },
+    { RG_COJIRO, RAND_INF_ADULT_TRADES_HAS_COJIRO },
+    { RG_ODD_MUSHROOM, RAND_INF_ADULT_TRADES_HAS_ODD_MUSHROOM },
+    { RG_ODD_POTION, RAND_INF_ADULT_TRADES_HAS_ODD_POTION },
+    { RG_POACHERS_SAW, RAND_INF_ADULT_TRADES_HAS_SAW },
+    { RG_BROKEN_SWORD, RAND_INF_ADULT_TRADES_HAS_SWORD_BROKEN },
+    { RG_PRESCRIPTION, RAND_INF_ADULT_TRADES_HAS_PRESCRIPTION },
+    { RG_EYEBALL_FROG, RAND_INF_ADULT_TRADES_HAS_FROG },
+    { RG_EYEDROPS, RAND_INF_ADULT_TRADES_HAS_EYEDROPS },
+    { RG_CLAIM_CHECK, RAND_INF_ADULT_TRADES_HAS_CLAIM_CHECK },
     { RG_RUTOS_LETTER, RAND_INF_OBTAINED_RUTOS_LETTER },
     { RG_DEATH_MOUNTAIN_CRATER_BEAN_SOUL, RAND_INF_DEATH_MOUNTAIN_CRATER_BEAN_SOUL },
     { RG_DEATH_MOUNTAIN_TRAIL_BEAN_SOUL, RAND_INF_DEATH_MOUNTAIN_TRAIL_BEAN_SOUL },
@@ -1630,6 +2037,8 @@ std::map<RandomizerGet, uint32_t> Logic::RandoGetToRandInf = {
     { RG_SPEAK_KOKIRI, RAND_INF_CAN_SPEAK_KOKIRI },
     { RG_SPEAK_ZORA, RAND_INF_CAN_SPEAK_ZORA },
     { RG_FISHING_POLE, RAND_INF_FISHING_POLE_FOUND },
+    { RG_SCARECROWS_SONG, RAND_INF_HAS_SCARECROWS_SONG },
+    { RG_ROCS_FEATHER, RAND_INF_OBTAINED_ROCS_FEATHER },
     { RG_GUARD_HOUSE_KEY, RAND_INF_GUARD_HOUSE_KEY_OBTAINED },
     { RG_MARKET_BAZAAR_KEY, RAND_INF_MARKET_BAZAAR_KEY_OBTAINED },
     { RG_MARKET_POTION_SHOP_KEY, RAND_INF_MARKET_POTION_SHOP_KEY_OBTAINED },
@@ -1656,7 +2065,7 @@ std::map<RandomizerGet, uint32_t> Logic::RandoGetToRandInf = {
     { RG_FISHING_HOLE_KEY, RAND_INF_FISHING_HOLE_KEY_OBTAINED },
 };
 
-std::map<uint32_t, uint32_t> Logic::RandoGetToDungeonScene = {
+std::map<uint32_t, SceneID> Logic::RandoGetToDungeonScene = {
     { RG_FOREST_TEMPLE_SMALL_KEY, SCENE_FOREST_TEMPLE },
     { RG_FIRE_TEMPLE_SMALL_KEY, SCENE_FIRE_TEMPLE },
     { RG_WATER_TEMPLE_SMALL_KEY, SCENE_WATER_TEMPLE },
@@ -1701,7 +2110,8 @@ std::map<uint32_t, uint32_t> Logic::RandoGetToDungeonScene = {
     { RG_SHADOW_TEMPLE_COMPASS, SCENE_SHADOW_TEMPLE },
     { RG_BOTTOM_OF_THE_WELL_COMPASS, SCENE_BOTTOM_OF_THE_WELL },
     { RG_ICE_CAVERN_COMPASS, SCENE_ICE_CAVERN },
-    { RG_TREASURE_GAME_SMALL_KEY, SCENE_TREASURE_BOX_SHOP }
+    { RG_TREASURE_GAME_SMALL_KEY, SCENE_TREASURE_BOX_SHOP },
+    { RG_TREASURE_GAME_KEY_RING, SCENE_TREASURE_BOX_SHOP }
 };
 
 std::map<uint32_t, uint32_t> Logic::RandoGetToQuestItem = {
@@ -1744,6 +2154,53 @@ std::map<uint32_t, uint32_t> BottleRandomizerGetToItemID = {
 
 uint32_t HookshotLookup[3] = { ITEM_NONE, ITEM_HOOKSHOT, ITEM_LONGSHOT };
 uint32_t OcarinaLookup[3] = { ITEM_NONE, ITEM_OCARINA_FAIRY, ITEM_OCARINA_TIME };
+
+std::set<RandomizerGet> StaticData::restrictFW = { RG_FARORES_WIND };
+
+std::set<RandomizerGet> StaticData::restrictSpells = { RG_FARORES_WIND, RG_DINS_FIRE, RG_NAYRUS_LOVE };
+
+std::set<RandomizerGet> StaticData::restrictTrade = {
+    RG_POCKET_EGG,   RG_COJIRO,       RG_ODD_MUSHROOM, RG_ODD_POTION, RG_POACHERS_SAW,
+    RG_BROKEN_SWORD, RG_PRESCRIPTION, RG_EYEBALL_FROG, RG_EYEDROPS,   RG_CLAIM_CHECK,
+};
+
+std::set<RandomizerGet> StaticData::allowMasks = {
+    RG_KEATON_MASK, RG_SKULL_MASK,  RG_SPOOKY_MASK,   RG_BUNNY_HOOD, RG_GORON_MASK,
+    RG_ZORA_MASK,   RG_GERUDO_MASK, RG_MASK_OF_TRUTH, RG_WEIRD_EGG,  RG_ZELDAS_LETTER,
+};
+
+std::set<RandomizerGet> StaticData::allowBottleMaskTrade = { RG_KEATON_MASK,
+                                                             RG_SKULL_MASK,
+                                                             RG_SPOOKY_MASK,
+                                                             RG_BUNNY_HOOD,
+                                                             RG_GORON_MASK,
+                                                             RG_ZORA_MASK,
+                                                             RG_GERUDO_MASK,
+                                                             RG_MASK_OF_TRUTH,
+                                                             RG_WEIRD_EGG,
+                                                             RG_ZELDAS_LETTER,
+                                                             RG_POCKET_EGG,
+                                                             RG_COJIRO,
+                                                             RG_ODD_MUSHROOM,
+                                                             RG_ODD_POTION,
+                                                             RG_POACHERS_SAW,
+                                                             RG_BROKEN_SWORD,
+                                                             RG_PRESCRIPTION,
+                                                             RG_EYEBALL_FROG,
+                                                             RG_EYEDROPS,
+                                                             RG_CLAIM_CHECK,
+                                                             RG_EMPTY_BOTTLE,
+                                                             RG_BOTTLE_WITH_MILK,
+                                                             RG_BOTTLE_WITH_RED_POTION,
+                                                             RG_BOTTLE_WITH_GREEN_POTION,
+                                                             RG_BOTTLE_WITH_BLUE_POTION,
+                                                             RG_BOTTLE_WITH_FAIRY,
+                                                             RG_BOTTLE_WITH_FISH,
+                                                             RG_BOTTLE_WITH_BLUE_FIRE,
+                                                             RG_BOTTLE_WITH_BUGS,
+                                                             RG_BOTTLE_WITH_POE,
+                                                             RG_RUTOS_LETTER,
+                                                             RG_BOTTLE_WITH_BIG_POE };
 
 void Logic::ApplyItemEffect(Item& item, bool state) {
     auto randoGet = item.GetRandomizerGet();
@@ -1790,7 +2247,17 @@ void Logic::ApplyItemEffect(Item& item, bool state) {
                     SetRandoInf(RAND_INF_CAN_CRAWL, state);
                     break;
                 case RG_OPEN_CHEST:
-                    SetRandoInf(RAND_INF_CAN_OPEN_CHEST, state);
+                    if (ctx->GetOption(RSK_SHUFFLE_OPEN_CHEST).Is(RO_OPEN_CHEST_PROGRESSIVE)) {
+                        if (state ? CheckRandoInf(RAND_INF_CAN_OPEN_CHEST)
+                                  : CheckRandoInf(RAND_INF_CAN_OPEN_LARGE_CHEST)) {
+                            SetRandoInf(RAND_INF_CAN_OPEN_LARGE_CHEST, state);
+                        } else {
+                            SetRandoInf(RAND_INF_CAN_OPEN_CHEST, state);
+                        }
+                    } else {
+                        SetRandoInf(RAND_INF_CAN_OPEN_CHEST, state);
+                        SetRandoInf(RAND_INF_CAN_OPEN_LARGE_CHEST, state);
+                    }
                     break;
                 case RG_PROGRESSIVE_HOOKSHOT: {
                     uint8_t i;
@@ -1918,6 +2385,15 @@ void Logic::ApplyItemEffect(Item& item, bool state) {
                     }
                     SetInventory(ITEM_BOMBCHU, (!state ? ITEM_NONE : ITEM_BOMBCHU));
                 } break;
+                case RG_PROGRESSIVE_GORONSWORD:
+                    if (state ? CheckEquipment(EQUIP_FLAG_SWORD_BGS) : mSaveContext->bgsFlag) {
+                        mSaveContext->bgsFlag = state;
+                    } else if (state) {
+                        mSaveContext->inventory.equipment |= EQUIP_FLAG_SWORD_BGS;
+                    } else {
+                        mSaveContext->inventory.equipment &= ~EQUIP_FLAG_SWORD_BGS;
+                    }
+                    break;
                 case RG_PROGRESSIVE_MAGIC_METER: {
                     auto realGI = item.GetGIEntry();
                     if (realGI->itemId == RG_MAGIC_INF && realGI->modIndex == MOD_RANDOMIZER) {
@@ -1927,7 +2403,7 @@ void Logic::ApplyItemEffect(Item& item, bool state) {
                     mSaveContext->magicLevel += (!state ? -1 : 1);
                 } break;
                 case RG_PROGRESSIVE_OCARINA: {
-                    uint8_t i;
+                    int32_t i;
                     for (i = 0; i < 3; i++) {
                         if (CurrentInventory(ITEM_OCARINA_FAIRY) == OcarinaLookup[i]) {
                             break;
@@ -1956,7 +2432,7 @@ void Logic::ApplyItemEffect(Item& item, bool state) {
                 case RG_FIRE_ARROWS:
                 case RG_ICE_ARROWS:
                 case RG_LIGHT_ARROWS:
-                    SetInventory(item.GetGIEntry()->itemId, (!state ? ITEM_NONE : item.GetGIEntry()->itemId));
+                    SetInventory(item.GetGIEntry()->itemId, (!state ? (uint16_t)ITEM_NONE : item.GetGIEntry()->itemId));
                     break;
                 case RG_MAGIC_BEAN:
                 case RG_MAGIC_BEAN_PACK: {
@@ -2034,6 +2510,7 @@ void Logic::ApplyItemEffect(Item& item, bool state) {
                 case RG_SPEAK_KOKIRI:
                 case RG_SPEAK_ZORA:
                 case RG_FISHING_POLE:
+                case RG_SCARECROWS_SONG:
                 case RG_GUARD_HOUSE_KEY:
                 case RG_MARKET_BAZAAR_KEY:
                 case RG_MARKET_POTION_SHOP_KEY:
@@ -2058,7 +2535,7 @@ void Logic::ApplyItemEffect(Item& item, bool state) {
                 case RG_BACK_TOWER_KEY:
                 case RG_HYLIA_LAB_KEY:
                 case RG_FISHING_HOLE_KEY:
-                    SetRandoInf(RandoGetToRandInf.at(randoGet), state);
+                    SetRandoInf(StaticData::RandoGetToRandInf.at(randoGet), state);
                     break;
                 case RG_TRIFORCE_PIECE:
                     mSaveContext->ship.quest.data.randomizer.triforcePiecesCollected += (!state ? -1 : 1);
@@ -2066,7 +2543,9 @@ void Logic::ApplyItemEffect(Item& item, bool state) {
                 case RG_BOMBCHU_5:
                 case RG_BOMBCHU_10:
                 case RG_BOMBCHU_20:
-                    SetInventory(ITEM_BOMBCHU, (!state ? ITEM_NONE : ITEM_BOMBCHU));
+                    if (ctx->GetOption(RSK_BOMBCHU_BAG).Is(RO_BOMBCHU_BAG_NONE)) {
+                        SetInventory(ITEM_BOMBCHU, (!state ? ITEM_NONE : ITEM_BOMBCHU));
+                    }
                     break;
                 default:
                     break;
@@ -2074,6 +2553,23 @@ void Logic::ApplyItemEffect(Item& item, bool state) {
         } break;
         case ITEMTYPE_EQUIP: {
             RandomizerGet itemRG = item.GetRandomizerGet();
+            // Finding a non-shop shield/tunic unlocks its matching shop copy when that gate is enabled.
+            switch (itemRG) {
+                case RG_DEKU_SHIELD:
+                    SetRandoInf(RAND_INF_HAS_FOUND_DEKU_SHIELD, state);
+                    break;
+                case RG_HYLIAN_SHIELD:
+                    SetRandoInf(RAND_INF_HAS_FOUND_HYLIAN_SHIELD, state);
+                    break;
+                case RG_GORON_TUNIC:
+                    SetRandoInf(RAND_INF_HAS_FOUND_GORON_TUNIC, state);
+                    break;
+                case RG_ZORA_TUNIC:
+                    SetRandoInf(RAND_INF_HAS_FOUND_ZORA_TUNIC, state);
+                    break;
+                default:
+                    break;
+            }
             if (itemRG == RG_DEKU_SHIELD || itemRG == RG_HYLIAN_SHIELD) {
                 return;
             }
@@ -2103,10 +2599,29 @@ void Logic::ApplyItemEffect(Item& item, bool state) {
         case ITEMTYPE_BOSSKEY:
             SetDungeonItem(DUNGEON_KEY_BOSS, RandoGetToDungeonScene.find(item.GetRandomizerGet())->second, state);
             break;
+        case ITEMTYPE_SILVER: {
+            auto randoGet = item.GetRandomizerGet();
+            s8* field = Randomizer::SilverFieldFromSaveContext(mSaveContext, randoGet);
+            bool isWallet = ctx->GetOption(RSK_SHUFFLE_SILVER).Is(RO_SHUFFLE_SILVER_WALLET);
+            if (!state) {
+                if (isWallet) {
+                    *field = 0;
+                } else {
+                    *field -= 1;
+                }
+            } else {
+                if (isWallet) {
+                    *field = 10;
+                } else {
+                    *field += 1;
+                }
+            }
+            break;
+        }
         case ITEMTYPE_FORTRESS_SMALLKEY:
         case ITEMTYPE_SMALLKEY: {
             auto randoGet = item.GetRandomizerGet();
-            auto keyring = randoGet >= RG_FOREST_TEMPLE_KEY_RING && randoGet <= RG_GANONS_CASTLE_KEY_RING;
+            auto keyring = randoGet >= RG_FOREST_TEMPLE_KEY_RING && randoGet <= RG_TREASURE_GAME_KEY_RING;
             auto dungeonIndex = RandoGetToDungeonScene.find(randoGet)->second;
             auto count = GetSmallKeyCount(dungeonIndex);
             if (!state) {
@@ -2151,13 +2666,13 @@ void Logic::ApplyItemEffect(Item& item, bool state) {
                     break;
                 case RG_DEKU_STICK_1:
                 case RG_BUY_DEKU_STICK_1:
-                case RG_STICKS:
                     SetInventory(ITEM_STICK, (!state ? ITEM_NONE : ITEM_STICK));
                     break;
-                case RG_BOMBCHU_5:
-                case RG_BOMBCHU_10:
-                case RG_BOMBCHU_20:
-                    SetInventory(ITEM_BOMBCHU, (!state ? ITEM_NONE : ITEM_BOMBCHU));
+                case RG_BUY_BOMBCHUS_10:
+                case RG_BUY_BOMBCHUS_20:
+                    if (ctx->GetOption(RSK_BOMBCHU_BAG).Is(RO_BOMBCHU_BAG_NONE)) {
+                        SetInventory(ITEM_BOMBCHU, (!state ? ITEM_NONE : ITEM_BOMBCHU));
+                    }
                     break;
                 default:
                     break;
@@ -2279,23 +2794,21 @@ void Logic::InitSaveContext() {
     mSaveContext->worldMapAreaData = 0;
     mSaveContext->scarecrowLongSongSet = 0;
     for (int i = 0; i < ARRAY_COUNT(mSaveContext->scarecrowLongSong); i++) {
-        mSaveContext->scarecrowLongSong[i].noteIdx = 0;
-        mSaveContext->scarecrowLongSong[i].unk_01 = 0;
-        mSaveContext->scarecrowLongSong[i].unk_02 = 0;
+        mSaveContext->scarecrowLongSong[i].pitch = 0;
+        mSaveContext->scarecrowLongSong[i].length = 0;
         mSaveContext->scarecrowLongSong[i].volume = 0;
         mSaveContext->scarecrowLongSong[i].vibrato = 0;
-        mSaveContext->scarecrowLongSong[i].tone = 0;
-        mSaveContext->scarecrowLongSong[i].semitone = 0;
+        mSaveContext->scarecrowLongSong[i].bend = 0;
+        mSaveContext->scarecrowLongSong[i].bFlat4Flag = 0;
     }
     mSaveContext->scarecrowSpawnSongSet = 0;
     for (int i = 0; i < ARRAY_COUNT(mSaveContext->scarecrowSpawnSong); i++) {
-        mSaveContext->scarecrowSpawnSong[i].noteIdx = 0;
-        mSaveContext->scarecrowSpawnSong[i].unk_01 = 0;
-        mSaveContext->scarecrowSpawnSong[i].unk_02 = 0;
+        mSaveContext->scarecrowSpawnSong[i].pitch = 0;
+        mSaveContext->scarecrowSpawnSong[i].length = 0;
         mSaveContext->scarecrowSpawnSong[i].volume = 0;
         mSaveContext->scarecrowSpawnSong[i].vibrato = 0;
-        mSaveContext->scarecrowSpawnSong[i].tone = 0;
-        mSaveContext->scarecrowSpawnSong[i].semitone = 0;
+        mSaveContext->scarecrowSpawnSong[i].bend = 0;
+        mSaveContext->scarecrowSpawnSong[i].bFlat4Flag = 0;
     }
 
     mSaveContext->horseData.scene = SCENE_HYRULE_FIELD;
@@ -2305,7 +2818,7 @@ void Logic::InitSaveContext() {
     mSaveContext->horseData.angle = -0x6AD9;
     mSaveContext->magicLevel = 0;
     mSaveContext->infTable[29] = 1;
-    mSaveContext->sceneFlags[5].swch = 0x40000000;
+    mSaveContext->sceneFlags[SCENE_WATER_TEMPLE].swch = 0x40000000;
 
     // SoH specific
     mSaveContext->ship.backupFW = mSaveContext->fw;
@@ -2321,7 +2834,7 @@ void Logic::InitSaveContext() {
 
 void Logic::NewSaveContext() {
     if (mSaveContext != nullptr && mSaveContext != &gSaveContext) {
-        free(mSaveContext);
+        delete mSaveContext;
     }
     mSaveContext = new SaveContext();
     InitSaveContext();
@@ -2369,112 +2882,8 @@ void Logic::SetQuestItem(uint32_t item, bool state) {
     }
 }
 
-const std::vector<uint8_t>& GetThievesHideoutSmallKeyDoors() {
-    // Retrieved from scenes/shared/gerudoway_scene/gerudoway_room_%d
-    // SOH::SceneCommandID::SetActorList, actor.id == ACTOR_DOOR_GERUDO, actor.params & 0x3F
-    static const std::vector<uint8_t> normalSmallKeyDoors{ 1, 2, 3, 4 };
-    static const std::vector<uint8_t> fastSmallKeyDoors{ 1 };
-    static const std::vector<uint8_t> freeSmallKeyDoors{};
-
-    if (RAND_GET_OPTION(RSK_GERUDO_FORTRESS).Is(RO_GF_CARPENTERS_NORMAL)) {
-        return normalSmallKeyDoors;
-    } else if (RAND_GET_OPTION(RSK_GERUDO_FORTRESS).Is(RO_GF_CARPENTERS_FAST)) {
-        return fastSmallKeyDoors;
-    }
-    return freeSmallKeyDoors;
-}
-
-// Get the swch bit positions for the dungeon
-const std::vector<uint8_t>& GetDungeonSmallKeyDoors(SceneID sceneId) {
-    static const std::vector<uint8_t> emptyVector;
-
-    auto dungeonInfo = Rando::Context::GetInstance()->GetDungeons()->GetDungeonFromScene(sceneId);
-    if (dungeonInfo == nullptr) {
-        return emptyVector;
-    }
-
-    bool masterQuest = dungeonInfo->IsMQ();
-
-    // Create a unique key for the dungeon and master quest
-    uint8_t key = sceneId | (masterQuest << 7);
-
-    static std::unordered_map<uint8_t, std::vector<uint8_t>> dungeonSmallKeyDoors;
-    auto foundEntry = dungeonSmallKeyDoors.find(key);
-    if (foundEntry != dungeonSmallKeyDoors.end()) {
-        return foundEntry->second;
-    }
-    dungeonSmallKeyDoors[key] = {};
-
-    // Get the scene path
-    std::string scenePath = SceneDB::Instance->GetScenePath(sceneId, masterQuest); // SOH [Unbound]
-
-    // Load the scene
-    std::shared_ptr<SOH::Scene> scene = std::dynamic_pointer_cast<SOH::Scene>(
-        Ship::Context::GetInstance()->GetResourceManager()->LoadResource(scenePath));
-    if (scene == nullptr) {
-        return emptyVector;
-    }
-
-    // Find the SetTransitionActorList command
-    std::shared_ptr<SOH::SetTransitionActorList> transitionActorListCommand = nullptr;
-    for (auto& command : scene->commands) {
-        if (command->cmdId == SOH::SceneCommandID::SetTransitionActorList) {
-            transitionActorListCommand = std::dynamic_pointer_cast<SOH::SetTransitionActorList>(command);
-            break;
-        }
-    }
-    if (transitionActorListCommand == nullptr) {
-        return emptyVector;
-    }
-
-    // Find the bit position for the small key doors
-    for (auto& transitionActor : transitionActorListCommand->transitionActorList) {
-        if (transitionActor.id == ACTOR_EN_DOOR) {
-            uint8_t doorType = (transitionActor.params >> 7) & 7;
-            if (doorType == DOOR_LOCKED) {
-                dungeonSmallKeyDoors[key].emplace_back(transitionActor.params & 0x3F);
-            }
-        } else if (transitionActor.id == ACTOR_DOOR_SHUTTER) {
-            uint8_t doorType = (transitionActor.params >> 6) & 15;
-            if (doorType == SHUTTER_KEY_LOCKED) {
-                dungeonSmallKeyDoors[key].emplace_back(transitionActor.params & 0x3F);
-            }
-        }
-    }
-
-    return dungeonSmallKeyDoors[key];
-}
-
-int8_t Logic::GetUsedSmallKeyCount(SceneID sceneId) {
-    const auto& smallKeyDoors =
-        (sceneId == SCENE_THIEVES_HIDEOUT) ? GetThievesHideoutSmallKeyDoors() : GetDungeonSmallKeyDoors(sceneId);
-
-    // Get the swch value for the scene
-    uint32_t swch;
-    if (gPlayState != nullptr && gPlayState->sceneNum == sceneId) {
-        swch = gPlayState->actorCtx.flags.swch;
-    } else {
-        swch = mSaveContext->sceneFlags[sceneId].swch;
-    }
-
-    // Count the number of small keys doors unlocked
-    int8_t unlockedSmallKeyDoors = 0;
-    for (auto& smallKeyDoor : smallKeyDoors) {
-        unlockedSmallKeyDoors += swch >> smallKeyDoor & 1;
-    }
-
-    // RANDOTODO: Account for MQ Water trick that causes the basement lock to unlock when the player clears the stalfos
-    // pit.
-    return unlockedSmallKeyDoors;
-}
-
-uint8_t Logic::GetSmallKeyCount(uint32_t dungeonIndex) {
-    int8_t dungeonKeys = mSaveContext->inventory.dungeonKeys[dungeonIndex];
-    if (dungeonKeys == -1) {
-        // never got keys, so can't have used keys
-        return 0;
-    }
-    return dungeonKeys + GetUsedSmallKeyCount(SceneID(dungeonIndex));
+int8_t Logic::GetSmallKeyCount(SceneID sceneId) {
+    return GetSceneTotalSmallKeys(mSaveContext, sceneId);
 }
 
 void Logic::SetSmallKeyCount(uint32_t dungeonIndex, uint8_t count) {
@@ -2519,6 +2928,10 @@ void Logic::SetEventChkInf(int32_t flag, bool state) {
 
 uint8_t Logic::GetGSCount() {
     return static_cast<uint8_t>(mSaveContext->inventory.gsTokens);
+}
+
+uint8_t Logic::GetTriforcePieceCount() {
+    return mSaveContext->ship.quest.data.randomizer.triforcePiecesCollected;
 }
 
 uint8_t Logic::GetAmmo(uint32_t item) {
@@ -2579,17 +2992,24 @@ bool Logic::IsReverseAccessPossible() {
 }
 
 bool Logic::DMCUpperToPots() {
-    return CanUse(RG_HOVER_BOOTS) || (IsAdult && ((Get(LOGIC_DMC_BOULDER)) ||
-                                                  (ctx->GetTrickOption(RT_DMC_BOULDER_SKIP) /* && CanUse(RG_ROLL)*/)));
+    return CanUse(RG_HOVER_BOOTS) || BunnyHood() ||
+           (IsAdult &&
+            ((Get(LOGIC_DMC_BOULDER)) || (ctx->GetTrickOption(RT_DMC_BOULDER_SKIP) /* && CanUse(RG_ROLL)*/)));
 }
 
 bool Logic::DMCPotsToPad() {
-    return (CanUse(RG_HOVER_BOOTS) || CanUse(RG_HOOKSHOT) ||
-            (IsAdult && CanShield() && ctx->GetTrickOption(RT_DMC_BOLERO_JUMP) && CanUse(RG_POWER_BRACELET)));
+    return CanUse(RG_HOVER_BOOTS) || (BunnyHood() && (IsAdult || HasItem(RG_CLIMB))) || CanUse(RG_HOOKSHOT) ||
+           (IsAdult && CanShield() && ctx->GetTrickOption(RT_DMC_BOLERO_JUMP) && CanUse(RG_POWER_BRACELET));
 }
 
 bool Logic::DMCPadToPots() {
-    return ((CanUse(RG_HOVER_BOOTS) && (IsAdult || (HasItem(RG_CLIMB) /*&& CanUse(RG_ROLL)*/))) || CanUse(RG_HOOKSHOT));
+    return (CanUse(RG_HOVER_BOOTS) && (IsAdult || (HasItem(RG_CLIMB) /*&& can roll or bunny*/))) ||
+           CanUse(RG_HOOKSHOT) || (IsAdult && BunnyHood() && HasItem(RG_CLIMB));
+}
+
+// via scarecrow
+bool Logic::DMCUpperToPad() {
+    return IsAdult && TakeDamage() && ctx->GetTrickOption(RT_UNINTUITIVE_JUMPS) && ReachDistantScarecrow();
 }
 
 bool Logic::SpiritExplosiveKeyLogic() {
@@ -2597,12 +3017,13 @@ bool Logic::SpiritExplosiveKeyLogic() {
 }
 
 bool Logic::SpiritWestToSkull() {
-    return (IsAdult && ctx->GetTrickOption(RT_SPIRIT_STATUE_JUMP)) || CanUse(RG_HOVER_BOOTS) || ReachScarecrow();
+    return (IsAdult && (ctx->GetTrickOption(RT_SPIRIT_STATUE_JUMP) || logic->BunnyHood())) || CanUse(RG_HOVER_BOOTS) ||
+           ReachScarecrow();
 }
 
 bool Logic::SpiritSunBlockSouthLedge() {
     // also possible to do a backwalk hover + backflip if you equip hovers as you start backwalk to accelerate faster
-    return HasItem(RG_POWER_BRACELET) || IsAdult || CanKillEnemy(RE_BEAMOS) /*|| BunnyHovers()*/ ||
+    return HasItem(RG_POWER_BRACELET) || IsAdult || CanKillEnemy(RE_BEAMOS) || BunnyHovers() ||
            (CanUse(RG_HOOKSHOT) &&
             (HasFireSource() ||
              (Get(LOGIC_SPIRIT_SUN_BLOCK_TORCH) &&
@@ -2610,18 +3031,19 @@ bool Logic::SpiritSunBlockSouthLedge() {
 }
 
 bool Logic::SpiritEastToSwitch() {
-    return (IsAdult && ctx->GetTrickOption(RT_SPIRIT_STATUE_JUMP)) || CanUse(RG_HOVER_BOOTS) ||
+    return (IsAdult && (ctx->GetTrickOption(RT_SPIRIT_STATUE_JUMP) || logic->BunnyHood())) || CanUse(RG_HOVER_BOOTS) ||
            (CanUse(RG_ZELDAS_LULLABY) && CanUse(RG_HOOKSHOT));
 }
 
 // Combines crossing the ledge directly and the jump from the hand
 bool Logic::MQSpiritWestToPots() {
-    return (IsAdult && ctx->GetTrickOption(RT_SPIRIT_STATUE_JUMP)) || CanUse(RG_HOVER_BOOTS) || CanUse(RG_SONG_OF_TIME);
+    return (IsAdult && (ctx->GetTrickOption(RT_SPIRIT_STATUE_JUMP) || logic->BunnyHood())) || CanUse(RG_HOVER_BOOTS) ||
+           CanUse(RG_SONG_OF_TIME);
 }
 
 bool Logic::MQSpiritStatueToSunBlock() {
-    return (IsAdult || ctx->GetTrickOption(RT_SPIRIT_MQ_SUN_BLOCK_SOT) ||
-            CanUse(RG_SONG_OF_TIME) /* || CanBunnyJump()*/) &&
+    return (IsAdult || ctx->GetTrickOption(RT_SPIRIT_MQ_SUN_BLOCK_SOT) || CanUse(RG_SONG_OF_TIME) ||
+            CanUse(RG_HOVER_BOOTS) || BunnyHood()) &&
            HasItem(RG_POWER_BRACELET);
 }
 
@@ -2636,7 +3058,7 @@ bool Logic::MQSpirit4KeyColossus() {
     // Colossus This is because there are only 3 keys that can be wasted without opening up either this lock to East
     // hand, or the West Hand lock through Sun Block Room and both directions allow you to drop onto colossus
     // logic->CanKillEnemy(RE_FLOORMASTER) is implied
-    return CanAvoidEnemy(RE_BEAMOS, true, 4) && CanUse(RG_SONG_OF_TIME) && CanJumpslash() &&
+    return CanAvoidEnemy(RE_BEAMOS, ED_CLOSE, true, 4) && CanUse(RG_SONG_OF_TIME) && CanJumpslash() &&
            (HasItem(RG_POWER_BRACELET) || SunlightArrows()) &&
            (ctx->GetTrickOption(RT_LENS_SPIRIT_MQ) || CanUse(RG_LENS_OF_TRUTH)) && CanKillEnemy(RE_IRON_KNUCKLE) &&
            CanUse(RG_HOOKSHOT);
@@ -2650,7 +3072,7 @@ bool Logic::MQSpirit4KeyWestHand() {
 }
 // This version of the function handles Shared Access for child, based on what adult could do if they existed
 bool Logic::CouldMQSpirit4KeyWestHand() {
-    return CanAvoidEnemy(RE_BEAMOS, true, 4) && CanUse(RG_SONG_OF_TIME) &&
+    return CanAvoidEnemy(RE_BEAMOS, ED_CLOSE, true, 4) && CanUse(RG_SONG_OF_TIME) &&
            (HasItem(RG_MASTER_SWORD) || HasItem(RG_BIGGORON_SWORD) || HasItem(RG_MEGATON_HAMMER)) &&
            (HasItem(RG_POWER_BRACELET) || SunlightArrows()) &&
            (ctx->GetTrickOption(RT_LENS_SPIRIT_MQ) || CanUse(RG_LENS_OF_TRUTH)) && HasItem(RG_LONGSHOT);
@@ -2721,6 +3143,7 @@ void Logic::Reset(bool resetSaveContext /*= true*/) {
 
         if (ctx->GetOption(RSK_SHUFFLE_OPEN_CHEST).Is(false)) {
             SetRandoInf(RAND_INF_CAN_OPEN_CHEST, true);
+            SetRandoInf(RAND_INF_CAN_OPEN_LARGE_CHEST, true);
         }
 
         if (ctx->GetOption(RSK_SHUFFLE_SPEAK).Is(false)) {
@@ -2742,16 +3165,9 @@ void Logic::Reset(bool resetSaveContext /*= true*/) {
         }
 
         if (ctx->GetOption(RSK_SHUFFLE_BEAN_SOULS).Is(false)) {
-            SetRandoInf(RAND_INF_DEATH_MOUNTAIN_CRATER_BEAN_SOUL, true);
-            SetRandoInf(RAND_INF_DEATH_MOUNTAIN_TRAIL_BEAN_SOUL, true);
-            SetRandoInf(RAND_INF_DESERT_COLOSSUS_BEAN_SOUL, true);
-            SetRandoInf(RAND_INF_GERUDO_VALLEY_BEAN_SOUL, true);
-            SetRandoInf(RAND_INF_GRAVEYARD_BEAN_SOUL, true);
-            SetRandoInf(RAND_INF_KOKIRI_FOREST_BEAN_SOUL, true);
-            SetRandoInf(RAND_INF_LAKE_HYLIA_BEAN_SOUL, true);
-            SetRandoInf(RAND_INF_LOST_WOODS_BRIDGE_BEAN_SOUL, true);
-            SetRandoInf(RAND_INF_LOST_WOODS_BEAN_SOUL, true);
-            SetRandoInf(RAND_INF_ZORAS_RIVER_BEAN_SOUL, true);
+            for (const BeanPatch& patch : beanPatches) {
+                SetRandoInf(patch.soulRandInf, true);
+            }
         }
 
         // If not keysanity, start with 1 logical key to account for automatically unlocking the basement door in
@@ -2763,8 +3179,6 @@ void Logic::Reset(bool resetSaveContext /*= true*/) {
 
     Bottles = 0;
     NumBottles = 0;
-    PieceOfHeart = 0;
-    HeartContainer = 0;
 
     IsChild = false;
     IsAdult = false;
@@ -2776,6 +3190,8 @@ void Logic::Reset(bool resetSaveContext /*= true*/) {
     AtNight = false;
     if (resetSaveContext) {
         GetSaveContext()->linkAge = !ctx->GetOption(RSK_SELECTED_STARTING_AGE).Get();
+        GetSaveContext()->healthCapacity = BaseHearts * FULL_HEART_HEALTH;
+        GetSaveContext()->health = GetSaveContext()->healthCapacity;
     }
 
     CalculatingAvailableChecks = false;

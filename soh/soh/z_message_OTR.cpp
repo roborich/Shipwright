@@ -8,10 +8,14 @@
 #include <ship/utils/StringHelper.h>
 #include "global.h"
 #include "vt.h"
+#include <ship/Context.h>
+#include <ship/resource/ResourceManager.h>
+
 #include "soh/resource/type/Text.h"
+
+extern "C" {
 #include <message_data_static.h>
-#include "Enhancements/custom-message/CustomMessageManager.h"
-#include "Enhancements/custom-message/CustomMessageTypes.h"
+}
 
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
@@ -116,7 +120,7 @@ std::array<MessageTable, MSG_LANGUAGE_COUNT> sTables;
 bool sInitialized = false;
 
 std::shared_ptr<SOH::Text> LoadTextResource(const std::string& path) {
-    return std::static_pointer_cast<SOH::Text>(Ship::Context::GetInstance()->GetResourceManager()->LoadResource(path));
+    return std::static_pointer_cast<SOH::Text>(Ship::Context::GetRawInstance()->GetResourceManager()->LoadResource(path));
 }
 
 bool LoadJsonBase(MessageTable& table, const LanguageSpec& spec);
@@ -144,7 +148,7 @@ bool LoadBase(MessageTable& table, const LanguageSpec& spec) {
 
 // override/<folder>/* : Text resources whose entries replace OR add ids (vanilla SoH could only replace)
 void LoadOverrides(MessageTable& table, const LanguageSpec& spec) {
-    auto files = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->ListFiles(
+    auto files = Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager()->ListFiles(
         std::string("override/") + spec.folder + "/*");
     if (files == nullptr) {
         return;

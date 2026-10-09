@@ -4,7 +4,6 @@
 #include <libultraship/libultra.h>
 #include <libultraship/libultra/gbi.h>
 #include "z64math.h"
-#include <libultraship/color.h>
 
 typedef struct {
     f32 x; // SOH [Unbound] s16 -> f32 (world extent)

@@ -11,6 +11,10 @@ Status: **built and verified 2026-09-14** (same day as the survey). `soh-extract
 identical to the desktop extraction of the same ROM, and the game's wasm build boots on it.
 See "What actually happened" at the end; the survey below is left as written.
 
+**Re-ported onto Torch for 9.3.0** (2026-10-07), which replaced ZAPD and OTRExporter. The
+survey and the first "what happened" describe the ZAPD converter; "9.3.0: Torch" at the end
+says what changed.
+
 ## What extraction is today
 
 On desktop the game does it in-process, in four layers:
@@ -272,3 +276,49 @@ Memory is as predicted and remains the one thing to watch on small devices.
 
 Tests: `soh/wasm/tests/extract.test.ts` (needs `SOH_WASM_ROM`). Note that bun 1.2 crashed
 silently inside the synchronous conversion; the suite's existing bun ≥ 1.4 requirement covers it.
+
+## 9.3.0: Torch
+
+SoH 9.3.0 extracts with [Torch](https://github.com/HarbourMasters/Torch) (the `torch`
+submodule) over a yml recipe in `soh/assets/yml/<version>/`, called through
+`soh/soh/Extractor/TorchExtract.cpp`. The converter followed:
+
+- **Sources.** `soh/wasm/extract/` links the `torch` static library the root CMakeLists
+  configures (BUILD_OOT only, `PORT_VERSION_ENDIANNESS=ON`, as the desktop game has it) with
+  `TorchExtract.cpp`, `RomInfo.cpp` and `FastCrc32C.c`. No libultraship: Torch writes the
+  archive with its bundled miniz, so libzip, libpng and StormLib are gone, and with them the
+  `--wrap=zip_close` progress hook and the libpng port workaround.
+- **Exceptions.** Torch's own Emscripten block sets JS-exception link flags
+  (`NO_DISABLE_EXCEPTION_CATCHING`, `--bind`) in `CMAKE_EXE_LINKER_FLAGS`, scoped to its
+  directory, for its standalone CLI. `soh-extract` is linked in `soh/wasm/extract/`, so it gets
+  only the tree's `-fwasm-exceptions` ABI, which Torch's sources are compiled with too.
+- **Two Torch quirks under Emscripten.** `src/lib/web.cpp` (Torch's embind API) also defines
+  `Companion::Instance`, so the static link took it from there and pulled in embind; the root
+  CMakeLists drops that file from the target. And `Companion::Init` skips `Process()` when
+  `__EMSCRIPTEN__` is defined (its web API calls it), so `TorchExtract.cpp` calls it there.
+- **Progress.** Torch reports a recipe file, unnamed, as it finishes parsing it, so the
+  `'recipe'` phase counts yml files (1,449 for NTSC 1.0) without `info.file`, and the
+  `'write'` phase is gone: miniz compresses each entry as it is added, and what follows the
+  last report is about 6% of the run. `TorchExtract.cpp` gained `ExtractWithCallbacks` for
+  this, since a single-threaded caller cannot poll the desktop's counter.
+- **RomInfo** is redone over 9.3.0's `Extract.cpp`: `TorchVersionDir` replaces
+  `ZapdVersionString` (the converter gates on it), `MatchesKnownDump` restores the header byte
+  it patches (Torch hashes the original dump), and `ToBigEndian` replaces LUS's
+  `BitConverter::RomToBigEndian`, which the converter no longer links.
+
+Measured (NTSC 1.0, Release):
+
+| | |
+|---|---|
+| Chromium module worker | 4.7 s |
+| node 22 in-process | 5.3–6.1 s |
+| desktop `soh-torch` (RelWithDebInfo) | 4.5–12 s |
+| node peak RSS | 1.30 GB (desktop Torch: 0.98 GB) |
+| `soh-extract.wasm` | 69.1 MB raw, 6.9 MB gzip, 1.1 MB brotli (recipe: 65.8 MB of yml) |
+| output | 33,569,565 bytes, 38,390 entries |
+
+Against the desktop extraction of the same ROM every entry matches: names, CRCs, sizes and
+compressed bytes. The file does not match byte for byte, for two reasons that do not matter to
+the game, which looks entries up by name: the zip timestamps (two desktop runs differ there
+too), and the order of some `audio/fonts` entries, which come out of a hash container that
+iterates differently with a 32-bit `size_t`.

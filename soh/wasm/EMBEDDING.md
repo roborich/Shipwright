@@ -14,11 +14,11 @@ emcmake cmake -H. -Bbuild-wasm-rel -G "Unix Makefiles" \
 make -C build-wasm-rel soh -j10
 ```
 
-Outputs `soh.js`, `soh.wasm` (24.7 MB raw, **4.2 MB brotli**) and `soh.data` (4.55 MB).
+Outputs `soh.js`, `soh.wasm` (28.7 MB raw, **4.7 MB brotli**) and `soh.data` (4.4 MB).
 Serve all three plus your host page from the same directory.
 
 The same configure also builds the ROM -> o2r converter, `soh-extract.js` + `soh-extract.wasm`
-(37 MB raw, 4.1 MB gzip, **0.8 MB brotli**: it is mostly the 14 near-identical XML recipe
+(69 MB raw, 6.9 MB gzip, **1.1 MB brotli**: it is mostly the 14 near-identical yml recipe
 sets, which compress into almost nothing), next to `soh.js`. `-DSOH_WASM_EXTRACTOR=OFF` skips
 it. It is a separate module a host runs in a worker; the contract is HOST-API.md §6 and the
 design notes are `wasm-rom-extract.md` in the repo root. The two must come from the same
@@ -145,6 +145,9 @@ and survives a round trip through a build without its mods.
 
 ## Limits you should know about
 
+- **Streamed Opus audio is silent.** Opus and OpusFile have no Emscripten port and are stubbed
+  (`wasm-port.md`), so a mod's custom Opus song plays nothing where desktop plays it. Building
+  both for the browser is the fix, once a modder needs Opus.
 - **Writes do not persist on their own.** The filesystem is in-memory: a save the game
   writes is gone on reload unless the host keeps the `file-saved` copy (see `HOST-API.md`).
 - **Scenes are addressed by entrance index, not by name.** `HOST-API.md` has two ways to

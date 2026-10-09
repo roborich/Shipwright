@@ -1,86 +1,37 @@
 // SOH [WASM] The converter's entry point: a ROM file in the virtual filesystem becomes an
-// oot.o2r / oot-mq.o2r in it. This is the desktop Extractor::CallZapd path with the UI
-// removed -- the same checks (RomInfo), the same argv, the same zapd_report() -- so the
-// archive it produces is the one the desktop build would have made from the same ROM.
+// oot.o2r / oot-mq.o2r in it. This is the desktop Extractor::CallTorch path with the UI
+// removed -- the same checks (RomInfo), the same recipe, the same SohTorch extraction -- so
+// the archive it produces is the one the desktop build would have made from the same ROM.
 //
 // Called from api.js (--post-js), which is the host-facing side; see soh/wasm/HOST-API.md.
 
 #include "soh/Extractor/RomInfo.h"
-
-#include <ship/utils/binarytools/BitConverter.h>
+#include "soh/Extractor/TorchExtract.h"
 
 #include <emscripten.h>
-#include <zip.h>
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/base_sink.h>
 
-#include <atomic>
-#include <exception>
+#include <cstdio>
 #include <filesystem>
 #include <fstream>
+#include <mutex>
 #include <string>
 #include <vector>
-
-extern "C" int zapd_report(int argc, char** argv, std::atomic<size_t>* extractCount, std::atomic<size_t>* totalExtract);
-
-// ZAPD's crash handler prints a native backtrace via execinfo.h, which Emscripten does not
-// have, so CrashHandler.cpp is not in this build (see CMakeLists.txt). A browser gives a
-// better stack trace on its own when the module traps.
-void CrashHandler_Init() {
-}
-
-// The exporter adds every entry to the archive as an in-memory buffer and then closes it,
-// and that close is where libzip deflates everything: a quarter of the run with no output.
-// zip_close is wrapped at link time (-Wl,--wrap=zip_close, see CMakeLists.txt) so libzip's
-// progress callback can report it; api.js receives (entriesDone, entries) through the hook
-// below. Nothing in ZAPD or the exporter changes.
-extern "C" int __real_zip_close(zip_t* archive);
-
-namespace {
-
-void ReportWriteProgress(zip_int64_t done, zip_int64_t total) {
-    // clang-format off
-    EM_ASM({ if (Module['_sohExtractWrite']) Module['_sohExtractWrite']($0, $1); }, (double)done, (double)total);
-    // clang-format on
-}
-
-void OnZipProgress(zip_t* archive, double fraction, void* userData) {
-    const zip_int64_t total = *static_cast<zip_int64_t*>(userData);
-    ReportWriteProgress(static_cast<zip_int64_t>(fraction * (double)total), total);
-}
-
-} // namespace
-
-extern "C" int __wrap_zip_close(zip_t* archive) {
-    if (archive == nullptr) {
-        return __real_zip_close(archive);
-    }
-    // Static because libzip keeps the pointer: a failed close leaves the archive alive with
-    // the callback still registered. The exporter closes exactly one archive per run (the
-    // custom-assets one is never opened here), which is what makes a single write phase.
-    static zip_int64_t entries;
-    entries = zip_get_num_entries(archive, 0);
-    ReportWriteProgress(0, entries);
-    zip_register_progress_callback_with_state(archive, 0.005, OnZipProgress, nullptr, &entries);
-    const int result = __real_zip_close(archive);
-    if (result == 0) {
-        // libzip's own final update can be swallowed by its precision gate; say it plainly.
-        ReportWriteProgress(entries, entries);
-    }
-    return result;
-}
 
 namespace {
 
 namespace fs = std::filesystem;
 
-// Where the embedded extraction recipe lives (see CMakeLists.txt); ZAPD's configs name
-// their inputs relative to it, so the run happens with this as the working directory.
-constexpr const char* kWorkDir = "/work";
+// Where the embedded extraction recipe lives (see CMakeLists.txt): config.yml and one
+// directory of asset ymls per ROM version.
+constexpr const char* kRecipeDir = "/work/assets";
 
 // The smallest prefix the checks below read: the header CRC at 0x10 and the archive
 // signatures at the start. Real ROMs are checked for their full size after that.
 constexpr size_t kHeaderBytes = 0x40;
 
-// Negative so a host can tell them from ZAPD's own return value. Listed in HOST-API.md.
+// Negative so a host can tell them from success. Listed in HOST-API.md.
 enum class Status : int {
     Ok = 0,
     CannotRead = -1,
@@ -88,7 +39,7 @@ enum class Status : int {
     Compressed = -3,
     UnknownVersion = -4,
     BadCrc = -5,
-    ZapdFailed = -6,
+    ExtractFailed = -6,
     NoArchive = -7,
 };
 
@@ -106,7 +57,7 @@ const char* Describe(Status status) {
             return "The rom's version is not one this build can extract. Please find another.";
         case Status::BadCrc:
             return "Rom CRC did not match the list of known compatible roms. Please find another.";
-        case Status::ZapdFailed:
+        case Status::ExtractFailed:
             return "Extraction failed.";
         case Status::NoArchive:
             return "Extraction finished but produced no archive.";
@@ -116,12 +67,46 @@ const char* Describe(Status status) {
 
 struct Result {
     Status status = Status::Ok;
-    std::string detail; // what ZAPD said, when it failed
+    std::string detail; // what Torch said, when it failed
     std::string version;
     std::string archive;
 };
 
 std::string gLastResultJson;
+
+// Torch logs through spdlog's default logger. Warnings and errors go to stderr, where api.js
+// collects them for a failed run's message; the rest stays on stdout, which `quiet` drops.
+// That includes `critical`, which Torch uses for its always-shown banner and timing lines.
+// Under `quiet` the sink's own level drops info and below before they are formatted or cross
+// into JS; it has to be the sink's, because Torch's Init resets every logger to debug.
+class SplitConsoleSink final : public spdlog::sinks::base_sink<std::mutex> {
+  protected:
+    void sink_it_(const spdlog::details::log_msg& msg) override {
+        spdlog::memory_buf_t formatted;
+        formatter_->format(msg, formatted);
+        const bool problem = msg.level == spdlog::level::warn || msg.level == spdlog::level::err;
+        FILE* out = problem ? stderr : stdout;
+        fwrite(formatted.data(), 1, formatted.size(), out);
+    }
+    void flush_() override {
+        fflush(stdout);
+        fflush(stderr);
+    }
+};
+
+void InstallLogger(bool quiet) {
+    auto sink = std::make_shared<SplitConsoleSink>();
+    if (quiet) {
+        sink->set_level(spdlog::level::warn);
+    }
+    spdlog::set_default_logger(std::make_shared<spdlog::logger>("soh-extract", sink));
+}
+
+void ReportProgress(size_t done, size_t total) {
+    // clang-format off
+    EM_ASM({ if (Module['_sohExtractProgress']) Module['_sohExtractProgress']($0, $1); }, (double)done, (double)total);
+    // clang-format on
+}
 
 std::vector<uint8_t> ReadFile(const char* path) {
     std::ifstream in(path, std::ios::binary | std::ios::ate);
@@ -135,117 +120,63 @@ std::vector<uint8_t> ReadFile(const char* path) {
 }
 
 // The desktop Extractor's ValidateRom (compressed, size, CRC) minus the message boxes, plus
-// one check it does not make: that ZAPD has a recipe for this version, which the desktop
-// only discovers when its picker hands ZAPD a null version string. The bytes are only read
-// here: ZAPD and the exporter both put the file into .z64 order themselves, and the header
-// patch FixAndCheckCrc applies is one neither of them looks at.
+// one check it does not make: that Torch has a recipe for this version, which the desktop
+// only discovers when its picker asks for a version directory that does not exist. Leaves
+// the bytes in .z64 order, which is what Torch hashes against config.yml.
 Status CheckRom(std::vector<uint8_t>& rom) {
     if (rom.size() < kHeaderBytes) {
         return Status::BadSize;
     }
-    BitConverter::RomToBigEndian(rom.data(), rom.size());
-    if (RomInfo::LooksCompressed(rom.data())) {
+    // Before the byte swap: a 7z starts with '7' (0x37), which is also the .v64 marker.
+    if (RomInfo::LooksCompressed(rom.data(), rom.size())) {
         return Status::Compressed;
     }
+    RomInfo::ToBigEndian(rom.data(), rom.size());
     if (!RomInfo::IsValidSize(rom.size())) {
         return Status::BadSize;
     }
-    // Not the desktop's version table (which only labels its ROM picker) but the set ZAPD has
-    // an extraction recipe for, since that is what decides whether the next step can run.
-    if (RomInfo::ZapdVersionString(RomInfo::HeaderCrc(rom.data())) == nullptr) {
+    // Not the desktop's version table (which only labels its ROM picker) but the set Torch
+    // has a recipe for, since that is what decides whether the next step can run.
+    if (RomInfo::TorchVersionDir(RomInfo::HeaderCrc(rom.data(), rom.size())) == nullptr) {
         return Status::UnknownVersion;
     }
-    if (!RomInfo::FixAndCheckCrc(rom.data(), rom.size())) {
+    if (!RomInfo::MatchesKnownDump(rom.data(), rom.size())) {
         return Status::BadCrc;
     }
     return Status::Ok;
 }
 
-// Identical to the argv Extractor::CallZapd builds, so the two stay comparable.
-std::vector<std::string> ZapdArgs(const std::string& romPath, const char* version, const char* archive) {
-    return {
-        "ZAPD",      "ed",
-        "-i",        std::string("assets/xml/") + version,
-        "-b",        romPath,
-        "-fl",       "assets/filelists",
-        "-gsf",      "0",
-        "-rconf",    std::string("assets/Config_") + version + ".xml",
-        "-se",       "OTR",
-        "--otrfile", archive,
-        "--portVer", SOH_EXTRACT_PORT_VERSION,
-        "-o",        "placeholder",
-        "-osf",      "placeholder",
-    };
-}
-
-// ZAPD colours its messages for a terminal; a host shows them in a console or a dialog.
-std::string StripAnsi(const std::string& text) {
-    std::string out;
-    for (size_t i = 0; i < text.size(); i++) {
-        if (text[i] == '\x1b' && i + 1 < text.size() && text[i + 1] == '[') {
-            i += 2;
-            while (i < text.size() && !(text[i] >= 0x40 && text[i] <= 0x7e)) {
-                i++;
-            }
-            continue;
-        }
-        out += text[i];
-    }
-    return out;
-}
-
-// ZAPD reports a fatal problem by throwing (WarningHandler::PrintErrorAndThrow); the return
-// value only says whether every file parsed. Both are failures here. Progress does not come
-// through the counters (ZAPD's stdout carries it), so none are passed.
-Status RunZapd(const std::vector<std::string>& args, std::string& detail) {
-    std::vector<char*> argv;
-    argv.reserve(args.size());
-    for (const auto& arg : args) {
-        argv.push_back(const_cast<char*>(arg.c_str()));
-    }
-    try {
-        if (zapd_report(static_cast<int>(argv.size()), argv.data(), nullptr, nullptr) != 0) {
-            detail = "ZAPD reported a failed parse.";
-            return Status::ZapdFailed;
-        }
-    } catch (const std::exception& e) {
-        detail = StripAnsi(e.what());
-        return Status::ZapdFailed;
-    } catch (...) {
-        detail = "unknown exception";
-        return Status::ZapdFailed;
-    }
-    return Status::Ok;
-}
-
-// Runs ZAPD in the recipe directory and moves what it wrote to outPath.
-Status ExtractArchive(const std::string& romPath, const char* zapdVersion, const fs::path& outPath,
-                      std::string& detail) {
+// Runs Torch over the version's recipe, reporting each asset file as it is parsed, and
+// leaves the archive at outDir/<archive>. Torch names the archive from config.yml; the name
+// it chose is checked against the one this module reported up front.
+Status ExtractArchive(std::vector<uint8_t> rom, const char* versionDir, const fs::path& outDir,
+                      const std::string& expectedArchive, std::string& detail) {
     std::error_code ec;
-    fs::create_directories(outPath.parent_path(), ec);
-    fs::current_path(kWorkDir, ec);
-    if (ec) {
-        detail = "cannot enter " + std::string(kWorkDir);
-        return Status::ZapdFailed;
-    }
-    const std::string archive = outPath.filename().string();
-    fs::remove(archive, ec);
+    fs::create_directories(outDir, ec);
+    // Torch skips files whose hashes match a previous run's; start from none.
+    fs::remove(outDir / "torch.hash.yml", ec);
 
-    const Status ran = RunZapd(ZapdArgs(fs::absolute(romPath).string(), zapdVersion, archive.c_str()), detail);
-    if (ran != Status::Ok) {
-        return ran;
+    const size_t total = SohTorch::CountAssetFiles(std::string(kRecipeDir) + "/" + versionDir);
+    size_t done = 0;
+    ReportProgress(0, total);
+
+    const std::string archive = SohTorch::ExtractWithCallbacks(
+        std::move(rom), kRecipeDir, outDir.string(), SOH_EXTRACT_PORT_VERSION,
+        [&done, total]() { ReportProgress(++done, total); }, [&detail](const std::string& what) { detail = what; });
+
+    fs::remove(outDir / "torch.hash.yml", ec);
+    if (archive.empty()) {
+        return detail.empty() ? Status::NoArchive : Status::ExtractFailed;
     }
-    if (!fs::exists(archive, ec)) {
+    if (archive != expectedArchive) {
+        detail = "Torch wrote " + archive + ", expected " + expectedArchive + ".";
         return Status::NoArchive;
     }
-    fs::rename(archive, outPath, ec);
-    if (ec) {
-        // Across MEMFS mount points a rename can fail; copy instead.
-        fs::copy_file(archive, outPath, fs::copy_options::overwrite_existing, ec);
-        std::error_code cleanup;
-        fs::remove(archive, cleanup);
+    // Torch reports every recipe file, so this only fires if a file was skipped.
+    if (done != total) {
+        ReportProgress(total, total);
     }
-    return ec || !fs::exists(outPath) ? Status::NoArchive : Status::Ok;
+    return Status::Ok;
 }
 
 std::string Quote(const std::string& s) {
@@ -258,7 +189,7 @@ std::string Quote(const std::string& s) {
         } else if (c == '\n') {
             out += "\\n";
         } else if (c < 0x20 || c == 0x7f) {
-            // JSON forbids raw control characters; ZAPD's messages carry escape codes.
+            // JSON forbids raw control characters; log text can carry escape codes.
             out += "\\u00";
             out += hex[c >> 4];
             out += hex[c & 0xf];
@@ -284,16 +215,21 @@ int Finish(const Result& result) {
 extern "C" {
 
 // Reads the ROM at `romPath` (any of .z64/.n64/.v64 byte orders), validates it as the desktop
-// game does, runs ZAPD with the OTR exporter, and leaves `<outDir>/oot.o2r` or
+// game does, runs Torch over the embedded recipe, and leaves `<outDir>/oot.o2r` or
 // `<outDir>/oot-mq.o2r` behind. Returns 0 on success or a negative Status; the reason, the
-// detected version and the archive name are in Extract_ResultJson() either way. Progress is
-// ZAPD's own stdout: one "(i / N): <xml path>" line as each recipe file starts.
+// detected version and the archive name are in Extract_ResultJson() either way. Progress goes
+// to Module._sohExtractProgress(done, total), once per recipe file as Torch finishes parsing it.
+// Nonzero `quiet` keeps log lines below warn from being written at all. The ROM file is removed
+// once read, so the run does not hold a second copy of it.
 //
-// One conversion per module instance: ZAPD keeps process-lifetime state between calls.
-int Extract_RomToO2r(const char* romPath, const char* outDir) {
+// One conversion per module instance, as with the ZAPD converter this replaced.
+int Extract_RomToO2r(const char* romPath, const char* outDir, int quiet) {
+    InstallLogger(quiet != 0);
     Result result;
 
     std::vector<uint8_t> rom = ReadFile(romPath);
+    std::error_code ec;
+    fs::remove(romPath, ec);
     if (rom.empty()) {
         result.status = Status::CannotRead;
         return Finish(result);
@@ -303,14 +239,11 @@ int Extract_RomToO2r(const char* romPath, const char* outDir) {
         return Finish(result);
     }
 
-    const uint32_t headerCrc = RomInfo::HeaderCrc(rom.data());
+    const uint32_t headerCrc = RomInfo::HeaderCrc(rom.data(), rom.size());
     result.version = RomInfo::VersionName(headerCrc);
     result.archive = RomInfo::ArchiveName(headerCrc);
-    const char* zapdVersion = RomInfo::ZapdVersionString(headerCrc);
-    rom.clear();
-    rom.shrink_to_fit();
-
-    result.status = ExtractArchive(romPath, zapdVersion, fs::absolute(outDir) / result.archive, result.detail);
+    result.status = ExtractArchive(std::move(rom), RomInfo::TorchVersionDir(headerCrc), fs::absolute(outDir),
+                                   result.archive, result.detail);
     return Finish(result);
 }
 

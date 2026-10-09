@@ -7,7 +7,7 @@
 #include "z_en_mb.h"
 #include "objects/object_mb/object_mb.h"
 #include "soh/Enhancements/game-interactor/GameInteractor_Hooks.h"
-#include "soh/ResourceManagerHelpers.h"
+#include <libultraship/bridge/consolevariablebridge.h>
 
 /*
  * This actor can have three behaviors:
@@ -338,8 +338,6 @@ void EnMb_Destroy(Actor* thisx, PlayState* play) {
     Collider_DestroyTris(play, &this->frontShielding);
     Collider_DestroyCylinder(play, &this->hitbox);
     Collider_DestroyQuad(play, &this->attackCollider);
-
-    ResourceMgr_UnregisterSkeleton(&this->skelAnime);
 }
 
 void EnMb_FaceWaypoint(EnMb* this, PlayState* play) {
@@ -613,7 +611,7 @@ void EnMb_Stunned(EnMb* this, PlayState* play) {
         player->stateFlags2 &= ~PLAYER_STATE2_GRABBED_BY_ENEMY;
         player->actor.parent = NULL;
         player->av2.actionVar2 = 200;
-        func_8002F71C(play, &this->actor, 4.0f, this->actor.world.rot.y, 4.0f);
+        Actor_SetPlayerKnockbackLargeNoDamage(play, &this->actor, 4.0f, this->actor.world.rot.y, 4.0f);
         this->attack = ENMB_ATTACK_NONE;
     }
 
@@ -738,10 +736,10 @@ void EnMb_SpearPatrolEndCharge(EnMb* this, PlayState* play) {
         player->stateFlags2 &= ~PLAYER_STATE2_GRABBED_BY_ENEMY;
         player->actor.parent = NULL;
         player->av2.actionVar2 = 200;
-        func_8002F71C(play, &this->actor, 4.0f, this->actor.world.rot.y, 4.0f);
+        Actor_SetPlayerKnockbackLargeNoDamage(play, &this->actor, 4.0f, this->actor.world.rot.y, 4.0f);
     }
 
-    if (this->actor.bgCheckFlags & 1) {
+    if (this->actor.bgCheckFlags & BGCHECKFLAG_GROUND) {
         Math_SmoothStepToF(&this->actor.speedXZ, 0.0f, 1.0f, 1.5f, 0.0f);
 
         if (this->actor.speedXZ > 1.0f) {
@@ -863,8 +861,9 @@ void EnMb_ClubAttack(EnMb* this, PlayState* play) {
                 }
             }
 
-            func_8002F71C(play, &this->actor, (650.0f - this->actor.xzDistToPlayer) * 0.04f + 4.0f,
-                          this->actor.world.rot.y, 8.0f);
+            Actor_SetPlayerKnockbackLargeNoDamage(play, &this->actor,
+                                                  (650.0f - this->actor.xzDistToPlayer) * 0.04f + 4.0f,
+                                                  this->actor.world.rot.y, 8.0f);
 
             player->invincibilityTimer = prevPlayerInvincibilityTimer;
         }
@@ -882,7 +881,7 @@ void EnMb_ClubAttack(EnMb* this, PlayState* play) {
             effSpawnPos = this->effSpawnPos;
             effSpawnPos.y = this->actor.floorHeight;
             Audio_PlayActorSound2(&this->actor, NA_SE_EN_MONBLIN_HAM_LAND);
-            func_800AA000(this->actor.xzDistToPlayer, 0xFF, 0x14, 0x96);
+            Rumble_Request(this->actor.xzDistToPlayer, 0xFF, 0x14, 0x96);
             EffectSsBlast_SpawnWhiteShockwave(play, &effSpawnPos, &effWhiteShockwaveDynamics,
                                               &effWhiteShockwaveDynamics);
             func_80033480(play, &effSpawnPos, 2.0f, 3, 0x12C, 0xB4, 1);
@@ -977,7 +976,7 @@ void EnMb_SpearPatrolPrepareAndCharge(EnMb* this, PlayState* play) {
                 player->stateFlags2 &= ~PLAYER_STATE2_GRABBED_BY_ENEMY;
                 player->actor.parent = NULL;
                 player->av2.actionVar2 = 200;
-                func_8002F71C(play, &this->actor, 4.0f, this->actor.world.rot.y, 4.0f);
+                Actor_SetPlayerKnockbackLargeNoDamage(play, &this->actor, 4.0f, this->actor.world.rot.y, 4.0f);
             }
         }
         this->attack = ENMB_ATTACK_NONE;
@@ -1046,7 +1045,7 @@ void EnMb_SpearPatrolImmediateCharge(EnMb* this, PlayState* play) {
                 player->stateFlags2 &= ~PLAYER_STATE2_GRABBED_BY_ENEMY;
                 player->actor.parent = NULL;
                 player->av2.actionVar2 = 200;
-                func_8002F71C(play, &this->actor, 4.0f, this->actor.world.rot.y, 4.0f);
+                Actor_SetPlayerKnockbackLargeNoDamage(play, &this->actor, 4.0f, this->actor.world.rot.y, 4.0f);
             }
             this->attack = ENMB_ATTACK_NONE;
             this->actor.speedXZ = -10.0f;
@@ -1072,7 +1071,7 @@ void EnMb_ClubDamaged(EnMb* this, PlayState* play) {
         if (this->timer3 != 0) {
             Animation_PlayOnce(&this->skelAnime, &gEnMbClubStandUpAnim);
             this->timer3 = 0;
-            func_800AA000(this->actor.xzDistToPlayer, 0xFF, 0x14, 0x96);
+            Rumble_Request(this->actor.xzDistToPlayer, 0xFF, 0x14, 0x96);
             Camera_AddQuake(&play->mainCamera, 2, 25, 5);
         } else {
             EnMb_SetupClubWaitPlayerNear(this);
@@ -1131,7 +1130,7 @@ void EnMb_ClubDead(EnMb* this, PlayState* play) {
             Actor_Kill(&this->actor);
         }
     } else if ((s32)this->skelAnime.curFrame == 15 || (s32)this->skelAnime.curFrame == 22) {
-        func_800AA000(this->actor.xzDistToPlayer, 0xFF, 0x14, 0x96);
+        Rumble_Request(this->actor.xzDistToPlayer, 0xFF, 0x14, 0x96);
         Actor_SpawnFloorDustRing(play, &this->actor, &effPos, 50.0f, 10, 3.0f, 400, 60, false);
         Audio_PlayActorSound2(&this->actor, NA_SE_EN_RIZA_DOWN);
         Camera_AddQuake(&play->mainCamera, 2, 25, 5);
@@ -1342,7 +1341,7 @@ void EnMb_SpearDead(EnMb* this, PlayState* play) {
         player->stateFlags2 &= ~PLAYER_STATE2_GRABBED_BY_ENEMY;
         player->actor.parent = NULL;
         player->av2.actionVar2 = 200;
-        func_8002F71C(play, &this->actor, 4.0f, this->actor.world.rot.y, 4.0f);
+        Actor_SetPlayerKnockbackLargeNoDamage(play, &this->actor, 4.0f, this->actor.world.rot.y, 4.0f);
         this->attack = ENMB_ATTACK_NONE;
     }
 
@@ -1425,7 +1424,7 @@ void EnMb_CheckColliding(EnMb* this, PlayState* play) {
                 player->stateFlags2 &= ~PLAYER_STATE2_GRABBED_BY_ENEMY;
                 player->actor.parent = NULL;
                 player->av2.actionVar2 = 200;
-                func_8002F71C(play, &this->actor, 6.0f, this->actor.world.rot.y, 6.0f);
+                Actor_SetPlayerKnockbackLargeNoDamage(play, &this->actor, 6.0f, this->actor.world.rot.y, 6.0f);
             }
             this->damageEffect = this->actor.colChkInfo.damageEffect;
             this->attack = ENMB_ATTACK_NONE;

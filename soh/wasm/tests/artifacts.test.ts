@@ -10,8 +10,14 @@ const MODULES = ["soh.wasm", "soh-unbound-convert.wasm"];
 const wasm = (name: string) => new Uint8Array(readFileSync(join(BUILD_DIR, name)));
 
 // RegionTable_Init reached 3.3 MB when Binaryen inlined its builders, and V8's optimising
-// compiler crashed the renderer on it. See wasm-port.md, "Other traps".
+// compiler crashed the renderer on it. See wasm-port.md, "Other traps". One healthy function
+// is allowed past the limit: the randomizer's HintTable_Init_Exclude_Overworld is straight-line
+// table code that grows with upstream's hint text (0.85 MB on 9.2.3, 1.03 MB on 9.3.0) and
+// survives eager tier-up (smoke-tiering.test.ts).
 const LARGEST_FUNCTION_BYTES = 1_000_000;
+const KNOWN_LARGE_FUNCTION_BYTES: Record<string, number> = {
+    "Rando::StaticData::HintTable_Init_Exclude_Overworld()": 1_500_000,
+};
 
 test("HOST-API.md ships next to soh.js", () => {
     expect(existsSync(join(BUILD_DIR, "soh.js"))).toBe(true);
@@ -20,7 +26,7 @@ test("HOST-API.md ships next to soh.js", () => {
 
 test.each(MODULES)("%s: no function is large enough to endanger V8's optimising compiler", (name) => {
     const tooBig = largestFunctions(wasm(name), 5)
-        .filter((f) => f.size >= LARGEST_FUNCTION_BYTES)
+        .filter((f) => f.size >= (KNOWN_LARGE_FUNCTION_BYTES[f.name] ?? LARGEST_FUNCTION_BYTES))
         .map((f) => `${f.name}: ${f.size} bytes`);
     expect(tooBig).toEqual([]);
 });
