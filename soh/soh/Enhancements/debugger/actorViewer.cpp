@@ -1081,7 +1081,7 @@ void ActorViewerWindow::DrawElement() {
                     for (size_t i = 0; i < actorSearchResults.size(); i++) { // SOH [Unbound] a u8 never ended at 256+
                         if (ImGui::Selectable(ActorDB::Instance->RetrieveEntry(actorSearchResults[i]).desc.c_str(),
                                               (s16)i == currentSelectedInDropdown)) {
-                            currentSelectedInDropdown = i;
+                            currentSelectedInDropdown = (s16)i;
                             newActor.id = actorSearchResults[i];
                         }
                     }
