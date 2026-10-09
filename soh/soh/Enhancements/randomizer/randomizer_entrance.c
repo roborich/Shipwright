@@ -679,7 +679,7 @@ void Entrance_OverrideSpawnScene(s32 sceneNum, s32 spawn) {
         (Randomizer_GetSettingValue(RSK_SHUFFLE_DUNGEON_ENTRANCES) == RO_DUNGEON_ENTRANCE_SHUFFLE_ON_PLUS_GANON ||
          Randomizer_GetSettingValue(RSK_SHUFFLE_BOSS_ENTRANCES) != RO_BOSS_ROOM_ENTRANCE_SHUFFLE_OFF ||
          Randomizer_GetSettingValue(RSK_SHUFFLE_GANONS_TOWER_ENTRANCE))) {
-        modifiedLinkActorEntry.pos.x = 0xFEA8;
+        modifiedLinkActorEntry.pos.x = (s16)0xFEA8; // SOH [Unbound] pos is f32; the s16 is negative
         modifiedLinkActorEntry.pos.y = 0x065C;
         modifiedLinkActorEntry.pos.z = 0x0290;
         modifiedLinkActorEntry.rot.y = 0x0700;
@@ -691,7 +691,7 @@ void Entrance_OverrideSpawnScene(s32 sceneNum, s32 spawn) {
         // Repair the authentically bugged entrance when leaving Barinade's boss room -> Jabu Jabu's belly
         // Link's position needs to be adjusted to prevent him from falling through the floor
         if (sceneNum == SCENE_JABU_JABU && spawn == 1) {
-            modifiedLinkActorEntry.pos.z = 0xF7F4;
+            modifiedLinkActorEntry.pos.z = (s16)0xF7F4; // SOH [Unbound] pos is f32; the s16 is negative
             gPlayState->linkActorEntry = &modifiedLinkActorEntry;
         }
 
@@ -699,9 +699,9 @@ void Entrance_OverrideSpawnScene(s32 sceneNum, s32 spawn) {
         // Link's position was at the start of the Water Temple entrance
         // This updates it to place him in the hallway outside of Morpha's boss room.
         if (sceneNum == SCENE_WATER_TEMPLE && spawn == 1) {
-            modifiedLinkActorEntry.pos.x = 0xFF4C;
+            modifiedLinkActorEntry.pos.x = (s16)0xFF4C; // SOH [Unbound] pos is f32; the s16 is negative
             modifiedLinkActorEntry.pos.y = 0x0406;
-            modifiedLinkActorEntry.pos.z = 0xF828;
+            modifiedLinkActorEntry.pos.z = (s16)0xF828; // SOH [Unbound] pos is f32; the s16 is negative
             modifiedLinkActorEntry.rot.y = 0x0;
             gPlayState->linkActorEntry = &modifiedLinkActorEntry;
         }
