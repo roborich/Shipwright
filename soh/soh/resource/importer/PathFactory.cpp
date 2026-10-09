@@ -79,9 +79,9 @@ ResourceFactoryXMLPathV0::ReadResource(std::shared_ptr<Ship::File> file,
 
         while (pointElement != nullptr) {
             Vec3f point;
-            point.x = pointElement->IntAttribute("X");
-            point.y = pointElement->IntAttribute("Y");
-            point.z = pointElement->IntAttribute("Z");
+            point.x = pointElement->FloatAttribute("X");
+            point.y = pointElement->FloatAttribute("Y");
+            point.z = pointElement->FloatAttribute("Z");
 
             points.push_back(point);
 

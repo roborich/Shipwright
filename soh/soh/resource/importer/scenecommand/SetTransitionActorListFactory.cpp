@@ -56,9 +56,9 @@ SetTransitionActorListFactoryXML::ReadResource(std::shared_ptr<Ship::ResourceIni
             entry.sides[1].room = child->IntAttribute("BackSideRoom");
             entry.sides[1].effects = child->IntAttribute("BackSideEffects");
             entry.id = child->IntAttribute("Id");
-            entry.pos.x = child->IntAttribute("PosX");
-            entry.pos.y = child->IntAttribute("PosY");
-            entry.pos.z = child->IntAttribute("PosZ");
+            entry.pos.x = child->FloatAttribute("PosX");
+            entry.pos.y = child->FloatAttribute("PosY");
+            entry.pos.z = child->FloatAttribute("PosZ");
             entry.rotY = child->IntAttribute("RotY");
             entry.params = child->IntAttribute("Params");
             setTransitionActorList->transitionActorList.push_back(entry);

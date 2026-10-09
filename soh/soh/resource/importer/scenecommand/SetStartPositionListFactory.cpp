@@ -50,9 +50,9 @@ SetStartPositionListFactoryXML::ReadResource(std::shared_ptr<Ship::ResourceInitD
         if (childName == "StartPositionEntry") {
             ActorEntry entry;
             entry.id = child->IntAttribute("Id");
-            entry.pos.x = child->IntAttribute("PosX");
-            entry.pos.y = child->IntAttribute("PosY");
-            entry.pos.z = child->IntAttribute("PosZ");
+            entry.pos.x = child->FloatAttribute("PosX");
+            entry.pos.y = child->FloatAttribute("PosY");
+            entry.pos.z = child->FloatAttribute("PosZ");
             entry.rot.x = child->IntAttribute("RotX");
             entry.rot.y = child->IntAttribute("RotY");
             entry.rot.z = child->IntAttribute("RotZ");
