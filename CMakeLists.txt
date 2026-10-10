@@ -51,7 +51,7 @@ set(PROJECT_TEAM "github.com/harbourmasters" CACHE STRING "" FORCE)
 # cutting a release: the tag is "${PROJECT_VERSION}-${PROJECT_FORK_VERSION}" (see unbound-docs/README.md,
 # "Releasing"). Shown under Settings > General > About; gBuildVersion stays the vanilla SoH version.
 set(PROJECT_FORK_NAME "SoH: Unbound" CACHE STRING "" FORCE)
-set(PROJECT_FORK_VERSION "unbound0.9" CACHE STRING "" FORCE)
+set(PROJECT_FORK_VERSION "unbound0.10" CACHE STRING "" FORCE)
 
 execute_process(
     COMMAND git branch --show-current
