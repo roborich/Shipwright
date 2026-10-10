@@ -286,8 +286,8 @@ ResourceFactoryXMLCollisionHeaderV0::ReadResource(std::shared_ptr<Ship::File> fi
         }
     }
 
-    collisionHeader->collisionHeaderData.numVertices = static_cast<u16>(collisionHeader->vertices.size());
-    collisionHeader->collisionHeaderData.numPolygons = static_cast<u16>(collisionHeader->polygons.size());
+    collisionHeader->collisionHeaderData.numVertices = static_cast<u32>(collisionHeader->vertices.size());
+    collisionHeader->collisionHeaderData.numPolygons = static_cast<u32>(collisionHeader->polygons.size());
     collisionHeader->surfaceTypesCount = static_cast<uint32_t>(collisionHeader->surfaceTypes.size());
     collisionHeader->camDataCount = static_cast<uint32_t>(collisionHeader->camData.size());
     collisionHeader->camPosCount = static_cast<int32_t>(collisionHeader->camPosData.size());
