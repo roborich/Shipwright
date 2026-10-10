@@ -146,9 +146,12 @@ know, so the problem does not recur for later additions.
   one name; two mods that pick the same path merge instead, which is why writers keep to a
   folder of their own. The folder is recommended, not required: a name without one works, and
   the vanilla-name check still refuses one that clashes with an actor in code.
-- **Load point: after `ActorDB::AddBuiltInCustomActors()`** in `OTRGlobals.cpp`. `InitMods()`
-  runs before it today (mods are mounted, then `LoadCustomScenes` runs from `UpdateModFiles`), so
-  loading from the same place as scenes would number the mod types *before* SoH's own `En_Partner`.
+- **Load point: `SOH::Unbound::LoadCustomActors()` in `OTRGlobals.cpp`**, after the mods are
+  mounted and after the command-line export. On 9.2.3 it had to follow
+  `ActorDB::AddBuiltInCustomActors()` so SoH's own `En_Partner` took its id first; 9.3.0 dropped
+  that function and Ivan Co-op registers `En_Partner` at its fixed id (`ACTOR_EN_PARTNER`) the first
+  time Ivan spawns. Until then the name `En_Partner` is unknown, so a room actor naming it does not
+  resolve and the vanilla-name check does not refuse a mod type that claims it.
   Mods are only mounted at startup (`EnableMod` is marked "TODO: runtime changes"), so the registry
   loads once and never has to unregister.
 - **Ids start at `kCustomActorIdBase` (0x1000)**, like custom scenes start at 128. That keeps

@@ -1,7 +1,7 @@
 # SoH: Unbound
 
 **SoH: Unbound** is an experimental fork of Ship of Harkinian (branch `unbound`, based on tag
-`9.2.3`) with one purpose: **remove the limits Ocarina of Time inherited from N64 hardware so
+`9.3.0`; it was on `9.2.3` through `unbound0.9`) with one purpose: **remove the limits Ocarina of Time inherited from N64 hardware so
 modders can build things the vanilla game shape cannot hold.** Its primary consumer is
 [Prelude of Light](https://preludeoflight.com), a browser-based o2r editor; Prelude gains an
 "Unbound" mode that targets this build (`UNBOUND.md` in the Prelude repo).
@@ -58,7 +58,7 @@ facts are in the cited SPEC sections.
 | **Converter** | Runs at boot when `oot-unbound.o2r` is missing or its manifest `source` (converter build and revision, ROM hashes) differs; also `soh --export-unbound <out.o2r>` / console `unbound-export`. Vanilla → Unbound archive in ~1 s. `soh/soh/unbound/UnboundExporter.cpp`. | `scene-format.md` §3 | — |
 | **Animated materials** | A scene setup's `materialAnims` list is the data-driven form of what a scene draw config does in C (scrolling water, colour cycles, flipbooks): the Majora's Mask AnimatedMaterial system, bound per pass after the draw config. | [`materials.md`](./materials.md) | §4.2, §9 |
 | **Loader** | libultraship gained a JSON resource format (`{` sniff, type from `$schema`, found in any layer) and `LoadFileFromAllLayers`; SoH's JSON factories (`soh/soh/unbound/`) build the same command objects the binary loaders build, so scene execution code is untouched. | `scene-format.md` §2 | §3 |
-| **Browser** | The `wasm` port is merged in (browser work lands on `wasm`, then `git merge wasm` here): the same game as a WebAssembly module for Prelude's site, built with `-DCMAKE_TOOLCHAIN_FILE=<emsdk>/.../Emscripten.cmake` into `build-uw-wasm-rel`. It boots from `oot-unbound.o2r` alone (standalone base: checked against the running converter, never re-derived), which a page makes before the game runs with `soh-unbound-convert.js` (the converter linked from the game's own objects, no window; `soh/wasm/convert/`), or converts a supplied `oot.o2r` at startup and hands the result to the page as a `file-saved` event; `warp` and `entrance` take entrance names so a page can boot into a custom scene. | [`soh/wasm/HOST-API.md`](../soh/wasm/HOST-API.md), [`wasm-port.md`](../wasm-port.md) | §6 |
+| **Browser** | The `wasm` port is merged in (browser work lands on `wasm`, then `git merge wasm` here): the same game as a WebAssembly module for Prelude's site, built with `-DCMAKE_TOOLCHAIN_FILE=<emsdk>/.../Emscripten.cmake` into `build-wasm-unbound`. It boots from `oot-unbound.o2r` alone (standalone base: checked against the running converter, never re-derived), which a page makes before the game runs with `soh-unbound-convert.js` (the converter linked from the game's own objects, no window; `soh/wasm/convert/`), or converts a supplied `oot.o2r` at startup and hands the result to the page as a `file-saved` event; `warp` and `entrance` take entrance names so a page can boot into a custom scene. | [`soh/wasm/HOST-API.md`](../soh/wasm/HOST-API.md), [`wasm-port.md`](../wasm-port.md) | §6 |
 | **Prelude** | Dated changelog of what Prelude must emit differently. | [`prelude-handoff.md`](./prelude-handoff.md) | — |
 
 Verified in game: a Prelude-generated mod adding a **new scene with high-poly collision** loads and
@@ -103,8 +103,8 @@ behind them and likely next targets:
   alias of the s32 dyna vertex list) compiles silently and reads the new bytes as the old type; three of
   those shipped in 0.3. The script re-checks every file with only `-Wincompatible-pointer-types` on and
   keeps only diagnostics that name a widened type. Expected output is six vanilla lines — SoH passing a
-  resource to a `char*` name parameter (`z_bgcheck.c:3849`, `z_player_lib.c:2277`, `z_bg_spot03_taki.c:42`,
-  `z_en_ganon_mant.c:320`, `z_en_jsjutan.c:129-130`); anything else is drift. `--narrowing` lists the
+  resource to a `char*` name parameter (`z_bgcheck.c:3847`, `z_player_lib.c:2307`, `z_bg_spot03_taki.c:42`,
+  `z_en_ganon_mant.c:320`, `z_en_jsjutan.c:130-131`); anything else is drift. `--narrowing` lists the
   ~90 places a widened value is stored narrower (world-extent limits, mostly vanilla `s16` positions).
   The C++ resource mirrors are checked separately by `static_assert`s in their factories.
 - libultraship is a submodule on the fork branch `unbound`; commit there first, then update the
@@ -113,11 +113,14 @@ behind them and likely next targets:
 ## Releasing
 
 `roborich/Shipwright` ships two products from one workflow, `.github/workflows/generate-builds.yml`
-(kept identical on both release branches; the tag decides everything):
+(the tag decides everything). The release logic — tag patterns, the release-run dispatch, the
+release job, cache saves — is the same on both release branches, but the files are no longer
+identical: `unbound` is on SoH 9.3.0 (Torch, MacPorts, Windows `/WX`) while the cel-shading branch
+is still on 9.2.3. Port a release-logic change to the other branch by hand, not by copying the file.
 
 | Product | Branch | Tag | Release title |
 |---|---|---|---|
-| SoH: Unbound | `unbound` | `<SoH version>-unbound<X.Y>` (`9.2.3-unbound0.1`) | `SoH: Unbound <tag>` |
+| SoH: Unbound | `unbound` | `<SoH version>-unbound<X.Y>` (`9.3.0-unbound0.10`) | `SoH: Unbound <tag>` |
 | SoH (cel-shading fork) | `wind-waker-style-cel-shading` | `<SoH version>-celshade<X.Y>` | `SoH (cel-shading fork) <tag>` |
 
 Pushing a release branch builds macOS, Linux and Windows and saves the CI caches. Pushing a tag
@@ -129,7 +132,7 @@ reads that branch's caches, builds the tagged commit, and publishes the release 
 of the *same* product, prefixed by `.github/release-notes/<product>.md`.
 
 **Before tagging, bump the in-app version.** Nothing derives it from the tag: set `PROJECT_FORK_VERSION`
-in the root `CMakeLists.txt` to the tag's suffix (`unbound0.8` for tag `9.2.3-unbound0.8`) and commit
+in the root `CMakeLists.txt` to the tag's suffix (`unbound0.10` for tag `9.3.0-unbound0.10`) and commit
 it. It is shown under Settings > General > About as `<SoH version>-<suffix>`; `gBuildVersion` itself
 stays the vanilla SoH version because spoiler logs, `soh.o2r` and the Unbound exporter check against it.
 
@@ -140,14 +143,14 @@ git checkout unbound && git push origin unbound
 #    platform that fails there would fail the release too
 gh run list -R roborich/Shipwright -w generate-builds -b unbound -L 1
 # 3. tag the same commit
-git tag 9.2.3-unbound0.9 && git push origin 9.2.3-unbound0.9
+git tag 9.3.0-unbound0.10 && git push origin 9.3.0-unbound0.10
 ```
 
 Tag the branch's head: the caches belong to the head, and the release run warns when the tag is
 elsewhere. If the tag run cannot start the release run, start it by hand with
 `gh workflow run generate-builds.yml -R roborich/Shipwright --ref unbound -f tag=<tag>`.
 
-A tag ending in `-test` (`9.2.3-unbound-ci-test`) runs the whole pipeline but publishes a **draft**
+A tag ending in `-test` (`9.3.0-unbound-ci-test`) runs the whole pipeline but publishes a **draft**
 release, visible only to maintainers, and is never used as the previous tag for release notes.
 Delete the draft and the tag afterwards (`gh release delete <tag> --cleanup-tag`).
 
