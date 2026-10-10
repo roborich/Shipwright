@@ -15,7 +15,6 @@ on:
     branches:
       - wind-waker-style-cel-shading
       - unbound
-      - unbound-9.3.0 # TEMPORARY: CI for the 9.3.0 move; remove before merging into unbound
     tags:
       - '*celshade*'
       - '*unbound*'
