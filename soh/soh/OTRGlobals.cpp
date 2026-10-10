@@ -448,8 +448,8 @@ static bool RemoveArchiveAcrossAppDirs(const std::string& fileName) {
 #ifdef __EMSCRIPTEN__
 // SOH [WASM] The checks RunExtract makes on desktop before it offers to extract, for a build
 // that cannot extract. Returns why the game cannot start, or an empty string. SOH [Unbound] A
-// standalone oot-unbound.o2r is a game archive too; its version is checked once it is mounted
-// (MountUnboundBase), against the converter that made it.
+// standalone oot-unbound.o2r is a game archive too; it is checked once it is mounted
+// (MountUnboundBase): base version, format version and SoH major (SPEC.md §10.1).
 static std::string BrowserArchiveProblem(bool portArchiveMatches, OTRVersion vanilla, OTRVersion mq,
                                          OTRVersion unboundBase) {
     if (!portArchiveMatches) {
@@ -890,8 +890,9 @@ static bool MountStandaloneUnboundBase(const std::string& ootPath, const std::st
 static std::string sConvertedUnboundBase;
 
 // SOH [Unbound] The converted base (oot-unbound.o2r) mounts above the vanilla archives; it is generated on first
-// launch and regenerated whenever the ROM archives or the build change. A standalone base has nothing to be
-// regenerated from, so it is only checked. Needs the resource factories.
+// launch and regenerated when the ROM archives change (or are extracted again) or the base is incompatible
+// (SPEC.md §10.1); another release alone is no reason. A standalone base has nothing to be regenerated from, so
+// it is only checked. Needs the resource factories.
 static void MountUnboundBase(bool standalone, const std::string& ootPath, const std::string& mqPath) {
     if (standalone) {
         std::string problem = SOH::Unbound::CheckStandaloneBaseArchive();

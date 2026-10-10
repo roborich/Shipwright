@@ -18,9 +18,23 @@ struct ExportReport {
 // Writes a complete oot-unbound.o2r (stored zip) to outPath from the currently mounted base archive.
 ExportReport ExportArchive(const std::string& outPath);
 
-// The converter's name and revision as a base's manifest records it (`source.converter`); a base written by
-// another is stale.
+// The release that converted a base, as its manifest records it (`source.converter`). Informational only: a
+// base is usable when its `baseVersion` matches (SPEC.md §6), whichever release wrote it.
 std::string ConverterName();
+
+// A game archive's `portVersion` file: the SoH release that extracted it. A base inherits the file from the
+// archive it was converted from.
+struct PortVersion {
+    int major = -1; // -1: no portVersion file
+    int minor = -1;
+    int patch = -1;
+    bool operator==(const PortVersion& other) const {
+        return major == other.major && minor == other.minor && patch == other.patch;
+    }
+};
+
+// The topmost mounted `portVersion` file.
+PortVersion MountedPortVersion();
 
 // The converted base archive, kept beside oot.o2r.
 inline constexpr const char* kBaseArchiveName = "oot-unbound.o2r";
@@ -31,15 +45,17 @@ enum class BaseArchiveState {
     Converted, // the base archive was written this launch, then mounted
 };
 
-// Mounts <gameArchiveDir>/oot-unbound.o2r above the vanilla archives, converting it first when it is missing
-// or was made from other ROM archives or by another SoH build. Call after the resource factories are
-// registered and before mods are mounted.
+// Mounts <gameArchiveDir>/oot-unbound.o2r above the vanilla archives, converting it first when it is missing,
+// was converted from other ROM archives or from another extraction of them (its copied game files would
+// shadow the newer ones), or is incompatible with this build (SPEC.md §6, §10.1). Call after the resource
+// factories are registered and before mods are mounted.
 BaseArchiveState EnsureBaseArchive(const std::string& gameArchiveDir);
 
 // oot-unbound.o2r is a complete game archive (the converter copies every file it does not transform, the
 // version files included), so it can be installed without the ROM archives it came from: the browser build
-// is installed that way. Such a base cannot be converted again, only checked. Call once it is mounted as the
-// game archive and the resource factories are registered. Returns why it cannot be used, or an empty string.
+// is installed that way. Such a base cannot be converted again, only checked for compatibility with this
+// build (SPEC.md §10.1), whichever release converted it. Call once it is mounted as the game archive and the
+// resource factories are registered. Returns why it cannot be used, or an empty string.
 std::string CheckStandaloneBaseArchive();
 
 } // namespace SOH::Unbound

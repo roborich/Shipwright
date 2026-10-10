@@ -24,17 +24,21 @@ Do not supply `soh.o2r`; it is inside the module.
 base: a complete game archive converted from `oot.o2r` (scenes, collision, text and paths
 rewritten in the Unbound format, every other file copied). Supply exactly one of:
 
-- **`/oot-unbound.o2r`** alone: the normal boot. It must have been converted by this same
-  release of the game; one converted by another release stops the game with an `error` event
-  (`… was converted by soh X, not soh Y; convert the ROM again`).
+- **`/oot-unbound.o2r`** alone: the normal boot. A base converted by an earlier or later
+  release works as long as its manifest's `baseVersion` is this release's (SPEC.md §6, §10.1);
+  `baseVersion` changes only when an older base would no longer play correctly, and the release
+  notes say so. An incompatible base stops the game with an `error` event (`oot-unbound.o2r is
+  base version 1; this build reads base version 2; convert the ROM again`, or the same for the
+  format version or the SoH major version).
 - **`/oot.o2r`** alone: the fallback install boot, for a host that has not converted it
   itself with `soh-unbound-convert.js` (§7). The game converts it during startup (under a second
   in a release build; the tab stays busy) and sends the result as a `file-saved` event with path
   `/oot-unbound.o2r`, before the title screen. Keep those bytes and supply them, without
   `oot.o2r`, from then on. The event carries a copy of about 60 MB.
 
-Supplying both also works (desktop's layout): the base is checked against `oot.o2r` and
-converted again, and reported again, whenever it is stale. A base converted from one archive
+Supplying both also works (desktop's layout): the base is converted again, and reported again,
+when it was converted from another archive than `oot.o2r` (another ROM, or the same ROM extracted
+again) or is incompatible as above. A base converted from one archive
 carries only that archive's game, so a Master Quest base comes from `oot-mq.o2r` alone.
 
 ## 2. Events out: `CustomEvent('soh')` on `window`
@@ -256,7 +260,7 @@ const { bytes: oot } = await extractor.extractRom(romBytes, { onProgress });
 const converter = await createSohUnboundConverter();
 const { bytes, report } = await converter.convertToUnbound(oot);
 // bytes: Uint8Array, the base (about 65 MB, a stored zip)
-// report: { code: 0, error: '', converter: 'soh ... unbound r1', scenes, rooms, messages, copied, failures }
+// report: { code: 0, error: '', converter: 'soh 9.3.0-unbound0.11', scenes, rooms, messages, copied, failures }
 ```
 
 - Import `soh-unbound-convert.js` as an ES module; the factory is its default export,
@@ -281,6 +285,6 @@ const { bytes, report } = await converter.convertToUnbound(oot);
 - Memory: the source and the base sit in the module's filesystem (about 100 MB, outside the
   wasm heap) while it runs; the heap starts at 256 MB and grows if it must.
 
-**Build all three together.** The game refuses a base whose converter is not its own (§1's
-`error` event, "convert the ROM again"), and the converter refuses an `oot.o2r` from another
-port version. Copy `soh-unbound-convert.*` from the same build as `soh.*` and `soh-extract.*`.
+**Build all three together.** The converter refuses an `oot.o2r` from another SoH major
+version, and the game refuses a base of another base version (§1's `error` event, "convert the
+ROM again"); a base from another release of the same base version is accepted. Copy `soh-unbound-convert.*` from the same build as `soh.*` and `soh-extract.*`.

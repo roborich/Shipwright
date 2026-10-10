@@ -55,10 +55,10 @@ facts are in the cited SPEC sections.
 | **Counts** | Object bank 1024; actors per room and rooms per scene 16-bit; live-actor cap real and 8192; mesh entries unbounded; room numbers 16-bit with unbounded clear flags, waterbox rooms and transition actors. Object ids past the vanilla table are usable. | [`counts.md`](./counts.md) | §9 |
 | **Scene format** | Merging JSON loader, converter, entity-key scheme and the decisions behind them. | [`scene-format.md`](./scene-format.md) | §2–§4, §6 |
 | **World extent** | Actor-side positions are `f32`: float `Mtx` (libultraship fork `GBI_FLOAT_MTX`), spawns, paths, point lights, colliders. Geometry is integral and wide: room meshes use `s32` vertices (`GBI_S32_VTX`, vertex resource v1), so one room is no longer capped at 65 535 units, and collision is `s32` (vertices, bounds, plane distances, water boxes). Fog and draw distance are per-scene world units. | [`extent.md`](./extent.md) | §4.2–4.4, §9 |
-| **Converter** | Runs at boot when `oot-unbound.o2r` is missing or its manifest `source` (converter build and revision, ROM hashes) differs; also `soh --export-unbound <out.o2r>` / console `unbound-export`. Vanilla → Unbound archive in ~1 s. `soh/soh/unbound/UnboundExporter.cpp`. | `scene-format.md` §3 | — |
+| **Converter** | Runs at boot when `oot-unbound.o2r` is missing, was converted from other ROM archives (or an earlier extraction of them), or is incompatible (SPEC §6 `baseVersion`, §10.1: format version, base version, SoH major version) — never just because another release wrote it; also `soh --export-unbound <out.o2r>` / console `unbound-export`. Vanilla → Unbound archive in ~1 s. `soh/soh/unbound/UnboundExporter.cpp`. | `scene-format.md` §3 | — |
 | **Animated materials** | A scene setup's `materialAnims` list is the data-driven form of what a scene draw config does in C (scrolling water, colour cycles, flipbooks): the Majora's Mask AnimatedMaterial system, bound per pass after the draw config. | [`materials.md`](./materials.md) | §4.2, §9 |
 | **Loader** | libultraship gained a JSON resource format (`{` sniff, type from `$schema`, found in any layer) and `LoadFileFromAllLayers`; SoH's JSON factories (`soh/soh/unbound/`) build the same command objects the binary loaders build, so scene execution code is untouched. | `scene-format.md` §2 | §3 |
-| **Browser** | The `wasm` port is merged in (browser work lands on `wasm`, then `git merge wasm` here): the same game as a WebAssembly module for Prelude's site, built with `-DCMAKE_TOOLCHAIN_FILE=<emsdk>/.../Emscripten.cmake` into `build-wasm-unbound`. It boots from `oot-unbound.o2r` alone (standalone base: checked against the running converter, never re-derived), which a page makes before the game runs with `soh-unbound-convert.js` (the converter linked from the game's own objects, no window; `soh/wasm/convert/`), or converts a supplied `oot.o2r` at startup and hands the result to the page as a `file-saved` event; `warp` and `entrance` take entrance names so a page can boot into a custom scene. | [`soh/wasm/HOST-API.md`](../soh/wasm/HOST-API.md), [`wasm-port.md`](../wasm-port.md) | §6 |
+| **Browser** | The `wasm` port is merged in (browser work lands on `wasm`, then `git merge wasm` here): the same game as a WebAssembly module for Prelude's site, built with `-DCMAKE_TOOLCHAIN_FILE=<emsdk>/.../Emscripten.cmake` into `build-wasm-unbound`. It boots from `oot-unbound.o2r` alone (standalone base: checked for compatibility by the same rule, never re-derived), which a page makes before the game runs with `soh-unbound-convert.js` (the converter linked from the game's own objects, no window; `soh/wasm/convert/`), or converts a supplied `oot.o2r` at startup and hands the result to the page as a `file-saved` event; `warp` and `entrance` take entrance names so a page can boot into a custom scene. | [`soh/wasm/HOST-API.md`](../soh/wasm/HOST-API.md), [`wasm-port.md`](../wasm-port.md) | §6 |
 | **Prelude** | Dated changelog of what Prelude must emit differently. | [`prelude-handoff.md`](./prelude-handoff.md) | — |
 
 Verified in game: a Prelude-generated mod adding a **new scene with high-poly collision** loads and
@@ -134,7 +134,24 @@ of the *same* product, prefixed by `.github/release-notes/<product>.md`.
 **Before tagging, bump the in-app version.** Nothing derives it from the tag: set `PROJECT_FORK_VERSION`
 in the root `CMakeLists.txt` to the tag's suffix (`unbound0.10` for tag `9.3.0-unbound0.10`) and commit
 it. It is shown under Settings > General > About as `<SoH version>-<suffix>`; `gBuildVersion` itself
-stays the vanilla SoH version because spoiler logs, `soh.o2r` and the Unbound exporter check against it.
+stays the vanilla SoH version because spoiler logs and `soh.o2r` check against it.
+
+**Before tagging, check that the previous release's base still works** (SPEC §10.1). Mods are built
+against a player's `oot-unbound.o2r`, so a release must keep the bases already out there unless it
+truly cannot. Convert a fresh base with this build (`soh --export-unbound <out.o2r>`) and compare it
+with one the previous release converted from the same ROM:
+
+```
+scripts/unbound-base-diff.py <previous oot-unbound.o2r> <fresh oot-unbound.o2r>
+```
+
+Exit 0 (only the manifest differs) needs nothing. Otherwise review each difference against §10.1:
+bump `kCurrentBaseVersion` (`UnboundSchema.h`) only when the old base would play wrongly or lacks
+something the new code needs, and say so in the release notes, since every player has to convert
+again. Differences in the *copied game files* come from upstream's extractor; they follow stock
+SoH's rule (same major version, keep the archive) and are not a bump on their own. Then boot the
+previous base in the browser build: `unbound.test.ts` boots `oot-unbound-previous.o2r` from the
+test files folder when it is there.
 
 ```
 # 1. bump PROJECT_FORK_VERSION in CMakeLists.txt, commit, and push the branch

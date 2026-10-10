@@ -43,7 +43,7 @@ bun test              # everything that is enabled
 | Variable | Default | Meaning |
 |---|---|---|
 | `SOH_WASM_BUILD` | `build-wasm-rel/soh` | Directory with `soh.js`, `soh.wasm`, `soh.data` |
-| `SOH_WASM_FILES` | `$SOH_WASM_BUILD/hostfiles` | `oot.o2r`, `shipofharkinian.json`, `Save/file1.sav`, `Save/global.sav`; optionally `oot-unbound.o2r` (a desktop build writes one next to its `oot.o2r`), which `unbound.test.ts` boots from alone |
+| `SOH_WASM_FILES` | `$SOH_WASM_BUILD/hostfiles` | `oot.o2r`, `shipofharkinian.json`, `Save/file1.sav`, `Save/global.sav`; optionally `oot-unbound.o2r` (a desktop build writes one next to its `oot.o2r`), which `unbound.test.ts` boots from alone and rewrites into a base of another base version, and `oot-unbound-previous.o2r` (a base the previous release converted), which it boots to check that bases outlive releases |
 | `SOH_WASM_SLOW` | unset | `1` runs the timing tests |
 | `SOH_WASM_SOAK` | unset | `1` runs the 10-minute memory soak |
 | `SOH_WASM_KNOWN_BUGS` | unset | `1` also runs tests for bugs that are not fixed yet |

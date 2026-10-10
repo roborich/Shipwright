@@ -43,7 +43,7 @@ test("in-process: oot.o2r becomes the base the game itself converts", async () =
     const mod = await createConverter();
     const { bytes, report } = await mod.convertToUnbound(new Uint8Array(readFileSync(OOT)));
     expect(report).toMatchObject({ code: 0, error: "", failures: 0 });
-    expect(report.converter).toMatch(/^soh .+ unbound r\d+$/);
+    expect(report.converter).toMatch(/^soh \d+\.\d+\.\d+-unbound/);
     expect(report.scenes).toBeGreaterThan(100);
     const entries = zipIndex(bytes);
     expect(entries.get("unbound.json")).toBeDefined();

@@ -23,7 +23,7 @@
 #include <set>
 #include <unordered_map>
 
-#include "variables.h" // gBuildVersion
+#include "variables.h" // gBuildForkVersion, gBuildVersionMajor
 #include "soh/unbound/SceneDB.h"
 #include "soh/unbound/UnboundJson.h"
 #include "soh/unbound/UnboundSchema.h"
@@ -1057,22 +1057,34 @@ void CopyUntouchedFiles(ExportContext& ctx, std::shared_ptr<Ship::Archive> base)
     }
 }
 
-// Revision of what the converter writes. gBuildVersion names the SoH release, which every Unbound release built
-// on it shares, so it alone cannot tell a base written by an older converter from a current one. Bump this
-// whenever the converter's output changes; every existing base is then converted again (or, standalone in the
-// browser, refused until the ROM is converted again).
-constexpr int kConverterRevision = 1;
-
 } // namespace
 
+// The release that converted a base, recorded for people reading the manifest. Nothing compares it: whether a
+// base is usable is its `baseVersion` (BaseArchiveProblem), so a release that changes nothing a base holds
+// keeps every base made before it.
 std::string ConverterName() {
-    return std::string("soh ") + gBuildVersion + " unbound r" + std::to_string(kConverterRevision);
+    return std::string("soh ") + gBuildForkVersion;
+}
+
+// portVersion is [endianness u8][major u16][minor u16][patch u16].
+PortVersion MountedPortVersion() {
+    auto file = Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager()->LoadFile("portVersion");
+    if (file == nullptr || file->Buffer == nullptr || file->Buffer->size() < 7) {
+        return {};
+    }
+    auto stream = std::make_shared<Ship::MemoryStream>(file->Buffer->data(), file->Buffer->size());
+    auto reader = std::make_shared<Ship::BinaryReader>(stream);
+    reader->SetEndianness((Ship::Endianness)reader->ReadUByte());
+    PortVersion version;
+    version.major = reader->ReadUInt16();
+    version.minor = reader->ReadUInt16();
+    version.patch = reader->ReadUInt16();
+    return version;
 }
 
 namespace {
 
 // Provenance of a conversion: the converter build and every mounted ROM archive (SPEC.md §6 `source`).
-// A base whose provenance differs from the running game is stale and is converted again.
 json CurrentProvenance() {
     auto archives = Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager();
     std::vector<uint32_t> versions = archives->GetGameVersions();
@@ -1096,6 +1108,7 @@ void WriteManifest(ExportContext& ctx) {
     json doc;
     doc[K::kFormatName] = "unbound";
     doc[K::kFormatVersion] = K::kCurrentFormatVersion;
+    doc[K::kBaseVersion] = K::kCurrentBaseVersion;
     doc[K::kGame] = "oot";
     doc[K::kSourceInfo] = CurrentProvenance();
     doc[K::kFeatures] = json::array({ "scenes", K::kCollision, K::kText, K::kPaths });
@@ -1142,21 +1155,58 @@ ExportReport ExportArchive(const std::string& outPath) {
 
 namespace {
 
-// The `source` object of the manifest in the topmost mounted archive that has one.
-json MountedManifestSource() {
+// The manifest of the topmost mounted archive that has one.
+Json MountedManifest() {
     auto file = Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager()->LoadFile(K::kManifestPath);
     if (file == nullptr || file->Buffer == nullptr) {
-        return json::object();
+        return Json::object();
     }
-    json doc = json::parse(file->Buffer->begin(), file->Buffer->end(), nullptr, false, true);
-    return Sub(doc, K::kSourceInfo);
+    return Json::parse(file->Buffer->begin(), file->Buffer->end(), nullptr, false, true);
 }
 
-bool ProvenanceMatches(const json& source, const json& current) {
-    if (PathField(source, K::kConverter) != PathField(current, K::kConverter)) {
-        return false;
+// Why a base with this manifest, holding game files of this SoH major version, cannot be used by this build, or
+// an empty string (SPEC.md §6, §10.1). The converter that wrote it does not matter.
+std::string BaseArchiveProblem(const Json& manifest, int portMajor) {
+    std::string name = kBaseArchiveName;
+    if (!manifest.is_object() || manifest.empty()) {
+        return name + " has no Unbound manifest";
     }
-    return SubArray(source, K::kRomHashes) == SubArray(current, K::kRomHashes);
+    int64_t format = Field(manifest, K::kFormatVersion, K::kCurrentFormatVersion);
+    int64_t required = Field(Sub(manifest, K::kRequires), K::kFormatVersion, format);
+    if (format != K::kCurrentFormatVersion || required != K::kCurrentFormatVersion) {
+        return name + " is Unbound format version " + std::to_string(format) + "; this build reads version " +
+               std::to_string(K::kCurrentFormatVersion);
+    }
+    int64_t base = Field(manifest, K::kBaseVersion, 1); // bases from before the field are version 1
+    if (base != K::kCurrentBaseVersion) {
+        return name + " is base version " + std::to_string(base) + "; this build reads base version " +
+               std::to_string(K::kCurrentBaseVersion);
+    }
+    // The copied game files follow stock SoH's rule for oot.o2r: any archive of the same major version.
+    if (portMajor < 0) {
+        return name + " has no portVersion file";
+    }
+    if (portMajor != gBuildVersionMajor) {
+        return name + " holds game files from SoH " + std::to_string(portMajor) + ".x; this build is SoH " +
+               std::to_string(gBuildVersionMajor) + ".x";
+    }
+    return "";
+}
+
+// Why the base mounted on top cannot stand in for the ROM archives under it, or an empty string. Besides being
+// compatible, it must come from the same ROM archives and the same extraction of them: its copied game files
+// shadow theirs, so a base older than a re-extracted oot.o2r would keep the old files.
+std::string MountedBaseProblem(const Json& current, const PortVersion& romArchive) {
+    Json manifest = MountedManifest();
+    PortVersion base = MountedPortVersion();
+    std::string problem = BaseArchiveProblem(manifest, base.major);
+    if (problem.empty() && SubArray(Sub(manifest, K::kSourceInfo), K::kRomHashes) != SubArray(current, K::kRomHashes)) {
+        problem = std::string(kBaseArchiveName) + " was converted from other ROM archives";
+    }
+    if (problem.empty() && !(base == romArchive)) {
+        problem = std::string(kBaseArchiveName) + " was converted from another extraction of the ROM archives";
+    }
+    return problem;
 }
 
 } // namespace
@@ -1167,17 +1217,19 @@ BaseArchiveState EnsureBaseArchive(const std::string& gameArchiveDir) {
         return BaseArchiveState::None; // no ROM archive: nothing to convert
     }
     std::string path = (std::filesystem::path(gameArchiveDir) / kBaseArchiveName).string();
-    json current = CurrentProvenance();
 
     if (std::filesystem::exists(path)) {
+        PortVersion romArchive = MountedPortVersion(); // read before the base shadows it
+        std::string problem = "it cannot be opened";
         if (archives->AddArchive(path) != nullptr) {
-            if (ProvenanceMatches(MountedManifestSource(), current)) {
-                SPDLOG_INFO("[Unbound] {} is current; mounted", path);
+            problem = MountedBaseProblem(CurrentProvenance(), romArchive);
+            if (problem.empty()) {
+                SPDLOG_INFO("[Unbound] {} is compatible; mounted", path);
                 return BaseArchiveState::Mounted;
             }
             archives->RemoveArchive(path);
         }
-        SPDLOG_INFO("[Unbound] {} was made by another build or from other ROM archives; converting again", path);
+        SPDLOG_INFO("[Unbound] {}: {}; converting again", path, problem);
         std::error_code ec;
         std::filesystem::remove(path, ec);
     } else {
@@ -1198,18 +1250,9 @@ BaseArchiveState EnsureBaseArchive(const std::string& gameArchiveDir) {
 }
 
 std::string CheckStandaloneBaseArchive() {
-    json source = MountedManifestSource();
-    if (source.empty()) {
-        return std::string(kBaseArchiveName) + " has no Unbound manifest; convert the ROM again";
-    }
     // The ROM hashes cannot differ: the running game read them from this archive's own version file.
-    std::string madeBy = PathField(source, K::kConverter);
-    std::string current = PathField(CurrentProvenance(), K::kConverter);
-    if (madeBy != current) {
-        return std::string(kBaseArchiveName) + " was converted by " + madeBy + ", not " + current +
-               "; convert the ROM again";
-    }
-    return "";
+    std::string problem = BaseArchiveProblem(MountedManifest(), MountedPortVersion().major);
+    return problem.empty() ? "" : problem + "; convert the ROM again";
 }
 
 } // namespace SOH::Unbound

@@ -429,8 +429,9 @@ top of it. The folder name for English is `eng` only.
 {
   "format": "unbound",
   "formatVersion": 2,
+  "baseVersion": 1,
   "game": "oot",
-  "source": { "romHash": "0xEC7011B7", "converter": "soh Ackbar Delta (9.2.3) unbound r1" },
+  "source": { "romHash": "0xEC7011B7", "romHashes": ["0xEC7011B7"], "converter": "soh 9.3.0-unbound0.11" },
   "features": ["scenes", "collision", "text", "paths"],
   "requires": { "formatVersion": 2 }
 }
@@ -440,8 +441,9 @@ top of it. The folder name for English is `eng` only.
 |---|---|---|
 | `format` | yes (writer) | the string `"unbound"`; a reader does not interpret it |
 | `formatVersion` | yes (writer) | integer; this document describes version **2**, the only value a reader accepts. An absent value is read as 2. |
+| `baseVersion` | base: yes (writer) | integer; the compatibility version of a converted base (§10.1). A base whose value is not the reader's is not used: the game converts it again, or refuses a standalone base. An absent value is read as 1. Other layers do not carry it. |
 | `game` | no | `"oot"` |
-| `source` | no | provenance of a converted archive; free-form |
+| `source` | no | provenance of a converted archive: `romHashes` (the ROM archives it was converted from), `romHash` (the first of them), `converter` (the release that wrote it). Free-form; `converter` is never compared — a base from another release is used when `baseVersion` matches |
 | `features` | base: yes | list of the document kinds the layer provides. A layer whose `features` contains `"scenes"` is a base archive (§1.3); a layer that does not provide every vanilla scene **must not** list it. |
 | `requires.formatVersion` | no | the minimum reader version the layer needs; default = `formatVersion` |
 
@@ -735,10 +737,13 @@ Limits that remain (validation targets for tools):
   archive fails loudly instead of being misread.
 - A change that makes a valid version-2 archive read differently, or makes a document this text
   calls accepted be rejected, is a breaking change and requires version 3.
+- A change to what the *converter* writes into a base is versioned separately, by `baseVersion`
+  (§10.1); it does not change `formatVersion` unless this text changes.
 - Adding an optional key with a zero default is not breaking and is recorded here under version 2.
   Version-2 additions so far: `sound.song` (§4.2, 2026-09-02); `materialAnims` (§4.2, 2026-09-05);
   `horse` (§7.1, 2026-09-16); scroll-layer `xSpeed`/`ySpeed` (§4.2, 2026-09-17); the actor
   registry `unbound/actors/<name>.json` and actor names in a room actor's `id` (§7.2, §4.3, 2026-09-26);
+  the manifest's `baseVersion` (§6, §10.1, 2026-10-10; absent reads as 1, so every earlier base is version 1);
   `look.turnAxis` and `look.nodAxis` (§7.2, 2026-09-26; a reader without them rejects a type that
   sets them, so they are written only when they differ from the defaults).
   With the registry, a room or transition actor's integer `id` outside 0–`0xFFF` is skipped
@@ -772,3 +777,38 @@ Limits that remain (validation targets for tools):
   `unbound/actors/<name>.json`, named by its path (§7.2), instead of a key of one layer-merged
   `unbound/actors.json`. The single document was never released and is no longer read; types
   register in name order, so `$order` no longer applies to them.
+
+### 10.1 Base version
+
+A converted base (§1.3) is the converter's output plus a copy of every game file the converter
+does not transform. A mod is built against a base, so a base must outlive the release that wrote
+it. Whether it still works is decided by `baseVersion` (§6), not by the release that converted it:
+a reader uses a base whose `formatVersion`, `baseVersion` and SoH major version (its copied
+`portVersion` file, the rule SoH applies to `oot.o2r`) match its own, whichever release wrote it.
+Where the ROM archives are mounted too (desktop), the game also converts the base again when they
+are not the ones it was converted from: other ROM hashes, or the same ROM extracted again (its
+copied `portVersion` differs from theirs). Its copies would otherwise shadow the newer files, and
+converting again loses nothing a mod holds, since mods are separate layers.
+
+`baseVersion` goes up — and only then is every existing base converted again or refused — when a
+base written by the previous converter no longer works with the new reader:
+
+- the reader needs a document or file in the base that the previous converter did not write;
+- the previous converter wrote something the reader now reads differently, so a kept base would
+  play wrongly;
+- `formatVersion` changes.
+
+These are not a bump:
+
+- the converter writes better or additional output that an older base can do without: a
+  conversion fix whose old output still plays, a new optional key;
+- a new SoH release with the same major version (stock SoH keeps `oot.o2r` across those, and a
+  base's copied files are that archive's files);
+- any change to `source`.
+
+Before a release whose converter or vanilla resources changed, diff a base from the previous
+release against a fresh one with `scripts/unbound-base-diff.py` (README › Releasing) and review
+any difference outside the manifest against these lists.
+
+Base version 1: every base written before the field existed (through 9.3.0-unbound0.10, which
+refused bases from other releases by their `converter`) and since.

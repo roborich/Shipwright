@@ -290,5 +290,8 @@ inline constexpr const char* kConverter = "converter";
 inline constexpr const char* kFeatures = "features";
 inline constexpr const char* kRequires = "requires";
 inline constexpr int kCurrentFormatVersion = 2;
+// A converted base's compatibility version (§6, §10.1): bumped only when an older base stops working.
+inline constexpr const char* kBaseVersion = "baseVersion";
+inline constexpr int kCurrentBaseVersion = 1;
 
 } // namespace SOH::Unbound::Schema

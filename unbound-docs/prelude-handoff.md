@@ -6,6 +6,17 @@ let the user build. **The contract is [`SPEC.md`](./SPEC.md)**; every entry belo
 section that defines it, and when this page and SPEC disagree, SPEC wins. Everything in the code
 is tagged `SOH [Unbound]`.
 
+## 2026-10-10 — a base outlives the release that converted it: `baseVersion`
+
+9.3.0-unbound0.10 refused every `oot-unbound.o2r` converted by 0.9 ("was converted by soh … (9.2.3)
+unbound r1, not soh … (9.3.0) unbound r1"), although nothing a base holds had changed: the check
+compared the converter's release name. That check is gone. On `unbound`; ships in the release after 0.10.
+
+| Change | SPEC | Prelude must |
+|---|---|---|
+| A base is used when its `formatVersion`, its new `baseVersion` and its SoH major version match the game's, whichever release converted it. `baseVersion` is absent from every base written so far and reads as 1, so 0.9 and 0.10 bases work again. It goes up only when an older base would no longer play correctly; the release notes say when. | §6, §10.1 | Keep a project's base across Unbound updates. Ask for a new conversion only when the game reports one (the `error` event) or the release notes announce a `baseVersion` bump; never because `source.converter` differs. |
+| `source.converter` is now the Unbound release (`soh 9.3.0-unbound0.11`) and is never compared. The converter's report carries the same string. | §6 | Show it, don't parse it. |
+
 ## 2026-09-28 — custom actor types: one file per type, `unbound/actors/<name>.json`
 
 Asked for by Prelude, which keeps each actor as its own asset and had to rewrite, and track its

@@ -78,7 +78,7 @@ are portable either way; only bulk references inherit the source's naming.
    existing factories, walk the `Scene` command list, emit the SPEC §4 documents with **vanilla
    indices as keys**, write `collision.bin` v2, copy bulk resources under their source names.
 2. Text: dump each language table to `text/<lang>/messages.json` (SPEC §5).
-3. Write `unbound.json` with the source ROM hash and build version (SPEC §6).
+3. Write `unbound.json` with the base version, the source ROM hashes and the release that converted it (SPEC §6).
 4. *(not implemented)* Legacy mod conversion: mount the mod over the base, load each scene it
    overrides, diff the resulting command objects against the base scene's, emit only the
    differing keys.

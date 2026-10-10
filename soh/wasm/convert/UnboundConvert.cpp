@@ -52,19 +52,6 @@ void StartResourceManager(const std::string& sourcePath) {
     SOH_RegisterResourceFactories(sContext->GetResourceManager()->GetResourceLoader());
 }
 
-// portVersion is [endianness u8][major u16][minor u16][patch u16]; the game refuses an archive whose major
-// differs from its own, and a base inherits the file from its source.
-int ReadPortVersionMajor(std::shared_ptr<Ship::ArchiveManager> archives) {
-    auto file = archives->LoadFile("portVersion");
-    if (file == nullptr || file->Buffer == nullptr || file->Buffer->size() < 3) {
-        return -1;
-    }
-    auto stream = std::make_shared<Ship::MemoryStream>(file->Buffer->data(), file->Buffer->size());
-    auto reader = std::make_shared<Ship::BinaryReader>(stream);
-    reader->SetEndianness((Ship::Endianness)reader->ReadUByte());
-    return reader->ReadUInt16();
-}
-
 // Why the mounted source cannot be converted, as a code and a message; kConvertOk when it can.
 ConvertResult CheckSourceArchive() {
     ConvertResult result;
@@ -79,7 +66,7 @@ ConvertResult CheckSourceArchive() {
         result.error = "this is already an Unbound base (oot-unbound.o2r); convert the oot.o2r it came from";
         return result;
     }
-    int major = ReadPortVersionMajor(archives);
+    int major = SOH::Unbound::MountedPortVersion().major;
     if (major != gBuildVersionMajor) {
         result.code = kConvertWrongVersion;
         result.error = "the archive was made by an incompatible version of SoH (port version " + std::to_string(major) +
