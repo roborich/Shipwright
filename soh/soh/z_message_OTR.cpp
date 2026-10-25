@@ -2,6 +2,7 @@
 #include <ship/resource/ResourceManager.h>
 
 #include "soh/resource/type/Text.h"
+#include <spdlog/spdlog.h>
 #include <algorithm>
 
 extern "C" {
@@ -14,6 +15,9 @@ extern "C" MessageTableEntry* sFraMessageEntryTablePtr;
 extern "C" MessageTableEntry* sJpnMessageEntryTablePtr;
 extern "C" MessageTableEntry* sStaffMessageEntryTablePtr;
 // extern "C" MessageTableEntry* _message_0xFFFC_nes;
+
+// Keep message files loaded; the tables point into their strings
+static std::vector<std::shared_ptr<SOH::Text>> sMessageFiles;
 
 static MessageTableEntry* BuildTable(const std::vector<MessageTableEntry>& entries) {
     // OTRTODO: Should not be malloc'ing here. It's fine for now since we check elsewhere that the message table is
@@ -45,25 +49,84 @@ static std::vector<MessageTableEntry> BuildEntries(const std::vector<SOH::Messag
     return entries;
 }
 
-static void ReplaceEntry(std::vector<MessageTableEntry>& entries, const SOH::MessageEntry& msg) {
-    auto existing = std::find_if(entries.begin(), entries.end(),
-                                 [&](const MessageTableEntry& entry) { return entry.textId == msg.id; });
+static void UpsertEntry(std::vector<MessageTableEntry>& entries, const SOH::MessageEntry& msg) {
+    if (msg.id == 0xFFFF) {
+        SPDLOG_WARN("Message override 0xFFFF ends the table and can't be overridden");
+        return;
+    }
 
-    if (existing != entries.end()) {
+    if (msg.msg.size() > SOH::Text::MaxMessageSize) {
+        SPDLOG_WARN("Message override 0x{:04X} is {} bytes, over the {} byte limit", msg.id, msg.msg.size(),
+                    SOH::Text::MaxMessageSize);
+        return;
+    }
+
+    // Lookups stop at the 0xFFFF entry, if the table has one
+    auto end = std::find_if(entries.begin(), entries.end(),
+                            [](const MessageTableEntry& entry) { return entry.textId == 0xFFFF; });
+    auto existing =
+        std::find_if(entries.begin(), end, [&](const MessageTableEntry& entry) { return entry.textId == msg.id; });
+
+    if (existing == end) {
+        entries.insert(end, BuildEntry(msg));
+    } else {
         *existing = BuildEntry(msg);
     }
 }
 
-static void ApplyOverrides(std::vector<MessageTableEntry>& entries, const std::string& folder) {
-    auto resourceManager = Ship::Context::GetRawInstance()->GetResourceManager();
-    auto paths = resourceManager->GetArchiveManager()->ListFiles(folder + "/*");
+static std::vector<std::string> ListOverrideFiles(const std::string& folder) {
+    auto archiveManager = Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager();
+    std::vector<std::string> files;
 
+    // A .meta alias is loaded by its path without the extension
+    auto paths = archiveManager->ListFiles(folder + "/*");
     for (auto& path : *paths) {
-        auto file = std::static_pointer_cast<SOH::Text>(resourceManager->LoadResource(path));
+        files.push_back(path.ends_with(".meta") ? path.substr(0, path.size() - 5) : path);
+    }
+    std::sort(files.begin(), files.end());
+    files.erase(std::unique(files.begin(), files.end()), files.end());
 
-        for (auto& msg : file->messages) {
-            ReplaceEntry(entries, msg);
+    return files;
+}
+
+static std::vector<std::shared_ptr<SOH::Text>> LoadOverrides(const std::string& folder) {
+    auto resourceManager = Ship::Context::GetRawInstance()->GetResourceManager();
+    auto archiveManager = resourceManager->GetArchiveManager();
+    std::vector<std::shared_ptr<SOH::Text>> files;
+    // XML V1 writes single-byte text, but the Japanese table is two-byte
+    bool acceptsXmlV1 = !folder.ends_with("/jpn_message_data_static");
+
+    for (auto& path : ListOverrideFiles(folder)) {
+        auto file = std::dynamic_pointer_cast<SOH::Text>(resourceManager->LoadResource(path));
+
+        if (file == nullptr) {
+            SPDLOG_ERROR("Failed to load message override {}", path);
+            continue;
         }
+
+        if (!acceptsXmlV1 && file->GetInitData()->ResourceVersion != 0) {
+            SPDLOG_WARN("Message override {} is XML V1, which the Japanese table can't use", path);
+            continue;
+        }
+
+        files.push_back(file);
+    }
+
+    // Apply lowest-to-highest resolved archive priority so higher priority wins; keep path order for ties.
+    std::stable_sort(files.begin(), files.end(), [&](const auto& a, const auto& b) {
+        return archiveManager->GetFilePriority(a->GetInitData()->Path) <
+               archiveManager->GetFilePriority(b->GetInitData()->Path);
+    });
+
+    return files;
+}
+
+static void ApplyOverrides(std::vector<MessageTableEntry>& entries, const std::string& folder) {
+    for (auto& file : LoadOverrides(folder)) {
+        for (auto& msg : file->messages) {
+            UpsertEntry(entries, msg);
+        }
+        sMessageFiles.push_back(file);
     }
 }
 
@@ -74,6 +137,7 @@ MessageTableEntry* OTRMessage_LoadTable(const std::string& filePath, bool isNES,
     if (file == nullptr)
         return nullptr;
 
+    sMessageFiles.push_back(file);
     std::vector<MessageTableEntry> entries = BuildEntries(file->messages);
     ApplyOverrides(entries, "override/" + filePath.substr(0, filePath.find_last_of('/')));
 
