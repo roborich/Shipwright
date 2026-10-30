@@ -257,7 +257,7 @@ static std::optional<uint8_t> FontByte(const std::string& c) {
 
     auto extended = std::find(sExtendedChars.begin(), sExtendedChars.end(), c);
     if (extended != sExtendedChars.end()) {
-        return 0x80 + (extended - sExtendedChars.begin());
+        return static_cast<uint8_t>(0x80 + (extended - sExtendedChars.begin()));
     }
 
     return std::nullopt;
